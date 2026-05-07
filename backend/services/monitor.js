@@ -156,7 +156,13 @@ async function checkExpiry() {
                 }
             }
 
-            await server.save();
+            // Use findByIdAndUpdate to avoid version conflict with checkAll
+            const update = {};
+            if (ssl) { update.sslExpiry = ssl.expiry; update.sslDaysLeft = ssl.daysLeft; }
+            if (domain) { update.domainExpiry = domain.expiry; }
+            if (Object.keys(update).length > 0) {
+                await Server.findByIdAndUpdate(server._id, update);
+            }
             console.log(`[Monitor] Expiry — ${server.name} | SSL: ${ssl ? ssl.daysLeft + 'd' : 'N/A'} | Domain: ${domain ? domain.daysLeft + 'd' : 'N/A'}`);
         }
     } catch (err) {
