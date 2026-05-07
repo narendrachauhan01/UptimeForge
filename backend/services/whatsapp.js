@@ -1,7 +1,18 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
+const fs = require('fs');
 
 const SESSION_PATH = '/home/addweb/server-monitor/.ww-session';
+
+// Clear stale Chrome lock files on startup to prevent "browser already running" error
+try {
+    const lockFiles = ['SingletonLock', 'SingletonCookie', 'SingletonSocket'];
+    const sessionDir = `${SESSION_PATH}/session`;
+    lockFiles.forEach(f => {
+        const p = `${sessionDir}/${f}`;
+        if (fs.existsSync(p)) { fs.unlinkSync(p); }
+    });
+} catch (_) {}
 
 // Patch inject() to survive frame detach during WA's QR→main page navigation.
 // The framenavigated handler in Client.js will re-call inject() on the new frame anyway.
