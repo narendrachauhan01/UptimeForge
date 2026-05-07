@@ -1,8 +1,9 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const fs = require('fs');
+const path = require('path');
 
-const SESSION_PATH = '/home/addweb/server-monitor/.ww-session';
+const SESSION_PATH = process.env.WA_SESSION_PATH || path.join(__dirname, '../../.ww-session');
 
 // Clear stale Chrome lock files on startup to prevent "browser already running" error
 try {
