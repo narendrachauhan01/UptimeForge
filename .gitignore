@@ -2,6 +2,7 @@
 .ww-session/
 .ww-temp/
 .wwebjs_cache/
+.wwebjs_auth/
 
 # Environment files
 backend/.env
