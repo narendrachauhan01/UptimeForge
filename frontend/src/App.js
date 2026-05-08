@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Dashboard from './pages/Dashboard';
 import Servers from './pages/Servers';
@@ -33,7 +33,7 @@ function Navbar({ onLogout }) {
 
   return (
     <nav className="navbar">
-      <div className="nav-brand"><div className="nav-logo">SM</div><span>Server Monitor</span></div>
+      <Link to="/charts" className="nav-brand"><div className="nav-logo">SM</div><span>Server Monitor</span></Link>
       <button className="nav-hamburger" onClick={() => setOpen(!open)} aria-label="Menu">
         <span></span><span></span><span></span>
       </button>

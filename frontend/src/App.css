@@ -65,6 +65,8 @@ body {
   letter-spacing: -0.5px;
   display: flex;
   align-items: center;
+  text-decoration: none;
+  cursor: pointer;
   gap: 10px;
 }
 .nav-logo {
@@ -978,6 +980,8 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 /* ══════════════════════════════════════
    HAMBURGER MENU
 ══════════════════════════════════════ */
+.nav-mobile-header { display: none; }
+.nav-close-btn { display: none; }
 .nav-hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 10px; transition: background 0.2s; z-index: 102; }
 .nav-hamburger:hover { background: rgba(255,255,255,0.15); }
 .nav-hamburger span { display: block; width: 22px; height: 2.5px; background: #fff; border-radius: 4px; transition: all 0.3s; }
@@ -1028,16 +1032,17 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   }
   .nav-links.nav-open { right: 0; }
   .nav-mobile-header {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex !important; align-items: center; justify-content: space-between;
     padding: 18px 4px 14px; margin-bottom: 6px;
     border-bottom: 1px solid #f1f5f9;
     position: sticky; top: 0; background: #fff; z-index: 1;
   }
   .nav-mobile-brand { font-family: 'Poppins',sans-serif; font-size: 16px; font-weight: 800; color: #7c3aed; }
   .nav-close-btn {
+    display: flex !important;
     width: 32px; height: 32px; border-radius: 50%;
     background: #f1f5f9; border: none; cursor: pointer;
-    font-size: 16px; color: #475569; display: flex;
+    font-size: 16px; color: #475569;
     align-items: center; justify-content: center;
     transition: all 0.2s;
   }
