@@ -1041,6 +1041,26 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .res-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
 .res-last-seen { font-size: 11px; color: #94a3b8; margin-top: 12px; text-align: right; }
 
+/* Load average */
+.res-info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #f1f5f9; margin-top: 8px; }
+.res-info-label { font-size: 12px; font-weight: 600; color: #64748b; }
+.res-info-val { font-size: 13px; font-weight: 700; color: #0f172a; }
+.res-info-sub { font-size: 11px; color: #94a3b8; font-weight: 400; }
+
+/* Server details grid */
+.res-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+.res-detail { background: #f8fafc; border-radius: 10px; padding: 8px 10px; }
+.res-detail span { font-size: 11px; color: #94a3b8; display: block; margin-bottom: 3px; }
+.res-detail strong { font-size: 12px; color: #0f172a; font-weight: 700; word-break: break-all; }
+
+/* SSH section */
+.res-ssh-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+.res-ssh-title { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 8px; }
+.res-ssh-row { display: flex; gap: 10px; align-items: center; padding: 6px 8px; background: #f8fafc; border-radius: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.res-ssh-user { font-size: 12px; font-weight: 700; color: #7c3aed; min-width: 60px; }
+.res-ssh-ip { font-size: 12px; color: #10b981; font-weight: 600; font-family: monospace; }
+.res-ssh-time { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
 .res-charts-section { background: #fff; border-radius: 20px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 .res-charts-title { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 18px; }
 .res-charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }

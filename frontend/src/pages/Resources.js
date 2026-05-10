@@ -79,6 +79,50 @@ function ServerCard({ server, onSelect, selected }) {
       <UsageBar value={ramPct} color="#10b981" label="RAM Usage" />
       <UsageBar value={diskPct} color="#06b6d4" label="Disk Usage" />
 
+      {/* Swap */}
+      {server.swapTotal > 0 && (
+        <UsageBar value={server.swapTotal ? Math.round((server.swapUsed / server.swapTotal) * 100) : 0}
+          color="#f59e0b" label={`Swap — ${formatBytes(server.swapUsed)} / ${formatBytes(server.swapTotal)}`} />
+      )}
+
+      {/* Load Average */}
+      {server.load1 !== undefined && (
+        <div className="res-info-row">
+          <span className="res-info-label">Load Average</span>
+          <span className="res-info-val">{server.load1} · {server.load5} · {server.load15}
+            <span className="res-info-sub"> (1m · 5m · 15m)</span>
+          </span>
+        </div>
+      )}
+
+      {/* Server Details */}
+      <div className="res-details-grid">
+        {server.cpuCores && <div className="res-detail"><span>🖥 CPU Cores</span><strong>{server.cpuCores} cores ({server.cpuArch})</strong></div>}
+        {server.cpuModel && <div className="res-detail"><span>⚙️ CPU Model</span><strong title={server.cpuModel}>{server.cpuModel.length > 30 ? server.cpuModel.substring(0, 30) + '...' : server.cpuModel}</strong></div>}
+        {server.localIp && <div className="res-detail"><span>🔌 Local IP</span><strong>{server.localIp}</strong></div>}
+        {server.publicIp && <div className="res-detail"><span>🌐 Public IP</span><strong>{server.publicIp}</strong></div>}
+        {server.hostname && <div className="res-detail"><span>💻 Hostname</span><strong>{server.hostname}</strong></div>}
+        <div className="res-detail"><span>⏱ Uptime</span><strong>{formatUptime(server.uptime)}</strong></div>
+        {server.diskTotal > 0 && <div className="res-detail"><span>💾 Disk Free</span><strong style={{color:'#10b981'}}>{formatBytes(server.diskTotal - server.diskUsed)}</strong></div>}
+        {server.diskTotal > 0 && <div className="res-detail"><span>💾 Disk Total</span><strong>{formatBytes(server.diskTotal)}</strong></div>}
+        {server.ramTotal > 0 && <div className="res-detail"><span>🧠 RAM Free</span><strong style={{color:'#10b981'}}>{formatBytes(server.ramTotal - server.ramUsed)}</strong></div>}
+        {server.ramTotal > 0 && <div className="res-detail"><span>🧠 RAM Total</span><strong>{formatBytes(server.ramTotal)}</strong></div>}
+      </div>
+
+      {/* Last SSH */}
+      {server.lastSsh && server.lastSsh.length > 0 && (
+        <div className="res-ssh-section">
+          <div className="res-ssh-title">🔐 Recent SSH Logins</div>
+          {server.lastSsh.map((s, i) => (
+            <div key={i} className="res-ssh-row">
+              <span className="res-ssh-user">{s.user}</span>
+              <span className="res-ssh-ip">{s.ip}</span>
+              <span className="res-ssh-time">{s.time}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="res-last-seen">Last updated: {lastSeen.toLocaleTimeString('en-IN')}</div>
     </div>
   );

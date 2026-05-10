@@ -4,17 +4,27 @@ const serverMetricSchema = new mongoose.Schema({
     serverId: { type: String, required: true },
     serverName: { type: String, required: true },
     hostname: { type: String },
-    cpu: { type: Number },           // percentage 0-100
-    ramUsed: { type: Number },       // bytes
-    ramTotal: { type: Number },      // bytes
-    diskUsed: { type: Number },      // bytes
-    diskTotal: { type: Number },     // bytes
-    uptime: { type: Number },        // seconds
     platform: { type: String },
+    cpu: { type: Number },
+    ramUsed: { type: Number },
+    ramTotal: { type: Number },
+    diskUsed: { type: Number },
+    diskTotal: { type: Number },
+    swapUsed: { type: Number },
+    swapTotal: { type: Number },
+    load1: { type: Number },
+    load5: { type: Number },
+    load15: { type: Number },
+    uptime: { type: Number },
+    cpuCores: { type: Number },
+    cpuModel: { type: String },
+    cpuArch: { type: String },
+    localIp: { type: String },
+    publicIp: { type: String },
+    lastSsh: [{ user: String, ip: String, time: String }],
     timestamp: { type: Date, default: Date.now },
 }, { timestamps: false });
 
-// Keep last 24 hours only (auto cleanup)
 serverMetricSchema.index({ timestamp: 1 }, { expireAfterSeconds: 86400 });
 serverMetricSchema.index({ serverId: 1, timestamp: -1 });
 
