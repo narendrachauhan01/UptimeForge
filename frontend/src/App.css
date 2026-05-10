@@ -524,6 +524,22 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .server-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .server-actions { display: flex; gap: 6px; }
 .icon-btn.resume { background: #dcfce7; border-color: #bbf7d0; }
+
+/* Text action buttons */
+.act-btn {
+  padding: 6px 12px; border-radius: 8px; border: 1.5px solid;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.2s; white-space: nowrap;
+}
+.act-btn.edit { background: #ede9fe; color: #7c3aed; border-color: #c4b5fd; }
+.act-btn.edit:hover { background: #ddd6fe; }
+.act-btn.pause { background: #fef9c3; color: #a16207; border-color: #fde68a; }
+.act-btn.pause:hover { background: #fef08a; }
+.act-btn.resume { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.act-btn.resume:hover { background: #bbf7d0; }
+.act-btn.del { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+.act-btn.del:hover { background: #fecdd3; }
 .meta-txt { font-size: 12px; color: #94a3b8; white-space: nowrap; }
 
 /* Pills */

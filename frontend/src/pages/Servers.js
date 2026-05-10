@@ -131,9 +131,9 @@ export default function Servers() {
                       {s.responseTime && <span className="meta-txt">⚡ {s.responseTime}ms</span>}
                     </div>
                     <div className="server-actions">
-                      <button className="icon-btn edit" onClick={() => startEdit(s)} title="Edit">✏️</button>
-                      <button className={`icon-btn ${!s.active ? 'resume' : ''}`} onClick={() => toggleActive(s)} title={s.active ? 'Pause' : 'Resume'}>{s.active ? '⏸' : '▶️'}</button>
-                      <button className="icon-btn del" onClick={() => handleDelete(s._id, s.name)} title="Delete">🗑</button>
+                      <button className="act-btn edit" onClick={() => startEdit(s)}>Edit</button>
+                      <button className={`act-btn ${s.active ? 'pause' : 'resume'}`} onClick={() => toggleActive(s)}>{s.active ? 'Pause' : 'Resume'}</button>
+                      <button className="act-btn del" onClick={() => handleDelete(s._id, s.name)}>Delete</button>
                     </div>
                   </div>
                 </div>
