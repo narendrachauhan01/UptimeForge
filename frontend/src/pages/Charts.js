@@ -84,11 +84,11 @@ export default function Charts() {
   };
 
   return (
-    <div>
-      <div className="page-header">
+    <div className="pg-wrap">
+      <div className="pg-header">
         <div>
-          <h1 className="page-title">Analytics</h1>
-          <p className="page-subtitle">Response time, uptime and alert trends</p>
+          <h1 className="pg-title">Analytics</h1>
+          <p className="pg-sub">Response time, uptime and alert trends</p>
         </div>
       </div>
 

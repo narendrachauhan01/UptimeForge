@@ -58,11 +58,11 @@ export default function Dashboard() {
 
 
   return (
-    <div className="page-dashboard">
-      <div className="page-header">
+    <div className="pg-wrap">
+      <div className="pg-header">
         <div>
-          <h1 className="page-title">Dashboard</h1>
-          {lastUpdated && <p className="page-subtitle">Last updated: {lastUpdated.toLocaleTimeString('en-IN')}</p>}
+          <h1 className="pg-title">Dashboard</h1>
+          {lastUpdated && <p className="pg-sub">Last updated: {lastUpdated.toLocaleTimeString('en-IN')}</p>}
         </div>
         <button className={`btn-refresh ${checking ? 'checking' : ''}`} onClick={handleCheckNow} disabled={checking}>
           {checking ? 'Checking...' : 'Check Now'}

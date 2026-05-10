@@ -29,8 +29,13 @@ export default function WhatsAppPage() {
   };
 
   return (
-    <div>
-      <h2>WhatsApp Sender</h2>
+    <div className="pg-wrap">
+      <div className="pg-header">
+        <div>
+          <h1 className="pg-title">WhatsApp Sender</h1>
+          <p className="pg-sub">Connect WhatsApp to send site down alerts</p>
+        </div>
+      </div>
 
       <div className={`wa-status wa-${status}`}>
         <span style={{fontSize:20}}>

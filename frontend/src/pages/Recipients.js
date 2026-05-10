@@ -110,11 +110,11 @@ export default function Recipients() {
   };
 
   return (
-    <div className="page-recipients">
-      <div className="page-header">
+    <div className="pg-wrap">
+      <div className="pg-header">
         <div>
-          <h1 className="page-title">Alert Recipients</h1>
-          <p className="page-subtitle">People who will receive WhatsApp alerts when a site goes down</p>
+          <h1 className="pg-title">Alert Recipients</h1>
+          <p className="pg-sub">People who will receive WhatsApp alerts when a site goes down</p>
         </div>
         <div className="recipient-count">
           <span>{recipients.filter(r => r.active).length}</span> active

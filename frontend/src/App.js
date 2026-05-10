@@ -33,7 +33,7 @@ function Navbar({ onLogout }) {
 
   return (
     <nav className="navbar">
-      <Link to="/charts" className="nav-brand"><div className="nav-logo">SM</div><span>Server Monitor</span></Link>
+      <Link to="/charts" className="nav-brand"><div className="nav-logo">SM</div><span>Uptime Server Monitor</span></Link>
       <button className="nav-hamburger" onClick={() => setOpen(!open)} aria-label="Menu">
         <span></span><span></span><span></span>
       </button>

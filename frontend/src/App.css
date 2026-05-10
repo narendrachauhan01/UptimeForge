@@ -117,22 +117,25 @@ body {
 .content { padding: 32px 28px; max-width: 1280px; margin: 0 auto; width: 100%; flex: 1; }
 
 /* ══════════════════════════════════════
-   PAGE HEADER
+   PAGE HEADER — unified (pg-* and page-* both work)
 ══════════════════════════════════════ */
-.page-header {
+.page-header, .pg-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.page-title {
+.page-title, .pg-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
 }
-.page-subtitle { font-size: 14px; color: #94a3b8; margin-top: 5px; }
+.page-subtitle, .pg-sub { font-size: 14px; color: #94a3b8; margin-top: 4px; font-weight: 500; }
 
 /* ══════════════════════════════════════
    DASHBOARD STATS
@@ -1081,9 +1084,9 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .content { padding: 14px 12px; }
 
   /* Page Header */
-  .page-header { flex-direction: column; gap: 10px; align-items: flex-start; margin-bottom: 18px; }
-  .page-title { font-size: 20px; }
-  .page-subtitle { font-size: 13px; }
+  .page-header, .pg-header { flex-direction: column; gap: 10px; align-items: flex-start; margin-bottom: 18px; }
+  .page-title, .pg-title { font-size: 20px; }
+  .page-subtitle, .pg-sub { font-size: 13px; }
 
   /* Stats */
   .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -1243,7 +1246,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .nav-logo { width: 26px; height: 26px; font-size: 10px; }
   .pg-title { font-size: 18px; }
   .pg-sub { font-size: 12px; }
-  .page-title { font-size: 18px; }
+  .page-title, .pg-title { font-size: 18px; }
   .site-name { font-size: 15px; }
   .site-card { padding: 16px; }
   .site-meta { gap: 10px; }
