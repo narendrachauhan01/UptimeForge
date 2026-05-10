@@ -117,20 +117,24 @@ export default function Servers() {
             {filtered.map(s => (
               <React.Fragment key={s._id}>
                 <div className="server-row">
-                  <div className="server-status-dot" style={{ background: statusColor[s.status] || '#94a3b8' }} />
-                  <div className="server-info">
-                    <div className="server-name">{s.name}</div>
-                    <div className="server-url">{s.url}</div>
+                  <div className="server-row-left">
+                    <div className="server-status-dot" style={{ background: statusColor[s.status] || '#94a3b8' }} />
+                    <div className="server-info">
+                      <div className="server-name">{s.name}</div>
+                      <div className="server-url">{s.url}</div>
+                    </div>
                   </div>
-                  <div className="server-meta">
-                    <span className={`pill pill-${s.status}`}>{s.status === 'up' ? 'Online' : s.status === 'down' ? 'Offline' : 'Unknown'}</span>
-                    <span className="meta-txt">{s.checkInterval}s interval</span>
-                    {s.responseTime && <span className="meta-txt">⚡ {s.responseTime}ms</span>}
-                  </div>
-                  <div className="server-actions">
-                    <button className="icon-btn edit" onClick={() => startEdit(s)} title="Edit">✏️</button>
-                    <button className="icon-btn" onClick={() => toggleActive(s)} title={s.active ? 'Pause' : 'Resume'}>{s.active ? '⏸' : '▶️'}</button>
-                    <button className="icon-btn del" onClick={() => handleDelete(s._id, s.name)} title="Delete">🗑</button>
+                  <div className="server-row-right">
+                    <div className="server-meta">
+                      <span className={`pill pill-${s.status}`}>{s.status === 'up' ? 'Online' : s.status === 'down' ? 'Offline' : 'Unknown'}</span>
+                      <span className="meta-txt">{s.checkInterval}s</span>
+                      {s.responseTime && <span className="meta-txt">⚡ {s.responseTime}ms</span>}
+                    </div>
+                    <div className="server-actions">
+                      <button className="icon-btn edit" onClick={() => startEdit(s)} title="Edit">✏️</button>
+                      <button className={`icon-btn ${!s.active ? 'resume' : ''}`} onClick={() => toggleActive(s)} title={s.active ? 'Pause' : 'Resume'}>{s.active ? '⏸' : '▶️'}</button>
+                      <button className="icon-btn del" onClick={() => handleDelete(s._id, s.name)} title="Delete">🗑</button>
+                    </div>
                   </div>
                 </div>
                 {editId === s._id && (

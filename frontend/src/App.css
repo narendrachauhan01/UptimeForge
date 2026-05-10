@@ -509,18 +509,21 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 
 /* Server row */
 .server-row {
-  display: flex; align-items: center; gap: 14px;
-  padding: 16px 20px; border-bottom: 1px solid #f8fafc;
-  transition: background 0.15s;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 16px 20px; border-bottom: 1px solid #f8fafc;
+  transition: background 0.15s; flex-wrap: wrap;
 }
 .server-row:last-child { border-bottom: none; }
 .server-row:hover { background: #faf9ff; }
+.server-row-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.server-row-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
 .server-status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .server-info { flex: 1; min-width: 0; }
 .server-name { font-size: 15px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .server-url { font-size: 12px; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.server-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
-.server-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.server-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.server-actions { display: flex; gap: 6px; }
+.icon-btn.resume { background: #dcfce7; border-color: #bbf7d0; }
 .meta-txt { font-size: 12px; color: #94a3b8; white-space: nowrap; }
 
 /* Pills */
@@ -1187,9 +1190,11 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .pg-title { font-size: 20px; }
   .form-grid { flex-direction: column; gap: 10px; }
   .form-grid .form-group { min-width: unset; width: 100%; max-width: unset !important; }
-  .server-row { flex-wrap: wrap; gap: 10px; padding: 14px; }
-  .server-meta { width: 100%; }
-  .server-actions { width: 100%; justify-content: flex-end; }
+  .server-row { padding: 12px 14px; gap: 8px; }
+  .server-row-left { flex: 1; min-width: 0; }
+  .server-row-right { width: 100%; justify-content: space-between; }
+  .server-meta { flex: 1; flex-wrap: wrap; gap: 6px; }
+  .server-actions { flex-shrink: 0; }
   .alert-row { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
   .alert-meta { align-items: flex-start; width: 100%; flex-direction: row; gap: 10px; }
   .filter-pills { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; width: 100%; }
