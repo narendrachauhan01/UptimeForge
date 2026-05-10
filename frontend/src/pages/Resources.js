@@ -86,7 +86,7 @@ export default function Resources() {
         ram: pct(h.ramUsed, h.ramTotal),
         disk: pct(h.diskUsed, h.diskTotal),
       })));
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   useEffect(() => {
@@ -275,47 +275,155 @@ export default function Resources() {
                 </InfoBox>
 
                 {/* Who is Logged In - w command */}
-                {s.activeSessions && (
-                  <div className="res-info-box res-w-box">
-                    <div className="res-info-box-header" style={{ borderLeft: '3px solid #10b981' }}>
-                      <span>👥</span>
-                      <span className="res-info-box-title">Who is Logged SSH</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, color: '#10b981', fontWeight: 700 }}>
-                        {s.activeSessions.length} user{s.activeSessions.length !== 1 ? 's' : ''} online
-                      </span>
-                    </div>
-                    <div className="res-w-table-wrap">
-                      {s.activeSessions.length === 0 ? (
-                        <div style={{ padding: '14px 16px', color: '#94a3b8', fontSize: 13 }}>🔴 No active sessions</div>
-                      ) : (
-                        <table className="res-w-table">
-                          <thead>
-                            <tr>
-                              <th>USER</th>
-                              <th>TTY</th>
-                              <th>FROM</th>
-                              <th>LOGIN</th>
-                              <th>IDLE</th>
-                              <th>WHAT</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {s.activeSessions.map((u, i) => (
-                              <tr key={i}>
-                                <td><strong style={{ color: '#7c3aed' }}>{u.user}</strong></td>
-                                <td style={{ color: '#94a3b8' }}>{u.tty}</td>
-                                <td><span style={{ fontFamily: 'monospace', color: '#10b981', fontSize: 12 }}>{u.from !== '-' ? u.from : '—'}</span></td>
-                                <td style={{ color: '#475569' }}>{u.loginTime}</td>
-                                <td style={{ color: u.idle === '0.00s' || u.idle?.includes('s') ? '#10b981' : '#f59e0b' }}>{u.idle}</td>
-                                <td style={{ color: '#64748b', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 11 }} title={u.what}>{u.what || '—'}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
+              </div>
+
+              {/* Active SSH Sessions */}
+              {s.activeSessions && (
+                <div
+                  className="res-info-box"
+                  style={{
+                    marginTop: 24,
+                    marginBottom: 40,
+                    borderRadius: 24,
+                    overflow: 'hidden',
+                    background: '#fff',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                    width: '100%'
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: '20px 28px',
+                      borderBottom: '1px solid #f1f5f9',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 24,
+                        marginRight: 12
+                      }}
+                    >
+                      👥
+                    </span>
+
+                    <h1
+                      style={{
+                        margin: 0,
+                        fontSize: 16,
+                        fontWeight: 800,
+                        color: '#0f172a',
+                        letterSpacing: '-0.5px'
+                      }}
+                    >
+                      Active SSH Sessions
+                    </h1>
+
+                    <div
+                      style={{
+                        marginLeft: 'auto',
+                        color: '#10b981',
+                        fontWeight: 700,
+                        fontSize: 18
+                      }}
+                    >
+                      {s.activeSessions.length} online
                     </div>
                   </div>
-                )}
+
+                  <div
+                    style={{
+                      overflowX: 'auto'
+                    }}
+                  >
+                    <table
+                      style={{
+                        width: '100%',
+                        borderCollapse: 'collapse'
+                      }}
+                    >
+                      <thead>
+                        <tr
+                          style={{
+                            background: '#f8fafc'
+                          }}
+                        >
+                          <th style={{ padding: 16 }}>USER</th>
+                          <th style={{ padding: 16 }}>TTY</th>
+                          <th style={{ padding: 16 }}>IP ADDRESS</th>
+                          <th style={{ padding: 16 }}>LOGIN</th>
+                          <th style={{ padding: 16 }}>IDLE</th>
+                          <th style={{ padding: 16 }}>COMMAND</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {s.activeSessions.map((u, i) => (
+                          <tr
+                            key={i}
+                            style={{
+                              borderTop: '1px solid #f1f5f9'
+                            }}
+                          >
+                            <td
+                              style={{
+                                padding: 16,
+                                color: '#7c3aed',
+                                fontWeight: 700
+                              }}
+                            >
+                              {u.user}
+                            </td>
+
+                            <td style={{ padding: 16 }}>
+                              {u.tty}
+                            </td>
+
+                            <td
+                              style={{
+                                padding: 12,
+                                color: '#10b981',
+                                fontFamily: 'monospace'
+                              }}
+                            >
+                              {u.from}
+                            </td>
+
+                            <td style={{ padding: 16 }}>
+                              {u.loginTime}
+                            </td>
+
+                            <td
+                              style={{
+                                padding: 12,
+                                color: '#f59e0b'
+                              }}
+                            >
+                              {u.idle}
+                            </td>
+
+                            <td
+                              style={{
+                                padding: 16,
+                                fontFamily: 'monospace',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {u.what}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              <div className="res-chart-section">
+
+                {/* Charts Start */}
 
                 <InfoBox icon="🔐" title="SSH Active Sessions" accent="#ef4444">
                   {s.activeSessions && s.activeSessions.length > 0 ? (
@@ -330,7 +438,7 @@ export default function Resources() {
                       ))}
                       {s.lastSsh && s.lastSsh.filter(l => !l.active).length > 0 && (
                         <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Sessions</div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: '#94a3b8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Sessions</div>
                           {s.lastSsh.filter(l => !l.active).slice(0, 3).map((l, i) => (
                             <div key={i} className="res-ssh-entry">
                               <span className="res-ssh-user">{l.user}</span>
@@ -343,7 +451,7 @@ export default function Resources() {
                       )}
                     </>
                   ) : (
-                    <div style={{ color: '#94a3b8', fontSize: 13, padding: '8px 0' }}>
+                    <div style={{ color: '#94a3b8', fontSize: 18, padding: '8px 0' }}>
                       🔴 No active sessions
                       {s.lastSsh && s.lastSsh.length > 0 && (
                         <div style={{ marginTop: 10 }}>
@@ -361,6 +469,7 @@ export default function Resources() {
                   )}
                 </InfoBox>
               </div>
+              <div><br></br></div>
 
               {/* History Charts */}
               {history.length > 0 && (
