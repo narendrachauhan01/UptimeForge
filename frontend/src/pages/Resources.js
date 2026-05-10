@@ -275,7 +275,7 @@ export default function Resources() {
                 </InfoBox>
 
                 {/* Active Sessions (w command) */}
-                <InfoBox icon="🔐" title="Active Sessions" accent="#ef4444">
+                <InfoBox icon="🔐" title="Who is Logged In (SSH)" accent="#ef4444">
                   {s.activeSessions && s.activeSessions.length > 0 ? (
                     <>
                       {s.activeSessions.map((l, i) => (
