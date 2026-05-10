@@ -25,7 +25,7 @@ const serverMetricSchema = new mongoose.Schema({
     users: { type: Number },
     uptimeStr: { type: String },
     networkRoutes: [{ network: String, dev: String, src: String, via: String, isDefault: Boolean }],
-    lastSsh: [{ user: String, ip: String, time: String }],
+    lastSsh: [{ user: String, ip: String, time: String, active: Boolean }],
     timestamp: { type: Date, default: Date.now },
 }, { timestamps: false });
 

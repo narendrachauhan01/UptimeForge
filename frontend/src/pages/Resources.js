@@ -280,8 +280,11 @@ export default function Resources() {
                     s.lastSsh.map((l, i) => (
                       <div key={i} className="res-ssh-entry">
                         <span className="res-ssh-user">{l.user}</span>
-                        <span className="res-ssh-ip" style={{ fontFamily: 'monospace' }}>{l.ip}</span>
+                        <span className="res-ssh-ip">{l.ip}</span>
                         <span className="res-ssh-time">{l.time}</span>
+                        <span className={`res-ssh-status ${l.active ? 'active' : ''}`}>
+                          {l.active ? '🟢 Active' : '⚫ Ended'}
+                        </span>
                       </div>
                     ))
                   ) : (
