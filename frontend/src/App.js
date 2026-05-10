@@ -9,6 +9,7 @@ import Alerts from './pages/Alerts';
 import DomainSSL from './pages/DomainSSL';
 import Charts from './pages/Charts';
 import EmailPage from './pages/Email';
+import Resources from './pages/Resources';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import { API_URL } from './api';
@@ -26,6 +27,7 @@ function Navbar({ onLogout }) {
     { to: '/servers', label: 'Servers' },
     { to: '/recipients', label: 'Recipients' },
     { to: '/alerts', label: 'Alerts' },
+    { to: '/server-resources', label: 'Server Resources' },
     { to: '/domain-ssl', label: 'Domain & SSL' },
     { to: '/email', label: 'Email' },
     { to: '/whatsapp', label: 'WhatsApp' },
@@ -126,6 +128,7 @@ function AppInner() {
           <Route path="/servers" element={<Servers />} />
           <Route path="/recipients" element={<Recipients />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/server-resources" element={<Resources />} />
           <Route path="/domain-ssl" element={<DomainSSL />} />
           <Route path="/charts" element={<Charts />} />
           <Route path="/email" element={<EmailPage />} />
