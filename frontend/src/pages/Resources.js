@@ -274,21 +274,48 @@ export default function Resources() {
                   )}
                 </InfoBox>
 
-                {/* SSH */}
-                <InfoBox icon="🔐" title="SSH Logins" accent="#ef4444">
-                  {s.lastSsh && s.lastSsh.length > 0 ? (
-                    s.lastSsh.map((l, i) => (
-                      <div key={i} className="res-ssh-entry">
-                        <span className="res-ssh-user">{l.user}</span>
-                        <span className="res-ssh-ip">{l.ip}</span>
-                        <span className="res-ssh-time">{l.time}</span>
-                        <span className={`res-ssh-status ${l.active ? 'active' : ''}`}>
-                          {l.active ? '🟢 Active' : '⚫ Ended'}
-                        </span>
-                      </div>
-                    ))
+                {/* Active Sessions (w command) */}
+                <InfoBox icon="🔐" title="Active Sessions" accent="#ef4444">
+                  {s.activeSessions && s.activeSessions.length > 0 ? (
+                    <>
+                      {s.activeSessions.map((l, i) => (
+                        <div key={i} className="res-ssh-entry">
+                          <span className="res-ssh-user">{l.user}</span>
+                          <span className="res-ssh-ip">{l.from !== '-' ? l.from : l.tty}</span>
+                          <span className="res-ssh-time">Login: {l.loginTime} · Idle: {l.idle}</span>
+                          <span className="res-ssh-status active">🟢 Connected</span>
+                        </div>
+                      ))}
+                      {s.lastSsh && s.lastSsh.filter(l => !l.active).length > 0 && (
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Sessions</div>
+                          {s.lastSsh.filter(l => !l.active).slice(0, 3).map((l, i) => (
+                            <div key={i} className="res-ssh-entry">
+                              <span className="res-ssh-user">{l.user}</span>
+                              <span className="res-ssh-ip">{l.ip}</span>
+                              <span className="res-ssh-time">{l.time}</span>
+                              <span className="res-ssh-status">⚫ Ended</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <div style={{ color: '#94a3b8', fontSize: 13 }}>No SSH history available</div>
+                    <div style={{ color: '#94a3b8', fontSize: 13, padding: '8px 0' }}>
+                      🔴 No active sessions
+                      {s.lastSsh && s.lastSsh.length > 0 && (
+                        <div style={{ marginTop: 10 }}>
+                          {s.lastSsh.slice(0, 3).map((l, i) => (
+                            <div key={i} className="res-ssh-entry">
+                              <span className="res-ssh-user">{l.user}</span>
+                              <span className="res-ssh-ip">{l.ip}</span>
+                              <span className="res-ssh-time">{l.time}</span>
+                              <span className={`res-ssh-status ${l.active ? 'active' : ''}`}>{l.active ? '🟢 Active' : '⚫ Ended'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </InfoBox>
               </div>

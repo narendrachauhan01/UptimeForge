@@ -17,7 +17,7 @@ router.post('/', authAgent, async (req, res) => {
                 ramUsed, ramTotal, diskUsed, diskTotal,
                 swapUsed, swapTotal, load1, load5, load15,
                 uptime, uptimeStr, users, cpuCores, cpuModel, cpuArch, cpuTemp,
-                localIp, publicIp, networkRoutes, lastSsh } = req.body;
+                localIp, publicIp, networkRoutes, activeSessions, lastSsh } = req.body;
         if (!serverId || !serverName) return res.status(400).json({ error: 'serverId and serverName required' });
 
         await ServerMetric.create({
@@ -25,7 +25,7 @@ router.post('/', authAgent, async (req, res) => {
             ramUsed, ramTotal, diskUsed, diskTotal,
             swapUsed, swapTotal, load1, load5, load15,
             uptime, uptimeStr, users, cpuCores, cpuModel, cpuArch,
-            localIp, publicIp, networkRoutes, lastSsh,
+            localIp, publicIp, networkRoutes, activeSessions, lastSsh,
         });
         res.json({ success: true });
     } catch (e) {
