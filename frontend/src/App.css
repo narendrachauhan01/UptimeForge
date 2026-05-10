@@ -250,7 +250,7 @@ body {
 .meta-item { font-size: 12px; color: #94a3b8; font-weight: 500; }
 
 .expiry-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
-.expiry-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px; flex: 1; min-width: 130px; text-align: center; transition: all 0.2s; }
+.expiry-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px; flex: 1; min-width: 100px; text-align: center; transition: all 0.2s; }
 .expiry-ok { background: linear-gradient(135deg,rgba(16,185,129,0.1),rgba(52,211,153,0.06)); color: #10b981; border: 1px solid rgba(16,185,129,0.15); }
 .expiry-warn { background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid rgba(245,158,11,0.2); }
 .expiry-critical { background: rgba(239,68,68,0.1); color: #dc2626; border: 1px solid rgba(239,68,68,0.2); animation: blink 2s infinite; }
@@ -1203,27 +1203,72 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 }
 
 /* ══════════════════════════════════════
+   RESPONSIVE — 640px (Large phones / small tablets)
+══════════════════════════════════════ */
+@media (max-width: 640px) {
+  .expiry-badge { min-width: unset; width: 100%; }
+  .search-wrap { min-width: unset; }
+  .add-field { min-width: unset; width: 100%; }
+  .add-form-row { gap: 10px; }
+  .ssl-cards-grid { grid-template-columns: 1fr; }
+  .email-grid { grid-template-columns: 1fr; }
+  .form-grid { flex-direction: column; gap: 10px; }
+  .form-grid .form-group { min-width: unset; width: 100%; max-width: 100% !important; }
+  .server-row { padding: 12px; }
+  .alert-row { padding: 12px; }
+}
+
+/* ══════════════════════════════════════
    RESPONSIVE — SMALL MOBILE (max 480px)
 ══════════════════════════════════════ */
 @media (max-width: 480px) {
-  .content { padding: 12px 10px; }
+  .content { padding: 10px 8px; }
   .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-box { padding: 12px 10px; gap: 10px; }
-  .stat-value { font-size: 22px; }
-  .stat-icon { font-size: 22px; }
+  .stat-box { padding: 10px 8px; gap: 8px; }
+  .stat-value { font-size: 20px; }
+  .stat-icon { font-size: 20px; }
   .chart-overview-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .nav-brand { font-size: 14px; }
+  .chart-stat-value { font-size: 20px; }
+  .nav-brand { font-size: 13px; gap: 6px; }
   .nav-logo { width: 26px; height: 26px; font-size: 10px; }
+  .pg-title { font-size: 18px; }
+  .pg-sub { font-size: 12px; }
   .page-title { font-size: 18px; }
   .site-name { font-size: 15px; }
-  .modal-box { padding: 18px 14px; }
-  .recipient-avatar { width: 40px; height: 40px; font-size: 16px; border-radius: 10px; }
+  .site-card { padding: 16px; }
+  .site-meta { gap: 10px; }
+  .expiry-row { gap: 6px; }
+  .modal-box { padding: 16px 12px; }
+  .modal-expiry-grid { gap: 8px; }
+  .recipient-avatar { width: 38px; height: 38px; font-size: 15px; border-radius: 10px; }
   .recipient-name { font-size: 14px; }
   .recipient-phone { font-size: 12px; }
-  .btn-action { padding: 6px 10px; font-size: 12px; }
-  .login-popup { padding: 22px 16px; margin: 0 8px; }
-  .login-title { font-size: 20px; }
-  .logout-popup { padding: 24px 18px; }
-  .chart-stat-value { font-size: 22px; }
-  .add-recipient-card { padding: 14px 12px; }
+  .recipient-item { padding: 12px; gap: 8px; }
+  .icon-btn { width: 30px; height: 30px; font-size: 13px; }
+  .btn-action { padding: 5px 8px; font-size: 11px; }
+  .login-popup { padding: 20px 14px; }
+  .login-title { font-size: 19px; }
+  .login-logo-icon { width: 48px; height: 48px; }
+  .logout-popup { padding: 20px 16px; }
+  .add-recipient-card { padding: 12px 10px; }
+  .qr-box { padding: 20px 12px; }
+  .qr-box img { max-width: 200px; }
+  .qr-box p { font-size: 13px; }
+  .site-chips { gap: 6px; }
+  .site-chip { padding: 6px 12px; font-size: 13px; }
+  .filter-pill { padding: 6px 10px; font-size: 11px; }
+  .btn-primary-pill { padding: 9px 16px; font-size: 13px; }
+  .btn-submit { padding: 10px 18px; font-size: 13px; }
+  .email-card { padding: 14px; }
+  .setup-step { padding: 10px; gap: 10px; }
+  .step-num-badge { width: 26px; height: 26px; font-size: 12px; }
+  .step-title-txt { font-size: 13px; }
+  .step-code { font-size: 10px; padding: 8px 10px; }
+  .ssl-site-card { border-radius: 14px; }
+  .ssl-val { font-size: 16px; }
+  .server-name { font-size: 14px; }
+  .server-url { font-size: 11px; }
+  table { min-width: 480px; }
+  th { padding: 8px; font-size: 9px; }
+  td { padding: 9px 8px; font-size: 12px; }
 }
