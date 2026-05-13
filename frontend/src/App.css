@@ -1195,16 +1195,23 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   }
   .nav-close-btn:hover { background: #fee2e2; color: #ef4444; }
   .nav-links a {
-    padding: 12px 14px; border-radius: 12px;
-    font-size: 14px; font-weight: 600; color: #475569;
-    text-decoration: none; display: block;
-    transition: all 0.15s;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    text-decoration: none !important;
+    display: block !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    -webkit-text-fill-color: #1e293b !important;
   }
-  .nav-links a:hover { background: #f5f3ff; color: #7c3aed; }
+  .nav-links a:hover { background: #f1f5f9 !important; color: #7c3aed !important; -webkit-text-fill-color: #7c3aed !important; }
   .nav-links a.active {
     background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
     color: #fff !important;
-    box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+    -webkit-text-fill-color: #fff !important;
+    box-shadow: 0 3px 10px rgba(124,58,237,0.3) !important;
   }
   .nav-logout {
     color: #ef4444; background: #fff1f2;
