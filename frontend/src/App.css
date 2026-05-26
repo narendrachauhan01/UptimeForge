@@ -2193,7 +2193,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   text-decoration:none; transition:all 0.2s; backdrop-filter:blur(10px);
 }
 .lp-btn-outline:hover { background:rgba(255,255,255,0.18); }
-.lp-hero-trust { display:flex; gap:20px; flex-wrap:wrap; }
+.lp-hero-trust { display:flex; gap:20px; flex-wrap:wrap; padding-bottom:48px; }
 .lp-trust-item { display:flex; align-items:center; gap:6px; font-size:13px; color:rgba(255,255,255,0.6); }
 .lp-trust-check { color:#a78bfa; font-weight:700; font-size:14px; }
 
