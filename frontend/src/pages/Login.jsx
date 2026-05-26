@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { API_URL, loginUser, googleAuth } from '../api';
+import { API_URL, loginUser, googleAuth, forgotPassword } from '../api';
 import Toast from '../components/Toast';
 import UWLogo from '../components/UWLogo';
 
@@ -24,6 +24,8 @@ export default function Login({ onLogin }) {
   const [showPass, setShowPass] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
   const [toast, setToast] = useState(null);
   const [gLoading, setGLoading] = useState(false);
   const googleBtnRef = useRef(null);
@@ -51,6 +53,19 @@ export default function Login({ onLogin }) {
     if (!window.google) { setError('Google Sign-In script not loaded'); return; }
     window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
     window.google.accounts.id.prompt();
+  };
+
+  const handleUserForgot = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+    setForgotLoading(true);
+    try {
+      await forgotPassword({ email: forgotEmail });
+      setForgotSent(true);
+    } catch (e) {
+      setToast({ message: e.response?.data?.error || 'Failed to send reset email', type: 'error' });
+    }
+    setForgotLoading(false);
   };
 
   const handleForgot = async () => {
@@ -226,6 +241,29 @@ export default function Login({ onLogin }) {
                 <span>Don't have an account?</span>
                 <Link to="/register">Create one free</Link>
               </div>
+              <div style={{textAlign:'center'}}>
+                <button type="button" className="login-forgot" onClick={() => { setShowForgot(!showForgot); setForgotSent(false); setForgotEmail(''); }}>
+                  Forgot password?
+                </button>
+              </div>
+              {showForgot && !forgotSent && (
+                <form onSubmit={handleUserForgot} className="login-forgot-form">
+                  <input
+                    className="login-input"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    autoFocus
+                  />
+                  <button className="login-submit" type="submit" disabled={forgotLoading} style={{marginTop:8}}>
+                    {forgotLoading ? <><span className="login-spinner" /> Sending...</> : 'Send Reset Link'}
+                  </button>
+                </form>
+              )}
+              {forgotSent && (
+                <div className="login-forgot-sent">✓ Reset link sent! Check your email.</div>
+              )}
 
               <div className="login-divider"><span>or</span></div>
               <button type="button" className="google-signin-btn" onClick={handleGoogleClick} disabled={gLoading}>

@@ -1,92 +1,112 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { API_URL } from '../api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { resetPassword } from '../api';
+import UWLogo from '../components/UWLogo';
+
+const EyeOpen = () => (
+  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+const EyeClosed = () => (
+  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/>
+  </svg>
+);
 
 export default function ResetPassword() {
-  const [form, setForm] = useState({ password: '', confirm: '' });
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [showPass, setShowPass] = useState(false);
+  const [params] = useSearchParams();
   const navigate = useNavigate();
-  const token = new URLSearchParams(window.location.search).get('token');
+  const token = params.get('token');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.password || form.password.length < 6) {
-      setResult({ success: false, msg: 'Password must be at least 6 characters' }); return;
-    }
-    if (form.password !== form.confirm) {
-      setResult({ success: false, msg: 'Passwords do not match' }); return;
-    }
+    setError('');
+    if (newPassword.length < 6) return setError('Password must be at least 6 characters');
+    if (newPassword !== confirm) return setError('Passwords do not match');
     setLoading(true);
     try {
-      await axios.post(`${API_URL}/api/auth/reset-password`, { token, password: form.password });
-      setResult({ success: true, msg: 'Password updated! Redirecting to login...' });
-      setTimeout(() => navigate('/'), 2000);
+      await resetPassword({ token, newPassword });
+      setDone(true);
+      setTimeout(() => navigate('/login'), 2500);
     } catch (e) {
-      setResult({ success: false, msg: e.response?.data?.error || 'Failed to reset password' });
+      setError(e.response?.data?.error || 'Reset failed. Link may have expired.');
     }
     setLoading(false);
   };
 
-  if (!token) return (
-    <div className="login-overlay">
-      <div className="login-popup" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>❌</div>
-        <h2 style={{ color: '#dc2626', marginBottom: 8 }}>Invalid Link</h2>
-        <p style={{ color: '#64748b' }}>This reset link is invalid or expired.</p>
-        <button className="login-btn" style={{ marginTop: 20 }} onClick={() => navigate('/')}>
-          Back to Login
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="login-overlay">
-      <div className="login-popup">
-        <div className="login-logo">
-          <div className="login-logo-icon">SM</div>
-          <h1 className="login-title">Reset Password</h1>
-          <p className="login-subtitle">Enter your new password below</p>
-        </div>
+    <div className="reset-page">
+      <div className="reset-wrap">
+        <Link to="/" className="reset-brand">
+          <UWLogo size={36} />
+          <span>UptimeForge</span>
+        </Link>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label>New Password</label>
-            <div style={{ position: 'relative' }}>
-              <input type={showPass ? 'text' : 'password'}
-                placeholder="Min 6 characters"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                style={{ paddingRight: 44 }} autoFocus />
-              <button type="button" onClick={() => setShowPass(!showPass)}
-                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#94a3b8' }}>
-                {showPass ? '🙈' : '👁️'}
-              </button>
+        <div className="reset-card">
+          {done ? (
+            <div className="reset-done">
+              <div className="reset-done-icon">✓</div>
+              <h2>Password Reset!</h2>
+              <p>Your password has been updated. Redirecting to login...</p>
             </div>
-          </div>
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input type={showPass ? 'text' : 'password'}
-              placeholder="Confirm new password"
-              value={form.confirm}
-              onChange={e => setForm({ ...form, confirm: e.target.value })} />
-          </div>
-
-          {result && (
-            <div style={{ padding: '11px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-              background: result.success ? '#dcfce7' : '#fee2e2',
-              color: result.success ? '#16a34a' : '#dc2626' }}>
-              {result.success ? '✅' : '❌'} {result.msg}
+          ) : !token ? (
+            <div className="reset-done">
+              <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
+              <h2>Invalid Link</h2>
+              <p>This reset link is invalid or has expired.</p>
+              <Link to="/login" className="login-submit" style={{display:'inline-flex',marginTop:16,textDecoration:'none',justifyContent:'center'}}>Back to Login</Link>
             </div>
+          ) : (
+            <>
+              <div className="reset-lock">🔐</div>
+              <h2 className="reset-h2">Set New Password</h2>
+              <p className="reset-sub">Enter a new password for your account.</p>
+              <form onSubmit={handleSubmit} className="reset-form">
+                <div className="login-field">
+                  <label className="login-label">New Password</label>
+                  <div className="login-pass-wrap">
+                    <input
+                      className="login-input"
+                      type={showPass ? 'text' : 'password'}
+                      placeholder="Min. 6 characters"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      autoFocus
+                      style={{paddingRight:44}}
+                    />
+                    <button type="button" className="login-eye" onClick={() => setShowPass(!showPass)}>
+                      {showPass ? <EyeClosed /> : <EyeOpen />}
+                    </button>
+                  </div>
+                </div>
+                <div className="login-field">
+                  <label className="login-label">Confirm Password</label>
+                  <input
+                    className="login-input"
+                    type="password"
+                    placeholder="Re-enter password"
+                    value={confirm}
+                    onChange={e => setConfirm(e.target.value)}
+                  />
+                </div>
+                {error && <div className="login-error-box">{error}</div>}
+                <button className="login-submit" type="submit" disabled={loading}>
+                  {loading ? <><span className="login-spinner" /> Resetting...</> : 'Reset Password'}
+                </button>
+              </form>
+              <div style={{textAlign:'center',marginTop:16}}>
+                <Link to="/login" className="login-forgot">Back to Login</Link>
+              </div>
+            </>
           )}
-
-          <button type="submit" className="login-btn" disabled={loading || result?.success}>
-            {loading ? '⏳ Updating...' : 'Update Password'}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

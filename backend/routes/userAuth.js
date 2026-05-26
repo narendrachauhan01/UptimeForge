@@ -156,6 +156,57 @@ router.put('/change-password', auth, async (req, res) => {
     }
 });
 
+// ── forgot password ──────────────────────────────────────────────────────────
+const crypto = require('crypto');
+const userResetTokens = {};
+
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) return res.json({ success: true }); // don't reveal if email exists
+        if (!user.password) return res.status(400).json({ error: 'This account uses Google Sign-In. No password to reset.' });
+        const token = crypto.randomBytes(32).toString('hex');
+        userResetTokens[token] = { userId: user._id, expiry: Date.now() + 15 * 60 * 1000 };
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}&type=user`;
+        await sendEmail({
+            to: user.email,
+            subject: 'UptimeForge — Reset Your Password',
+            html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0f0a1e;color:#fff;border-radius:16px;">
+                <h2 style="color:#a78bfa;margin-bottom:8px;">Reset Your Password</h2>
+                <p style="color:rgba(255,255,255,0.7);margin-bottom:24px;">Hi ${user.name}, click the button below to reset your password. This link expires in 15 minutes.</p>
+                <a href="${resetUrl}" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">Reset Password</a>
+                <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-top:24px;">If you didn't request this, ignore this email.</p>
+            </div>`,
+        });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password required' });
+        if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        const record = userResetTokens[token];
+        if (!record || Date.now() > record.expiry) {
+            delete userResetTokens[token];
+            return res.status(400).json({ error: 'Reset link expired or invalid' });
+        }
+        const user = await User.findById(record.userId);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        user.password = newPassword;
+        await user.save();
+        delete userResetTokens[token];
+        res.json({ success: true, message: 'Password reset successfully' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // ── /me ─────────────────────────────────────────────────────────────────────
 router.get('/me', auth, async (req, res) => {
     if (req.isAdmin) return res.json({ isAdmin: true, name: 'Admin', plan: 'admin', siteLimit: 9999, isActive: true });

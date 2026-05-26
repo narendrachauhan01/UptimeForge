@@ -29,10 +29,12 @@ export const getAlerts = () => api.get('/alerts');
 export const getWaStatus = () => api.get('/whatsapp/status');
 
 // User auth
-export const loginUser      = (data) => api.post('/users/login', data);
-export const googleAuth     = (data) => api.post('/users/google-auth', data);
-export const getMe          = ()     => api.get('/users/me');
-export const changePassword = (data) => api.put('/users/change-password', data);
+export const loginUser          = (data) => api.post('/users/login', data);
+export const googleAuth         = (data) => api.post('/users/google-auth', data);
+export const getMe              = ()     => api.get('/users/me');
+export const changePassword     = (data) => api.put('/users/change-password', data);
+export const forgotPassword     = (data) => api.post('/users/forgot-password', data);
+export const resetPassword      = (data) => api.post('/users/reset-password', data);
 
 // OTP registration
 export const sendRegisterOtp = (data) => api.post('/users/register/send-otp', data);
