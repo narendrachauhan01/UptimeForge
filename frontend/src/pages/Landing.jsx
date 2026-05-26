@@ -104,8 +104,8 @@ export default function Landing() {
               Live · 24/7 Uptime Monitoring
             </div>
             <h1 className="lp-hero-h1">
-              Website down?<br />
-              <span className="lp-hero-gradient">You'll know in 60 seconds.</span>
+              Never miss a<br />
+              <span className="lp-hero-gradient">website outage again.</span>
             </h1>
             <p className="lp-hero-p">
               UptimeWatch runs HTTP checks every 60 seconds, monitors SSL &amp; domain expiry, tracks response time, and fires multi-channel alerts the moment your site goes down — before your customers ever notice.
