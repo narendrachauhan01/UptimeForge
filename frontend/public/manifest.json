@@ -1,7 +1,7 @@
 {
-  "name": "UptimeForge — Uptime, SSL & Domain Monitoring",
+  "name": "UptimeForge",
   "short_name": "UptimeForge",
-  "description": "24/7 uptime, SSL & domain expiry monitoring with WhatsApp + Email alerts.",
+  "description": "Monitor your websites 24/7. Instant WhatsApp & Email alerts when your site goes down.",
   "icons": [
     { "src": "favicon.ico", "sizes": "16x16 32x32 48x48", "type": "image/x-icon" },
     { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
