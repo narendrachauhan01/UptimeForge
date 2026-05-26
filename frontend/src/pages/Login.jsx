@@ -51,8 +51,20 @@ export default function Login({ onLogin }) {
       return;
     }
     if (!window.google) { setError('Google Sign-In script not loaded'); return; }
-    window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
-    window.google.accounts.id.prompt();
+    setGLoading(true);
+    window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse, ux_mode: 'popup' });
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // One Tap suppressed — fall back to renderButton popup
+        setGLoading(false);
+        if (googleBtnRef.current) {
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            type: 'standard', theme: 'outline', size: 'large', width: googleBtnRef.current.offsetWidth,
+          });
+          googleBtnRef.current.querySelector('div[role=button]')?.click();
+        }
+      }
+    });
   };
 
   const handleUserForgot = async () => {
@@ -276,6 +288,7 @@ export default function Login({ onLogin }) {
                   </>
                 )}
               </button>
+              <div ref={googleBtnRef} style={{display:'none'}} />
             </form>
           )}
 
