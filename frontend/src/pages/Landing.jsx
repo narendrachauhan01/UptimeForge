@@ -108,7 +108,7 @@ export default function Landing() {
               <span className="lp-hero-gradient">website outage again.</span>
             </h1>
             <p className="lp-hero-p">
-              UptimeWatch runs HTTP checks every 60 seconds, monitors SSL &amp; domain expiry, tracks response time, and fires multi-channel alerts the moment your site goes down — before your customers ever notice.
+              HTTP/HTTPS checks every 60s · SSL &amp; domain expiry monitoring · real-time response time tracking · instant multi-channel alerts via WhatsApp &amp; Email — all from a single dashboard.
             </p>
             <div className="lp-hero-actions">
               <button className="lp-btn-primary" onClick={() => { localStorage.removeItem('sm_intended_plan'); navigate('/register'); }}>
