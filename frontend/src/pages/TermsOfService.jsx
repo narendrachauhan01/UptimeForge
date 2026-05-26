@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import UWLogo from '../components/UWLogo';
 
 const EFFECTIVE_DATE = 'June 1, 2026';
-const CONTACT_EMAIL  = 'chauhan.narendrasingh.01@gmail.com';
+const CONTACT_EMAIL  = 'uptimeforge@gmail.com';
 const OPERATOR_NAME  = 'Narendra Singh';
 
 export default function TermsOfService() {
