@@ -1,6 +1,6 @@
-# Server Monitor
+# UptimeWatch
 
-A full-stack server monitoring system with WhatsApp alerts, SSL/Domain expiry tracking, and analytics dashboard.
+A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp & Email alerts, SSL/Domain expiry tracking, Razorpay payments, and a powerful Admin Panel.
 
 ---
 
@@ -8,12 +8,14 @@ A full-stack server monitoring system with WhatsApp alerts, SSL/Domain expiry tr
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, Recharts, Socket.io-client |
+| Frontend | React 18 (Vite), Recharts, React Router v6 |
 | Backend | Node.js, Express.js |
-| Database | MongoDB Atlas |
-| WhatsApp | whatsapp-web.js (via Puppeteer + Chrome) |
+| Database | MongoDB Atlas (Mongoose) |
+| Auth | JWT, bcryptjs, Google OAuth (GSI) |
+| Payments | Razorpay (UPI/manual UTR verification) |
+| WhatsApp | whatsapp-web.js (Puppeteer + Chrome) |
+| Email | Nodemailer (Gmail SMTP) |
 | Process Manager | PM2 |
-| Fonts | Google Fonts (Inter, Poppins) |
 
 ---
 
@@ -21,39 +23,61 @@ A full-stack server monitoring system with WhatsApp alerts, SSL/Domain expiry tr
 
 ```
 server-monitor/
-├── backend/                    # Express API server
+├── backend/
+│   ├── middleware/
+│   │   └── auth.js                 # JWT auth middleware (admin + user)
 │   ├── models/
-│   │   ├── Server.js           # Server schema (url, status, history, ssl/domain expiry)
-│   │   ├── Recipient.js        # Alert recipient schema (name, phone, servers)
-│   │   └── Alert.js            # Alert history schema
+│   │   ├── User.js                 # User schema (plan, trial, google/facebook ID)
+│   │   ├── Server.js               # Monitored site schema
+│   │   ├── Recipient.js            # Alert recipient schema
+│   │   ├── Notification.js         # In-app notification schema
+│   │   ├── PaymentRequest.js       # Payment/UTR request schema
+│   │   ├── PendingRegistration.js  # OTP-pending registrations
+│   │   └── Settings.js             # Global settings (plans, trial days)
 │   ├── routes/
-│   │   ├── servers.js          # CRUD + check-now + history endpoints
-│   │   ├── recipients.js       # CRUD endpoints
-│   │   ├── alerts.js           # Alert history endpoint
-│   │   ├── whatsapp.js         # WhatsApp status endpoint
-│   │   └── expiry.js           # SSL + Domain check endpoint
+│   │   ├── auth.js                 # Admin login, forgot/reset password, profile
+│   │   ├── userAuth.js             # User register (OTP), login, Google OAuth
+│   │   ├── admin.js                # Admin: users, payments approve/reject
+│   │   ├── servers.js              # Sites CRUD + check-now
+│   │   ├── recipients.js           # Recipients CRUD
+│   │   ├── alerts.js               # Alert history
+│   │   ├── notifications.js        # In-app notifications
+│   │   ├── payment.js              # Razorpay orders + UTR submission
+│   │   └── whatsapp.js             # WhatsApp status
 │   ├── services/
-│   │   ├── monitor.js          # Core monitoring loop (every 60s)
-│   │   ├── whatsapp.js         # WhatsApp bot (LocalAuth + Puppeteer)
-│   │   └── expiry.js           # SSL (TLS) + Domain (api.whois.vu) checker
-│   ├── server.js               # Express app entry point
-│   └── .env                    # Environment variables (not committed)
+│   │   ├── monitor.js              # Core monitoring loop (every 60s)
+│   │   ├── whatsapp.js             # WhatsApp bot (LocalAuth)
+│   │   └── email.js                # SMTP email service
+│   ├── server.js                   # Express entry point
+│   └── .env                        # Environment variables (not committed)
 │
-├── frontend/                   # React app
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Dashboard.js    # Site cards with status + modal detail
-│   │   │   ├── Charts.js       # Analytics (response time, uptime, alerts)
-│   │   │   ├── Servers.js      # Add/edit/delete servers
-│   │   │   ├── Recipients.js   # Add/edit recipients + site assignment
-│   │   │   ├── Alerts.js       # Alert history with search/filter
-│   │   │   ├── DomainSSL.js    # SSL & domain expiry table
-│   │   │   └── WhatsApp.js     # WhatsApp connection + QR scan
-│   │   ├── api.js              # Axios API calls
-│   │   ├── App.js              # Router + navbar + footer
-│   │   └── App.css             # Global styles
-│   └── public/
-│       └── index.html          # Google Fonts loaded here
+├── frontend/
+│   ├── index.html                  # Vite entry, Google GSI script
+│   ├── vite.config.js
+│   └── src/
+│       ├── pages/
+│       │   ├── Landing.jsx         # Public landing page
+│       │   ├── Login.jsx           # User + Admin login, Google Sign-In
+│       │   ├── Register.jsx        # Multi-step registration with OTP
+│       │   ├── Dashboard.jsx       # Site cards (grid/list view toggle)
+│       │   ├── Charts.jsx          # Performance analytics
+│       │   ├── Servers.jsx         # Add/edit/delete monitored sites
+│       │   ├── Recipients.jsx      # Alert recipients management
+│       │   ├── Alerts.jsx          # Alert history
+│       │   ├── DomainSSL.jsx       # SSL & domain expiry tracking
+│       │   ├── Account.jsx         # Plan info, change password
+│       │   ├── AdminPanel.jsx      # Full admin panel (users, payments, settings)
+│       │   ├── PaymentPage.jsx     # Razorpay payment + UTR submission
+│       │   ├── Pricing.jsx         # Public pricing page
+│       │   ├── TermsOfService.jsx  # Terms of service
+│       │   └── VerifyAccount.jsx   # Account verification
+│       ├── components/
+│       │   ├── UWLogo.jsx          # Brand logo
+│       │   ├── Toast.jsx           # Toast notifications
+│       │   └── NotificationPanel.jsx # Bell notification drawer
+│       ├── App.jsx                 # Router, sidebar, auth flow
+│       ├── api.js                  # Axios API calls
+│       └── App.css                 # Global styles
 │
 └── README.md
 ```
@@ -62,16 +86,41 @@ server-monitor/
 
 ## Features
 
-- **Site Monitoring** — HTTP status check every 60 seconds (200/301/302 = UP)
-- **WhatsApp Alerts** — Instant alert when site goes DOWN, recovery alert when back UP
-- **Email Alerts (SMTP)** — Beautiful HTML email alerts via Gmail SMTP — DOWN, RECOVERED, SSL expiry
-- **Dual Alerts** — WhatsApp + Email both work together per recipient
-- **Multiple Recipients** — Each recipient can have phone, email or both; assign to specific sites or all sites
-- **SSL Expiry** — Auto-checked via TLS, alerts at 30 / 15 / 7 days before expiry
-- **Domain Expiry** — Auto-checked via [api.whois.vu](https://api.whois.vu), alerts at 30 / 15 / 7 days
-- **Analytics** — Response time graph, uptime %, alert frequency charts
-- **Search & Filter** — All pages have search and filter functionality
-- **Alert History** — Full log of all DOWN/RECOVERED events
+### User Features
+- **Registration** — OTP email verification, Google Sign-In, plan selection at signup
+- **Dashboard** — Grid & List view toggle, site status (Online/Offline), response time, SSL/Domain days
+- **Site Monitoring** — HTTP check every 60 seconds; 200/301/302 = UP
+- **WhatsApp Alerts** — Instant DOWN & RECOVERED alerts via WhatsApp
+- **Email Alerts** — HTML email alerts for DOWN, RECOVERED, SSL/Domain expiry
+- **SSL Expiry** — Auto-checked via TLS; alerts at 30 / 15 / 7 days
+- **Domain Expiry** — Auto-checked via WHOIS API; alerts at 30 / 15 / 7 days
+- **Performance Charts** — Response time graphs, uptime %, alert history
+- **Notifications** — In-app bell icon with unread count
+- **Account Page** — Plan status, trial days left, change password
+
+### Plans
+| Plan | Sites | Price |
+|------|-------|-------|
+| Free Trial | 2 sites | ₹2 one-time verification |
+| Bronze | 5 sites | ₹499/month |
+| Silver | 15 sites | ₹999/month |
+| Gold | 30 sites | ₹1499/month |
+
+### Admin Features
+- **Admin Panel** — Full dashboard with tabbed interface
+- **Overview** — User stats, revenue summary, pending payments, expiring plans/trials
+- **Users Tab** — Search, filter by plan, edit plan/block, extend trial, assign plan, export CSV
+- **Payments Tab** — Approve/reject UTR payment requests, status badges
+- **Plan Settings** — Configure trial days, plan prices, site limits, feature bullets
+- **My Profile** — Update admin username, email, password
+- **Infra** — Server resource monitoring (CPU, RAM, disk)
+
+### Auth & Security
+- JWT tokens (30-day expiry for users, 7-day for admin)
+- 15-minute session auto-logout on inactivity
+- OTP-based email verification on registration
+- Google OAuth Sign-In (one-click account creation + login)
+- bcrypt password hashing
 
 ---
 
@@ -80,138 +129,157 @@ server-monitor/
 ### Prerequisites
 
 - Node.js v18+
-- Google Chrome (`/usr/bin/google-chrome`)
+- Google Chrome (`/usr/bin/google-chrome`) — for WhatsApp
 - PM2 (`npm install -g pm2`)
 - MongoDB Atlas account
+- Razorpay account (for payments)
 
-### Install Node.js (Ubuntu/EC2)
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
-node -v && npm -v
-```
-
-### Install Google Chrome (Ubuntu/EC2)
-
-> Required for WhatsApp Web automation via Puppeteer
+### Install Dependencies
 
 ```bash
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install -y ./google-chrome-stable_current_amd64.deb
-google-chrome --version
+# Backend
+cd backend && npm install
+
+# Frontend
+cd frontend && npm install
 ```
 
-### Install PM2
+### Backend `.env`
 
-```bash
-npm install -g pm2
-```
+Create `backend/.env` (see `.env.example`):
 
-### 1. Backend Setup
-
-```bash
-cd backend
-npm install
-```
-
-Create `backend/.env` (use `.env.example` as reference):
 ```env
 PORT=5001
-FRONTEND_URL=http://localhost:3001
+FRONTEND_URL=https://yourdomain.com
+
+# Admin credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=YourSecurePassword
+ADMIN_EMAIL=your@email.com
+JWT_SECRET=your_strong_jwt_secret
+
+# MongoDB
 MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxx.mongodb.net/monitor_server_prd
 
-# SMTP Email Config (Gmail)
+# Razorpay
+RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxx
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+
+# SMTP Email (Gmail)
 MAIL_USER=your@gmail.com
 MAIL_PASS=your_app_password
-MAIL_FROM=Server Monitor <your@gmail.com>
+MAIL_FROM=UptimeWatch <your@gmail.com>
 
-# WhatsApp Session Path (optional)
-# WA_SESSION_PATH=/home/ubuntu/server-monitor-site/.ww-session
+# Google OAuth
+GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+
+# Agent API Key (infra monitoring)
+AGENT_API_KEY=your_secure_agent_key
 ```
 
-#### Gmail App Password Setup (for SMTP)
+### Frontend `.env`
 
-> Gmail direct password nahi chalega — App Password banana padega
+Create `frontend/.env`:
 
-1. Gmail account mein jaao → **Google Account Settings**
-2. **Security** → **2-Step Verification** ON karo
-3. **App Passwords** → Select app: `Mail` → Select device: `Other` → `Server Monitor`
-4. Generated 16-digit password `.env` mein `MAIL_PASS` mein daalo
-
-### 2. Frontend Setup
-
-```bash
-cd frontend
-npm install
+```env
+VITE_API_URL=https://yourdomain.com
+VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 ```
 
-### 3. Run with PM2
+### Gmail App Password
 
-```bash
-# Start backend
-cd backend
-pm2 start server.js --name "monitor-backend"
+1. Google Account → **Security** → Enable 2-Step Verification
+2. **App Passwords** → Select app: `Mail` → Device: `Other` → `UptimeWatch`
+3. Copy the 16-digit password → paste in `MAIL_PASS`
 
-# Start frontend
-cd frontend
-PORT=3001 pm2 start "npm start" --name "monitor-frontend"
+### Google OAuth Setup
 
-# Save processes
-pm2 save
-```
-
-### 4. WhatsApp Setup
-
-1. Open `http://localhost:3001/whatsapp`
-2. Scan the QR code with WhatsApp → Linked Devices → Link a Device
-3. Session saves automatically — no re-scan needed after restart
+1. [console.cloud.google.com](https://console.cloud.google.com) → New Project
+2. **APIs & Services → Credentials → Create OAuth 2.0 Client ID**
+3. Application type: **Web application**
+4. Authorized JavaScript origins: `https://yourdomain.com`
+5. Copy Client ID → paste in both `.env` files
 
 ---
 
-## URLs
+## Run with PM2
 
-| Service | URL |
-|---------|-----|
-| Dashboard | http://localhost:3001 |
-| Backend API | http://localhost:5001/api |
+```bash
+# Build frontend
+cd frontend && npm run build
+
+# Start backend
+cd backend
+pm2 start server.js --name "uptimewatch-backend"
+
+# Serve frontend (or use Nginx)
+pm2 start "npx serve dist -p 3001" --name "uptimewatch-frontend"
+
+# Save & enable autostart
+pm2 save
+pm2 startup
+```
+
+---
+
+## WhatsApp Setup
+
+1. Open `https://yourdomain.com/whatsapp` (admin only)
+2. Scan the QR code with WhatsApp → Linked Devices → Link a Device
+3. Session saves automatically — no re-scan after restart
 
 ---
 
 ## PM2 Commands
 
 ```bash
-pm2 list                        # View all processes
-pm2 logs monitor-backend        # View backend logs
-pm2 restart monitor-backend     # Restart backend
-pm2 restart monitor-frontend    # Restart frontend
+pm2 list                              # View all processes
+pm2 logs uptimewatch-backend          # Backend logs
+pm2 restart uptimewatch-backend       # Restart backend
+pm2 restart uptimewatch-frontend      # Restart frontend
+pm2 monit                             # Live monitor
 ```
 
 ---
 
-## WhatsApp Alert Examples
+## URLs
 
-**Site Down:**
+| Page | URL |
+|------|-----|
+| Landing | `/` |
+| Login | `/login` |
+| Register | `/register` |
+| Dashboard | `/dashboard` |
+| Admin Panel | `/admin` |
+| Pricing | `/pricing` |
+| Terms | `/terms` |
+| Backend API | `:5001/api` |
+
+---
+
+## Alert Examples
+
+**Site Down (WhatsApp):**
 ```
 🚨 Site Down Alert!
-Site: kandb-main
-URL: https://maintenance.kandbnetservice.in
-Time: 7/5/2026, 6:30:00 pm
+Site: myshop.com
+URL: https://myshop.com
+Time: 26/5/2026, 6:30:00 pm
 Site is currently DOWN ❌
 Please check immediately!
 ```
 
-**SSL Expiry (15 days left):**
+**SSL Expiry Warning:**
 ```
 ⚠️ SSL Certificate Alert!
-Site: kandb-main
+Site: myshop.com
 Expires: Wed Aug 04 2026
 Days Left: 15 days
-Please renew the SSL certificate before it expires!
+Please renew before it expires!
 ```
 
 ---
 
-## Managed by
+## Built & Managed by
 
 **Narendra Singh** — DevOps Engineer
