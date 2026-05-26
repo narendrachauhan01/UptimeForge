@@ -108,7 +108,7 @@ export default function Landing() {
               <span className="lp-hero-gradient">website outage again.</span>
             </h1>
             <p className="lp-hero-p">
-              Get instant <span className="lp-highlight-wa">WhatsApp</span> &amp; <span className="lp-highlight-em">Email</span> alerts the moment your site goes down. Track SSL expiry, domain renewal, and response time — all from one simple dashboard.
+              UptimeWatch monitors your websites 24/7 and sends instant <span className="lp-highlight-wa">WhatsApp</span> &amp; <span className="lp-highlight-em">Email</span> alerts the moment something goes wrong — so you fix it before your customers notice. SSL expiry, domain renewal, response time — all in one place.
             </p>
             <div className="lp-hero-actions">
               <button className="lp-btn-primary" onClick={() => { localStorage.removeItem('sm_intended_plan'); navigate('/register'); }}>
