@@ -172,7 +172,7 @@ export default function Landing() {
 
       {/* ── STATS BAR ── */}
       <div className="lp-stats-bar">
-        {[['60s', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['WhatsApp', '+ Email Alerts'], ['₹2', 'Trial Cost'], ['SSL & Domain', 'Expiry Tracking']].map(([v, l]) => (
+        {[['60s', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['Email', '+ WhatsApp Alerts'], ['₹2', 'Trial Cost'], ['SSL & Domain', 'Expiry Tracking']].map(([v, l]) => (
           <div key={l} className="lp-stat-item">
             <div className="lp-stat-val">{v}</div>
             <div className="lp-stat-label">{l}</div>
