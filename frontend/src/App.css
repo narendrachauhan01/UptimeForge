@@ -2257,19 +2257,19 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 }
 .lp-stat-item {
   text-align:center; padding:22px 32px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(124,58,237,0.12);
+  border:1px solid rgba(124,58,237,0.3);
   border-radius:16px;
   min-width:120px;
 }
-.lp-stat-item:last-child { border-right:1px solid rgba(255,255,255,0.1); }
+.lp-stat-item:last-child { border-right:1px solid rgba(124,58,237,0.3); }
 .lp-stat-val {
   font-size:28px; font-weight:900;
   background:linear-gradient(135deg,#a78bfa,#38bdf8);
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   font-family:'Outfit','Plus Jakarta Sans',sans-serif;
 }
-.lp-stat-label { font-size:12px; color:rgba(255,255,255,0.45); margin-top:5px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:0.3px; }
+.lp-stat-label { font-size:12px; color:rgba(255,255,255,0.6); margin-top:5px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:0.3px; }
 
 /* Sections common */
 .lp-section-wrap { max-width:1140px; margin:0 auto; padding:80px 24px; }
