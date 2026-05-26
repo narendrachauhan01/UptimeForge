@@ -2174,6 +2174,8 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
 .lp-hero-p { font-size:17px; color:rgba(255,255,255,0.68); line-height:1.65; margin-bottom:36px; max-width:460px; font-family:'Plus Jakarta Sans',sans-serif; }
+.lp-highlight-wa { background:linear-gradient(135deg,#25d366,#128c7e); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
+.lp-highlight-em { background:linear-gradient(135deg,#ea4335,#fbbc04); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
 .lp-hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px; }
 .lp-btn-primary {
   display:inline-flex; align-items:center; gap:8px;

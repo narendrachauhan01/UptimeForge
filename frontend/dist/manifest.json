@@ -1,0 +1,16 @@
+{
+  "name": "UptimeWatch — Uptime, SSL & Domain Monitoring",
+  "short_name": "UptimeWatch",
+  "description": "24/7 uptime, SSL & domain expiry monitoring with WhatsApp + Email alerts.",
+  "icons": [
+    { "src": "favicon.ico", "sizes": "16x16 32x32 48x48", "type": "image/x-icon" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "favicon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "favicon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" },
+    { "src": "apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#7c3aed",
+  "background_color": "#0f0a1e"
+}

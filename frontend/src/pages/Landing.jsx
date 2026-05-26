@@ -108,7 +108,7 @@ export default function Landing() {
               <span className="lp-hero-gradient">website outage again.</span>
             </h1>
             <p className="lp-hero-p">
-              Get instant WhatsApp &amp; email alerts the moment your site goes down. Track SSL expiry, domain renewal, and response time — all from one simple dashboard.
+              Get instant <span className="lp-highlight-wa">WhatsApp</span> &amp; <span className="lp-highlight-em">Email</span> alerts the moment your site goes down. Track SSL expiry, domain renewal, and response time — all from one simple dashboard.
             </p>
             <div className="lp-hero-actions">
               <button className="lp-btn-primary" onClick={() => { localStorage.removeItem('sm_intended_plan'); navigate('/register'); }}>
