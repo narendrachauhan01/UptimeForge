@@ -326,7 +326,7 @@ function AppInner() {
   }
 
   // ── Profile completion gate for Google users without phone/state ──
-  const needsProfile = authed && !isAdmin && user && user.isGoogleUser && !user.phone && !user.state;
+  const needsProfile = authed && !isAdmin && user && user.isGoogleUser && !user.state;
   if (needsProfile && location.pathname !== '/complete-profile') {
     navigate('/complete-profile');
     return null;
