@@ -284,6 +284,12 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ── */}
+      <div style={{ background: '#fefce8', borderTop: '1px solid #fde68a', borderBottom: '1px solid #fde68a', padding: '10px 24px', textAlign: 'center' }}>
+        <span style={{ fontSize: 13, color: '#92400e' }}>
+          ✉️ <strong>Email alerts are live.</strong> &nbsp;WhatsApp notifications are coming soon — launching shortly.
+        </span>
+      </div>
+
       <footer className="lp-footer">
         <div className="lp-footer-wrap">
           <div className="lp-footer-brand">
