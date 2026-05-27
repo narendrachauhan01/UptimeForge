@@ -5,6 +5,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { sendRegisterOtp, verifyRegisterOtp, googleAuth } from '../api';
 import { getGoogleClientId } from '../googleConfig';
 import UWLogo from '../components/UWLogo';
+import COUNTRIES from '../constants/countries';
 
 const INDIAN_STATES = [
   'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
@@ -74,7 +75,7 @@ export default function Register({ onRegister }) {
 
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', state: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', country: '', state: '', password: '' });
   const [otp, setOtp] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -112,11 +113,12 @@ export default function Register({ onRegister }) {
   const sendOtp = async (e) => {
     e?.preventDefault(); setError('');
     if (!form.name || !form.email || !form.password) { setError('Name, email and password are required'); return; }
-    if (!form.state) { setError('Please select your state'); return; }
+    if (!form.country) { setError('Please select your country'); return; }
+    if (!form.state) { setError('Please select / enter your state'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return; }
     setLoading(true);
     try {
-      await sendRegisterOtp({ ...form, country: 'India' });
+      await sendRegisterOtp({ ...form });
       setStep(2); setCanResend(false);
     } catch (err) { setError(err.response?.data?.error || 'Failed to send OTP'); }
     setLoading(false);
@@ -124,7 +126,7 @@ export default function Register({ onRegister }) {
 
   const resendOtp = async () => {
     setResending(true); setError('');
-    try { await sendRegisterOtp({ ...form, country: 'India' }); setOtp(''); setCanResend(false); }
+    try { await sendRegisterOtp({ ...form }); setOtp(''); setCanResend(false); }
     catch (err) { setError(err.response?.data?.error || 'Failed to resend OTP'); }
     setResending(false);
   };
@@ -274,27 +276,42 @@ export default function Register({ onRegister }) {
                     value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
                 </div>
 
-                {/* 2-col: State + Password */}
+                {/* 2-col: Country + State */}
                 <div className="reg-row-2">
                   <div className="reg-field">
-                    <label className="reg-label">State <span className="reg-req">*</span></label>
-                    <select className="reg-input reg-select" value={form.state}
-                      onChange={e => setForm({ ...form, state: e.target.value })}>
-                      <option value="">Select state</option>
-                      {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                    <label className="reg-label">Country <span className="reg-req">*</span></label>
+                    <select className="reg-input reg-select" value={form.country}
+                      onChange={e => setForm({ ...form, country: e.target.value, state: '' })}>
+                      <option value="">Select country</option>
+                      {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="reg-field">
-                    <label className="reg-label">Password <span className="reg-req">*</span></label>
-                    <div className="reg-pass-wrap">
-                      <input className="reg-input" type={showPass ? 'text' : 'password'}
-                        placeholder="Min 6 characters"
-                        value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                        style={{ paddingRight: 40 }} />
-                      <button type="button" className="login-eye" onClick={() => setShowPass(!showPass)}>
-                        {showPass ? <EyeClosed /> : <EyeOpen />}
-                      </button>
-                    </div>
+                    <label className="reg-label">State / Province <span className="reg-req">*</span></label>
+                    {form.country === 'India' ? (
+                      <select className="reg-input reg-select" value={form.state}
+                        onChange={e => setForm({ ...form, state: e.target.value })}>
+                        <option value="">Select state</option>
+                        {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    ) : (
+                      <input className="reg-input" type="text" placeholder="Enter your state / province"
+                        value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
+                    )}
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div className="reg-field">
+                  <label className="reg-label">Password <span className="reg-req">*</span></label>
+                  <div className="reg-pass-wrap">
+                    <input className="reg-input" type={showPass ? 'text' : 'password'}
+                      placeholder="Min 6 characters"
+                      value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+                      style={{ paddingRight: 40 }} />
+                    <button type="button" className="login-eye" onClick={() => setShowPass(!showPass)}>
+                      {showPass ? <EyeClosed /> : <EyeOpen />}
+                    </button>
                   </div>
                 </div>
 

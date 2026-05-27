@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile } from '../api';
 import UWLogo from '../components/UWLogo';
+import COUNTRIES from '../constants/countries';
 
 const INDIAN_STATES = [
   'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
@@ -15,13 +16,14 @@ const INDIAN_STATES = [
 
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ phone: '', state: '', country: 'India' });
+  const [form, setForm] = useState({ phone: '', state: '', country: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.state) { setError('Please select your state'); return; }
+    if (!form.country) { setError('Please select your country'); return; }
+    if (!form.state) { setError('Please select / enter your state'); return; }
     setError(''); setLoading(true);
     try {
       const res = await updateProfile(form);
@@ -57,25 +59,37 @@ export default function CompleteProfile({ user, onUserUpdate }) {
           </div>
 
           <div className="cp-field">
-            <label className="cp-label">State <span className="reg-req">*</span></label>
+            <label className="cp-label">Country <span className="reg-req">*</span></label>
             <select
               className="cp-input cp-select"
-              value={form.state}
-              onChange={e => setForm({ ...form, state: e.target.value })}
+              value={form.country}
+              onChange={e => setForm({ ...form, country: e.target.value, state: '' })}
             >
-              <option value="">Select your state</option>
-              {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              <option value="">Select your country</option>
+              {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
           <div className="cp-field">
-            <label className="cp-label">Country</label>
-            <input
-              className="cp-input"
-              type="text"
-              value={form.country}
-              onChange={e => setForm({ ...form, country: e.target.value })}
-            />
+            <label className="cp-label">State / Province <span className="reg-req">*</span></label>
+            {form.country === 'India' ? (
+              <select
+                className="cp-input cp-select"
+                value={form.state}
+                onChange={e => setForm({ ...form, state: e.target.value })}
+              >
+                <option value="">Select your state</option>
+                {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            ) : (
+              <input
+                className="cp-input"
+                type="text"
+                placeholder="Enter your state / province"
+                value={form.state}
+                onChange={e => setForm({ ...form, state: e.target.value })}
+              />
+            )}
           </div>
 
           {error && <div className="login-error-box">{error}</div>}
