@@ -91,9 +91,9 @@ router.post('/login', async (req, res) => {
         if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
         const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+        if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+        if (!user.password) return res.status(401).json({ error: 'This account uses Google Sign-In. Please use "Continue with Google" to login.' });
+        if (!(await user.comparePassword(password))) return res.status(401).json({ error: 'Invalid email or password' });
         if (user.isBlocked) return res.status(403).json({ error: 'Account blocked. Contact support.' });
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
