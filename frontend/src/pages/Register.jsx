@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+
+let gsiReady = false;
 import { useLocation, Link } from 'react-router-dom';
 import { sendRegisterOtp, verifyRegisterOtp, googleAuth } from '../api';
 import UWLogo from '../components/UWLogo';
@@ -95,9 +97,13 @@ export default function Register({ onRegister }) {
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId || clientId.includes('your_google') || !window.google || !googleBtnRef.current) return;
-    window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+    if (!gsiReady) {
+      gsiReady = true;
+      window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+    }
     window.google.accounts.id.renderButton(googleBtnRef.current, {
-      type: 'standard', theme: 'filled_blue', size: 'large', width: 340,
+      type: 'standard', theme: 'outline', size: 'large', width: 360,
+      text: 'signup_with', shape: 'rectangular', logo_alignment: 'left',
     });
   }, []);
 
@@ -214,7 +220,9 @@ export default function Register({ onRegister }) {
               <h1 className="reg-title">Create your account</h1>
 
               {/* Google button — rendered by Google SDK */}
-              <div ref={googleBtnRef} style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 4px' }} />
+              <div className="google-btn-outer">
+                <div ref={googleBtnRef} className="google-btn-inner" />
+              </div>
 
               <div className="login-divider"><span>or sign up with email</span></div>
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+let gsiReady = false;
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL, loginUser, googleAuth, forgotPassword } from '../api';
@@ -45,9 +47,13 @@ export default function Login({ onLogin }) {
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId || clientId.includes('your_google') || !window.google || !googleBtnRef.current) return;
-    window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+    if (!gsiReady) {
+      gsiReady = true;
+      window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+    }
     window.google.accounts.id.renderButton(googleBtnRef.current, {
-      type: 'standard', theme: 'filled_blue', size: 'large', width: 340,
+      type: 'standard', theme: 'outline', size: 'large', width: 360,
+      text: 'continue_with', shape: 'rectangular', logo_alignment: 'left',
     });
   }, []);
 
@@ -277,8 +283,10 @@ export default function Login({ onLogin }) {
                 <div className="login-forgot-sent">✓ Reset link sent! Check your email.</div>
               )}
 
-              <div className="login-divider"><span>or</span></div>
-              <div ref={googleBtnRef} style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }} />
+              <div className="login-divider"><span>or continue with</span></div>
+              <div className="google-btn-outer">
+                <div ref={googleBtnRef} className="google-btn-inner" />
+              </div>
             </form>
           )}
 
