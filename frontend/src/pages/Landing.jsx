@@ -284,8 +284,8 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ── */}
-      <div style={{ padding: '10px 24px', textAlign: 'center' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>
+      <div style={{ background: '#0a0a14', padding: '10px 24px', textAlign: 'center' }}>
+        <span style={{ fontSize: 14, color: '#94a3b8' }}>
           ✉️ Email alerts are live. WhatsApp notifications coming soon.
         </span>
       </div>
