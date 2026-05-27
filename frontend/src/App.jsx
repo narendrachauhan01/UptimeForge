@@ -210,10 +210,14 @@ function AppInner() {
   }, []);
 
   const handleLogin = (userData, isNewUser = false) => {
+    const adminLogin = !userData;
     if (userData) { setUser(userData); setIsAdmin(false); }
     else { setIsAdmin(true); setUser(null); }
     setAuthed(true);
-    if (isNewUser && userData) {
+    if (adminLogin) {
+      navigate('/admin');
+      showToast('Welcome back, Admin!');
+    } else if (isNewUser) {
       navigate('/complete-profile');
       showToast('Welcome to UptimeForge! Complete your profile to get started.');
     } else {
@@ -291,7 +295,7 @@ function AppInner() {
   }
 
   if (authed && isPublicPath && location.pathname !== '/' && location.pathname !== '/terms') {
-    navigate('/dashboard');
+    navigate(isAdmin ? '/admin' : '/dashboard');
     return null;
   }
 
