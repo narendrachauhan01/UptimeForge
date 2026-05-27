@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getPlans, createOrder, verifyPayment } from '../api';
+import { getPlans, createOrder, verifyPayment, deleteMyAccount } from '../api';
 import UWLogo from '../components/UWLogo';
 
 const PLAN_LABEL = {
@@ -164,7 +164,18 @@ export default function PaymentPage({ user, onUserUpdate }) {
             prefill:     orderData.prefill,
             theme:       { color: '#7c3aed' },
             modal: {
-                ondismiss: () => setPaying(false),
+                ondismiss: async () => {
+                    setPaying(false);
+                    // New unverified user cancelled — delete account and restart
+                    const isNewUnverified = user && user.plan === 'free_trial' && !user.trialVerified;
+                    if (isNewUnverified) {
+                        try { await deleteMyAccount(); } catch (_) {}
+                        localStorage.removeItem('sm_token');
+                        localStorage.removeItem('sm_user');
+                        localStorage.removeItem('sm_intended_plan');
+                        window.location.href = '/register';
+                    }
+                },
             },
             handler: async (response) => {
                 // Payment done — verify with backend

@@ -38,6 +38,7 @@ export const getPublicConfig = () => api.get('/users/config');
 export const loginUser          = (data) => api.post('/users/login', data);
 export const googleAuth         = (data) => api.post('/users/google-auth', data);
 export const getMe              = ()     => api.get('/users/me');
+export const deleteMyAccount    = ()     => api.delete('/users/me');
 export const changePassword     = (data) => api.put('/users/change-password', data);
 export const forgotPassword     = (data) => api.post('/users/forgot-password', data);
 export const resetPassword      = (data) => api.post('/users/reset-password', data);

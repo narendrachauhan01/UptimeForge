@@ -213,6 +213,17 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+// ── delete own account ───────────────────────────────────────────────────────
+router.delete('/me', auth, async (req, res) => {
+    try {
+        if (req.isAdmin) return res.status(400).json({ error: 'Admin account cannot be deleted here' });
+        await User.deleteOne({ _id: req.userId });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // ── /me ─────────────────────────────────────────────────────────────────────
 router.get('/me', auth, async (req, res) => {
     if (req.isAdmin) return res.json({ isAdmin: true, name: 'Admin', plan: 'admin', siteLimit: 9999, isActive: true });
