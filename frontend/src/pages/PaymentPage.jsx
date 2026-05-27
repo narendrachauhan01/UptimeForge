@@ -232,7 +232,8 @@ export default function PaymentPage({ user, onUserUpdate }) {
                     <div className="pay-cancel-bar">
                         <button
                             className="pay-cancel-btn"
-                            onClick={() => navigate(isVerification ? '/' : '/account')}
+                            onClick={() => isNewUnverified ? handleCancel() : navigate('/account')}
+                            disabled={paying}
                         >
                             ← Cancel
                         </button>
