@@ -93,6 +93,8 @@ export default function AdminPanel({ initialTab = 'overview' }) {
 
     useEffect(() => { load(); loadSettings(); loadPayments(); loadProfile(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => { setTab(initialTab); }, [initialTab]);
+
     const saveSettings = async () => {
         setSettingsSaving(true);
         try {
@@ -280,22 +282,26 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         <div className="pg-wrap">
             {toast && <div className="ap-toast">{toast}</div>}
 
-            <div className="pg-header">
-                <div>
-                    <h1 className="pg-title">Admin Panel</h1>
-                    <p className="pg-sub">Manage users, plans, and settings</p>
-                </div>
-                <button className="btn-refresh" onClick={load} style={{ fontSize: 13 }}>Refresh</button>
-            </div>
+            {tab !== 'profile' && (
+                <>
+                    <div className="pg-header">
+                        <div>
+                            <h1 className="pg-title">Admin Panel</h1>
+                            <p className="pg-sub">Manage users, plans, and settings</p>
+                        </div>
+                        <button className="btn-refresh" onClick={load} style={{ fontSize: 13 }}>Refresh</button>
+                    </div>
 
-            {/* Tabs */}
-            <div className="ap-tabs">
-                {TABS.map(t => (
-                    <button key={t.id} className={`ap-tab ${tab === t.id ? 'ap-tab-active' : ''}`} onClick={() => setTab(t.id)}>
-                        {t.label}
-                    </button>
-                ))}
-            </div>
+                    {/* Tabs */}
+                    <div className="ap-tabs">
+                        {TABS.map(t => (
+                            <button key={t.id} className={`ap-tab ${tab === t.id ? 'ap-tab-active' : ''}`} onClick={() => setTab(t.id)}>
+                                {t.label}
+                            </button>
+                        ))}
+                    </div>
+                </>
+            )}
 
             {/* ══ OVERVIEW TAB ══ */}
             {tab === 'overview' && (
