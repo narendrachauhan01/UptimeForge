@@ -189,7 +189,7 @@ export default function Servers({ user, isAdmin, onNotify }) {
                       {s.responseTime && <span className="meta-txt">⚡ {s.responseTime}ms</span>}
                     </div>
                     <div className="server-actions">
-                      <button className="act-btn edit" onClick={() => startEdit(s)}>Edit</button>
+                      <button className="act-btn edit" onClick={() => navigate('/add-monitor', { state: { editServer: s } })}>Edit</button>
                       <button className={`act-btn ${s.active ? 'pause' : 'resume'}`} onClick={() => toggleActive(s)}>{s.active ? 'Pause' : 'Resume'}</button>
                       <button className="act-btn del" onClick={() => handleDelete(s._id, s.name)}>Delete</button>
                     </div>
