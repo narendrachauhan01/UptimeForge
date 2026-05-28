@@ -1,251 +1,337 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { API_URL } from '../api';
 import axios from 'axios';
 
-const MAX_RESULTS = 50;
-
-const api = () => {
-    const token = localStorage.getItem('sm_token');
-    return { headers: token ? { Authorization: `Bearer ${token}` } : {} };
+const authHeaders = () => {
+    const t = localStorage.getItem('sm_token');
+    return t ? { Authorization: `Bearer ${t}` } : {};
 };
 
-function StatusDot({ status, size = 10 }) {
-    const color = status === 'up' ? '#10b981' : status === 'down' ? '#ef4444' : '#f59e0b';
-    return <span style={{ display:'inline-block', width:size, height:size, borderRadius:'50%', background:color, flexShrink:0 }} />;
+function StatusBadge({ status }) {
+    const cfg = { up: ['#10b981','#dcfce7','UP'], down: ['#ef4444','#fee2e2','DOWN'], unknown: ['#f59e0b','#fef3c7','—'] };
+    const [color, bg, label] = cfg[status] || cfg.unknown;
+    return (
+        <span style={{ background: bg, color, padding:'2px 10px', borderRadius:20, fontSize:12, fontWeight:700 }}>{label}</span>
+    );
 }
 
-function latencyColor(ms) {
-    if (!ms) return '#ef4444';
-    if (ms < 100) return '#10b981';
-    if (ms < 300) return '#f59e0b';
-    return '#ef4444';
+function TargetCard({ t, onClick }) {
+    const isDown = t.status === 'down';
+    return (
+        <div onClick={() => onClick(t)} style={{ background:'#fff', borderRadius:16, border:`2px solid ${isDown ? '#fecdd3' : t.status === 'up' ? '#d1fae5' : '#e2e8f0'}`, padding:20, cursor:'pointer', transition:'all 0.18s', position:'relative', overflow:'hidden' }}
+            onMouseEnter={e => e.currentTarget.style.transform='translateY(-3px)'}
+            onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}>
+            {isDown && <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'#ef4444' }} />}
+            {t.status === 'up' && <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'#10b981' }} />}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
+                <div>
+                    <div style={{ fontWeight:800, fontSize:15, color:'#1e1b4b', marginBottom:3 }}>{t.name}</div>
+                    <div style={{ fontSize:12, color:'#64748b', fontFamily:'monospace' }}>{t.host}:{t.port}</div>
+                </div>
+                <StatusBadge status={t.status} />
+            </div>
+            <div style={{ display:'flex', gap:16 }}>
+                <div>
+                    <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase' }}>Latency</div>
+                    <div style={{ fontSize:18, fontWeight:900, color: t.responseTime < 100 ? '#10b981' : t.responseTime < 300 ? '#f59e0b' : '#ef4444' }}>
+                        {t.responseTime ? `${t.responseTime}ms` : '—'}
+                    </div>
+                </div>
+                <div>
+                    <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase' }}>Last Check</div>
+                    <div style={{ fontSize:12, color:'#475569', marginTop:2 }}>
+                        {t.lastChecked ? new Date(t.lastChecked).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
+// ── Detail Modal ──────────────────────────────────────────────────────────────
+function DetailModal({ target, onClose, onDelete, onToggle }) {
+    const [termLines, setTermLines] = useState([]);
+    const [running, setRunning] = useState(false);
+    const [seq, setSeq] = useState(0);
+    const timerRef = useRef(null);
+    const termRef = useRef(null);
+    const seqRef = useRef(0);
+
+    const chartData = (target.history || []).slice(-48).map(h => ({
+        time: new Date(h.time).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
+        ms: h.responseTime || 0,
+        status: h.status,
+    }));
+
+    const avgMs = chartData.filter(d => d.ms).length
+        ? Math.round(chartData.filter(d => d.ms).reduce((s,d) => s + d.ms, 0) / chartData.filter(d => d.ms).length)
+        : 0;
+
+    const upCount = (target.history || []).filter(h => h.status === 'up').length;
+    const total   = (target.history || []).length;
+    const uptimePct = total > 0 ? ((upCount/total)*100).toFixed(1) : '—';
+
+    const addLine = (text, color = '#4ade80') => {
+        setTermLines(prev => [...prev.slice(-200), { text, color, id: Date.now() + Math.random() }]);
+        setTimeout(() => { if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight; }, 50);
+    };
+
+    const doPing = useCallback(async () => {
+        seqRef.current += 1;
+        const n = seqRef.current;
+        try {
+            const res = await axios.post(`${API_URL}/api/ping`, { target: target.host, port: target.port }, { headers: authHeaders() });
+            const { alive, ms } = res.data;
+            if (alive) {
+                addLine(`Reply from ${target.host}: seq=${n} time=${ms}ms`, '#4ade80');
+            } else {
+                addLine(`Request timeout for seq ${n}`, '#f87171');
+            }
+        } catch {
+            addLine(`Error pinging ${target.host}`, '#f87171');
+        }
+    }, [target]);
+
+    const startPing = async () => {
+        setRunning(true);
+        addLine(`PING ${target.host} port ${target.port}`, '#94a3b8');
+        addLine('─'.repeat(45), '#334155');
+        await doPing();
+        timerRef.current = setInterval(doPing, 1000);
+    };
+
+    const stopPing = () => {
+        clearInterval(timerRef.current);
+        setRunning(false);
+        addLine('─'.repeat(45), '#334155');
+        addLine('Ping stopped.', '#94a3b8');
+    };
+
+    const clearTerm = () => setTermLines([]);
+
+    useEffect(() => () => clearInterval(timerRef.current), []);
+
+    return (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+            onClick={e => e.target === e.currentTarget && onClose()}>
+            <div style={{ background:'#f8fafc', borderRadius:20, width:'100%', maxWidth:820, maxHeight:'92vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.25)' }}>
+
+                {/* Header */}
+                <div style={{ background:'linear-gradient(135deg,#1e1b4b,#2d2466)', padding:'20px 24px', borderRadius:'20px 20px 0 0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div>
+                        <div style={{ fontWeight:800, fontSize:18, color:'#fff' }}>{target.name}</div>
+                        <div style={{ fontSize:13, color:'rgba(255,255,255,0.6)', fontFamily:'monospace', marginTop:3 }}>{target.host}:{target.port}</div>
+                    </div>
+                    <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                        <StatusBadge status={target.status} />
+                        <button onClick={onClose} style={{ background:'rgba(255,255,255,0.15)', border:'none', borderRadius:8, color:'#fff', width:32, height:32, cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                    </div>
+                </div>
+
+                <div style={{ padding:20, display:'flex', flexDirection:'column', gap:16 }}>
+
+                    {/* Stats row */}
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+                        {[
+                            { l:'Status', v: target.status === 'up' ? '● Online' : target.status === 'down' ? '● Offline' : '● Unknown', c: target.status === 'up' ? '#10b981' : target.status === 'down' ? '#ef4444' : '#f59e0b' },
+                            { l:'Latency', v: target.responseTime ? `${target.responseTime}ms` : '—', c:'#7c3aed' },
+                            { l:'Uptime', v: `${uptimePct}%`, c:'#10b981' },
+                            { l:'Avg (24h)', v: avgMs ? `${avgMs}ms` : '—', c:'#f59e0b' },
+                        ].map(s => (
+                            <div key={s.l} style={{ background:'#fff', borderRadius:12, padding:'14px 16px', border:'1px solid #e2e8f0', textAlign:'center' }}>
+                                <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', marginBottom:4 }}>{s.l}</div>
+                                <div style={{ fontSize:16, fontWeight:800, color:s.c }}>{s.v}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* 24h Chart */}
+                    <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'16px 20px' }}>
+                        <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b', marginBottom:12 }}>📈 Response Time — Last 24 Hours</div>
+                        {chartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height={180}>
+                                <LineChart data={chartData} margin={{ top:5, right:10, left:0, bottom:0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                    <XAxis dataKey="time" tick={{ fontSize:10, fill:'#94a3b8' }} interval={Math.floor(chartData.length/6)} tickLine={false} axisLine={false} />
+                                    <YAxis tick={{ fontSize:10, fill:'#94a3b8' }} unit="ms" tickLine={false} axisLine={false} width={44} />
+                                    <Tooltip contentStyle={{ borderRadius:10, fontSize:12, border:'1px solid #e2e8f0' }} formatter={v => [`${v}ms`, 'Latency']} />
+                                    {avgMs > 0 && <ReferenceLine y={avgMs} stroke="#c4b5fd" strokeDasharray="4 4" label={{ value:`avg ${avgMs}ms`, position:'insideTopRight', fontSize:10, fill:'#a78bfa' }} />}
+                                    <Line type="monotone" dataKey="ms" stroke="#7c3aed" strokeWidth={2} dot={false} activeDot={{ r:4, fill:'#7c3aed' }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div style={{ textAlign:'center', padding:40, color:'#94a3b8', fontSize:13 }}>No history yet — check again in a minute</div>
+                        )}
+                    </div>
+
+                    {/* Terminal */}
+                    <div style={{ background:'#0d1117', borderRadius:16, overflow:'hidden', border:'1px solid #30363d' }}>
+                        {/* Terminal header */}
+                        <div style={{ background:'#161b22', padding:'10px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                                <div style={{ display:'flex', gap:6 }}>
+                                    <div style={{ width:12, height:12, borderRadius:'50%', background:'#ff5f57' }} />
+                                    <div style={{ width:12, height:12, borderRadius:'50%', background:'#febc2e' }} />
+                                    <div style={{ width:12, height:12, borderRadius:'50%', background:'#28c840' }} />
+                                </div>
+                                <span style={{ fontSize:13, color:'#8b949e', fontFamily:'monospace' }}>ping {target.host}</span>
+                            </div>
+                            <div style={{ display:'flex', gap:8 }}>
+                                <button onClick={clearTerm} style={{ padding:'4px 12px', background:'#21262d', border:'1px solid #30363d', borderRadius:6, color:'#8b949e', fontSize:12, cursor:'pointer' }}>Clear</button>
+                                {!running ? (
+                                    <button onClick={startPing} style={{ padding:'4px 14px', background:'#238636', border:'none', borderRadius:6, color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer' }}>▶ Start</button>
+                                ) : (
+                                    <button onClick={stopPing} style={{ padding:'4px 14px', background:'#da3633', border:'none', borderRadius:6, color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer' }}>■ Stop</button>
+                                )}
+                            </div>
+                        </div>
+                        {/* Terminal body */}
+                        <div ref={termRef} style={{ height:200, overflowY:'auto', padding:'12px 16px', fontFamily:'monospace', fontSize:13, lineHeight:1.7 }}>
+                            {termLines.length === 0 && (
+                                <div style={{ color:'#4d5566' }}>Press ▶ Start to begin live ping test...</div>
+                            )}
+                            {termLines.map(l => (
+                                <div key={l.id} style={{ color: l.color }}>{l.text}</div>
+                            ))}
+                            {running && <div style={{ color:'#4d5566', animation:'blink 1s infinite' }}>█</div>}
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+                        <button onClick={() => onToggle(target)} style={{ padding:'8px 18px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10, fontSize:13, fontWeight:600, color:'#475569', cursor:'pointer' }}>
+                            {target.active ? 'Pause Monitoring' : 'Resume Monitoring'}
+                        </button>
+                        <button onClick={() => onDelete(target._id)} style={{ padding:'8px 18px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:10, fontSize:13, fontWeight:600, color:'#dc2626', cursor:'pointer' }}>
+                            🗑 Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PingMonitor() {
     const [targets, setTargets] = useState([]);
     const [form, setForm] = useState({ name: '', host: '', port: 443 });
     const [addError, setAddError] = useState('');
     const [saving, setSaving] = useState(false);
+    const [selected, setSelected] = useState(null);
+    const [search, setSearch] = useState('');
 
-    // Live ping state
-    const [liveTarget, setLiveTarget] = useState(null);
-    const [liveInterval, setLiveInterval] = useState(5);
-    const [liveRunning, setLiveRunning] = useState(false);
-    const [liveResults, setLiveResults] = useState([]);
-    const timerRef = useRef(null);
+    const load = () =>
+        axios.get(`${API_URL}/api/ping-targets`, { headers: authHeaders() }).then(r => setTargets(r.data)).catch(() => {});
 
-    const loadTargets = () =>
-        axios.get(`${API_URL}/api/ping-targets`, api()).then(r => setTargets(r.data)).catch(() => {});
-
-    useEffect(() => { loadTargets(); }, []);
-    useEffect(() => () => clearInterval(timerRef.current), []);
+    useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, []);
 
     const addTarget = async (e) => {
         e.preventDefault();
         if (!form.name.trim() || !form.host.trim()) { setAddError('Name and host required'); return; }
         setSaving(true); setAddError('');
         try {
-            await axios.post(`${API_URL}/api/ping-targets`, form, api());
+            await axios.post(`${API_URL}/api/ping-targets`, form, { headers: authHeaders() });
             setForm({ name: '', host: '', port: 443 });
-            loadTargets();
-        } catch (err) { setAddError(err.response?.data?.error || 'Failed to add'); }
+            load();
+        } catch (err) { setAddError(err.response?.data?.error || 'Failed'); }
         setSaving(false);
     };
 
     const deleteTarget = async (id) => {
         if (!window.confirm('Delete this ping target?')) return;
-        await axios.delete(`${API_URL}/api/ping-targets/${id}`, api());
-        loadTargets();
+        await axios.delete(`${API_URL}/api/ping-targets/${id}`, { headers: authHeaders() });
+        setSelected(null);
+        load();
     };
 
-    const togglePause = async (t) => {
-        await axios.put(`${API_URL}/api/ping-targets/${t._id}`, { active: !t.active }, api());
-        loadTargets();
+    const toggleTarget = async (t) => {
+        await axios.put(`${API_URL}/api/ping-targets/${t._id}`, { active: !t.active }, { headers: authHeaders() });
+        load();
     };
 
-    // Live ping
-    const doPing = async (host, port) => {
-        try {
-            const res = await axios.post(`${API_URL}/api/ping`, { target: host, port }, api());
-            const row = { ...res.data, seq: Date.now() };
-            setLiveResults(prev => [row, ...prev].slice(0, MAX_RESULTS));
-        } catch {
-            setLiveResults(prev => [{ alive: false, ms: null, seq: Date.now(), time: new Date().toISOString() }, ...prev].slice(0, MAX_RESULTS));
-        }
-    };
+    const filtered = targets.filter(t =>
+        !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.host.includes(search)
+    );
 
-    const startLive = async (t) => {
-        clearInterval(timerRef.current);
-        setLiveTarget(t);
-        setLiveResults([]);
-        setLiveRunning(true);
-        await doPing(t.host, t.port);
-        timerRef.current = setInterval(() => doPing(t.host, t.port), liveInterval * 1000);
-    };
-
-    const stopLive = () => {
-        clearInterval(timerRef.current);
-        setLiveRunning(false);
-    };
-
-    const liveStats = liveResults.length ? {
-        sent: liveResults.length,
-        loss: Math.round((liveResults.filter(r => !r.alive).length / liveResults.length) * 100),
-        avg: Math.round(liveResults.filter(r => r.ms).reduce((s, r) => s + r.ms, 0) / (liveResults.filter(r => r.ms).length || 1)),
-        min: Math.min(...liveResults.filter(r => r.ms).map(r => r.ms)),
-        max: Math.max(...liveResults.filter(r => r.ms).map(r => r.ms)),
-    } : null;
+    const up = targets.filter(t => t.status === 'up').length;
+    const down = targets.filter(t => t.status === 'down').length;
 
     return (
         <div className="pg-wrap">
             <div className="pg-header">
                 <div>
                     <h1 className="pg-title">Ping Monitor</h1>
-                    <p className="pg-sub">Monitor connectivity for any host, IP or URL</p>
+                    <p className="pg-sub">Monitor TCP connectivity for any host, IP or port</p>
+                </div>
+                <div style={{ display:'flex', gap:12 }}>
+                    <div style={{ background:'#dcfce7', color:'#16a34a', padding:'6px 16px', borderRadius:20, fontWeight:700, fontSize:13 }}>● {up} Up</div>
+                    <div style={{ background:'#fee2e2', color:'#dc2626', padding:'6px 16px', borderRadius:20, fontWeight:700, fontSize:13 }}>● {down} Down</div>
                 </div>
             </div>
 
             {/* Add form */}
-            <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:20, marginBottom:20 }}>
-                <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:14 }}>➕ Add Ping Target</div>
+            <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:20, marginBottom:24 }}>
+                <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:14 }}>➕ Add New Target</div>
                 <form onSubmit={addTarget}>
-                    <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-                        <div style={{ flex:'2 1 160px' }}>
+                    <div style={{ display:'flex', gap:12, flexWrap:'wrap', alignItems:'flex-end' }}>
+                        <div style={{ flex:'2 1 150px' }}>
                             <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Name</label>
                             <input value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                                placeholder="e.g. My Server"
-                                style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+                                placeholder="My Server / Router"
+                                style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #e2e8f0', borderRadius:9, fontSize:14, boxSizing:'border-box', outline:'none' }} />
                         </div>
                         <div style={{ flex:'3 1 200px' }}>
                             <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Host / IP / URL</label>
                             <input value={form.host} onChange={e => setForm({...form, host: e.target.value})}
-                                placeholder="e.g. 192.168.1.1 or mysite.com"
-                                style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+                                placeholder="192.168.1.1 or mysite.com"
+                                style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #e2e8f0', borderRadius:9, fontSize:14, boxSizing:'border-box', outline:'none' }} />
                         </div>
                         <div style={{ flex:'1 1 90px' }}>
                             <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Port</label>
                             <input type="number" value={form.port} onChange={e => setForm({...form, port: Number(e.target.value)})}
-                                style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+                                style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #e2e8f0', borderRadius:9, fontSize:14, boxSizing:'border-box', outline:'none' }} />
                         </div>
-                        <div style={{ display:'flex', alignItems:'flex-end' }}>
-                            <button type="submit" disabled={saving}
-                                style={{ padding:'9px 24px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:8, fontWeight:700, fontSize:14, cursor:'pointer' }}>
-                                {saving ? 'Adding...' : 'Add'}
-                            </button>
-                        </div>
+                        <button type="submit" disabled={saving}
+                            style={{ padding:'10px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, fontSize:14, cursor:'pointer', whiteSpace:'nowrap' }}>
+                            {saving ? 'Adding...' : '+ Add'}
+                        </button>
                     </div>
                     {addError && <div style={{ marginTop:8, fontSize:13, color:'#ef4444' }}>⚠️ {addError}</div>}
                 </form>
             </div>
 
-            {/* Saved targets */}
-            {targets.length > 0 && (
-                <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden', marginBottom:20 }}>
-                    <div style={{ padding:'12px 18px', background:'#f8fafc', borderBottom:'1px solid #e2e8f0', fontWeight:700, fontSize:14, color:'#1e1b4b' }}>
-                        📡 Saved Targets ({targets.length})
-                    </div>
-                    {targets.map(t => (
-                        <div key={t._id} style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 18px', borderBottom:'1px solid #f1f5f9', flexWrap:'wrap' }}>
-                            <StatusDot status={t.status} size={12} />
-                            <div style={{ flex:1, minWidth:120 }}>
-                                <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b' }}>{t.name}</div>
-                                <div style={{ fontSize:12, color:'#64748b' }}>{t.host}:{t.port}</div>
-                            </div>
-                            <div style={{ textAlign:'center', minWidth:80 }}>
-                                <div style={{ fontSize:12, color:'#94a3b8' }}>Status</div>
-                                <div style={{ fontWeight:700, fontSize:13, color: t.status === 'up' ? '#10b981' : t.status === 'down' ? '#ef4444' : '#f59e0b' }}>
-                                    {t.status === 'up' ? '● UP' : t.status === 'down' ? '● DOWN' : '● Unknown'}
-                                </div>
-                            </div>
-                            <div style={{ textAlign:'center', minWidth:80 }}>
-                                <div style={{ fontSize:12, color:'#94a3b8' }}>Latency</div>
-                                <div style={{ fontWeight:700, fontSize:13, color: latencyColor(t.responseTime) }}>
-                                    {t.responseTime ? `${t.responseTime}ms` : '—'}
-                                </div>
-                            </div>
-                            <div style={{ textAlign:'center', minWidth:100 }}>
-                                <div style={{ fontSize:12, color:'#94a3b8' }}>Last Checked</div>
-                                <div style={{ fontSize:12, color:'#475569' }}>
-                                    {t.lastChecked ? new Date(t.lastChecked).toLocaleTimeString('en-IN') : '—'}
-                                </div>
-                            </div>
-                            <div style={{ display:'flex', gap:8 }}>
-                                <button onClick={() => startLive(t)}
-                                    style={{ padding:'6px 14px', background: liveTarget?._id === t._id && liveRunning ? '#f0fdf4' : '#f5f3ff', color: liveTarget?._id === t._id && liveRunning ? '#16a34a' : '#7c3aed', border:`1px solid ${liveTarget?._id === t._id && liveRunning ? '#bbf7d0' : '#ddd6fe'}`, borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                                    {liveTarget?._id === t._id && liveRunning ? '● Live' : '▶ Live'}
-                                </button>
-                                <button onClick={() => togglePause(t)}
-                                    style={{ padding:'6px 12px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:7, fontSize:12, cursor:'pointer', color:'#64748b' }}>
-                                    {t.active ? 'Pause' : 'Resume'}
-                                </button>
-                                <button onClick={() => deleteTarget(t._id)}
-                                    style={{ padding:'6px 10px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:7, fontSize:12, cursor:'pointer', color:'#dc2626' }}>
-                                    🗑
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+            {/* Search */}
+            {targets.length > 3 && (
+                <div style={{ marginBottom:16, position:'relative' }}>
+                    <svg style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)' }} width="16" height="16" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search targets..."
+                        style={{ width:'100%', padding:'10px 12px 10px 38px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, background:'#fff', boxSizing:'border-box', outline:'none' }} />
                 </div>
             )}
 
-            {/* Live ping panel */}
-            {liveTarget && (
-                <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden' }}>
-                    <div style={{ padding:'12px 18px', background:'#f8fafc', borderBottom:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
-                        <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b' }}>
-                            📡 Live: {liveTarget.name} ({liveTarget.host})
-                        </div>
-                        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-                            <select value={liveInterval} onChange={e => setLiveInterval(Number(e.target.value))} disabled={liveRunning}
-                                style={{ padding:'5px 10px', border:'1px solid #e2e8f0', borderRadius:7, fontSize:13 }}>
-                                {[1,2,3,5,10].map(v => <option key={v} value={v}>{v}s</option>)}
-                            </select>
-                            {liveRunning ? (
-                                <button onClick={stopLive} style={{ padding:'6px 16px', background:'#ef4444', color:'#fff', border:'none', borderRadius:8, fontWeight:700, fontSize:13, cursor:'pointer' }}>■ Stop</button>
-                            ) : (
-                                <button onClick={() => startLive(liveTarget)} style={{ padding:'6px 16px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, fontSize:13, cursor:'pointer' }}>▶ Start</button>
-                            )}
-                        </div>
-                    </div>
-
-                    {liveStats && (
-                        <div style={{ display:'flex', gap:0, borderBottom:'1px solid #f1f5f9' }}>
-                            {[
-                                { l:'Sent', v: liveStats.sent, c:'#374151' },
-                                { l:'Loss', v: `${liveStats.loss}%`, c: liveStats.loss > 0 ? '#ef4444' : '#10b981' },
-                                { l:'Avg', v: `${liveStats.avg}ms`, c: latencyColor(liveStats.avg) },
-                                { l:'Min', v: liveStats.min !== Infinity ? `${liveStats.min}ms` : '—', c:'#10b981' },
-                                { l:'Max', v: liveStats.max !== -Infinity ? `${liveStats.max}ms` : '—', c:'#f59e0b' },
-                            ].map(s => (
-                                <div key={s.l} style={{ flex:1, padding:'10px', textAlign:'center', borderRight:'1px solid #f1f5f9' }}>
-                                    <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase' }}>{s.l}</div>
-                                    <div style={{ fontSize:15, fontWeight:800, color:s.c }}>{s.v}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div style={{ maxHeight:'40vh', overflowY:'auto' }}>
-                        {liveResults.map((r, i) => (
-                            <div key={r.seq} style={{ display:'flex', alignItems:'center', gap:16, padding:'9px 18px', borderBottom:'1px solid #f8fafc', fontSize:13 }}>
-                                <span style={{ width:36, color:'#94a3b8', fontFamily:'monospace', fontSize:12 }}>{liveResults.length - i}</span>
-                                <StatusDot status={r.alive ? 'up' : 'down'} />
-                                <span style={{ width:60, fontWeight:700, color: r.alive ? '#10b981' : '#ef4444' }}>{r.alive ? 'UP' : 'DOWN'}</span>
-                                <span style={{ width:90, fontFamily:'monospace', fontWeight:700, color: latencyColor(r.ms) }}>{r.ms ? `${r.ms}ms` : '—'}</span>
-                                <span style={{ color:'#94a3b8', fontSize:12 }}>{new Date(r.time).toLocaleTimeString('en-IN')}</span>
-                            </div>
-                        ))}
-                        {liveResults.length === 0 && <div style={{ padding:24, textAlign:'center', color:'#94a3b8' }}>Starting...</div>}
-                    </div>
+            {/* Target cards */}
+            {filtered.length > 0 ? (
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:16 }}>
+                    {filtered.map(t => <TargetCard key={t._id} t={t} onClick={setSelected} />)}
                 </div>
-            )}
-
-            {targets.length === 0 && (
-                <div style={{ textAlign:'center', padding:'50px 20px', color:'#94a3b8' }}>
-                    <div style={{ fontSize:48, marginBottom:12 }}>📡</div>
-                    <div style={{ fontSize:16, fontWeight:600 }}>No ping targets yet</div>
+            ) : (
+                <div style={{ textAlign:'center', padding:'60px 20px', color:'#94a3b8' }}>
+                    <div style={{ fontSize:52, marginBottom:12 }}>📡</div>
+                    <div style={{ fontSize:16, fontWeight:700, color:'#475569' }}>No targets yet</div>
                     <div style={{ fontSize:13, marginTop:6 }}>Add a host above to start monitoring</div>
                 </div>
+            )}
+
+            {/* Detail Modal */}
+            {selected && (
+                <DetailModal
+                    target={targets.find(t => t._id === selected._id) || selected}
+                    onClose={() => setSelected(null)}
+                    onDelete={deleteTarget}
+                    onToggle={toggleTarget}
+                />
             )}
         </div>
     );
