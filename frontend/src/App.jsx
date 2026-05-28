@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UWLogo from './components/UWLogo';
+import CookieConsent from './components/CookieConsent';
 import Dashboard from './pages/Dashboard';
 import Servers from './pages/Servers';
 import Recipients from './pages/Recipients';
@@ -440,6 +441,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppInner />
+      <CookieConsent />
     </BrowserRouter>
   );
 }
