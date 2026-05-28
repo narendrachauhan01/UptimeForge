@@ -110,11 +110,16 @@ function checkUrl(url, options = {}) {
 }
 
 function getEligibleRecipients(recipients, serverId, serverUserId) {
+    // serverUserId may be populated object {_id, plan} or raw ObjectId — normalize
+    const serverUserIdStr = serverUserId
+        ? (serverUserId._id ? serverUserId._id.toString() : serverUserId.toString())
+        : null;
+
     return recipients.filter(r => {
         // Isolate by user: recipient must belong to the same user as the server
         // Admin recipients (userId = null) receive alerts for all servers
-        if (r.userId && serverUserId) {
-            if (r.userId.toString() !== serverUserId.toString()) return false;
+        if (r.userId && serverUserIdStr) {
+            if (r.userId.toString() !== serverUserIdStr) return false;
         }
         // Server-level filter: empty list = all sites for this user
         return r.servers.length === 0 || r.servers.some(s => s._id.toString() === serverId.toString());
