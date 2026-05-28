@@ -164,7 +164,7 @@ export default function Dashboard() {
         </div>
 
         {/* Site list */}
-        <div className="mon-list">
+        <div className="mon-list" style={{maxHeight:'calc(100vh - 280px)', overflowY:'auto', paddingRight:2}}>
           {displayList.length===0 ? (
             <div className="mon-empty">
               <div style={{fontSize:48,marginBottom:12}}>🖥️</div>
