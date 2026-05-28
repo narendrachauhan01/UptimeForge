@@ -85,7 +85,6 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
   ] : [
     { to: '/dashboard',  label: 'Monitoring',   icon: <IcoDash /> },
     { to: '/charts',     label: 'Performance',  icon: <IcoChart /> },
-    { to: '/alerts',     label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/domain-ssl', label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/ping',       label: 'Ping Monitor', icon: <IcoPing /> },
     { to: '/account',    label: 'My Plan',      icon: <IcoPlan /> },
