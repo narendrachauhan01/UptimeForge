@@ -249,28 +249,41 @@ export default function Account({ user, onUserUpdate }) {
             {/* ── PLAN TAB ── */}
             {tab === 'plan' && (
                 <div className="acct-plans-row">
-                    {['bronze', 'silver', 'gold'].map(pk => {
+                    {[
+                        { pk: 'bronze', emoji: '🥉', features: ['5 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts'] },
+                        { pk: 'silver', emoji: '🥈', features: ['15 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support'] },
+                        { pk: 'gold',   emoji: '🥇', features: ['30 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support', 'Server monitoring'] },
+                    ].map(({ pk, emoji, features }) => {
                         const cfg   = plans[pk] || {};
                         const price = cfg.price || (pk === 'bronze' ? 499 : pk === 'silver' ? 999 : 1499);
                         const sites = cfg.sites || (pk === 'bronze' ? 5 : pk === 'silver' ? 15 : 30);
+                        const isCurrent = plan === pk;
+                        const isPopular = pk === 'silver';
                         return (
-                            <div key={pk} className={`acct-plan-card ${plan === pk ? 'acct-current' : ''} ${pk === 'silver' ? 'acct-popular' : ''}`}>
-                                {pk === 'silver' && <div className="acct-pop-badge">Popular</div>}
+                            <div key={pk} className={`acct-plan-card ${isCurrent ? 'acct-current' : ''} ${isPopular ? 'acct-popular' : ''}`}>
+                                {isPopular && <div className="acct-pop-badge">⭐ Most Popular</div>}
+                                {isCurrent && <div className="acct-active-glow" />}
                                 <div className="acct-plan-card-header" style={{ background: PLAN_GRADIENTS[pk] }}>
+                                    <div className="acct-plan-card-emoji">{emoji}</div>
                                     <div className="acct-plan-card-name">{PLAN_LABEL[pk]}</div>
-                                    <div className="acct-plan-card-price">₹{price}/mo</div>
-                                    <div className="acct-plan-card-sites">{sites} sites</div>
+                                    <div className="acct-plan-card-price">₹{price}<span>/mo</span></div>
+                                    <div className="acct-plan-card-sites">{sites} sites included</div>
                                 </div>
                                 <div className="acct-plan-card-body">
-                                    {plan === pk ? (
-                                        <div className="acct-current-label">✓ Current Plan</div>
+                                    <ul className="acct-plan-features">
+                                        {features.map(f => (
+                                            <li key={f}><span className="acct-feat-check">✓</span>{f}</li>
+                                        ))}
+                                    </ul>
+                                    {isCurrent ? (
+                                        <div className="acct-current-label">✓ Your Current Plan</div>
                                     ) : (
                                         <button
                                             className="acct-upgrade-btn"
                                             style={{ background: PLAN_GRADIENTS[pk] }}
                                             onClick={() => navigate(`/pay?plan=${pk}`)}
                                         >
-                                            Pay via UPI →
+                                            Upgrade to {PLAN_LABEL[pk]} →
                                         </button>
                                     )}
                                 </div>
