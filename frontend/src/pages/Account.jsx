@@ -97,7 +97,7 @@ function generateInvoiceHtml(r, user) {
         <div class="inv-party-label">From</div>
         <div class="inv-party-name">UptimeForge</div>
         <div class="inv-party-line">Narendra Singh — DevOps Engineer</div>
-        <div class="inv-party-line">support@uptimewatch.in</div>
+        <div class="inv-party-line">uptimeforge@gmail.com</div>
         <div class="inv-party-line">India</div>
       </div>
       <div>
@@ -146,7 +146,7 @@ function generateInvoiceHtml(r, user) {
   </div>
 
   <div class="inv-footer">
-    <div class="inv-footer-note">Thank you for using UptimeForge! For support: support@uptimewatch.in</div>
+    <div class="inv-footer-note">Thank you for using UptimeForge! For support: uptimeforge@gmail.com</div>
     <div class="inv-footer-brand">UptimeForge © 2026</div>
   </div>
 </div>
