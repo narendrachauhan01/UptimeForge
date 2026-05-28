@@ -4777,3 +4777,77 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .rcp-form-input:focus { border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,0.08); }
 .rcp-fields-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:14px; margin-bottom:16px; }
 .rcp-form-field { display:flex; flex-direction:column; }
+
+/* ══════════════════════════════════════
+   SITE DETAIL PAGE — Mobile Fix
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .sit-layout { flex-direction: column; padding: 12px; gap: 14px; }
+  .sit-right   { width: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sit-cards-row { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .sit-uptime-row { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .sit-chart-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .sit-range-bar { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+  /* Top bar */
+  .sit-topbar { padding: 10px 14px; }
+  .sit-topbar-right { gap: 6px; }
+  .sit-action-btn { padding: 6px 12px; font-size: 12px; }
+
+  /* Header */
+  .sit-header { padding: 12px 14px 0; gap: 8px; flex-direction: column; }
+  .sit-name   { font-size: 17px; }
+  .sit-status-circle { width: 14px; height: 14px; }
+
+  /* Layout */
+  .sit-layout { padding: 10px; gap: 12px; }
+  .sit-main   { gap: 12px; }
+
+  /* Status cards: stack to 1 column */
+  .sit-cards-row { grid-template-columns: 1fr; gap: 8px; }
+  .sit-card { padding: 12px 14px; }
+  .sit-card-val { font-size: 17px; }
+
+  /* 24h bar smaller segments */
+  .sit-bar-seg { width: 6px !important; height: 16px !important; }
+
+  /* Uptime stats: 2 per row */
+  .sit-uptime-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sit-uptime-box { padding: 10px 12px; }
+  .sit-uptime-val { font-size: 17px; }
+
+  /* Chart */
+  .sit-chart-card { padding: 14px; }
+  .sit-range-bar { gap: 4px; }
+  .sit-range-btn { padding: 5px 10px; font-size: 11px; }
+  .sit-custom-range { flex-direction: column; gap: 8px; }
+  .sit-date-input { width: 100%; }
+
+  /* Avg/Min/Max */
+  .sit-resp-row { padding-top: 10px; margin-top: 10px; }
+  .sit-resp-val { font-size: 15px; }
+
+  /* Incidents */
+  .sit-incidents-card { padding: 14px; overflow-x: auto; }
+  .sit-inc-table { min-width: 480px; }
+
+  /* Right panel: single column */
+  .sit-right { display: flex; flex-direction: column; gap: 12px; grid-template-columns: unset; }
+  .sit-right-card { padding: 14px; }
+
+  /* Stats boxes */
+  .sit-stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* Topbar: stack on very small */
+  .mon-header > div:last-child { flex-wrap: wrap; }
+}
+
+@media (max-width: 420px) {
+  .sit-cards-row { grid-template-columns: 1fr; }
+  .sit-uptime-row { grid-template-columns: 1fr 1fr; }
+  .sit-stats-row  { grid-template-columns: 1fr 1fr; }
+  .sit-header { padding: 10px; }
+  .sit-name   { font-size: 15px; }
+}
