@@ -25,6 +25,7 @@ import AdminPanel from './pages/AdminPanel';
 import VerifyAccount from './pages/VerifyAccount';
 import PaymentPage from './pages/PaymentPage';
 import CompleteProfile from './pages/CompleteProfile';
+import Integrations from './pages/Integrations';
 import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
@@ -82,6 +83,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/email',                label: 'Email',         icon: <IcoMail /> },
     { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
   ] : [
+    { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
     { to: '/ping',         label: 'Ping Monitor', icon: <IcoPing /> },
@@ -457,6 +459,7 @@ function AppInner() {
             {isAdmin && <Route path="/feature-access" element={<FeatureAccess />} />}
             <Route path="/site/:id" element={<SiteDetail />} />
             <Route path="/add-monitor" element={<AddMonitor />} />
+            <Route path="/integrations" element={<Integrations />} />
             <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<Dashboard />} />

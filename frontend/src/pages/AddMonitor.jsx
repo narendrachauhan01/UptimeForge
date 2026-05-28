@@ -255,12 +255,12 @@ export default function AddMonitor() {
                                                 <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                                                     {[
                                                         {ch:'email',    icon:'✉️', label:'Email',             color:'#7c3aed', bg:'#f5f3ff', border:'#ddd6fe'},
-                                                        {ch:'whatsapp', icon:'💬', label:'WhatsApp',           color:'#16a34a', bg:'#f0fdf4', border:'#bbf7d0'},
-                                                        {ch:'both',     icon:'🔔', label:'Email & WhatsApp',   color:'#0369a1', bg:'#f0f9ff', border:'#bae6fd'},
+                                                        {ch:'whatsapp', icon:'💬', label:'WhatsApp (coming soon)', color:'#94a3b8', bg:'#f8fafc', border:'#e2e8f0', disabled:true},
                                                     ].map(o => (
                                                         <button key={o.ch} type="button"
-                                                            onClick={()=>setNewRecip({...newRecip,channel:o.ch})}
-                                                            style={{padding:'10px 18px',borderRadius:10,border:`1.5px solid ${o.border}`,background:o.bg,color:o.color,fontWeight:700,fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',gap:7}}>
+                                                            onClick={()=>!o.disabled && setNewRecip({...newRecip,channel:o.ch})}
+                                                            disabled={o.disabled}
+                                                            style={{padding:'10px 18px',borderRadius:10,border:`1.5px solid ${o.border}`,background:o.bg,color:o.color,fontWeight:700,fontSize:13,cursor:o.disabled?'not-allowed':'pointer',display:'flex',alignItems:'center',gap:7,opacity:o.disabled?0.6:1}}>
                                                             {o.icon} {o.label}
                                                         </button>
                                                     ))}
