@@ -76,7 +76,14 @@ async function checkAll() {
             const prevStatus = server.status;
             const wasAlertSent = server.downAlertSent;
 
-            console.log(`[Monitor] ${server.name} → HTTP ${result.code || 0} | ${result.up ? 'UP' : 'DOWN'} | ${result.time}ms`);
+            // Determine interval label for log
+            let intervalLabel = '30s (admin)';
+            if (server.userId) {
+                const plan = server.userId.plan || 'free_trial';
+                const iv = await getPlanInterval(plan, settings);
+                intervalLabel = iv >= 60 ? `${iv/60}m (${plan})` : `${iv}s (${plan})`;
+            }
+            console.log(`[Monitor] ${server.name} → HTTP ${result.code || 0} | ${result.up ? 'UP' : 'DOWN'} | ${result.time}ms | ⏱ ${intervalLabel}`);
 
             const setFields = {
                 lastChecked: new Date(),
