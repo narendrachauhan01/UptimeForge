@@ -2388,38 +2388,38 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   padding:4px 10px; border-radius:20px; letter-spacing:0.3px;
 }
 
-.lp-plan-top { padding:24px 22px 20px; color:#fff; position:relative; text-align:center; }
-.lp-plan-emoji { font-size:28px; margin-bottom:6px; }
+.lp-plan-top { padding:16px 18px 14px; color:#fff; position:relative; text-align:center; }
+.lp-plan-emoji { font-size:22px; margin-bottom:4px; }
 .lp-plan-name {
-  font-size:16px; font-weight:800; letter-spacing:0.3px;
-  margin-bottom:10px;
+  font-size:14px; font-weight:800; letter-spacing:0.3px;
+  margin-bottom:6px;
 }
-.lp-plan-price-row { display:flex; align-items:baseline; gap:4px; margin-bottom:4px; justify-content:center; }
-.lp-plan-price { font-size:34px; font-weight:900; line-height:1; letter-spacing:-1px; }
-.lp-plan-period { font-size:13px; opacity:0.85; font-weight:500; }
+.lp-plan-price-row { display:flex; align-items:baseline; gap:4px; margin-bottom:3px; justify-content:center; }
+.lp-plan-price { font-size:28px; font-weight:900; line-height:1; letter-spacing:-1px; }
+.lp-plan-period { font-size:12px; opacity:0.85; font-weight:500; }
 .lp-plan-sites {
-  display:inline-block; font-size:12px; font-weight:600;
-  margin-top:10px; background:rgba(255,255,255,0.2);
-  padding:3px 12px; border-radius:20px;
+  display:inline-block; font-size:11px; font-weight:600;
+  margin-top:6px; background:rgba(255,255,255,0.2);
+  padding:2px 10px; border-radius:20px;
 }
 
 .lp-plan-body {
-  padding:20px 20px 22px;
+  padding:14px 16px 16px;
   display:flex; flex-direction:column; flex:1;
   background:#fff;
 }
 .lp-plan-list {
-  list-style:none; display:flex; flex-direction:column; gap:10px;
-  margin-bottom:20px; flex:1;
+  list-style:none; display:flex; flex-direction:column; gap:7px;
+  margin-bottom:14px; flex:1;
   padding:0;
 }
 .lp-plan-list li {
-  display:flex; align-items:center; gap:8px;
-  font-size:13px; color:#475569; line-height:1.4; flex-wrap:nowrap;
+  display:flex; align-items:center; gap:7px;
+  font-size:12px; color:#475569; line-height:1.4; flex-wrap:nowrap;
 }
 .lp-plan-list li svg { flex-shrink:0; }
 .lp-plan-btn {
-  width:100%; padding:14px; border:none; border-radius:12px;
+  width:100%; padding:11px; border:none; border-radius:10px;
   color:#fff; font-size:14px; font-weight:700; cursor:pointer;
   letter-spacing:0.3px;
   transition:transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
