@@ -288,7 +288,6 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         { id: 'overview', label: 'Overview' },
         { id: 'users',    label: `Users (${users.length})` },
         { id: 'payments', label: `Payments (${payments.length})` },
-        { id: 'settings', label: 'Plan Settings' },
     ];
 
     return (
@@ -677,8 +676,8 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </div>
             )}
 
-            {/* ══ SETTINGS TAB ══ */}
-            {tab === 'settings' && settingsForm && (
+            {/* ══ SETTINGS TAB — moved to /plan-settings ══ */}
+            {false && settingsForm && (
                 <div>
                     <div className="ap-card">
                         <div className="ap-card-title">Trial Verification Fee</div>
