@@ -25,10 +25,10 @@ export default function Landing() {
       { label: '5 min check interval',        type: 'limited' },
       { label: 'Email alerts',                type: 'ok' },
       { label: 'WhatsApp alerts',             type: 'soon' },
+      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'SSL expiry monitoring',       type: 'no' },
       { label: 'Domain expiry monitoring',    type: 'no' },
       { label: 'Performance charts',          type: 'no' },
-      { label: 'Multi-recipient alerts',      type: 'no' },
       { label: 'Alert history logs',          type: 'ok' },
     ],
     bronze: [
@@ -36,10 +36,10 @@ export default function Landing() {
       { label: '2 min check interval',        type: 'limited' },
       { label: 'Email alerts',                type: 'ok' },
       { label: 'WhatsApp alerts',             type: 'soon' },
+      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'SSL expiry monitoring',       type: 'ok' },
       { label: 'Domain expiry monitoring',    type: 'ok' },
       { label: 'Performance charts',          type: 'ok' },
-      { label: 'Multi-recipient alerts',      type: 'no' },
       { label: 'Alert history logs',          type: 'ok' },
     ],
     silver: [
@@ -47,10 +47,10 @@ export default function Landing() {
       { label: '1 min check interval',        type: 'ok' },
       { label: 'Email alerts',                type: 'ok' },
       { label: 'WhatsApp alerts',             type: 'soon' },
+      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'SSL expiry monitoring',       type: 'ok' },
       { label: 'Domain expiry monitoring',    type: 'ok' },
       { label: 'Performance charts',          type: 'ok' },
-      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'Alert history logs',          type: 'ok' },
     ],
     gold: [
@@ -58,10 +58,10 @@ export default function Landing() {
       { label: '30 sec check interval',       type: 'ok' },
       { label: 'Email alerts',                type: 'ok' },
       { label: 'WhatsApp alerts',             type: 'soon' },
+      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'SSL expiry monitoring',       type: 'ok' },
       { label: 'Domain expiry monitoring',    type: 'ok' },
       { label: 'Performance charts',          type: 'ok' },
-      { label: 'Multi-recipient alerts',      type: 'ok' },
       { label: 'Alert history logs',          type: 'ok' },
       { label: 'Server resource monitoring',  type: 'ok' },
       { label: 'Priority support',            type: 'ok' },
@@ -289,13 +289,13 @@ export default function Landing() {
                 <div className="lp-plan-body">
                   <ul className="lp-plan-list">
                     {(PLAN_FEATURES[p.key] || []).map(({ label, type }) => (
-                      <li key={label} style={{ opacity: type === 'no' ? 0.45 : 1, color: type === 'no' ? '#94a3b8' : '#334155' }}>
-                        {type === 'ok'      && <svg width="14" height="14" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>}
-                        {type === 'no'      && <svg width="14" height="14" fill="none" stroke="#ef4444" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
-                        {type === 'limited' && <span style={{ fontSize:13 }}>😐</span>}
-                        {type === 'soon'    && <span style={{ fontSize:12 }}>🔜</span>}
+                      <li key={label} style={{ opacity: type === 'no' ? 0.4 : 1 }}>
+                        {type === 'ok'      && <svg width="14" height="14" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><polyline points="20 6 9 17 4 12"/></svg>}
+                        {type === 'no'      && <svg width="14" height="14" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                        {type === 'limited' && <span style={{flexShrink:0, fontSize:13}}>😐</span>}
+                        {type === 'soon'    && <span style={{flexShrink:0, fontSize:12}}>🔜</span>}
                         <span>{label}</span>
-                        {type === 'soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.3)', color:'#fff', borderRadius:4, padding:'1px 5px', marginLeft:4, fontWeight:700 }}>Soon</span>}
+                        {type === 'soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', borderRadius:4, padding:'1px 6px', marginLeft:4, fontWeight:700 }}>Soon</span>}
                       </li>
                     ))}
                   </ul>
