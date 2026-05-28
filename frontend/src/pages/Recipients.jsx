@@ -270,25 +270,30 @@ export default function Recipients() {
           }).map(r => (
             <div key={r._id} className={`recipient-card ${!r.active ? 'inactive' : ''}`}>
               <div className="recipient-item">
-                <div className="recipient-avatar">{r.name.charAt(0).toUpperCase()}</div>
+                <div className="recipient-avatar" style={{ background: `hsl(${(r.name.charCodeAt(0)*37)%360},60%,50%)` }}>
+                  {r.name.charAt(0).toUpperCase()}
+                </div>
                 <div className="recipient-info">
                   <div className="recipient-name">{r.name}</div>
-                  {r.phone && <div className="recipient-phone">💬 {formatPhone(r.phone)}</div>}
-                  {r.email && <div className="recipient-phone">✉️ {r.email}</div>}
-                  <div className="recipient-sites">🌐 {getSiteLabel(r)}</div>
+                  {r.email && <div className="recipient-phone"><span style={{color:'#94a3b8',fontSize:11}}>✉️</span> {r.email}</div>}
+                  {r.phone && <div className="recipient-phone"><span style={{color:'#94a3b8',fontSize:11}}>💬</span> {formatPhone(r.phone)}</div>}
+                  <div className="recipient-sites">
+                    <span style={{fontSize:11,color:'#94a3b8'}}>🌐</span>
+                    <span style={{color: r.servers?.length===0?'#10b981':'#7c3aed', fontWeight:600, fontSize:12}}>
+                      {getSiteLabel(r)}
+                    </span>
+                  </div>
                 </div>
-                <span className={`status-pill ${r.active ? 'active' : 'paused'}`}>
-                  {r.active ? 'Active' : '⏸ Paused'}
-                </span>
                 <div className="recipient-actions">
-                  <button className="btn-action edit" onClick={() => startEdit(r)}>✏️ Edit</button>
-                  <button className="btn-edit-sites" onClick={() => openSites(r)}>
+                  <span className={`status-pill ${r.active ? 'active' : 'paused'}`}>{r.active ? 'Active' : 'Paused'}</span>
+                  <button className="rcp-btn rcp-edit" onClick={() => startEdit(r)}>✏️ Edit</button>
+                  <button className="rcp-btn rcp-sites" onClick={() => openSites(r)}>
                     🌐 Sites {sitesId === r._id ? '▲' : '▼'}
                   </button>
-                  <button className={`btn-toggle ${r.active ? 'pause' : 'resume'}`} onClick={() => toggleActive(r)}>
+                  <button className={`rcp-btn ${r.active ? 'rcp-pause' : 'rcp-resume'}`} onClick={() => toggleActive(r)}>
                     {r.active ? 'Pause' : 'Resume'}
                   </button>
-                  <button className="btn-remove" onClick={() => handleDelete(r._id, r.name)}>🗑</button>
+                  <button className="rcp-btn rcp-del" onClick={() => handleDelete(r._id, r.name)}>🗑</button>
                 </div>
               </div>
 

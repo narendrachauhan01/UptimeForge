@@ -4748,3 +4748,12 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .am-code-tag button { background:none; border:none; color:rgba(255,255,255,0.7); cursor:pointer; font-size:14px; padding:0; line-height:1; }
 .am-code-tag button:hover { color:#fff; }
 .am-code-input { border:none; background:transparent; outline:none; font-size:13px; color:#475569; width:100px; min-width:80px; }
+
+/* Recipients — compact action buttons */
+.rcp-btn { padding:5px 12px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid #e2e8f0; background:#fff; color:#475569; transition:all 0.15s; }
+.rcp-btn:hover { opacity:0.85; }
+.rcp-edit   { color:#7c3aed; border-color:#ddd6fe; background:#f5f3ff; }
+.rcp-sites  { color:#0369a1; border-color:#bae6fd; background:#f0f9ff; }
+.rcp-pause  { color:#64748b; border-color:#e2e8f0; }
+.rcp-resume { color:#10b981; border-color:#bbf7d0; background:#f0fdf4; }
+.rcp-del    { color:#dc2626; border-color:#fecdd3; background:#fef2f2; }
