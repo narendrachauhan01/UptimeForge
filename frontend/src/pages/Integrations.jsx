@@ -9,10 +9,11 @@ const authHeaders = () => {
 
 // ── WhatsApp Add Modal ────────────────────────────────────────────────────────
 function WhatsAppModal({ servers, onClose, onSaved }) {
-    const [name,     setName]     = useState('');
-    const [phone,    setPhone]    = useState('');
-    const [selected, setSelected] = useState([]); // site IDs
-    const [allSites, setAllSites] = useState(true);
+    const [name,       setName]       = useState('');
+    const [phone,      setPhone]      = useState('');
+    const [selected,   setSelected]   = useState([]);
+    const [allSites,   setAllSites]   = useState(true);
+    const [siteSearch, setSiteSearch] = useState('');
     const [saving,   setSaving]   = useState(false);
     const [error,    setError]    = useState('');
 
@@ -76,8 +77,15 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
                             <span style={{ color:'#e2e8f0', fontSize:13, fontWeight:600 }}>All sites (current + future)</span>
                         </label>
                         {!allSites && (
+                            <div>
+                            {/* Search */}
+                            <div style={{ position:'relative', marginBottom:8 }}>
+                                <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..."
+                                    style={{ width:'100%', padding:'8px 10px 8px 30px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:8, fontSize:13, background:'rgba(255,255,255,0.07)', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                            </div>
                             <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:160, overflowY:'auto' }}>
-                                {servers.map(s => (
+                                {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
                                     <label key={s._id} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.05)' }}>
                                         <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>toggle(s._id)}
                                             style={{ width:15, height:15, accentColor:'#7c3aed' }} />
@@ -85,6 +93,7 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
                                         <span style={{ color:'#e2e8f0', fontSize:13 }}>{s.name}</span>
                                     </label>
                                 ))}
+                            </div>
                             </div>
                         )}
                     </div>
