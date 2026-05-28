@@ -169,6 +169,30 @@ function downloadInvoice(r, user) {
     }
 }
 
+function ConfirmModal({ plan, gradient, onConfirm, onCancel }) {
+    return (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
+            <div style={{ background:'#fff', borderRadius:20, padding:'32px 28px', maxWidth:360, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.2)', textAlign:'center' }}>
+                <div style={{ width:56, height:56, borderRadius:16, background:gradient, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', fontSize:26 }}>
+                    {plan === 'bronze' ? '🥉' : plan === 'silver' ? '🥈' : '🥇'}
+                </div>
+                <h3 style={{ margin:'0 0 8px', fontSize:18, fontWeight:800, color:'#1e1b4b' }}>Upgrade to {PLAN_LABEL[plan]}?</h3>
+                <p style={{ margin:'0 0 24px', fontSize:14, color:'#64748b', lineHeight:1.6 }}>
+                    You'll be taken to the payment page to complete your upgrade.
+                </p>
+                <div style={{ display:'flex', gap:12 }}>
+                    <button onClick={onCancel} style={{ flex:1, padding:'11px', borderRadius:10, border:'1.5px solid #e2e8f0', background:'#f8fafc', color:'#475569', fontWeight:700, fontSize:14, cursor:'pointer' }}>
+                        Cancel
+                    </button>
+                    <button onClick={onConfirm} style={{ flex:1, padding:'11px', borderRadius:10, border:'none', background:gradient, color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer' }}>
+                        Yes, Upgrade →
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function Account({ user, onUserUpdate }) {
     const navigate = useNavigate();
     const [serverCount, setServerCount] = useState(0);
@@ -178,6 +202,7 @@ export default function Account({ user, onUserUpdate }) {
     const [pwForm, setPwForm]           = useState({ current: '', newPw: '', confirm: '' });
     const [pwSaving, setPwSaving]       = useState(false);
     const [pwMsg, setPwMsg]             = useState({ type: '', text: '' });
+    const [confirmPlan, setConfirmPlan] = useState(null);
 
     useEffect(() => {
         getServers().then(r => setServerCount(r.data.length)).catch(() => {});
@@ -193,6 +218,7 @@ export default function Account({ user, onUserUpdate }) {
     const plans     = planData?.plans || {};
 
     return (
+      <>
         <div className="pg-wrap">
             <div className="pg-header">
                 <div>
@@ -281,7 +307,7 @@ export default function Account({ user, onUserUpdate }) {
                                         <button
                                             className="acct-upgrade-btn"
                                             style={{ background: PLAN_GRADIENTS[pk] }}
-                                            onClick={() => navigate(`/pay?plan=${pk}`)}
+                                            onClick={() => setConfirmPlan(pk)}
                                         >
                                             Upgrade to {PLAN_LABEL[pk]} →
                                         </button>
@@ -409,5 +435,15 @@ export default function Account({ user, onUserUpdate }) {
                 </div>
             )}
         </div>
+
+        {confirmPlan && (
+            <ConfirmModal
+                plan={confirmPlan}
+                gradient={PLAN_GRADIENTS[confirmPlan]}
+                onConfirm={() => { setConfirmPlan(null); navigate(`/pay?plan=${confirmPlan}`); }}
+                onCancel={() => setConfirmPlan(null)}
+            />
+        )}
+      </>
     );
 }
