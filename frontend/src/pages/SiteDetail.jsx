@@ -37,37 +37,41 @@ export default function SiteDetail() {
     const [showCustom, setShowCustom] = useState(false);
     const [pausing, setPausing] = useState(false);
 
-    const loadData = async (withExpiry = false) => {
+    const loadCore = async () => {
+        // Stage 1: Load server + history FAST → show page immediately
         try {
             const rangeParam = showCustom && customFrom && customTo
                 ? `from=${encodeURIComponent(customFrom)}&to=${encodeURIComponent(customTo)}`
                 : `range=${range}`;
-
-            const calls = [
+            const [serverRes, historyRes] = await Promise.all([
                 axios.get(`${API_URL}/api/servers/${id}`, { headers: headers() }),
                 axios.get(`${API_URL}/api/servers/${id}/history?${rangeParam}`, { headers: headers() }),
-                getAlerts(),
-            ];
-            if (withExpiry) calls.push(getExpiry(id));
+            ]);
+            const s = serverRes.data;
+            s.history = historyRes.data.history || [];
+            setServer(s);
+        } catch {}
+        setLoading(false); // Show page as soon as server data is ready
+    };
 
-            const [serverRes, historyRes, alertsRes, expiryRes] = await Promise.allSettled(calls);
-            if (serverRes.status === 'fulfilled') {
-                const s = serverRes.value.data;
-                if (historyRes.status === 'fulfilled') s.history = historyRes.value.data.history || [];
-                setServer(s || null);
-            }
+    const loadBackground = async () => {
+        // Stage 2: Load alerts + expiry in background (slow external APIs)
+        try {
+            const [alertsRes, expiryRes] = await Promise.allSettled([
+                getAlerts(),
+                getExpiry(id),
+            ]);
             if (alertsRes.status === 'fulfilled') {
                 setIncidents(alertsRes.value.data.filter(a => a.server === id || a.server?._id === id).slice(0, 10));
             }
-            if (withExpiry && expiryRes?.status === 'fulfilled') setExpiry(expiryRes.value.data);
+            if (expiryRes.status === 'fulfilled') setExpiry(expiryRes.value.data);
         } catch {}
-        setLoading(false);
     };
 
-    // Initial load: include expiry. Polling: skip expiry (too slow)
     useEffect(() => {
-        loadData(true);
-        const t = setInterval(() => loadData(false), 60000); // poll every 60s, no expiry
+        setLoading(true);
+        loadCore().then(() => loadBackground()); // core first, then background
+        const t = setInterval(() => loadCore(), 60000);
         return () => clearInterval(t);
     }, [id, range, showCustom, customFrom, customTo]);
 
@@ -298,7 +302,12 @@ export default function SiteDetail() {
                         <div className="sit-incidents-header">
                             <div className="sit-chart-title">⚠️ Latest Incidents</div>
                         </div>
-                        {incidents.length > 0 ? (<>
+                        {incidents.length === 0 && !expiry ? (
+                            <div style={{padding:'16px 0', color:'#94a3b8', fontSize:13, display:'flex', alignItems:'center', gap:8}}>
+                                <span style={{display:'inline-block', width:12, height:12, border:'2px solid #e2e8f0', borderTopColor:'#7c3aed', borderRadius:'50%', animation:'spin 0.8s linear infinite'}} />
+                                Loading incidents...
+                            </div>
+                        ) : incidents.length > 0 ? (<>
                             {/* Desktop table */}
                             <div className="sit-inc-desktop">
                                 <table className="sit-inc-table">

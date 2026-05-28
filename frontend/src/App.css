@@ -4955,3 +4955,4 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .sit-inc-mobile  { display: block; }
   .sit-inc-desktop { display: none; }
 }
+@keyframes spin { to { transform: rotate(360deg); } }
