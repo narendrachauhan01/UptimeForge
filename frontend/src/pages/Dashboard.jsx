@@ -14,7 +14,7 @@ function NewDropdown({ onNavigate }) {
   return (
     <div style={{ position:'relative' }} ref={ref}>
       <div style={{ display:'flex', borderRadius:10, overflow:'hidden', boxShadow:'0 2px 12px rgba(124,58,237,0.25)' }}>
-        <button onClick={() => go('/servers')} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, height:38 }}>
+        <button onClick={() => go('/add-monitor')} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, height:38 }}>
           + New
         </button>
         <button onClick={() => setOpen(o=>!o)} style={{ padding:'9px 13px', background:'linear-gradient(135deg,#6d28d9,#5b21b6)', color:'#fff', border:'none', borderLeft:'1px solid rgba(255,255,255,0.15)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', height:38 }}>
@@ -24,7 +24,7 @@ function NewDropdown({ onNavigate }) {
       {open && (
         <div style={{ position:'absolute', top:'calc(100% + 6px)', right:0, background:'#1e1b4b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, minWidth:180, boxShadow:'0 12px 32px rgba(0,0,0,0.3)', overflow:'hidden', zIndex:999 }}>
           {[
-            { icon:'🖥️', label:'Single monitor', path:'/servers' },
+            { icon:'🖥️', label:'Single monitor', path:'/add-monitor' },
             { icon:'📤', label:'Bulk upload', path:'/servers' },
           ].map(item => (
             <button key={item.label} onClick={() => go(item.path)}
