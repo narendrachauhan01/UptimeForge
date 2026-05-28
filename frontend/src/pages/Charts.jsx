@@ -58,7 +58,7 @@ export default function Charts() {
   }).sort((a, b) => b.uptime - a.uptime);
 
   const filteredUptimeData = uptimeSearch.trim() === ''
-    ? uptimeData.slice(0, 1)
+    ? uptimeData
     : uptimeData.filter(s =>
         s.name.toLowerCase().includes(uptimeSearch.toLowerCase()) ||
         s.url.toLowerCase().includes(uptimeSearch.toLowerCase())
@@ -277,7 +277,7 @@ export default function Charts() {
         ) : (
           <>
             {/* Desktop table */}
-            <div className="uptime-table-wrap uptime-desktop">
+            <div className="uptime-table-wrap uptime-desktop" style={{ maxHeight: 380, overflowY: 'auto' }}>
               <table className="uptime-table">
                 <thead>
                   <tr>
