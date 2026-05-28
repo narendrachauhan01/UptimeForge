@@ -321,7 +321,6 @@ export default function Account({ user, onUserUpdate }) {
                             { label: 'Domain expiry monitoring',     type: 'ok' },
                             { label: 'Performance charts',           type: 'ok' },
                             { label: 'Alert history logs',           type: 'ok' },
-                            { label: 'Server resource monitoring',   type: 'ok' },
                             { label: 'Priority support',             type: 'ok' },
                         ]},
                     ].map(({ pk, emoji, features }) => {
