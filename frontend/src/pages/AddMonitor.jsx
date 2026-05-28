@@ -76,7 +76,6 @@ export default function AddMonitor() {
                     const rec = recipients.find(r => r._id === rid);
                     if (!rec) return Promise.resolve();
                     const existingSites = recipSiteMap[rid] || [];
-                    // If recipient has specific sites, add new server to their list
                     const newSites = existingSites.length > 0 ? [...existingSites, serverId] : [];
                     return axios.put(`${API_URL}/api/recipients/${rid}`, { servers: newSites }, { headers: authHeaders() });
                 }));

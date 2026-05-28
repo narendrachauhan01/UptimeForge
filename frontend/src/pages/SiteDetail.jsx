@@ -136,11 +136,8 @@ export default function SiteDetail() {
                     ← Monitoring
                 </button>
                 <div className="sit-topbar-right">
-                    <button className="sit-action-btn" onClick={togglePause} disabled={pausing}>
+                    <button className={`sit-action-btn${server.active ? '' : ' resume-btn'}`} onClick={togglePause} disabled={pausing}>
                         {server.active ? '⏸ Pause' : '▶ Resume'}
-                    </button>
-                    <button className="sit-action-btn" onClick={()=>navigate(`/servers`)}>
-                        ✏️ Edit
                     </button>
                 </div>
             </div>
