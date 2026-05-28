@@ -95,13 +95,8 @@ const IcoDiscord = () => (
 const INTEGRATIONS = [
     {
         key: 'whatsapp', iconEl: <IcoWhatsApp />, name: 'WhatsApp', color: '#7c3aed',
-        desc: 'Send WhatsApp alerts via Green API when your site goes down.',
-        status: 'active',
-        fields: [
-            { key:'instanceId', label:'Instance ID', placeholder:'e.g. 1234567890', hint:'Get from green-api.com dashboard' },
-            { key:'apiToken',   label:'API Token',   placeholder:'Paste your Green API token', type:'password' },
-            { key:'phone',      label:'Default Phone', placeholder:'+91 9876543210', hint:'Your WhatsApp number to receive alerts' },
-        ],
+        desc: 'WhatsApp alerts via Green API — configured by admin. Add your phone number as a recipient to receive alerts.',
+        status: 'platform', fields: [],
     },
     {
         key: 'webhook', iconEl: <IcoWebhook />, name: 'Webhook', color: '#7c3aed',
@@ -163,7 +158,8 @@ export default function Integrations() {
         showToast(`${key} integration removed`);
     };
 
-    const active = INTEGRATIONS.filter(i => i.status === 'active' || i.status === 'email');
+    const platform = INTEGRATIONS.filter(i => i.status === 'platform' || i.status === 'email');
+    const active   = INTEGRATIONS.filter(i => i.status === 'active');
     const coming = INTEGRATIONS.filter(i => i.status === 'soon');
     const modal  = INTEGRATIONS.find(i => i.key === activeModal);
 
@@ -178,8 +174,33 @@ export default function Integrations() {
 
             {toast && <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', color:'#16a34a', borderRadius:10, padding:'10px 16px', marginBottom:16, fontWeight:600, fontSize:14 }}>{toast}</div>}
 
-            {/* Active integrations */}
-            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, marginBottom:10 }}>Alert Channels</div>
+            {/* Platform-managed (admin configures) */}
+            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, marginBottom:10 }}>Platform Alerts (Admin Managed)</div>
+            <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:12, padding:'10px 16px', marginBottom:16, fontSize:12, color:'#64748b' }}>
+                ℹ️ These are configured by the admin. Users receive alerts automatically when they add their email/phone as a recipient.
+            </div>
+            {platform.map(intg => (
+                <div key={intg.key} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
+                    <div style={{ width:46, height:46, borderRadius:12, background:'#f8fafc', border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>
+                        {intg.iconEl||intg.icon}
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>{intg.name}</div>
+                        <div style={{ fontSize:13, color:'#64748b' }}>{intg.desc}</div>
+                    </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        {intg.status === 'email' && emailActive && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
+                        {intg.status === 'email' && !emailActive && <span style={{ fontSize:11, fontWeight:700, background:'#fef3c7', color:'#d97706', padding:'3px 10px', borderRadius:20 }}>⚠ Not configured</span>}
+                        {intg.status === 'platform' && <span style={{ fontSize:11, fontWeight:700, background:'#f5f3ff', color:'#7c3aed', padding:'3px 10px', borderRadius:20 }}>Admin managed</span>}
+                    </div>
+                </div>
+            ))}
+
+            {/* User integrations */}
+            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, margin:'20px 0 10px' }}>Your Integrations (You Configure)</div>
+            <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:12, padding:'10px 16px', marginBottom:16, fontSize:12, color:'#64748b' }}>
+                🔗 Add your own Slack, Discord, Telegram or Webhook to receive alerts on your channels.
+            </div>
 
             {active.map(intg => (
                 <div key={intg.key} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
