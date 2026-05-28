@@ -12,6 +12,7 @@ import DomainSSL from './pages/DomainSSL';
 import Charts from './pages/Charts';
 import EmailPage from './pages/Email';
 import Resources from './pages/Resources';
+import PlanSettings from './pages/PlanSettings';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
@@ -69,7 +70,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
   const links = isAdmin ? [
     { to: '/admin-profile',        label: 'My Profile',    icon: <IcoProfile /> },
     { to: '/admin',                label: 'Admin Panel',   icon: <IcoAdmin /> },
-    { to: '/admin?tab=settings',   label: 'Plan Settings', icon: <IcoSettings /> },
+    { to: '/plan-settings',         label: 'Plan Settings', icon: <IcoSettings /> },
     { to: '/server-resources',     label: 'Infra',         icon: <IcoServer /> },
     { to: '/email',                label: 'Email',         icon: <IcoMail /> },
     { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
@@ -438,6 +439,7 @@ function AppInner() {
             <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
             {isAdmin && <Route path="/admin" element={<AdminPanel />} />}
             {isAdmin && <Route path="/admin-profile" element={<AdminPanel initialTab="profile" />} />}
+            {isAdmin && <Route path="/plan-settings" element={<PlanSettings />} />}
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
