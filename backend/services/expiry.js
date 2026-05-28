@@ -2,18 +2,20 @@ const tls = require('tls');
 const https = require('https');
 
 function checkSSL(hostname) {
+    // Try HTTPS request first (works through Cloudflare proxy)
     return new Promise((resolve) => {
-        const options = {
+        const req = https.request({
             host: hostname,
             port: 443,
-            servername: hostname,          // SNI — required for Cloudflare & SNI-based hosts
+            method: 'HEAD',
+            path: '/',
             rejectUnauthorized: false,
-            timeout: 10000,
-        };
-        const socket = tls.connect(options, () => {
+            timeout: 12000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0)' },
+        }, (res) => {
             try {
-                const cert = socket.getPeerCertificate();
-                socket.destroy();
+                const cert = res.socket.getPeerCertificate();
+                res.socket.destroy();
                 if (!cert || !cert.valid_to) return resolve(null);
                 const expiry = new Date(cert.valid_to);
                 const daysLeft = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
@@ -21,8 +23,26 @@ function checkSSL(hostname) {
                 resolve({ expiry, daysLeft, issuer });
             } catch (_) { resolve(null); }
         });
-        socket.on('error', () => resolve(null));
-        socket.on('timeout', () => { socket.destroy(); resolve(null); });
+        req.on('error', () => {
+            // Fallback: direct TLS connect with SNI
+            const socket = tls.connect(
+                { host: hostname, port: 443, servername: hostname, rejectUnauthorized: false, timeout: 10000 },
+                () => {
+                    try {
+                        const cert = socket.getPeerCertificate();
+                        socket.destroy();
+                        if (!cert || !cert.valid_to) return resolve(null);
+                        const expiry = new Date(cert.valid_to);
+                        const daysLeft = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
+                        resolve({ expiry, daysLeft, issuer: cert.issuer?.O || cert.issuer?.CN || null });
+                    } catch (_) { resolve(null); }
+                }
+            );
+            socket.on('error', () => resolve(null));
+            socket.on('timeout', () => { socket.destroy(); resolve(null); });
+        });
+        req.on('timeout', () => { req.destroy(); });
+        req.end();
     });
 }
 
