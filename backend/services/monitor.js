@@ -181,16 +181,16 @@ async function checkAll() {
 
                 console.log(`[Monitor] ${server.name} → isNewDown:${isNewDown} downAlertSent:${wasAlertSent}`);
 
-                if (isNewDown && !wasAlertSent) {
-                    // First time down — send alert ONCE, persist flag to DB
+                if (!wasAlertSent) {
+                    // Alert not sent yet (new down OR was down but alert missed) — send NOW
                     const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     console.log(`[Monitor] ${server.name} → DOWN alert to ${eligible.length} recipients`);
                     await sendAlerts(server, eligible, 'down', result.error || `HTTP ${result.code}`);
                     await fireIntegrations(server, 'down', server.userId?._id || server.userId);
                     setFields.downAlertSent = true;
                 } else {
-                    // Still down — save to DB only, no repeated notification
-                    console.log(`[Monitor] ${server.name} → still down, no repeated alert`);
+                    // Alert already sent, site still down — no repeat
+                    console.log(`[Monitor] ${server.name} → still down, alert already sent`);
                     await saveAlertOnly(server, 'down', result.error || `HTTP ${result.code}`);
                 }
             } else {
