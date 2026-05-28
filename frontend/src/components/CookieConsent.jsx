@@ -35,7 +35,7 @@ export default function CookieConsent() {
     }}>
       <div style={{ flex: 1, minWidth: 260 }}>
         <p style={{ margin: 0, fontSize: 13, color: '#cbd5e1', lineHeight: 1.6 }}>
-          🍪 We use cookies to keep you logged in and improve your experience.
+          We use cookies to keep you logged in and improve your experience.
           By accepting, you agree to our use of essential cookies.{' '}
           <a href="/terms" style={{ color: '#a78bfa', textDecoration: 'underline' }}>Learn more</a>
         </p>
