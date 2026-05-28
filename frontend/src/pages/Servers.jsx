@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getServers, addServer, deleteServer, updateServer, getPlans } from '../api';
-
-const empty = { name: '', url: '', domainExpiry: '' };
+import { getServers, deleteServer, updateServer, getPlans } from '../api';
 
 export default function Servers({ user, isAdmin, onNotify }) {
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
-  const [form, setForm] = useState(empty);
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [showAdd, setShowAdd] = useState(false);
-  const [addError, setAddError] = useState('');
   const [planInterval, setPlanInterval] = useState(60);
 
   const load = () => getServers().then(r => setServers(r.data));
@@ -31,26 +26,6 @@ export default function Servers({ user, isAdmin, onNotify }) {
       }).catch(() => {});
     }
   }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setAddError('');
-    if (!form.name || !form.url) return;
-    try {
-      await addServer(form);
-      setForm(empty);
-      setShowAdd(false);
-      load();
-      onNotify?.();
-    } catch (err) {
-      const data = err.response?.data;
-      if (data?.limitReached || data?.planExpired) {
-        setAddError(data.error);
-      } else {
-        setAddError(data?.error || 'Failed to add server');
-      }
-    }
-  };
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete "${name}"?`)) return;
@@ -97,8 +72,8 @@ export default function Servers({ user, isAdmin, onNotify }) {
             {!isAdmin && user && <span style={{color:'#94a3b8'}}> · {user.siteLimit} max on {user.plan} plan</span>}
           </p>
         </div>
-        <button className="btn-primary-pill" onClick={() => { setShowAdd(!showAdd); setAddError(''); }}>
-          {showAdd ? '✕ Cancel' : '+ Add Site'}
+        <button className="btn-primary-pill" onClick={() => navigate('/add-monitor')}>
+          + Add Site
         </button>
       </div>
 
@@ -120,34 +95,6 @@ export default function Servers({ user, isAdmin, onNotify }) {
               <button className="plan-upgrade-inline" onClick={() => navigate('/account')}>Upgrade</button>
             )}
           </span>
-        </div>
-      )}
-
-      {/* Add Form */}
-      {showAdd && (
-        <div className="form-card">
-          <h3 className="form-card-title">Add New Site</h3>
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Site Name</label>
-                <input placeholder="e.g. K&B Website" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label>Site URL</label>
-                <input placeholder="https://yoursite.com" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} />
-              </div>
-            </div>
-            {addError && (
-              <div className="form-error" style={{ marginBottom: 8 }}>
-                {addError}
-                {(addError.includes('limit') || addError.includes('expired')) && (
-                  <button className="plan-upgrade-inline" onClick={() => navigate('/account')}>Upgrade Plan</button>
-                )}
-              </div>
-            )}
-            <button type="submit" className="btn-submit">Add Site</button>
-          </form>
         </div>
       )}
 
