@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [siteHistory, setSiteHistory] = useState([]);
   const [siteIncidents, setSiteIncidents] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('dash-view') || 'grid');
 
   const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); });
@@ -101,201 +102,169 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
+  // Uptime bar: last 30 history entries as colored segments
+  const UptimeBar = ({ history = [] }) => {
+    const last30 = history.slice(-30);
+    if (last30.length === 0) return <div className="mon-bar-empty">—</div>;
+    const upPct = Math.round((last30.filter(h=>h.status==='up').length/last30.length)*100);
+    return (
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3 }}>
+        <div style={{ display:'flex', gap:1.5 }}>
+          {last30.map((h,i) => (
+            <div key={i} style={{ width:6, height:22, borderRadius:2, background: h.status==='up' ? '#10b981' : h.status==='down' ? '#ef4444' : '#e2e8f0', opacity:0.85 }} title={`${new Date(h.time).toLocaleTimeString('en-IN')} — ${h.status}`} />
+          ))}
+        </div>
+        <span style={{ fontSize:11, fontWeight:700, color: upPct===100?'#10b981':upPct>=95?'#f59e0b':'#ef4444' }}>{upPct}%</span>
+      </div>
+    );
+  };
+
+  // Overall uptime from all sites
+  const allHistory = servers.flatMap(s => s.history || []);
+  const overallUptime = allHistory.length ? Math.round((allHistory.filter(h=>h.status==='up').length/allHistory.length)*100*10)/10 : 100;
+  const avgResponse = servers.filter(s=>s.responseTime).length ? Math.round(servers.filter(s=>s.responseTime).reduce((a,s)=>a+s.responseTime,0)/servers.filter(s=>s.responseTime).length) : 0;
+
+  const filtered = servers.filter(s => statusFilter==='all' || s.status===statusFilter);
+  const displayList = filtered.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.url.toLowerCase().includes(search.toLowerCase()));
+
   return (
-    <div className="pg-wrap">
-      <div className="pg-header">
-        <div>
-          <h1 className="pg-title">Monitoring</h1>
-          {lastUpdated && <p className="pg-sub">Last updated: {lastUpdated.toLocaleTimeString('en-IN')}</p>}
-        </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <button className="btn-download" onClick={downloadCSV} disabled={servers.length === 0}>
-            <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Download CSV
-          </button>
-          <button className={`btn-refresh ${checking ? 'checking' : ''}`} onClick={handleCheckNow} disabled={checking}>
-            {checking ? 'Checking...' : 'Check Now'}
-          </button>
-        </div>
-      </div>
+    <>
+    <div className="mon-layout">
 
-      <div className="stats-row">
-        <div className={`stat-box total ${statusFilter==='all'?'stat-active':''}`} onClick={() => setStatusFilter('all')} style={{cursor:'pointer'}}>
-          <div className="stat-icon">🖥️</div>
-          <div className="stat-info">
-            <div className="stat-value">{servers.length}</div>
-            <div className="stat-name">Total Sites</div>
+      {/* ── LEFT: Main monitor list ── */}
+      <div className="mon-main">
+        {/* Header */}
+        <div className="mon-header">
+          <div>
+            <h1 className="mon-title">Monitoring <span className="mon-dot">.</span></h1>
+            {lastUpdated && <p className="mon-sub">Updated {lastUpdated.toLocaleTimeString('en-IN')}</p>}
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button className="mon-btn-csv" onClick={downloadCSV} disabled={servers.length===0}>↓ CSV</button>
+            <button className={`mon-btn-check ${checking?'checking':''}`} onClick={handleCheckNow} disabled={checking}>
+              {checking ? '⏳ Checking...' : '↺ Check Now'}
+            </button>
           </div>
         </div>
-        <div className={`stat-box online ${statusFilter==='up'?'stat-active':''}`} onClick={() => setStatusFilter(statusFilter==='up'?'all':'up')} style={{cursor:'pointer'}}>
-          <div className="stat-icon">✅</div>
-          <div className="stat-info">
-            <div className="stat-value">{up}</div>
-            <div className="stat-name">Online</div>
+
+        {/* Search + filter bar */}
+        <div className="mon-toolbar">
+          <div className="mon-search-wrap">
+            <svg width="14" height="14" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name or URL..." className="mon-search" />
+          </div>
+          <div className="mon-filter-tabs">
+            {[['all','All',servers.length],['up','Online',up],['down','Offline',down]].map(([v,l,c])=>(
+              <button key={v} className={`mon-filter-tab ${statusFilter===v?'active-'+v:''}`} onClick={()=>setStatusFilter(v)}>
+                {l} <span className="mon-tab-count">{c}</span>
+              </button>
+            ))}
           </div>
         </div>
-        <div className={`stat-box offline ${statusFilter==='down'?'stat-active':''}`} onClick={() => setStatusFilter(statusFilter==='down'?'all':'down')} style={{cursor:'pointer'}}>
-          <div className="stat-icon">🔴</div>
-          <div className="stat-info">
-            <div className="stat-value">{down}</div>
-            <div className="stat-name">Offline</div>
-          </div>
-        </div>
-        {unknown > 0 && (
-          <div className={`stat-box unknown ${statusFilter==='unknown'?'stat-active':''}`} onClick={() => setStatusFilter(statusFilter==='unknown'?'all':'unknown')} style={{cursor:'pointer'}}>
-            <div className="stat-icon">❓</div>
-            <div className="stat-info">
-              <div className="stat-value">{unknown}</div>
-              <div className="stat-name">Unknown</div>
+
+        {/* Site list */}
+        <div className="mon-list">
+          {displayList.length===0 ? (
+            <div className="mon-empty">
+              <div style={{fontSize:48,marginBottom:12}}>🖥️</div>
+              <div style={{fontWeight:700,color:'#475569'}}>No sites found</div>
+              <div style={{fontSize:13,color:'#94a3b8',marginTop:4}}>Go to Sites to add monitors</div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* View toggle */}
-      <div className="dash-view-toggle">
-        <button
-          className={`dash-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-          onClick={() => { setViewMode('grid'); localStorage.setItem('dash-view', 'grid'); }}
-          title="Grid view"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
-            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
-          </svg>
-          Grid
-        </button>
-        <button
-          className={`dash-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-          onClick={() => { setViewMode('list'); localStorage.setItem('dash-view', 'list'); }}
-          title="List view"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-            <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/>
-          </svg>
-          List
-        </button>
-      </div>
-
-      {/* Grid view */}
-      {viewMode === 'grid' && (
-        <div className="sites-grid">
-          {servers.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🖥️</div>
-              <h3>No sites added yet</h3>
-              <p>Go to <strong>Sites</strong> page to add your first site</p>
-            </div>
-          ) : (
-            servers.filter(s => statusFilter === 'all' || s.status === statusFilter).map(s => (
-              <div key={s._id} className={`site-card ${s.status}`} onClick={() => openSite(s)} style={{ cursor: 'pointer' }}>
-                <div className="site-card-header">
-                  <div className="site-status-dot" data-status={s.status}></div>
-                  <span className={`site-badge ${s.status}`}>
-                    {s.status === 'up' ? 'Online' : s.status === 'down' ? 'Offline' : 'Unknown'}
+          ) : displayList.map(s => (
+            <div key={s._id} className={`mon-row mon-row-${s.status}`} onClick={()=>openSite(s)}>
+              <div className={`mon-status-dot mon-dot-${s.status}`} />
+              <div className="mon-site-info">
+                <div className="mon-site-name">{s.name}</div>
+                <div className="mon-site-meta">
+                  <span className="mon-proto">HTTPS</span>
+                  <span className="mon-sep">·</span>
+                  <span className={`mon-status-txt mon-status-${s.status}`}>
+                    {s.status==='up'?'Up':s.status==='down'?'Down':'Unknown'}
                   </span>
+                  {s.lastChecked && (
+                    <>
+                      <span className="mon-sep">·</span>
+                      <span className="mon-time">{new Date(s.lastChecked).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                    </>
+                  )}
+                  {s.responseTime && (
+                    <>
+                      <span className="mon-sep">·</span>
+                      <span className="mon-resp" style={{color: s.responseTime<500?'#10b981':s.responseTime<1200?'#f59e0b':'#ef4444'}}>{s.responseTime}ms</span>
+                    </>
+                  )}
                 </div>
-                <div className="site-name">{s.name}</div>
-                <a href={s.url} target="_blank" rel="noreferrer" className="site-url"
-                  onClick={e => e.stopPropagation()}>{s.url}</a>
-                <div className="site-meta">
-                  <span className="meta-item">⚡ {s.responseTime ? `${s.responseTime}ms` : '—'}</span>
-                  <span className="meta-item">🕐 {s.lastChecked ? new Date(s.lastChecked).toLocaleTimeString('en-IN') : 'Never'}</span>
-                </div>
-                <div className="expiry-row">
-                  <div className={`expiry-badge ${getExpiryClass(s.sslDaysLeft)}`}>
-                    🔒 SSL: {s.sslExpiry ? `${s.sslDaysLeft}d — ${new Date(s.sslExpiry).toLocaleDateString('en-IN')}` : 'Not checked'}
-                  </div>
-                  <div className={`expiry-badge ${getExpiryClass(domainDaysLeft(s))}`}>
-                    🌐 Domain: {s.domainExpiry ? `${domainDaysLeft(s)}d — ${new Date(s.domainExpiry).toLocaleDateString('en-IN')}` : 'Not set'}
-                  </div>
-                </div>
-                <div className="card-click-hint">Click for details</div>
               </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* List view */}
-      {viewMode === 'list' && (
-        <div className="sites-list">
-          {servers.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🖥️</div>
-              <h3>No sites added yet</h3>
-              <p>Go to <strong>Sites</strong> page to add your first site</p>
+              <div className="mon-bar-wrap">
+                <UptimeBar history={s.history||[]} />
+              </div>
             </div>
-          ) : (
-            <>
-              <div className="sl-header">
-                <div className="sl-header-top">
-                  <span>Status</span>
-                  <span>Site</span>
-                  <span>Last Checked</span>
-                </div>
-                <div className="sl-header-stats">
-                  <span>Response</span>
-                  <span>SSL Expiry</span>
-                  <span>Domain Expiry</span>
-                </div>
-              </div>
-              {servers.filter(s => statusFilter === 'all' || s.status === statusFilter).map(s => {
-                const ddl = domainDaysLeft(s);
-                const respColor = !s.responseTime ? '#94a3b8'
-                  : s.responseTime < 500 ? '#10b981'
-                  : s.responseTime < 1200 ? '#f59e0b' : '#ef4444';
-                return (
-                  <div key={s._id} className={`sl-row sl-${s.status}`} onClick={() => openSite(s)}>
-                    {/* Top: status + site + time */}
-                    <div className="sl-top-row">
-                      <div className="sl-status">
-                        <span className={`sl-dot sl-dot-${s.status}`}></span>
-                        <span className={`sl-badge sl-badge-${s.status}`}>
-                          {s.status === 'up' ? 'Online' : s.status === 'down' ? 'Offline' : 'Unknown'}
-                        </span>
-                      </div>
-                      <div className="sl-site">
-                        <span className="sl-name">{s.name}</span>
-                        <a href={s.url} target="_blank" rel="noreferrer" className="sl-url" onClick={e => e.stopPropagation()}>{s.url}</a>
-                      </div>
-                      <div className="sl-time">
-                        {s.lastChecked ? new Date(s.lastChecked).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) : 'Never'}
-                      </div>
-                    </div>
-                    {/* Bottom: resp + ssl + domain */}
-                    <div className="sl-stats-row">
-                      <div className="sl-stat-cell">
-                        <span className="sl-label">⚡ Response</span>
-                        <span className="sl-resp-val" style={{ color: respColor }}>
-                          {s.responseTime ? `${s.responseTime} ms` : '—'}
-                        </span>
-                      </div>
-                      <div className={`sl-stat-cell ${getExpiryClass(s.sslDaysLeft)}`}>
-                        <span className="sl-label">🔒 SSL</span>
-                        <span className="sl-days">{s.sslDaysLeft != null ? `${s.sslDaysLeft}d` : '—'}</span>
-                        {s.sslExpiry && <span className="sl-date">{new Date(s.sslExpiry).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</span>}
-                      </div>
-                      <div className={`sl-stat-cell ${getExpiryClass(ddl)}`}>
-                        <span className="sl-label">🌐 Domain</span>
-                        <span className="sl-days">{ddl != null ? `${ddl}d` : '—'}</span>
-                        {s.domainExpiry && <span className="sl-date">{new Date(s.domainExpiry).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</span>}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </>
-          )}
+          ))}
         </div>
-      )}
+      </div>
+
+
+      {/* ── RIGHT: Summary panel ── */}
+      <div className="mon-panel">
+        <div className="mon-panel-section">
+          <div className="mon-panel-title">Current status</div>
+          <div className="mon-panel-counts">
+            <div className="mon-count-item mon-count-down">
+              <div className="mon-count-num">{down}</div>
+              <div className="mon-count-label">Down</div>
+            </div>
+            <div className="mon-count-item mon-count-up">
+              <div className="mon-count-num">{up}</div>
+              <div className="mon-count-label">Up</div>
+            </div>
+            <div className="mon-count-item mon-count-unknown">
+              <div className="mon-count-num">{unknown}</div>
+              <div className="mon-count-label">Unknown</div>
+            </div>
+          </div>
+          <div className="mon-panel-total">Monitoring {servers.length} sites</div>
+        </div>
+
+        <div className="mon-panel-section">
+          <div className="mon-panel-title">Last 24 hours</div>
+          <div className="mon-panel-uptime">
+            <div>
+              <div className="mon-uptime-val" style={{color: overallUptime>=99?'#10b981':overallUptime>=95?'#f59e0b':'#ef4444'}}>
+                {overallUptime}%
+              </div>
+              <div className="mon-uptime-label">Overall uptime</div>
+            </div>
+            <div>
+              <div className="mon-uptime-val" style={{color:'#7c3aed'}}>{avgResponse ? `${avgResponse}ms` : '—'}</div>
+              <div className="mon-uptime-label">Avg response</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mon-panel-section">
+          <div className="mon-panel-title">Sites breakdown</div>
+          {servers.length > 0 ? (
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:4}}>
+              {[
+                { label:'Online', count:up, color:'#10b981', bg:'#dcfce7' },
+                { label:'Offline', count:down, color:'#ef4444', bg:'#fee2e2' },
+                { label:'Unknown', count:unknown, color:'#f59e0b', bg:'#fef3c7' },
+              ].map(item => (
+                <div key={item.label} style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                    <div style={{width:`${servers.length?Math.round(item.count/servers.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
+                  </div>
+                  <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.count}</span>
+                  <span style={{fontSize:11,color:'#94a3b8',minWidth:48}}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          ) : <div style={{fontSize:13,color:'#94a3b8',marginTop:8}}>No sites yet</div>}
+        </div>
+      </div>
+
+
+    </div>{/* end mon-layout */}
 
       {/* Site Detail Modal */}
       {selected && (
@@ -421,6 +390,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
