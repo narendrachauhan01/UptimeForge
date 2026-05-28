@@ -3,25 +3,47 @@ import { getRecipients, addRecipient, deleteRecipient, updateRecipient, getServe
 
 const empty = { name: '', phone: '', email: '', channels: [] };
 
+const CHANNEL_OPTIONS = [
+  { val: 'email',    icon: '✉️', label: 'Email only',         color: '#7c3aed' },
+  { val: 'whatsapp', icon: '💬', label: 'WhatsApp only',       color: '#16a34a' },
+  { val: 'both',     icon: '🔔', label: 'Email & WhatsApp',    color: '#0369a1' },
+];
+
 function ChannelToggle({ value, onChange }) {
+  const [open, setOpen] = React.useState(false);
   const val = value.includes('whatsapp') && value.includes('email') ? 'both'
     : value.includes('whatsapp') ? 'whatsapp'
     : value.includes('email') ? 'email' : '';
-  const handleChange = (e) => {
-    const v = e.target.value;
-    if (v === 'both')      onChange(['whatsapp', 'email']);
+  const selected = CHANNEL_OPTIONS.find(o => o.val === val);
+
+  const select = (v) => {
+    setOpen(false);
+    if (v === 'both')          onChange(['whatsapp', 'email']);
     else if (v === 'whatsapp') onChange(['whatsapp']);
     else if (v === 'email')    onChange(['email']);
-    else                       onChange([]);
   };
+
   return (
-    <select value={val} onChange={handleChange}
-      style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, color:'#374151', background:'#fff', cursor:'pointer', outline:'none' }}>
-      <option value="">— Select alert method —</option>
-      <option value="email">✉️ Email only</option>
-      <option value="whatsapp">💬 WhatsApp only</option>
-      <option value="both">✉️ + 💬 Email & WhatsApp</option>
-    </select>
+    <div style={{ position:'relative' }} onBlur={() => setTimeout(() => setOpen(false), 150)}>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        style={{ width:'100%', padding:'10px 14px', border:`1.5px solid ${selected ? selected.color : '#e2e8f0'}`, borderRadius:10, fontSize:14, color: selected ? selected.color : '#94a3b8', background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', fontWeight: selected ? 600 : 400, transition:'all 0.15s' }}>
+        <span>{selected ? `${selected.icon}  ${selected.label}` : '— Select alert method —'}</span>
+        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ transform: open ? 'rotate(180deg)' : 'none', transition:'0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+
+      {open && (
+        <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, right:0, background:'#fff', borderRadius:12, boxShadow:'0 8px 30px rgba(0,0,0,0.12)', border:'1px solid #e2e8f0', zIndex:999, overflow:'hidden' }}>
+          {CHANNEL_OPTIONS.map(o => (
+            <button key={o.val} type="button" onClick={() => select(o.val)}
+              style={{ width:'100%', padding:'12px 16px', border:'none', background: val === o.val ? `${o.color}10` : 'transparent', display:'flex', alignItems:'center', gap:10, cursor:'pointer', fontSize:14, color: val === o.val ? o.color : '#374151', fontWeight: val === o.val ? 700 : 400, textAlign:'left', borderBottom:'1px solid #f1f5f9', transition:'background 0.1s' }}>
+              <span style={{ fontSize:16 }}>{o.icon}</span>
+              <span>{o.label}</span>
+              {val === o.val && <span style={{ marginLeft:'auto', color: o.color, fontSize:16 }}>✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
