@@ -46,10 +46,13 @@ function checkSSL(hostname) {
     });
 }
 
-function checkDomain(rootDomain) {
-    return new Promise((resolve) => {
+function fetchWhois(rootDomain) {
+    return new Promise((resolve, reject) => {
         const url = `https://api.whois.vu/?q=${encodeURIComponent(rootDomain)}`;
-        const req = https.get(url, { timeout: 15000 }, (res) => {
+        const req = https.get(url, {
+            timeout: 15000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0)' },
+        }, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
@@ -58,20 +61,26 @@ function checkDomain(rootDomain) {
                     if (json.expires) {
                         const expiry = new Date(json.expires * 1000);
                         const daysLeft = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
-                        return resolve({
-                            expiry,
-                            daysLeft,
-                            registrar: json.registrar || null,
-                            available: json.available === 'no' ? false : true,
-                        });
+                        return resolve({ expiry, daysLeft, registrar: json.registrar || null });
                     }
-                    resolve(null);
-                } catch (_) { resolve(null); }
+                    reject(new Error('no expires field'));
+                } catch (e) { reject(e); }
             });
         });
-        req.on('error', () => resolve(null));
-        req.on('timeout', () => { req.destroy(); resolve(null); });
+        req.on('error', reject);
+        req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
     });
+}
+
+async function checkDomain(rootDomain) {
+    // Retry up to 3 times with increasing delay
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 1500));
+            return await fetchWhois(rootDomain);
+        } catch (_) {}
+    }
+    return null;
 }
 
 function extractHostname(url) {
@@ -81,9 +90,14 @@ function extractHostname(url) {
 }
 
 function extractRootDomain(hostname) {
-    // e.g. maintenance.kandbnetservice.in → kandbnetservice.in
     const parts = hostname.split('.');
     if (parts.length <= 2) return hostname;
+    // Handle multi-level TLDs: co.in, org.in, net.in, co.uk, org.uk etc.
+    const secondLevel = parts[parts.length - 2];
+    const multiLevelTlds = ['co', 'org', 'net', 'gov', 'edu', 'ac', 'com'];
+    if (parts.length >= 3 && multiLevelTlds.includes(secondLevel) && parts[parts.length - 1].length === 2) {
+        return parts.slice(-3).join('.');
+    }
     return parts.slice(-2).join('.');
 }
 
