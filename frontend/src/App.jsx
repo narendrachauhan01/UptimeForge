@@ -83,12 +83,12 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/email',                label: 'Email',         icon: <IcoMail /> },
     { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
   ] : [
-    { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
     { to: '/ping',         label: 'Ping Monitor', icon: <IcoPing /> },
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
+    { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
     { to: '/account',      label: 'My Plan',      icon: <IcoPlan /> },
   ];
 
