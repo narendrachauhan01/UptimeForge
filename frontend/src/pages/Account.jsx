@@ -7,6 +7,7 @@ const PLAN_GRADIENTS = {
     silver: 'linear-gradient(135deg,#475569,#64748b)',
     gold:   'linear-gradient(135deg,#ca8a04,#eab308)',
 };
+const PLAN_RANK = { free_trial: 0, bronze: 1, silver: 2, gold: 3 };
 const PLAN_COLORS = { free_trial:'#64748b', bronze:'#b45309', silver:'#475569', gold:'#ca8a04' };
 const PLAN_LABEL  = { free_trial:'Free Trial', bronze:'Bronze', silver:'Silver', gold:'Gold', null:'₹2 Verification' };
 const STATUS_STYLE = {
@@ -283,8 +284,10 @@ export default function Account({ user, onUserUpdate }) {
                         const cfg   = plans[pk] || {};
                         const price = cfg.price || (pk === 'bronze' ? 499 : pk === 'silver' ? 999 : 1499);
                         const sites = cfg.sites || (pk === 'bronze' ? 5 : pk === 'silver' ? 15 : 30);
-                        const isCurrent = plan === pk;
-                        const isPopular = pk === 'silver';
+                        const isCurrent  = plan === pk;
+                        const isPopular  = pk === 'silver';
+                        const isUpgrade  = PLAN_RANK[pk] > PLAN_RANK[plan];
+                        const isDowngrade = PLAN_RANK[pk] < PLAN_RANK[plan];
                         return (
                             <div key={pk} className={`acct-plan-card ${isCurrent ? 'acct-current' : ''} ${isPopular ? 'acct-popular' : ''}`}>
                                 {isPopular && <div className="acct-pop-badge">⭐ Most Popular</div>}
@@ -303,13 +306,18 @@ export default function Account({ user, onUserUpdate }) {
                                     </ul>
                                     {isCurrent ? (
                                         <div className="acct-current-label">✓ Your Current Plan</div>
+                                    ) : isDowngrade ? (
+                                        <div style={{ background:'#fef9ec', border:'1px solid #fde68a', borderRadius:8, padding:'8px 10px', fontSize:11, color:'#92400e', textAlign:'center', lineHeight:1.5 }}>
+                                            🔒 Downgrade available after your plan expires
+                                            {user?.planEndsAt && <><br/><strong>{fmt(user.planEndsAt)}</strong></>}
+                                        </div>
                                     ) : (
                                         <button
                                             className="acct-upgrade-btn"
                                             style={{ background: PLAN_GRADIENTS[pk] }}
                                             onClick={() => setConfirmPlan(pk)}
                                         >
-                                            Upgrade to {PLAN_LABEL[pk]} →
+                                            {isUpgrade ? `Upgrade to ${PLAN_LABEL[pk]} →` : `Get ${PLAN_LABEL[pk]} →`}
                                         </button>
                                     )}
                                 </div>
