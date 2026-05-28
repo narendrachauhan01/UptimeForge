@@ -4,8 +4,6 @@ import axios from 'axios';
 import UWLogo from './components/UWLogo';
 import CookieConsent from './components/CookieConsent';
 import Dashboard from './pages/Dashboard';
-import Servers from './pages/Servers';
-import Recipients from './pages/Recipients';
 import WhatsAppPage from './pages/WhatsApp';
 import Alerts from './pages/Alerts';
 import DomainSSL from './pages/DomainSSL';
@@ -439,8 +437,6 @@ function AppInner() {
           <Routes>
             <Route path="/verify-account" element={<VerifyAccount user={user} />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} />} />
-            <Route path="/recipients" element={<Recipients />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
             <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />

@@ -25,7 +25,6 @@ function NewDropdown({ onNavigate }) {
         <div style={{ position:'absolute', top:'calc(100% + 6px)', right:0, background:'#1e1b4b', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, minWidth:180, boxShadow:'0 12px 32px rgba(0,0,0,0.3)', overflow:'hidden', zIndex:999 }}>
           {[
             { icon:'🖥️', label:'Single monitor', path:'/add-monitor' },
-            { icon:'📤', label:'Bulk upload', path:'/servers' },
           ].map(item => (
             <button key={item.label} onClick={() => go(item.path)}
               style={{ width:'100%', padding:'12px 16px', background:'transparent', border:'none', color:'rgba(255,255,255,0.85)', fontSize:14, fontWeight:500, cursor:'pointer', display:'flex', alignItems:'center', gap:10, textAlign:'left', borderBottom:'1px solid rgba(255,255,255,0.06)' }}
