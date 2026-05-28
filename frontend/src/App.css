@@ -4447,14 +4447,14 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 
 .mon-site-info { flex:1; min-width:0; }
 .mon-site-name { font-weight:700; font-size:14px; color:#1e1b4b; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mon-site-meta { display:flex; align-items:center; gap:5px; font-size:12px; flex-wrap:wrap; }
-.mon-proto  { background:#f1f5f9; color:#64748b; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:600; }
-.mon-sep    { color:#e2e8f0; }
-.mon-time   { color:#94a3b8; }
-.mon-status-up   { color:#10b981; font-weight:700; }
-.mon-status-down { color:#ef4444; font-weight:700; }
-.mon-status-unknown { color:#f59e0b; font-weight:700; }
-.mon-resp   { font-weight:600; }
+.mon-site-meta { display:flex; align-items:center; gap:8px; font-size:12px; flex-wrap:wrap; }
+.mon-proto  { background:#f1f5f9; color:#64748b; padding:2px 7px; border-radius:5px; font-size:11px; font-weight:600; letter-spacing:0.3px; }
+.mon-sep    { color:#d1d5db; font-size:10px; }
+.mon-time   { color:#94a3b8; background:#f8fafc; padding:1px 6px; border-radius:4px; }
+.mon-status-up      { color:#10b981; font-weight:700; background:#dcfce7; padding:1px 7px; border-radius:4px; }
+.mon-status-down    { color:#ef4444; font-weight:700; background:#fee2e2; padding:1px 7px; border-radius:4px; }
+.mon-status-unknown { color:#f59e0b; font-weight:700; background:#fef3c7; padding:1px 7px; border-radius:4px; }
+.mon-resp   { font-weight:700; background:#f5f3ff; color:#7c3aed; padding:1px 6px; border-radius:4px; }
 .mon-bar-wrap { flex-shrink:0; }
 .mon-bar-empty { font-size:12px; color:#94a3b8; }
 
