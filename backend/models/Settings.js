@@ -33,25 +33,29 @@ const DEFAULT_FEATURES = {
 };
 
 const settingsSchema = new mongoose.Schema({
-    trialDays:       { type: Number, default: 5 },
-    verificationFee: { type: Number, default: 2 },
+    trialDays:         { type: Number, default: 5 },
+    verificationFee:   { type: Number, default: 2 },
+    freeTrialInterval: { type: Number, default: 300 }, // seconds — 5 min for free trial
     freeTrialFeatures: { type: [String], default: () => DEFAULT_FEATURES.free_trial },
     plans: {
         bronze: {
-            price:    { type: Number, default: 499 },    // INR
+            price:    { type: Number, default: 499 },
             sites:    { type: Number, default: 5 },
+            interval: { type: Number, default: 120 }, // 2 min
             label:    { type: String, default: 'Bronze' },
             features: { type: [String], default: () => DEFAULT_FEATURES.bronze },
         },
         silver: {
             price:    { type: Number, default: 999 },
             sites:    { type: Number, default: 15 },
+            interval: { type: Number, default: 60 },  // 1 min
             label:    { type: String, default: 'Silver' },
             features: { type: [String], default: () => DEFAULT_FEATURES.silver },
         },
         gold: {
             price:    { type: Number, default: 1499 },
             sites:    { type: Number, default: 30 },
+            interval: { type: Number, default: 60 },  // 1 min
             label:    { type: String, default: 'Gold' },
             features: { type: [String], default: () => DEFAULT_FEATURES.gold },
         },
@@ -88,6 +92,7 @@ settingsSchema.statics.update = async function (data) {
     if (!s) s = new this({});
     if (data.trialDays !== undefined) s.trialDays = data.trialDays;
     if (data.verificationFee !== undefined) s.verificationFee = data.verificationFee;
+    if (data.freeTrialInterval !== undefined) s.freeTrialInterval = data.freeTrialInterval;
     if (data.freeTrialFeatures !== undefined) {
         const f = sanitizeFeatures(data.freeTrialFeatures);
         if (f) s.freeTrialFeatures = f;
@@ -95,9 +100,10 @@ settingsSchema.statics.update = async function (data) {
     if (data.plans) {
         for (const key of ['bronze', 'silver', 'gold']) {
             if (data.plans[key]) {
-                if (data.plans[key].price !== undefined) s.plans[key].price = data.plans[key].price;
-                if (data.plans[key].sites !== undefined) s.plans[key].sites = data.plans[key].sites;
-                if (data.plans[key].label !== undefined) s.plans[key].label = data.plans[key].label;
+                if (data.plans[key].price    !== undefined) s.plans[key].price    = data.plans[key].price;
+                if (data.plans[key].sites    !== undefined) s.plans[key].sites    = data.plans[key].sites;
+                if (data.plans[key].interval !== undefined) s.plans[key].interval = data.plans[key].interval;
+                if (data.plans[key].label    !== undefined) s.plans[key].label    = data.plans[key].label;
                 if (data.plans[key].features !== undefined) {
                     const f = sanitizeFeatures(data.plans[key].features);
                     if (f) s.plans[key].features = f;

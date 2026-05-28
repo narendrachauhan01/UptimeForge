@@ -3,12 +3,19 @@ const http = require('http');
 const Server = require('../models/Server');
 const Recipient = require('../models/Recipient');
 const Alert = require('../models/Alert');
+const Settings = require('../models/Settings');
 const wa = require('./whatsapp');
 const { checkSSL, checkDomain, extractHostname, extractRootDomain } = require('./expiry');
 const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml } = require('./email');
 
 // Prevent concurrent checkAll runs (avoids duplicate alerts on overlap)
 let checkAllRunning = false;
+
+// Get check interval (seconds) for a given plan from settings
+async function getPlanInterval(plan, settings) {
+    if (plan === 'free_trial') return settings.freeTrialInterval || 300;
+    return settings.plans?.[plan]?.interval || 60;
+}
 const SSL_MILESTONES = [30, 15, 7];   // alert at these days remaining
 const DOMAIN_MILESTONES = [30, 15, 7];
 
@@ -48,10 +55,17 @@ async function checkAll() {
     }
     checkAllRunning = true;
     try {
-        const servers = await Server.find({ active: true });
+        const settings  = await Settings.get();
+        const servers   = await Server.find({ active: true }).populate('userId', 'plan');
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const server of servers) {
+            // Respect plan-based interval — skip if not due yet
+            const plan     = server.userId?.plan || 'free_trial';
+            const interval = await getPlanInterval(plan, settings);
+            const lastChecked = server.lastChecked ? new Date(server.lastChecked).getTime() : 0;
+            if (lastChecked && (Date.now() - lastChecked) < interval * 1000) continue;
+
             const result = await checkUrl(server.url);
             const prevStatus = server.status;
             const wasAlertSent = server.downAlertSent;
@@ -213,9 +227,9 @@ async function checkExpiry() {
 function start() {
     checkAll();
     checkExpiry();
-    setInterval(checkAll, 60 * 1000);
+    setInterval(checkAll, 30 * 1000); // run every 30s, each server checked per its plan interval
     setInterval(checkExpiry, 6 * 60 * 60 * 1000); // every 6 hours
-    console.log('[Monitor] Started - checking every 60s | Expiry check every 6h');
+    console.log('[Monitor] Started - ticker every 30s (plan-based intervals) | Expiry check every 6h');
 }
 
 module.exports = { start, checkAll };
