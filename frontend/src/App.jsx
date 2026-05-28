@@ -25,7 +25,6 @@ import AdminPanel from './pages/AdminPanel';
 import VerifyAccount from './pages/VerifyAccount';
 import PaymentPage from './pages/PaymentPage';
 import CompleteProfile from './pages/CompleteProfile';
-import Recipients from './pages/Recipients';
 import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
@@ -443,7 +442,6 @@ function AppInner() {
             <Route path="/dashboard" element={<Navigate to="/monitoring" replace />} />
             <Route path="/alerts" element={<Navigate to="/incidents" replace />} />
             <Route path="/charts" element={<Navigate to="/performance" replace />} />
-            <Route path="/recipients" element={<Recipients />} />
             <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} />} />
             <Route path="/incidents" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
