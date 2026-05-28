@@ -4940,3 +4940,11 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .add-form-row { flex-direction: column; }
   .rcp-fields-grid { grid-template-columns: 1fr !important; }
 }
+
+/* Incidents responsive */
+.sit-inc-mobile { display: none; }
+.sit-inc-desktop { display: block; }
+@media (max-width: 540px) {
+  .sit-inc-mobile  { display: block; }
+  .sit-inc-desktop { display: none; }
+}

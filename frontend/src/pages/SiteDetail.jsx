@@ -236,7 +236,8 @@ export default function SiteDetail() {
                         )}
 
                         {chartData.length > 1 ? (
-                            <ResponsiveContainer width="100%" height={200}>
+                            <div style={{width:'100%', overflowX:'auto'}}>
+                            <ResponsiveContainer width="100%" minWidth={280} height={200}>
                                 <AreaChart data={chartData} margin={{top:10,right:10,left:0,bottom:0}}>
                                     <defs>
                                         <linearGradient id="sitGrad" x1="0" y1="0" x2="0" y2="1">
@@ -252,6 +253,7 @@ export default function SiteDetail() {
                                     <Area type="monotone" dataKey="ms" stroke="#7c3aed" strokeWidth={2.5} fill="url(#sitGrad)" dot={false} activeDot={{r:4,fill:'#7c3aed'}}/>
                                 </AreaChart>
                             </ResponsiveContainer>
+                            </div>
                         ) : (
                             <div className="sit-chart-empty">Not enough data for selected range</div>
                         )}
@@ -280,28 +282,36 @@ export default function SiteDetail() {
                         <div className="sit-incidents-header">
                             <div className="sit-chart-title">⚠️ Latest Incidents</div>
                         </div>
-                        {incidents.length > 0 ? (
-                            <table className="sit-inc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Type</th>
-                                        <th>Message</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {incidents.map(a => (
-                                        <tr key={a._id}>
-                                            <td><span className={`sit-inc-badge sit-inc-${a.type}`}>{a.type==='down'?'● Down':'● Recovered'}</span></td>
-                                            <td style={{color:'#64748b', fontSize:12}}>HTTP</td>
-                                            <td style={{color:'#475569', fontSize:13}}>{a.message || '—'}</td>
-                                            <td style={{color:'#94a3b8', fontSize:12, whiteSpace:'nowrap'}}>{fmt(a.createdAt)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
+                        {incidents.length > 0 ? (<>
+                            {/* Desktop table */}
+                            <div className="sit-inc-desktop">
+                                <table className="sit-inc-table">
+                                    <thead><tr><th>Status</th><th>Type</th><th>Message</th><th>Time</th></tr></thead>
+                                    <tbody>
+                                        {incidents.map(a => (
+                                            <tr key={a._id}>
+                                                <td><span className={`sit-inc-badge sit-inc-${a.type}`}>{a.type==='down'?'● Down':'● Recovered'}</span></td>
+                                                <td style={{color:'#64748b',fontSize:12}}>HTTP</td>
+                                                <td style={{color:'#475569',fontSize:13}}>{a.message||'—'}</td>
+                                                <td style={{color:'#94a3b8',fontSize:12,whiteSpace:'nowrap'}}>{fmt(a.createdAt)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {/* Mobile cards */}
+                            <div className="sit-inc-mobile">
+                                {incidents.map(a => (
+                                    <div key={a._id} style={{padding:'10px 0',borderBottom:'1px solid #f1f5f9'}}>
+                                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                                            <span className={`sit-inc-badge sit-inc-${a.type}`}>{a.type==='down'?'● Down':'● Recovered'}</span>
+                                            <span style={{fontSize:11,color:'#94a3b8'}}>{fmt(a.createdAt)}</span>
+                                        </div>
+                                        <div style={{fontSize:12,color:'#475569'}}>{a.message||'—'}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>) : (
                             <div className="sit-chart-empty" style={{color:'#10b981'}}>✓ No incidents recorded</div>
                         )}
                     </div>
