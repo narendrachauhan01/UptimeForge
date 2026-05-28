@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getServers, checkNow, getExpiry } from '../api';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getServers, checkNow, getExpiry, getAlerts, API_URL } from '../api';
+import axios from 'axios';
 
 export default function Dashboard() {
   const [servers, setServers] = useState([]);
@@ -8,6 +10,8 @@ export default function Dashboard() {
   const [selected, setSelected] = useState(null);
   const [siteChecking, setSiteChecking] = useState(false);
   const [siteResult, setSiteResult] = useState(null);
+  const [siteHistory, setSiteHistory] = useState([]);
+  const [siteIncidents, setSiteIncidents] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('dash-view') || 'grid');
 
@@ -44,18 +48,35 @@ export default function Dashboard() {
   const openSite = async (s) => {
     setSelected(s);
     setSiteResult(null);
+    setSiteHistory([]);
+    setSiteIncidents([]);
     setSiteChecking(true);
     try {
-      const res = await getExpiry(s._id);
-      setSiteResult({ ssl: res.data.ssl, domain: res.data.domain });
+      const token = localStorage.getItem('sm_token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const [expiryRes, histRes, alertRes] = await Promise.allSettled([
+        getExpiry(s._id),
+        axios.get(`${API_URL}/api/servers/${s._id}/history`, { headers }),
+        getAlerts(),
+      ]);
+      if (expiryRes.status === 'fulfilled') setSiteResult({ ssl: expiryRes.value.data.ssl, domain: expiryRes.value.data.domain });
+      if (histRes.status === 'fulfilled') {
+        const hist = histRes.value.data?.history || [];
+        setSiteHistory(hist.slice(-60).map(h => ({
+          time: new Date(h.time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+          ms: h.responseTime || 0,
+        })));
+      }
+      if (alertRes.status === 'fulfilled') {
+        const incidents = alertRes.value.data.filter(a => a.server === s._id || a.server?._id === s._id).slice(0,5);
+        setSiteIncidents(incidents);
+      }
       load();
-    } catch (e) {
-      setSiteResult({ error: 'Check failed' });
-    }
+    } catch (e) { setSiteResult({ error: 'Check failed' }); }
     setSiteChecking(false);
   };
 
-  const closeSite = () => { setSelected(null); setSiteResult(null); };
+  const closeSite = () => { setSelected(null); setSiteResult(null); setSiteHistory([]); setSiteIncidents([]); };
 
   const downloadCSV = () => {
     const headers = ['Name', 'URL', 'Status', 'Response Time (ms)', 'Last Checked', 'SSL Days Left', 'SSL Expiry', 'Domain Days Left', 'Domain Expiry'];
@@ -84,7 +105,7 @@ export default function Dashboard() {
     <div className="pg-wrap">
       <div className="pg-header">
         <div>
-          <h1 className="pg-title">Dashboard</h1>
+          <h1 className="pg-title">Monitoring</h1>
           {lastUpdated && <p className="pg-sub">Last updated: {lastUpdated.toLocaleTimeString('en-IN')}</p>}
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -278,81 +299,125 @@ export default function Dashboard() {
 
       {/* Site Detail Modal */}
       {selected && (
-        <div className="modal-overlay" onClick={closeSite}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <div>
-                <div className="modal-title">{selected.name}</div>
-                <a href={selected.url} target="_blank" rel="noreferrer" className="modal-url">{selected.url}</a>
+        <div className="sd-overlay" onClick={closeSite}>
+          <div className="sd-modal" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="sd-header">
+              <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                <span className={`sd-dot ${selected.status}`} />
+                <div>
+                  <div className="sd-name">{selected.name}</div>
+                  <a href={selected.url} target="_blank" rel="noreferrer" className="sd-url">{selected.url}</a>
+                </div>
               </div>
-              <button className="modal-close" onClick={closeSite}>✕</button>
+              <button className="sd-close" onClick={closeSite}>✕</button>
             </div>
 
-            <div className="modal-status-row">
-              <div className={`modal-status ${selected.status}`}>
-                <span className="site-status-dot" data-status={selected.status}></span>
-                {selected.status === 'up' ? 'Online' : selected.status === 'down' ? 'Offline' : 'Unknown'}
+            <div className="sd-body">
+              {/* Stats row */}
+              <div className="sd-stats">
+                <div className="sd-stat-box">
+                  <div className="sd-stat-label">Current Status</div>
+                  <div className="sd-stat-val" style={{ color: selected.status==='up' ? '#10b981' : selected.status==='down' ? '#ef4444' : '#f59e0b', fontSize:18 }}>
+                    {selected.status==='up' ? '● Online' : selected.status==='down' ? '● Offline' : '● Unknown'}
+                  </div>
+                </div>
+                <div className="sd-stat-box">
+                  <div className="sd-stat-label">Response Time</div>
+                  <div className="sd-stat-val" style={{ color: selected.responseTime < 300 ? '#10b981' : '#f59e0b' }}>
+                    {selected.responseTime ? `${selected.responseTime}ms` : '—'}
+                  </div>
+                </div>
+                <div className="sd-stat-box">
+                  <div className="sd-stat-label">Last Checked</div>
+                  <div className="sd-stat-val" style={{ fontSize:13, color:'#475569' }}>
+                    {selected.lastChecked ? new Date(selected.lastChecked).toLocaleTimeString('en-IN') : '—'}
+                  </div>
+                </div>
+                <div className="sd-stat-box">
+                  <div className="sd-stat-label">HTTP Code</div>
+                  <div className="sd-stat-val" style={{ color:'#7c3aed' }}>{selected.httpCode || '—'}</div>
+                </div>
               </div>
-              <span className="modal-meta">⚡ {selected.responseTime || '—'}ms</span>
-              <span className="modal-meta">🕐 {selected.lastChecked ? new Date(selected.lastChecked).toLocaleString('en-IN') : 'Never'}</span>
-            </div>
 
-            <div className="modal-expiry-grid">
-              <div className="modal-expiry-box">
-                <div className="modal-expiry-label">🔒 SSL Certificate</div>
-                {siteChecking ? (
-                  <div className="expiry-badge expiry-na">Checking...</div>
-                ) : siteResult?.ssl ? (
-                  <>
-                    <div className={`expiry-badge ${getExpiryClass(siteResult.ssl.daysLeft)}`}>
-                      {siteResult.ssl.daysLeft} days left
-                    </div>
-                    <div className="ssl-date">Expires: {new Date(siteResult.ssl.expiry).toLocaleDateString('en-IN')}</div>
-                  </>
-                ) : selected.sslExpiry ? (
-                  <>
-                    <div className={`expiry-badge ${getExpiryClass(selected.sslDaysLeft)}`}>
-                      {selected.sslDaysLeft} days left
-                    </div>
-                    <div className="ssl-date">Expires: {new Date(selected.sslExpiry).toLocaleDateString('en-IN')}</div>
-                  </>
+              {/* Response time chart */}
+              <div className="sd-section">
+                <div className="sd-section-title">⚡ Response Time (last 1h)</div>
+                {siteHistory.length > 1 ? (
+                  <ResponsiveContainer width="100%" height={140}>
+                    <AreaChart data={siteHistory} margin={{top:5,right:10,left:0,bottom:0}}>
+                      <defs>
+                        <linearGradient id="sdGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                      <XAxis dataKey="time" tick={{fontSize:10,fill:'#94a3b8'}} interval={Math.floor(siteHistory.length/5)} tickLine={false} axisLine={false}/>
+                      <YAxis tick={{fontSize:10,fill:'#94a3b8'}} unit="ms" tickLine={false} axisLine={false} width={42}/>
+                      <Tooltip contentStyle={{borderRadius:8,fontSize:12}} formatter={v=>[`${v}ms`,'Response']}/>
+                      <Area type="monotone" dataKey="ms" stroke="#7c3aed" strokeWidth={2} fill="url(#sdGrad)" dot={false}/>
+                    </AreaChart>
+                  </ResponsiveContainer>
                 ) : (
-                  <div className="expiry-badge expiry-na">Click Manual Check</div>
+                  <div className="sd-empty">{siteChecking ? '⏳ Loading...' : 'No history data yet'}</div>
                 )}
               </div>
 
-              <div className="modal-expiry-box">
-                <div className="modal-expiry-label">🌐 Domain Expiry</div>
-                {siteChecking ? (
-                  <div className="expiry-badge expiry-na">Checking...</div>
-                ) : siteResult?.domain ? (
-                  <>
-                    <div className={`expiry-badge ${getExpiryClass(siteResult.domain.daysLeft)}`}>
-                      {siteResult.domain.daysLeft} days left
-                    </div>
-                    <div className="ssl-date">Expires: {new Date(siteResult.domain.expiry).toLocaleDateString('en-IN')}</div>
-                    {siteResult.domain.registrar && <div className="ssl-date" style={{color:'#7c3aed'}}>🏢 {siteResult.domain.registrar}</div>}
-                  </>
-                ) : selected.domainExpiry ? (
-                  <>
-                    <div className={`expiry-badge ${getExpiryClass(domainDaysLeft(selected))}`}>
-                      {domainDaysLeft(selected)} days left
-                    </div>
-                    <div className="ssl-date">Expires: {new Date(selected.domainExpiry).toLocaleDateString('en-IN')}</div>
-                  </>
+              {/* SSL & Domain */}
+              <div className="sd-expiry-row">
+                <div className="sd-expiry-box">
+                  <div className="sd-section-title">🔒 SSL Certificate</div>
+                  {siteChecking ? <div className="sd-empty">Checking...</div>
+                  : siteResult?.ssl ? (
+                    <>
+                      <div className={`expiry-badge ${getExpiryClass(siteResult.ssl.daysLeft)}`}>{siteResult.ssl.daysLeft} days left</div>
+                      <div className="sd-exp-date">Expires {new Date(siteResult.ssl.expiry).toLocaleDateString('en-IN')}</div>
+                    </>
+                  ) : selected.sslDaysLeft ? (
+                    <>
+                      <div className={`expiry-badge ${getExpiryClass(selected.sslDaysLeft)}`}>{selected.sslDaysLeft} days left</div>
+                      <div className="sd-exp-date">Expires {new Date(selected.sslExpiry).toLocaleDateString('en-IN')}</div>
+                    </>
+                  ) : <div className="sd-empty">Not checked yet</div>}
+                </div>
+                <div className="sd-expiry-box">
+                  <div className="sd-section-title">🌐 Domain Expiry</div>
+                  {siteChecking ? <div className="sd-empty">Checking...</div>
+                  : siteResult?.domain ? (
+                    <>
+                      <div className={`expiry-badge ${getExpiryClass(siteResult.domain.daysLeft)}`}>{siteResult.domain.daysLeft} days left</div>
+                      <div className="sd-exp-date">Expires {new Date(siteResult.domain.expiry).toLocaleDateString('en-IN')}</div>
+                      {siteResult.domain.registrar && <div className="sd-exp-date" style={{color:'#7c3aed'}}>🏢 {siteResult.domain.registrar}</div>}
+                    </>
+                  ) : selected.domainExpiry ? (
+                    <>
+                      <div className={`expiry-badge ${getExpiryClass(domainDaysLeft(selected))}`}>{domainDaysLeft(selected)} days left</div>
+                      <div className="sd-exp-date">Expires {new Date(selected.domainExpiry).toLocaleDateString('en-IN')}</div>
+                    </>
+                  ) : <div className="sd-empty">Not available</div>}
+                </div>
+              </div>
+
+              {/* Recent Incidents */}
+              <div className="sd-section">
+                <div className="sd-section-title">⚠️ Recent Incidents</div>
+                {siteIncidents.length > 0 ? (
+                  <div className="sd-incidents">
+                    {siteIncidents.map(a => (
+                      <div key={a._id} className="sd-incident-row">
+                        <span className={`sd-incident-type ${a.type}`}>{a.type === 'down' ? '● Down' : '● Recovered'}</span>
+                        <span className="sd-incident-msg">{a.message}</span>
+                        <span className="sd-incident-time">{new Date(a.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  <div className="expiry-badge expiry-na">Not available</div>
+                  <div className="sd-empty" style={{color:'#10b981'}}>✓ No incidents found</div>
                 )}
               </div>
             </div>
-
-            {siteResult?.error && (
-              <div className="form-error" style={{marginTop:0}}>⚠️ Could not fetch expiry info</div>
-            )}
-
-            {siteChecking && (
-              <div className="modal-checking">⏳ Fetching SSL & Domain info...</div>
-            )}
           </div>
         </div>
       )}

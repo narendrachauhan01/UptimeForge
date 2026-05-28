@@ -26,7 +26,7 @@ export default function Alerts() {
     <div className="pg-wrap">
       <div className="pg-header">
         <div>
-          <h1 className="pg-title">Alert History</h1>
+          <h1 className="pg-title">Incidents</h1>
           <p className="pg-sub">{alerts.length} total alerts logged</p>
         </div>
       </div>
