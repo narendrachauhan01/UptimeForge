@@ -25,6 +25,8 @@ import AdminPanel from './pages/AdminPanel';
 import VerifyAccount from './pages/VerifyAccount';
 import PaymentPage from './pages/PaymentPage';
 import CompleteProfile from './pages/CompleteProfile';
+import Recipients from './pages/Recipients';
+import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
 import Toast from './components/Toast';
@@ -436,7 +438,10 @@ function AppInner() {
         <main className="content">
           <Routes>
             <Route path="/verify-account" element={<VerifyAccount user={user} />} />
+            <Route path="/complete-profile" element={<CompleteProfile user={user} onComplete={handleUserUpdate} />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/recipients" element={<Recipients />} />
+            <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
             <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />

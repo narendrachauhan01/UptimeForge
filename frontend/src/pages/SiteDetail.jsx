@@ -37,18 +37,20 @@ export default function SiteDetail() {
     const [showCustom, setShowCustom] = useState(false);
     const [pausing, setPausing] = useState(false);
 
-    const loadData = async () => {
+    const loadData = async (withExpiry = false) => {
         try {
             const rangeParam = showCustom && customFrom && customTo
                 ? `from=${encodeURIComponent(customFrom)}&to=${encodeURIComponent(customTo)}`
                 : `range=${range}`;
 
-            const [serverRes, historyRes, alertsRes, expiryRes] = await Promise.allSettled([
+            const calls = [
                 axios.get(`${API_URL}/api/servers/${id}`, { headers: headers() }),
                 axios.get(`${API_URL}/api/servers/${id}/history?${rangeParam}`, { headers: headers() }),
                 getAlerts(),
-                getExpiry(id),
-            ]);
+            ];
+            if (withExpiry) calls.push(getExpiry(id));
+
+            const [serverRes, historyRes, alertsRes, expiryRes] = await Promise.allSettled(calls);
             if (serverRes.status === 'fulfilled') {
                 const s = serverRes.value.data;
                 if (historyRes.status === 'fulfilled') s.history = historyRes.value.data.history || [];
@@ -57,12 +59,17 @@ export default function SiteDetail() {
             if (alertsRes.status === 'fulfilled') {
                 setIncidents(alertsRes.value.data.filter(a => a.server === id || a.server?._id === id).slice(0, 10));
             }
-            if (expiryRes.status === 'fulfilled') setExpiry(expiryRes.value.data);
+            if (withExpiry && expiryRes?.status === 'fulfilled') setExpiry(expiryRes.value.data);
         } catch {}
         setLoading(false);
     };
 
-    useEffect(() => { loadData(); const t = setInterval(loadData, 30000); return () => clearInterval(t); }, [id, range, showCustom, customFrom, customTo]);
+    // Initial load: include expiry. Polling: skip expiry (too slow)
+    useEffect(() => {
+        loadData(true);
+        const t = setInterval(() => loadData(false), 60000); // poll every 60s, no expiry
+        return () => clearInterval(t);
+    }, [id, range, showCustom, customFrom, customTo]);
 
     const togglePause = async () => {
         setPausing(true);
