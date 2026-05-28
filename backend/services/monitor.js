@@ -25,16 +25,31 @@ function now() {
     return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 }
 
-function checkUrl(url) {
+function checkUrl(url, options = {}) {
+    const { timeout = 10, followRedirects = true, httpMethod = 'GET', upCodes = [200, 301, 302] } = options;
     return new Promise((resolve) => {
         const mod = url.startsWith('https') ? https : http;
         const start = Date.now();
-        const req = mod.get(url, { timeout: 10000, rejectUnauthorized: false }, (res) => {
-            const upCodes = [200, 301, 302];
-            resolve({ up: upCodes.includes(res.statusCode), code: res.statusCode, time: Date.now() - start });
-        });
-        req.on('error', (e) => resolve({ up: false, code: 0, error: e.message, time: Date.now() - start }));
-        req.on('timeout', () => { req.destroy(); resolve({ up: false, code: 0, error: 'Timeout', time: Date.now() - start }); });
+        const method = httpMethod.toUpperCase();
+
+        const makeReq = (targetUrl, redirectCount = 0) => {
+            const reqOpts = { method, timeout: timeout * 1000, rejectUnauthorized: false };
+            const req = mod.request(targetUrl, reqOpts, (res) => {
+                // Follow redirects if enabled
+                if (followRedirects && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirectCount < 5) {
+                    const location = res.headers.location;
+                    const nextUrl = location.startsWith('http') ? location : new URL(location, targetUrl).href;
+                    res.resume();
+                    return makeReq(nextUrl, redirectCount + 1);
+                }
+                const codes = upCodes.length ? upCodes : [200, 301, 302];
+                resolve({ up: codes.includes(res.statusCode), code: res.statusCode, time: Date.now() - start });
+            });
+            req.on('error', (e) => resolve({ up: false, code: 0, error: e.message, time: Date.now() - start }));
+            req.on('timeout', () => { req.destroy(); resolve({ up: false, code: 0, error: 'Timeout', time: Date.now() - start }); });
+            req.end();
+        };
+        makeReq(url);
     });
 }
 
@@ -74,7 +89,12 @@ async function checkAll() {
             }
             // Admin-owned servers (userId=null) are always checked every 30s
 
-            const result = await checkUrl(server.url);
+            const result = await checkUrl(server.url, {
+                timeout:         server.timeout         || 10,
+                followRedirects: server.followRedirects !== false,
+                httpMethod:      server.httpMethod       || 'GET',
+                upCodes:         server.upCodes?.length  ? server.upCodes : [200, 301, 302],
+            });
             const prevStatus = server.status;
             const wasAlertSent = server.downAlertSent;
 

@@ -22,6 +22,11 @@ const serverSchema = new mongoose.Schema({
     domainExpiry: { type: Date },
     downAlertSent: { type: Boolean, default: false },
     userId: { type: require('mongoose').Schema.Types.ObjectId, ref: 'User', default: null },
+    // Advanced settings
+    timeout:         { type: Number, default: 10 },           // seconds
+    followRedirects: { type: Boolean, default: true },
+    httpMethod:      { type: String, default: 'GET' },
+    upCodes:         { type: [Number], default: [200, 301, 302] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Server', serverSchema);

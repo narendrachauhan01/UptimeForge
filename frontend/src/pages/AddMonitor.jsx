@@ -10,7 +10,9 @@ const authHeaders = () => {
 
 export default function AddMonitor() {
     const navigate = useNavigate();
-    const [form, setForm] = useState({ name: '', url: 'https://' });
+    const [form, setForm] = useState({ name: '', url: 'https://', timeout: 10, followRedirects: true, httpMethod: 'GET', upCodes: [200, 301, 302] });
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [codeInput, setCodeInput] = useState('');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [planInterval, setPlanInterval] = useState(null);
@@ -179,6 +181,89 @@ export default function AddMonitor() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Advanced settings */}
+                    <div className="am-section">
+                        <button type="button" className="am-adv-toggle" onClick={() => setShowAdvanced(s=>!s)}>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{transform: showAdvanced?'rotate(90deg)':'none', transition:'0.2s'}}><polyline points="9 18 15 12 9 6"/></svg>
+                            Advanced settings
+                        </button>
+
+                        {showAdvanced && (
+                            <div className="am-adv-body">
+                                {/* Request timeout */}
+                                <div className="am-adv-row">
+                                    <div className="am-adv-label">
+                                        <span>Request timeout</span>
+                                        <span className="am-adv-val-badge">{form.timeout}s</span>
+                                    </div>
+                                    <div className="am-adv-sub">Mark site as down if no response within {form.timeout} seconds.</div>
+                                    <input type="range" min="5" max="60" step="5" value={form.timeout}
+                                        onChange={e => setForm({...form, timeout: Number(e.target.value)})}
+                                        className="am-slider" />
+                                    <div className="am-slider-labels">
+                                        {['5s','10s','15s','20s','30s','45s','60s'].map(l=><span key={l}>{l}</span>)}
+                                    </div>
+                                </div>
+
+                                {/* Follow redirects */}
+                                <div className="am-adv-row">
+                                    <div className="am-adv-label">
+                                        <span>Follow redirections</span>
+                                        <label className="am-toggle">
+                                            <input type="checkbox" checked={form.followRedirects} onChange={e=>setForm({...form, followRedirects: e.target.checked})} />
+                                            <span className="am-toggle-slider" />
+                                        </label>
+                                    </div>
+                                    <div className="am-adv-sub">
+                                        {form.followRedirects ? 'Automatically follows HTTP 3xx redirects.' : 'Returns redirect HTTP codes (3xx) as-is.'}
+                                    </div>
+                                </div>
+
+                                {/* HTTP method */}
+                                <div className="am-adv-row">
+                                    <div className="am-adv-label"><span>HTTP method</span></div>
+                                    <div className="am-adv-sub">Method used when checking your site.</div>
+                                    <div className="am-method-row">
+                                        {['GET','HEAD','POST','PUT','PATCH','DELETE'].map(m => (
+                                            <button key={m} type="button"
+                                                className={`am-method-btn ${form.httpMethod===m?'active':''}`}
+                                                onClick={() => setForm({...form, httpMethod: m})}>
+                                                {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Up HTTP status codes */}
+                                <div className="am-adv-row">
+                                    <div className="am-adv-label"><span>Up HTTP status codes</span></div>
+                                    <div className="am-adv-sub">Site marked as UP when response matches these codes.</div>
+                                    <div className="am-codes-wrap">
+                                        {form.upCodes.map(c => (
+                                            <span key={c} className="am-code-tag">
+                                                {c}
+                                                <button type="button" onClick={() => setForm({...form, upCodes: form.upCodes.filter(x=>x!==c)})}>×</button>
+                                            </span>
+                                        ))}
+                                        <input type="number" placeholder="Add code..." value={codeInput}
+                                            onChange={e => setCodeInput(e.target.value)}
+                                            onKeyDown={e => {
+                                                if ((e.key==='Enter'||e.key===',') && codeInput) {
+                                                    e.preventDefault();
+                                                    const code = parseInt(codeInput);
+                                                    if (code >= 100 && code < 600 && !form.upCodes.includes(code))
+                                                        setForm({...form, upCodes:[...form.upCodes, code]});
+                                                    setCodeInput('');
+                                                }
+                                            }}
+                                            className="am-code-input" />
+                                    </div>
+                                    <div className="am-adv-hint">Press Enter to add a code</div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {error && <div className="am-error">⚠️ {error}</div>}
