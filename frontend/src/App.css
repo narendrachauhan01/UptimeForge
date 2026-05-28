@@ -4412,7 +4412,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .mon-btn-csv   { padding:8px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; color:#475569; cursor:pointer; font-weight:600; }
 .mon-btn-csv:hover { background:#f1f5f9; }
 .mon-btn-check { padding:8px 16px; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
-.mon-btn-check.checking { opacity:0.7; cursor:not-allowed; }
+.mon-btn-check.checking { opacity:0.7; cursor:not-allowed; }\n.mon-btn-add { padding:8px 18px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }\n.mon-btn-add:hover { opacity:0.9; }
 
 /* Toolbar */
 .mon-toolbar { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }

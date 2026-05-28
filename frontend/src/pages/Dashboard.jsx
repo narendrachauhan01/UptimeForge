@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getServers, checkNow } from '../api';
 
 export default function Dashboard() {
@@ -107,6 +107,7 @@ export default function Dashboard() {
             <button className={`mon-btn-check ${checking?'checking':''}`} onClick={handleCheckNow} disabled={checking}>
               {checking ? '⏳ Checking...' : '↺ Check Now'}
             </button>
+            <Link to="/servers" className="mon-btn-add">+ Add Site</Link>
           </div>
         </div>
 
