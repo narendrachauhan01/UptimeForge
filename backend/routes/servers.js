@@ -19,7 +19,8 @@ async function notify(req, message, type) {
 
 router.get('/', auth, async (req, res) => {
     try {
-        const servers = await Server.find(userFilter(req)).sort('-createdAt');
+        // Exclude history array — can be 40k+ records, loaded separately per site
+        const servers = await Server.find(userFilter(req)).select('-history').sort('-createdAt').lean();
         res.json(servers);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -61,6 +62,15 @@ router.post('/', auth, async (req, res) => {
     } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+router.get('/:id', auth, async (req, res) => {
+    try {
+        const filter = { _id: req.params.id, ...userFilter(req) };
+        const server = await Server.findOne(filter).select('-history').lean();
+        if (!server) return res.status(404).json({ error: 'Not found' });
+        res.json(server);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 router.put('/:id', auth, async (req, res) => {
     try {
         const filter = { _id: req.params.id, ...userFilter(req) };
@@ -100,9 +110,35 @@ router.post('/check-now', auth, async (req, res) => {
 router.get('/:id/history', auth, async (req, res) => {
     try {
         const filter = { _id: req.params.id, ...userFilter(req) };
-        const server = await Server.findOne(filter).select('name history');
+        const { range = '1h', from, to } = req.query;
+
+        // Calculate cutoff time based on range
+        let cutoff = new Date();
+        if (from && to) {
+            cutoff = new Date(from);
+        } else {
+            const ms = { '1h': 3600000, '24h': 86400000, '7d': 604800000 };
+            cutoff = new Date(Date.now() - (ms[range] || 3600000));
+        }
+
+        const server = await Server.findOne(filter).select('name history').lean();
         if (!server) return res.status(404).json({ error: 'Not found' });
-        res.json(server);
+
+        // Filter history by time range, cap at 500 points for performance
+        let history = server.history || [];
+        if (from && to) {
+            const toDate = new Date(to);
+            history = history.filter(h => h.time >= cutoff && h.time <= toDate);
+        } else {
+            history = history.filter(h => h.time >= cutoff);
+        }
+        // Sample down to max 300 points if still large
+        if (history.length > 300) {
+            const step = Math.ceil(history.length / 300);
+            history = history.filter((_, i) => i % step === 0);
+        }
+
+        res.json({ ...server, history });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

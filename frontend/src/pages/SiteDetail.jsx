@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
-import { getServers, getAlerts, getExpiry, API_URL } from '../api';
+import { getAlerts, getExpiry, API_URL } from '../api';
 import axios from 'axios';
 
 const token = () => localStorage.getItem('sm_token');
@@ -39,13 +39,19 @@ export default function SiteDetail() {
 
     const loadData = async () => {
         try {
-            const [serversRes, alertsRes, expiryRes] = await Promise.allSettled([
-                getServers(),
+            const rangeParam = showCustom && customFrom && customTo
+                ? `from=${encodeURIComponent(customFrom)}&to=${encodeURIComponent(customTo)}`
+                : `range=${range}`;
+
+            const [serverRes, historyRes, alertsRes, expiryRes] = await Promise.allSettled([
+                axios.get(`${API_URL}/api/servers/${id}`, { headers: headers() }),
+                axios.get(`${API_URL}/api/servers/${id}/history?${rangeParam}`, { headers: headers() }),
                 getAlerts(),
                 getExpiry(id),
             ]);
-            if (serversRes.status === 'fulfilled') {
-                const s = serversRes.value.data.find(x => x._id === id);
+            if (serverRes.status === 'fulfilled') {
+                const s = serverRes.value.data;
+                if (historyRes.status === 'fulfilled') s.history = historyRes.value.data.history || [];
                 setServer(s || null);
             }
             if (alertsRes.status === 'fulfilled') {
@@ -56,7 +62,7 @@ export default function SiteDetail() {
         setLoading(false);
     };
 
-    useEffect(() => { loadData(); const t = setInterval(loadData, 30000); return () => clearInterval(t); }, [id]);
+    useEffect(() => { loadData(); const t = setInterval(loadData, 30000); return () => clearInterval(t); }, [id, range, showCustom, customFrom, customTo]);
 
     const togglePause = async () => {
         setPausing(true);
