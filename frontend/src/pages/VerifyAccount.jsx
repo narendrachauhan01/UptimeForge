@@ -5,7 +5,7 @@ export default function VerifyAccount({ user }) {
     const navigate = useNavigate();
     useEffect(() => {
         if (user?.trialVerified) {
-            navigate('/dashboard');
+            navigate('/monitoring');
         } else {
             navigate('/pay?plan=verification');
         }

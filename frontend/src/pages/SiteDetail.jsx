@@ -129,7 +129,7 @@ export default function SiteDetail() {
         <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>
             <div style={{fontSize:40, marginBottom:12}}>🔍</div>
             <div style={{fontWeight:700}}>Site not found</div>
-            <button onClick={()=>navigate('/dashboard')} style={{marginTop:16, padding:'8px 20px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, cursor:'pointer'}}>← Back</button>
+            <button onClick={()=>navigate('/monitoring')} style={{marginTop:16, padding:'8px 20px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, cursor:'pointer'}}>← Back</button>
         </div>
     );
 
@@ -141,7 +141,7 @@ export default function SiteDetail() {
         <div className="sit-page">
             {/* ── Top bar ── */}
             <div className="sit-topbar">
-                <button className="sit-back" onClick={()=>navigate('/dashboard')}>
+                <button className="sit-back" onClick={()=>navigate('/monitoring')}>
                     ← Monitoring
                 </button>
                 <div className="sit-topbar-right">

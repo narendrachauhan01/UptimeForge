@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import UWLogo from './components/UWLogo';
 import CookieConsent from './components/CookieConsent';
@@ -83,8 +83,8 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/email',                label: 'Email',         icon: <IcoMail /> },
     { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
   ] : [
-    { to: '/dashboard',  label: 'Monitoring',   icon: <IcoDash /> },
-    { to: '/charts',     label: 'Performance',  icon: <IcoChart /> },
+    { to: '/monitoring',  label: 'Monitoring',   icon: <IcoDash /> },
+    { to: '/performance',     label: 'Performance',  icon: <IcoChart /> },
     { to: '/domain-ssl', label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/ping',       label: 'Ping Monitor', icon: <IcoPing /> },
     { to: '/account',    label: 'My Plan',      icon: <IcoPlan /> },
@@ -113,7 +113,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
             <NavLink
               key={l.to}
               to={l.to}
-              end={l.to === '/dashboard'}
+              end={l.to === '/monitoring'}
               className={({ isActive }) => `sb-link${isActive ? ' sb-active' : ''}`}
             >
               {l.icon}
@@ -252,7 +252,7 @@ function AppInner() {
       navigate('/complete-profile');
       showToast('Welcome to UptimeForge! Complete your profile to get started.');
     } else {
-      navigate('/dashboard');
+      navigate('/monitoring');
       showToast('Login successful! Welcome back.');
     }
   };
@@ -326,7 +326,7 @@ function AppInner() {
   }
 
   if (authed && isPublicPath && location.pathname !== '/' && location.pathname !== '/terms') {
-    navigate(isAdmin ? '/admin' : '/dashboard');
+    navigate(isAdmin ? '/admin' : '/monitoring');
     return null;
   }
 
@@ -380,7 +380,7 @@ function AppInner() {
     const payPlan = new URLSearchParams(location.search).get('plan');
     // Already verified → skip verification page, go to dashboard
     if (payPlan === 'verification' && user && (user.trialVerified || user.plan !== 'free_trial')) {
-      navigate('/dashboard');
+      navigate('/monitoring');
       return null;
     }
     return (
@@ -439,13 +439,16 @@ function AppInner() {
           <Routes>
             <Route path="/verify-account" element={<VerifyAccount user={user} />} />
             <Route path="/complete-profile" element={<CompleteProfile user={user} onComplete={handleUserUpdate} />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/monitoring" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Navigate to="/monitoring" replace />} />
+            <Route path="/alerts" element={<Navigate to="/incidents" replace />} />
+            <Route path="/charts" element={<Navigate to="/performance" replace />} />
             <Route path="/recipients" element={<Recipients />} />
             <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} />} />
-            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/incidents" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
             <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />
-            <Route path="/charts"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts />   : <UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
+            <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts />   : <UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
             <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
             <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
             <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />

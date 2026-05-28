@@ -42,7 +42,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
       onUserUpdate(updated);
       // Already active user → dashboard; new unverified user → plan selection
       const isActive = updated.trialVerified || updated.plan !== 'free_trial';
-      navigate(isActive ? '/dashboard' : '/pay?plan=select');
+      navigate(isActive ? '/monitoring' : '/pay?plan=select');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save profile');
     }

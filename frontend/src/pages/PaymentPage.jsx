@@ -188,12 +188,12 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
     useEffect(() => {
         if (isSelect || !user) return;
-        if (plan === 'verification' && user.trialVerified) navigate('/dashboard');
+        if (plan === 'verification' && user.trialVerified) navigate('/monitoring');
     }, [user, plan, navigate, isSelect]);
 
     useEffect(() => {
         if (!success) return;
-        const t = setTimeout(() => navigate('/dashboard'), 4000);
+        const t = setTimeout(() => navigate('/monitoring'), 4000);
         return () => clearTimeout(t);
     }, [success, navigate]);
 

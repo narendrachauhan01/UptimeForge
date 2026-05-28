@@ -96,7 +96,7 @@ export default function AddMonitor() {
                 return Promise.resolve();
             }));
 
-            navigate(isEdit ? `/site/${serverId}` : '/dashboard');
+            navigate(isEdit ? `/site/${serverId}` : '/monitoring');
         } catch (err) {
             setError(err.response?.data?.error || (isEdit ? 'Failed to update monitor' : 'Failed to add monitor'));
         }
@@ -106,7 +106,7 @@ export default function AddMonitor() {
     return (
         <div className="am-page">
             <div className="am-topbar">
-                <button className="am-back" onClick={() => navigate('/dashboard')}>← Monitoring</button>
+                <button className="am-back" onClick={() => navigate('/monitoring')}>← Monitoring</button>
             </div>
 
             <div className="am-wrap">
@@ -440,7 +440,7 @@ export default function AddMonitor() {
                     {error && <div className="am-error">⚠️ {error}</div>}
 
                     <div className="am-footer">
-                        <button type="button" className="am-cancel" onClick={() => navigate('/dashboard')}>Cancel</button>
+                        <button type="button" className="am-cancel" onClick={() => navigate('/monitoring')}>Cancel</button>
                         <button type="submit" className="am-submit" disabled={saving}>
                             {saving ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save changes →' : 'Create monitor →')}
                         </button>
