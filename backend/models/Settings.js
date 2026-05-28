@@ -6,7 +6,7 @@ const DEFAULT_FEATURES = {
         '2 sites monitored',
         '5 min check interval',
         'Email + WhatsApp alerts',
-        'SSL & Domain expiry checks',
+        'SSL & Domain tracking — Not included',
         '5-day full access',
     ],
     bronze: [

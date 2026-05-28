@@ -278,7 +278,7 @@ export default function Account({ user, onUserUpdate }) {
             {tab === 'plan' && (
                 <div className="acct-plans-row">
                     {[
-                        { pk: 'free_trial', emoji: '🆓', features: ['2 sites monitored', '5 min check interval', 'Email alerts', 'SSL & Domain tracking', '5-day trial period'] },
+                        { pk: 'free_trial', emoji: '🆓', features: ['2 sites monitored', '5 min check interval', 'Email alerts', 'SSL & Domain tracking — Not included', '5-day trial period'] },
                         { pk: 'bronze', emoji: '🥉', features: ['5 sites monitored', '2 min check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts'] },
                         { pk: 'silver', emoji: '🥈', features: ['15 sites monitored', '1 min check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support'] },
                         { pk: 'gold',   emoji: '🥇', features: ['30 sites monitored', '30 sec check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support', 'Server monitoring'] },
@@ -302,9 +302,16 @@ export default function Account({ user, onUserUpdate }) {
                                 </div>
                                 <div className="acct-plan-card-body">
                                     <ul className="acct-plan-features">
-                                        {features.map(f => (
-                                            <li key={f}><span className="acct-feat-check">✓</span>{f}</li>
-                                        ))}
+                                        {features.map(f => {
+                                            const notIncluded = f.includes('Not included');
+                                            return (
+                                                <li key={f} style={{ color: notIncluded ? '#94a3b8' : undefined }}>
+                                                    <span className="acct-feat-check" style={{ color: notIncluded ? '#ef4444' : undefined }}>{notIncluded ? '✕' : '✓'}</span>
+                                                    {f.replace(' — Not included', '')}
+                                                    {notIncluded && <span style={{ fontSize:10, background:'#fee2e2', color:'#ef4444', borderRadius:4, padding:'1px 5px', marginLeft:4, fontWeight:700 }}>Not included</span>}
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                     {isCurrent ? (
                                         <div className="acct-current-label">✓ Your Current Plan</div>

@@ -25,7 +25,7 @@ export default function Landing() {
       price: `₹${planData?.verificationFee ?? 2}`,
       note: '5-day trial · one-time verification',
       features: planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures
-        : ['2 sites monitored', 'WhatsApp & Email alerts', 'SSL & Domain expiry tracking', '5 min check interval'],
+        : ['2 sites monitored', 'WhatsApp & Email alerts', 'SSL & Domain tracking — Not included', '5 min check interval'],
     },
     {
       key: 'bronze', ...PLAN_META.bronze,
@@ -263,12 +263,18 @@ export default function Landing() {
                 </div>
                 <div className="lp-plan-body">
                   <ul className="lp-plan-list">
-                    {p.features.map(f => (
-                      <li key={f}>
-                        <svg width="15" height="15" fill="none" stroke="#7c3aed" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                        {f}
-                      </li>
-                    ))}
+                    {p.features.map(f => {
+                      const notIncluded = f.includes('Not included');
+                      return (
+                        <li key={f} style={{ opacity: notIncluded ? 0.5 : 1 }}>
+                          {notIncluded
+                            ? <svg width="15" height="15" fill="none" stroke="#ef4444" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            : <svg width="15" height="15" fill="none" stroke="#7c3aed" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                          }
+                          {f.replace(' — Not included', '')}
+                        </li>
+                      );
+                    })}
                   </ul>
                   <button className="lp-plan-btn" style={{ background: p.gradient }} onClick={() => handlePlan(p.key)}>
                     {p.cta}

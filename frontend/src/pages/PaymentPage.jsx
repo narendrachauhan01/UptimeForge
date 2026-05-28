@@ -24,7 +24,7 @@ const PLAN_ACCENT = {
     custom:       '#2dd4bf',
 };
 const PLAN_FEATURES_FALLBACK = {
-    verification: ['2 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain expiry checks', '5 min check interval', '5-day full access'],
+    verification: ['2 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain tracking — Not included', '5 min check interval', '5-day full access'],
     bronze:       ['5 sites monitored', '2 min check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Performance charts'],
     silver:       ['15 sites monitored', '1 min check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Full analytics & charts'],
     gold:         ['30 sites monitored', '30 sec check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Priority support'],

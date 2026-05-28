@@ -183,10 +183,14 @@ async function sendAlerts(server, recipients, type, detail) {
 
 async function checkExpiry() {
     try {
-        const servers = await Server.find({ active: true });
+        const servers    = await Server.find({ active: true }).populate('userId', 'plan');
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const server of servers) {
+            // Free trial users do not get SSL & Domain expiry monitoring
+            const plan = server.userId?.plan || null;
+            if (plan === 'free_trial') continue;
+
             const hostname = extractHostname(server.url);
             if (!hostname) continue;
 
