@@ -7,11 +7,33 @@ const authHeaders = () => {
     return t ? { Authorization: `Bearer ${t}` } : {};
 };
 
+const GreenAPILogo = () => (
+    <svg width="36" height="36" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="18" fill="#25d366"/>
+        <text x="18" y="24" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="900" fontFamily="Arial">G</text>
+    </svg>
+);
+const TwilioLogo = () => (
+    <svg width="36" height="36" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="18" fill="#F22F46"/>
+        <circle cx="12" cy="12" r="3.5" fill="#fff"/>
+        <circle cx="24" cy="12" r="3.5" fill="#fff"/>
+        <circle cx="12" cy="24" r="3.5" fill="#fff"/>
+        <circle cx="24" cy="24" r="3.5" fill="#fff"/>
+    </svg>
+);
+const AiSensyLogo = () => (
+    <svg width="36" height="36" viewBox="0 0 36 36">
+        <rect width="36" height="36" rx="8" fill="#4F46E5"/>
+        <text x="18" y="25" textAnchor="middle" fill="#fff" fontSize="13" fontWeight="900" fontFamily="Arial">AI</text>
+    </svg>
+);
+
 const PROVIDERS = [
     {
         key: 'greenapi',
         name: 'Green API',
-        logo: '🟢',
+        logo: <GreenAPILogo />,
         desc: 'Free 200 msg/month. Good for testing.',
         docs: 'https://green-api.com',
         fields: [
@@ -22,7 +44,7 @@ const PROVIDERS = [
     {
         key: 'twilio',
         name: 'Twilio WhatsApp',
-        logo: '🔴',
+        logo: <TwilioLogo />,
         desc: 'Official API. ~$0.005/msg. Reliable.',
         docs: 'https://twilio.com/whatsapp',
         fields: [
@@ -34,7 +56,7 @@ const PROVIDERS = [
     {
         key: 'aisensy',
         name: 'AiSensy',
-        logo: '🔵',
+        logo: <AiSensyLogo />,
         desc: 'Indian BSP. Affordable. Official API.',
         docs: 'https://aisensy.com',
         fields: [
@@ -117,10 +139,11 @@ export default function WhatsAppPage() {
                     {PROVIDERS.map(p => (
                         <div key={p.key} onClick={()=>setProvider(p.key)}
                             style={{ border:`2px solid ${provider===p.key?'#7c3aed':'#e2e8f0'}`, borderRadius:12, padding:'14px 16px', cursor:'pointer',
-                                background:provider===p.key?'#f5f3ff':'#fff', transition:'all 0.15s' }}>
-                            <div style={{ fontSize:24, marginBottom:6 }}>{p.logo}</div>
+                                background:provider===p.key?'#f5f3ff':'#fff', transition:'all 0.15s', position:'relative' }}>
+                            {provider===p.key && <div style={{ position:'absolute', top:8, right:8, width:16, height:16, borderRadius:'50%', background:'#7c3aed', display:'flex', alignItems:'center', justifyContent:'center' }}><svg width="10" height="10" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>}
+                            <div style={{ marginBottom:8 }}>{p.logo}</div>
                             <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b' }}>{p.name}</div>
-                            <div style={{ fontSize:12, color:'#64748b', marginTop:3 }}>{p.desc}</div>
+                            <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{p.desc}</div>
                         </div>
                     ))}
                 </div>
