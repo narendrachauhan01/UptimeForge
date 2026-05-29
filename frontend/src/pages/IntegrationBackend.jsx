@@ -8,6 +8,29 @@ const authHeaders = () => {
 };
 
 // ── Email Modal ───────────────────────────────────────────────────────────────
+const InfoBox = ({ steps }) => {
+    const [open, setOpen] = useState(false);
+    return (
+        <div style={{ marginBottom:14 }}>
+            <button type="button" onClick={()=>setOpen(o=>!o)}
+                style={{ display:'flex', alignItems:'center', gap:7, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:8, padding:'7px 14px', color:'#a5b4fc', fontSize:12, fontWeight:600, cursor:'pointer', width:'100%' }}>
+                <span style={{ width:18, height:18, borderRadius:'50%', background:'#6d28d9', color:'#fff', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, flexShrink:0 }}>i</span>
+                How to configure? {open ? '▲' : '▼'}
+            </button>
+            {open && (
+                <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:'14px 16px', marginTop:8 }}>
+                    {steps.map((s, i) => (
+                        <div key={i} style={{ display:'flex', gap:10, marginBottom: i<steps.length-1?10:0 }}>
+                            <div style={{ width:22, height:22, borderRadius:'50%', background:'#7c3aed', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:11, flexShrink:0 }}>{i+1}</div>
+                            <div style={{ fontSize:12, color:'rgba(255,255,255,0.75)', lineHeight:1.6 }} dangerouslySetInnerHTML={{__html: s}} />
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 function EmailModal({ onClose }) {
     const [form,    setForm]    = useState({ mailUser: '', mailPass: '', mailFrom: '' });
     const [saving,  setSaving]  = useState(false);
@@ -58,6 +81,13 @@ function EmailModal({ onClose }) {
                     <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>Configure Gmail SMTP to send alert emails</p>
                 </div>
                 {msg && <div style={{ background:msg.startsWith('✅')?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)', borderRadius:8, padding:'8px 12px', fontSize:13, color:msg.startsWith('✅')?'#34d399':'#f87171', marginBottom:14 }}>{msg}</div>}
+                <InfoBox steps={[
+                    'Go to <strong>myaccount.google.com</strong> → Security → 2-Step Verification (must be ON)',
+                    'Go to <strong>App Passwords</strong> → Select app: Mail → Select device: Other → type "UptimeForge" → Generate',
+                    'Copy the <strong>16-character password</strong> (e.g. xxxx xxxx xxxx xxxx)',
+                    'Paste Gmail address and App Password below. From Name is optional (e.g. UptimeForge &lt;you@gmail.com&gt;)',
+                    'Click <strong>Save</strong> → then <strong>Test</strong> to verify it works',
+                ]} />
                 <form onSubmit={save} style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     <div>
                         <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Gmail Address *</label>
@@ -164,6 +194,26 @@ function WhatsAppModal({ onClose }) {
                     ))}
                 </div>
 
+                {provider === 'greenapi' && <InfoBox steps={[
+                    'Go to <strong>green-api.com</strong> → Sign up free (200 msg/month)',
+                    'Dashboard → <strong>Create Instance</strong> → Select Free plan',
+                    'Scan the QR code using <strong>WhatsApp Business</strong> app on your phone',
+                    'Copy <strong>idInstance</strong> and <strong>apiTokenInstance</strong> from the instance page',
+                    'Paste both below and click Save. Status will show Connected if correct.',
+                ]} />}
+                {provider === 'twilio' && <InfoBox steps={[
+                    'Go to <strong>twilio.com</strong> → Sign up / Login',
+                    'From Console Dashboard, copy <strong>Account SID</strong> and <strong>Auth Token</strong>',
+                    'Go to <strong>Messaging → Senders → WhatsApp Senders</strong> → Get a number',
+                    'For sandbox: use <strong>+14155238886</strong> as From Number',
+                    'Paste SID, Token and From Number below → Save',
+                ]} />}
+                {provider === 'aisensy' && <InfoBox steps={[
+                    'Go to <strong>aisensy.com</strong> → Sign up / Login',
+                    'Dashboard → Settings → <strong>API</strong> section → Copy your API Key',
+                    'Paste the API Key below → Save',
+                    'Make sure your WhatsApp Business number is connected in AiSensy',
+                ]} />}
                 <form onSubmit={save} style={{ display:'flex', flexDirection:'column', gap:12 }}>
                     {cur?.fields.map(field => (
                         <div key={field.key}>
