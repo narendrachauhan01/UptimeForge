@@ -339,13 +339,18 @@ async function checkAll() {
         return;
     }
     checkAllRunning = true;
+    const t0 = Date.now();
     try {
-        const settings   = await Settings.get();
-        const servers    = await Server.find({ active: true }).populate('userId', 'plan');
-        const recipients = await Recipient.find({ active: true }).populate('servers');
+        // Fetch all 3 in parallel to save time
+        const [settings, servers, recipients] = await Promise.all([
+            Settings.get(),
+            Server.find({ active: true }).populate('userId', 'plan'),
+            Recipient.find({ active: true }).populate('servers'),
+        ]);
 
-        // Run ALL site checks in parallel — down site timeouts don't block others
+        // Run ALL site checks in parallel
         await Promise.allSettled(servers.map(server => checkOne(server, settings, recipients)));
+        console.log(`[Monitor] checkAll done in ${Date.now() - t0}ms`);
     } catch (err) {
         console.error('[Monitor] checkAll error:', err.message);
     } finally {
