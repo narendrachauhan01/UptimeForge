@@ -30,7 +30,7 @@ async function fireIntegrations(server, type, userId) {
             const timeStr = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
 
             const payload = {
-                text: isDown ? `🚨 *${server.name}* is DOWN — ${server.url}` : `✅ *${server.name}* is back UP — ${server.url}`,
+                text: '🔔 *UptimeForge Alert*',
                 event: type,
                 site: server.name,
                 url: server.url,
