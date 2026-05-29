@@ -282,10 +282,10 @@ export default function Integrations() {
         if (!rcForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
         setRcTesting(true);
         try {
-            await axios.post(rcForm.url, { text: '🚨 *Test* — Rocket.Chat integration is working!' }, { headers: { 'Content-Type':'application/json' } });
+            await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: rcForm.url, body: { text: '🚨 *Test* — Rocket.Chat integration is working!' } }, { headers: authHeaders() });
             showToast('✅ Test message sent to Rocket.Chat!');
         } catch (e) {
-            showToast('❌ Failed: ' + (e.message || 'Check URL'));
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
         }
         setRcTesting(false);
     };
@@ -311,13 +311,11 @@ export default function Integrations() {
         if (!webhookForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
         setWebhookTesting(true);
         try {
-            const payload = { event:'test', site:'UptimeForge Test', url:'https://uptimeforge.com', status:'DOWN', time: new Date().toISOString() };
-            await axios.post(webhookForm.url, payload, {
-                headers: { 'Content-Type':'application/json', ...(webhookForm.secret?{'X-UptimeForge-Secret':webhookForm.secret}:{}) }
-            });
+            const payload = { event:'test', site:'Test', url:'https://example.com', status:'DOWN', time: new Date().toISOString() };
+            await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: webhookForm.url, body: payload }, { headers: authHeaders() });
             showToast('✅ Test payload sent! Check your webhook receiver.');
         } catch (e) {
-            showToast('❌ Failed: ' + (e.message || 'Check URL'));
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
         }
         setWebhookTesting(false);
     };
