@@ -38,6 +38,8 @@ async function fireIntegrations(server, type, userId) {
             };
 
             const rcBody = JSON.stringify({
+                alias: 'UptimeForge Alert',
+                emoji: isDown ? ':rotating_light:' : ':white_check_mark:',
                 attachments: [{
                     color: isDown ? '#ef4444' : '#22c55e',
                     title: isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`,
