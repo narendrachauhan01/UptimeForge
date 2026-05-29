@@ -232,13 +232,30 @@ exports.refundPayment = async (req, res) => {
 
         // Notify user
         try {
-            await sendEmail(user.email, 'Your UptimeForge plan has been refunded',
-                `<div style="font-family:Inter,sans-serif;padding:28px;max-width:500px;margin:0 auto">
-                    <h2 style="color:#ef4444">Plan Refunded</h2>
-                    <p>Hi ${user.name},</p>
-                    <p>Your <strong>${PLAN_LABEL[prevPlan] || prevPlan}</strong> plan has been refunded (₹${pr.amount}).</p>
-                    <p>Your account has been reverted to <strong>Free Trial</strong>.</p>
-                    <p>Refund ID: <code>${refund.id}</code></p>
+            await sendEmail(user.email, 'Your UptimeForge Refund has been Initiated',
+                `<div style="font-family:Inter,sans-serif;padding:32px;max-width:520px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid #fecdd3">
+                    <div style="text-align:center;font-size:48px;margin-bottom:8px">💸</div>
+                    <h2 style="color:#dc2626;text-align:center;margin-bottom:4px">Refund Initiated</h2>
+                    <p style="color:#64748b;text-align:center;font-size:14px;margin-bottom:24px">Your payment has been refunded successfully</p>
+                    <p>Hi <strong>${user.name}</strong>,</p>
+                    <p>Your <strong>${PLAN_LABEL[prevPlan] || prevPlan}</strong> plan refund of <strong>₹${pr.amount}</strong> has been initiated.</p>
+                    <div style="background:#fef2f2;border:1px solid #fecdd3;border-radius:12px;padding:16px;margin:20px 0">
+                        <div style="margin-bottom:10px"><span style="color:#94a3b8;font-size:12px;font-weight:600">REFUND ID</span><br/><code style="font-size:13px;color:#dc2626">${refund.id}</code></div>
+                        <div style="margin-bottom:10px"><span style="color:#94a3b8;font-size:12px;font-weight:600">AMOUNT</span><br/><strong style="color:#dc2626;font-size:16px">₹${pr.amount}</strong></div>
+                        <div><span style="color:#94a3b8;font-size:12px;font-weight:600">STATUS</span><br/><span style="color:#16a34a;font-weight:700">✅ Initiated</span></div>
+                    </div>
+                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin:20px 0">
+                        <p style="margin:0 0 10px;font-weight:700;color:#92400e">⏱ Refund will credit in:</p>
+                        <table style="width:100%;font-size:13px;color:#475569;border-collapse:collapse">
+                            <tr style="border-bottom:1px solid #fde68a"><td style="padding:6px 0">💳 Credit/Debit Card</td><td style="text-align:right;font-weight:600">5–7 business days</td></tr>
+                            <tr style="border-bottom:1px solid #fde68a"><td style="padding:6px 0">📱 UPI (GPay, PhonePe)</td><td style="text-align:right;font-weight:600">2–3 business days</td></tr>
+                            <tr style="border-bottom:1px solid #fde68a"><td style="padding:6px 0">🏦 Net Banking</td><td style="text-align:right;font-weight:600">3–5 business days</td></tr>
+                            <tr><td style="padding:6px 0">👛 Wallet</td><td style="text-align:right;font-weight:600">1–2 business days</td></tr>
+                        </table>
+                        <p style="margin:10px 0 0;font-size:12px;color:#b45309">Refund will be credited to your original payment method by your bank.</p>
+                    </div>
+                    <p style="font-size:13px;color:#64748b">Your account has been reverted to <strong>Free Trial</strong>. For any queries, reply to this email.</p>
+                    <div style="margin-top:24px;padding:14px;background:#f1f5f9;border-radius:10px;text-align:center;color:#94a3b8;font-size:12px">UptimeForge — © ${new Date().getFullYear()}</div>
                 </div>`
             );
         } catch (_) {}
