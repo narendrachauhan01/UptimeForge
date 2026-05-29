@@ -10,8 +10,9 @@ function adminOnly(req, res, next) {
 router.use(auth);
 router.use(adminOnly);
 
-router.get('/status', ctrl.getStatus);
-router.put('/update', ctrl.update);
-router.post('/test',  ctrl.test);
+router.get('/status',   ctrl.getStatus);
+router.put('/update',   ctrl.update);
+router.post('/test',    ctrl.test);
+router.delete('/reset', ctrl.reset);
 
 module.exports = router;

@@ -44,6 +44,17 @@ exports.update = (req, res) => {
     }
 };
 
+// DELETE /api/email-config/reset
+exports.reset = (req, res) => {
+    try {
+        updateEnv('MAIL_USER', '');
+        updateEnv('MAIL_PASS', '');
+        updateEnv('MAIL_FROM', '');
+        resetTransporter();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // POST /api/email-config/test
 exports.test = async (req, res) => {
     const { to } = req.body;

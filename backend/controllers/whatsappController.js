@@ -101,6 +101,14 @@ exports.saveConfig = async (req, res) => {
     }
 };
 
+// DELETE /api/whatsapp/reset
+exports.reset = (req, res) => {
+    try {
+        ['WA_PROVIDER','GREEN_API_INSTANCE','GREEN_API_TOKEN','TWILIO_ACCOUNT_SID','TWILIO_AUTH_TOKEN','TWILIO_FROM','AISENSY_API_KEY'].forEach(k => updateEnv(k, ''));
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // POST /api/whatsapp/test
 exports.testSend = async (req, res) => {
     const { phone } = req.body;

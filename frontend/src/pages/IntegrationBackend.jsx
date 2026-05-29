@@ -240,37 +240,47 @@ function WhatsAppModal({ onClose }) {
 
 // ── Main Cards Page ───────────────────────────────────────────────────────────
 export default function IntegrationBackend() {
-    const [emailOpen, setEmailOpen] = useState(false);
-    const [waOpen,    setWaOpen]    = useState(false);
-    const [emailOk,   setEmailOk]   = useState(null);
-    const [waOk,      setWaOk]      = useState(null);
+    const [emailOpen,  setEmailOpen]  = useState(false);
+    const [waOpen,     setWaOpen]     = useState(false);
+    const [emailOk,    setEmailOk]    = useState(null);
+    const [emailUser,  setEmailUser]  = useState('');
+    const [waOk,       setWaOk]       = useState(null);
+    const [waProvider, setWaProvider] = useState('');
+    const [toast,      setToast]      = useState('');
 
-    useEffect(() => {
-        axios.get(`${API_URL}/api/email-config/status`, { withCredentials: true }).then(r => setEmailOk(r.data.configured)).catch(()=>{});
-        getWaStatus().then(r => setWaOk(r.data.connected)).catch(()=>{});
-    }, [emailOpen, waOpen]);
+    const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
 
-    const cards = [
-        {
-            icon: (<svg width="40" height="40" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>),
-            name: 'Email — SMTP',
-            desc: 'Configure Gmail SMTP to send alert emails to users when their sites go down.',
-            status: emailOk,
-            onClick: () => setEmailOpen(true),
-            bg: '#fef2f2', border: '#fecdd3',
-        },
-        {
-            icon: (<svg width="40" height="40" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>),
-            name: 'WhatsApp',
-            desc: 'Configure Green API / Twilio / AiSensy to send WhatsApp alerts to users.',
-            status: waOk,
-            onClick: () => setWaOpen(true),
-            bg: '#f0fdf4', border: '#bbf7d0',
-        },
-    ];
+    const loadStatus = () => {
+        axios.get(`${API_URL}/api/email-config/status`, { withCredentials: true })
+            .then(r => { setEmailOk(r.data.configured); setEmailUser(r.data.mailUser || ''); }).catch(()=>{});
+        getWaStatus().then(r => { setWaOk(r.data.connected); setWaProvider(r.data.provider || ''); }).catch(()=>{});
+    };
+
+    useEffect(() => { loadStatus(); }, [emailOpen, waOpen]);
+
+    const deleteEmail = async (e) => {
+        e.stopPropagation();
+        if (!window.confirm('Remove Email SMTP configuration?')) return;
+        try {
+            await axios.delete(`${API_URL}/api/email-config/reset`, { withCredentials: true });
+            setEmailOk(false); setEmailUser('');
+            showToast('✅ Email config removed');
+        } catch { showToast('❌ Failed'); }
+    };
+
+    const deleteWa = async (e) => {
+        e.stopPropagation();
+        if (!window.confirm('Remove WhatsApp configuration?')) return;
+        try {
+            await axios.delete(`${API_URL}/api/whatsapp/reset`, { withCredentials: true });
+            setWaOk(false); setWaProvider('');
+            showToast('✅ WhatsApp config removed');
+        } catch { showToast('❌ Failed'); }
+    };
 
     return (
         <div className="pg-wrap">
+            {toast && <div style={{ background: toast.startsWith('✅')?'#f0fdf4':'#fef2f2', border:`1px solid ${toast.startsWith('✅')?'#bbf7d0':'#fecdd3'}`, color: toast.startsWith('✅')?'#16a34a':'#dc2626', borderRadius:10, padding:'10px 16px', marginBottom:16, fontWeight:600, fontSize:14 }}>{toast}</div>}
             <div className="pg-header">
                 <div>
                     <h1 className="pg-title">Integration Backend <span style={{color:'#7c3aed'}}>.</span></h1>
@@ -279,35 +289,79 @@ export default function IntegrationBackend() {
                 <button onClick={async()=>{
                     try {
                         const r = await axios.post(`${API_URL}/api/admin/clear-cache`, {}, { withCredentials: true });
-                        alert(`✅ Cache cleared — ${r.data.cleared} entries removed. Fresh SSL/Domain data will be fetched.`);
-                    } catch { alert('❌ Failed to clear cache'); }
+                        showToast(`✅ Cache cleared — ${r.data.cleared} entries removed`);
+                    } catch { showToast('❌ Failed to clear cache'); }
                 }} style={{ padding:'9px 18px', background:'#fef3c7', border:'1.5px solid #fde68a', borderRadius:10, fontSize:13, fontWeight:700, color:'#d97706', cursor:'pointer', whiteSpace:'nowrap' }}>
                     🗑 Clear SSL/Domain Cache
                 </button>
             </div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:20 }}>
-                {cards.map(c => (
-                    <div key={c.name} onClick={c.onClick}
-                        style={{ background:'#fff', borderRadius:20, border:`2px solid ${c.border}`, padding:28, cursor:'pointer', transition:'all 0.18s', position:'relative' }}
-                        onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(0,0,0,0.1)'; }}
-                        onMouseLeave={e=>{ e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
-                        {/* Status badge */}
-                        <div style={{ position:'absolute', top:16, right:16, fontSize:12, fontWeight:700,
-                            background: c.status===null?'#f1f5f9': c.status?'#dcfce7':'#fee2e2',
-                            color: c.status===null?'#94a3b8': c.status?'#16a34a':'#dc2626',
-                            padding:'3px 10px', borderRadius:20 }}>
-                            {c.status===null ? '—' : c.status ? '✅ Connected' : '❌ Disconnected'}
-                        </div>
-                        <div style={{ marginBottom:16 }}>{c.icon}</div>
-                        <div style={{ fontWeight:800, fontSize:18, color:'#1e1b4b', marginBottom:8 }}>{c.name}</div>
-                        <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6, marginBottom:20 }}>{c.desc}</div>
-                        <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px',
-                            background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:700 }}>
-                            ✏️ Configure →
-                        </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:20 }}>
+
+                {/* Email Card */}
+                <div style={{ background:'#fff', borderRadius:20, border:`2px solid ${emailOk?'#bbf7d0':'#fecdd3'}`, padding:28, position:'relative', transition:'all 0.18s' }}
+                    onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(0,0,0,0.08)'; }}
+                    onMouseLeave={e=>{ e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
+                    {/* Status badge */}
+                    <div style={{ position:'absolute', top:16, right:16, fontSize:12, fontWeight:700, background:emailOk?'#dcfce7':'#fee2e2', color:emailOk?'#16a34a':'#dc2626', padding:'3px 10px', borderRadius:20 }}>
+                        {emailOk===null ? '—' : emailOk ? '✅ Connected' : '❌ Not configured'}
                     </div>
-                ))}
+                    <div style={{ marginBottom:16 }}><svg width="40" height="40" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg></div>
+                    <div style={{ fontWeight:800, fontSize:18, color:'#1e1b4b', marginBottom:6 }}>Email — SMTP</div>
+                    <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6, marginBottom: emailOk?12:20 }}>Configure Gmail SMTP to send alert emails to users when their sites go down.</div>
+
+                    {/* Configured info */}
+                    {emailOk && emailUser && (
+                        <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, padding:'10px 14px', marginBottom:16, fontSize:12 }}>
+                            <div style={{ color:'#94a3b8', fontWeight:600, marginBottom:2 }}>CONFIGURED EMAIL</div>
+                            <div style={{ fontWeight:700, color:'#15803d' }}>📧 {emailUser}</div>
+                        </div>
+                    )}
+
+                    <div style={{ display:'flex', gap:8 }}>
+                        <button onClick={() => setEmailOpen(true)} style={{ flex:1, padding:'9px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                            ✏️ {emailOk ? 'Edit' : 'Configure'}
+                        </button>
+                        {emailOk && (
+                            <button onClick={deleteEmail} style={{ padding:'9px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:10, fontSize:13, color:'#dc2626', fontWeight:700, cursor:'pointer' }}>
+                                🗑 Delete
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* WhatsApp Card */}
+                <div style={{ background:'#fff', borderRadius:20, border:`2px solid ${waOk?'#bbf7d0':'#d1fae5'}`, padding:28, position:'relative', transition:'all 0.18s' }}
+                    onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(0,0,0,0.08)'; }}
+                    onMouseLeave={e=>{ e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
+                    <div style={{ position:'absolute', top:16, right:16, fontSize:12, fontWeight:700, background:waOk?'#dcfce7':'#fee2e2', color:waOk?'#16a34a':'#dc2626', padding:'3px 10px', borderRadius:20 }}>
+                        {waOk===null ? '—' : waOk ? '✅ Connected' : '❌ Disconnected'}
+                    </div>
+                    <div style={{ marginBottom:16 }}><svg width="40" height="40" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></div>
+                    <div style={{ fontWeight:800, fontSize:18, color:'#1e1b4b', marginBottom:6 }}>WhatsApp</div>
+                    <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6, marginBottom: waOk?12:20 }}>Configure Green API / Twilio / AiSensy to send WhatsApp alerts to users.</div>
+
+                    {/* Configured info */}
+                    {(waOk || waProvider) && (
+                        <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, padding:'10px 14px', marginBottom:16, fontSize:12 }}>
+                            <div style={{ color:'#94a3b8', fontWeight:600, marginBottom:2 }}>PROVIDER</div>
+                            <div style={{ fontWeight:700, color:'#15803d' }}>
+                                💬 {waProvider === 'greenapi' ? 'Green API' : waProvider === 'twilio' ? 'Twilio' : waProvider === 'aisensy' ? 'AiSensy' : waProvider}
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ display:'flex', gap:8 }}>
+                        <button onClick={() => setWaOpen(true)} style={{ flex:1, padding:'9px 16px', background:'linear-gradient(135deg,#25d366,#128c7e)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                            ✏️ {waOk ? 'Edit' : 'Configure'}
+                        </button>
+                        {waProvider && (
+                            <button onClick={deleteWa} style={{ padding:'9px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:10, fontSize:13, color:'#dc2626', fontWeight:700, cursor:'pointer' }}>
+                                🗑 Delete
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {emailOpen && <EmailModal onClose={() => setEmailOpen(false)} />}

@@ -7,8 +7,9 @@ function adminOnly(req, res, next) {
     next();
 }
 
-router.get('/status',  auth,            ctrl.getStatus);
-router.post('/config', auth, adminOnly, ctrl.saveConfig);
-router.post('/test',   auth, adminOnly, ctrl.testSend);
+router.get('/status',    auth,            ctrl.getStatus);
+router.post('/config',   auth, adminOnly, ctrl.saveConfig);
+router.post('/test',     auth, adminOnly, ctrl.testSend);
+router.delete('/reset',  auth, adminOnly, ctrl.reset);
 
 module.exports = router;
