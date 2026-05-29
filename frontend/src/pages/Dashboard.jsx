@@ -229,15 +229,18 @@ export default function Dashboard() {
         <div className="mon-panel-section">
           <div className="mon-panel-title">Current status</div>
           <div className="mon-panel-counts">
-            <div className="mon-count-item mon-count-down">
+            <div className="mon-count-item mon-count-down" onClick={()=>setStatusFilter(statusFilter==='down'?'all':'down')}
+              style={{cursor:'pointer', outline: statusFilter==='down'?'2px solid #ef4444':'none', borderRadius:10}}>
               <div className="mon-count-num">{down}</div>
               <div className="mon-count-label">Down</div>
             </div>
-            <div className="mon-count-item mon-count-up">
+            <div className="mon-count-item mon-count-up" onClick={()=>setStatusFilter(statusFilter==='up'?'all':'up')}
+              style={{cursor:'pointer', outline: statusFilter==='up'?'2px solid #10b981':'none', borderRadius:10}}>
               <div className="mon-count-num">{up}</div>
               <div className="mon-count-label">Up</div>
             </div>
-            <div className="mon-count-item mon-count-unknown">
+            <div className="mon-count-item mon-count-unknown" onClick={()=>setStatusFilter(statusFilter==='unknown'?'all':'unknown')}
+              style={{cursor:'pointer', outline: statusFilter==='unknown'?'2px solid #f59e0b':'none', borderRadius:10}}>
               <div className="mon-count-num">{unknown}</div>
               <div className="mon-count-label">Unknown</div>
             </div>
