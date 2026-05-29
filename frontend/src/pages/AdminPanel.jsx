@@ -54,6 +54,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const [profileForm, setProfileForm] = useState({ username: '', email: '', currentPassword: '', newPassword: '', confirmPassword: '' });
     const [profileSaving, setProfileSaving] = useState(false);
     const [profileMsg, setProfileMsg] = useState({ text: '', type: '' });
+    const [refundStatuses, setRefundStatuses] = useState({}); // { paymentId: statusData }
 
     const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
@@ -696,6 +697,20 @@ export default function AdminPanel({ initialTab = 'overview' }) {
             )}
 
             {/* ══ TRANSACTIONS TAB ══ */}
+            {tab === 'transactions' && (() => {
+                // Auto-load refund statuses for refunded payments
+                const refunded = payments.filter(p => p.status === 'refunded');
+                refunded.forEach(p => {
+                    if (!refundStatuses[p._id]) {
+                        adminRefundStatus(p._id).then(r => {
+                            setRefundStatuses(prev => ({ ...prev, [p._id]: r.data }));
+                        }).catch(() => {
+                            setRefundStatuses(prev => ({ ...prev, [p._id]: { label: '❓ Unknown', color: '#94a3b8', desc: 'Could not fetch' } }));
+                        });
+                    }
+                });
+                return null;
+            })()}
             {tab === 'transactions' && (
                 <div>
                     <div style={{ overflowX:'auto' }}>
@@ -739,20 +754,16 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                                 {p.status==='refunded' ? <s>₹{p.amount}</s> : `₹${p.amount}`}
                                             </td>
                                             <td style={{ padding:'10px 14px' }}>
-                                                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                                                <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
                                                     <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:statusColor.bg, color:statusColor.color }}>
                                                         {p.status==='refunded'?'↩ Refunded': p.status?.charAt(0).toUpperCase()+p.status?.slice(1)}
                                                     </span>
                                                     {p.status==='refunded' && (
-                                                        <button onClick={async()=>{
-                                                            try {
-                                                                const r = await adminRefundStatus(p._id);
-                                                                const d = r.data;
-                                                                alert(`Refund Status\n\nStatus: ${d.label}\n${d.desc}\nAmount: ₹${d.amount}\nRefund ID: ${d.refundId}\nInitiated: ${d.createdAt}\nSpeed: ${d.speed || 'normal'}`);
-                                                            } catch(e) { alert('Error: ' + (e.response?.data?.error || e.message)); }
-                                                        }} style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe', cursor:'pointer', width:'fit-content' }}>
-                                                            🔍 Check Status
-                                                        </button>
+                                                        refundStatuses[p._id]
+                                                            ? <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:'#f0fdf4', color: refundStatuses[p._id].color, border:`1px solid ${refundStatuses[p._id].color}44` }}>
+                                                                {refundStatuses[p._id].label}
+                                                              </span>
+                                                            : <span style={{ fontSize:11, color:'#94a3b8' }}>⏳ Checking...</span>
                                                     )}
                                                 </div>
                                             </td>

@@ -278,10 +278,29 @@ exports.refundStatus = async (req, res) => {
         const pr = await PaymentRequest.findById(req.params.id);
         if (!pr) return res.status(404).json({ error: 'Payment not found' });
         if (pr.status !== 'refunded') return res.status(400).json({ error: 'No refund for this payment' });
-        if (!pr.razorpay_refund_id) return res.status(400).json({ error: 'Refund ID not found' });
 
-        const rzp    = getRzp();
-        const refund = await rzp.refunds.fetch(pr.razorpay_refund_id);
+        const rzp = getRzp();
+        let refund;
+
+        // Try stored refund ID first
+        let refundId = pr.razorpay_refund_id;
+
+        // Parse from adminNote if not stored directly
+        if (!refundId && pr.adminNote) {
+            const match = pr.adminNote.match(/rfnd_\w+/);
+            if (match) refundId = match[0];
+        }
+
+        if (refundId) {
+            refund = await rzp.refunds.fetch(refundId);
+        } else {
+            // Fetch refunds by payment ID
+            const paymentId = pr.razorpay_payment_id || pr.utr;
+            if (!paymentId || !paymentId.startsWith('pay_')) return res.status(400).json({ error: 'No Razorpay payment ID found' });
+            const refunds = await rzp.payments.fetchMultipleRefund(paymentId);
+            if (!refunds?.items?.length) return res.status(404).json({ error: 'No refund found on Razorpay' });
+            refund = refunds.items[0];
+        }
 
         const statusMap = {
             'created':    { label: '⏳ Processing',     color: '#f59e0b', desc: 'Refund has been initiated' },
