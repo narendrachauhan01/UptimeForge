@@ -216,7 +216,7 @@ const IcoWebhook  = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill=
 const IcoSlack    = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#4a154b"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>);
 const IcoTelegram = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#0088cc"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.820 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>);
 const IcoDiscord  = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>);
-const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#f5455c"><path d="M12 0C5.373 0 0 4.925 0 11c0 3.077 1.333 5.852 3.471 7.836L2 24l5.291-1.585A12.44 12.44 0 0 0 12 23c6.627 0 12-4.925 12-11S18.627 0 12 0zm5.889 15.484c-.247.697-1.464 1.33-2.044 1.415-.527.077-1.196.109-1.93-.12-.445-.14-1.016-.326-1.747-.64-3.067-1.322-5.07-4.408-5.225-4.614-.153-.205-1.25-1.663-1.25-3.174 0-1.51.793-2.254 1.073-2.56.28-.304.612-.38.815-.38.204 0 .408.002.586.01.188.009.44-.071.688.526.253.613.861 2.119.936 2.272.076.153.127.331.026.536-.102.204-.153.33-.305.51-.153.179-.321.4-.458.537-.153.152-.312.318-.134.623.178.305.79 1.302 1.696 2.108 1.165 1.04 2.148 1.361 2.453 1.514.304.153.482.127.66-.076.178-.204.764-.892.968-1.197.203-.304.407-.254.686-.152.28.102 1.783.84 2.087.993.305.153.509.229.585.356.077.127.077.737-.17 1.434z"/></svg>);
+const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><path fill="#f5455c" d="M200 0C89.543 0 0 89.543 0 200s89.543 200 200 200 200-89.543 200-200S310.457 0 200 0z"/><path fill="#fff" d="M321.527 166.958c1.1-7.699 1.676-15.563 1.676-23.558 0-64.075-42.548-116.01-95.05-116.01-26.206 0-49.994 12.44-67.717 32.637-8.19-2.67-16.878-4.118-25.877-4.118-46.327 0-83.893 37.566-83.893 83.893 0 8.23 1.183 16.188 3.388 23.722C23.98 178.26 8 201.476 8 228.355c0 40.67 32.97 73.64 73.64 73.64h19.846c18.104 22.15 45.5 36.255 76.217 36.255 30.716 0 58.112-14.104 76.218-36.255h46.44C340.03 301.995 373 269.025 373 228.355c0-26.32-15.42-49.167-51.473-61.397z"/><path fill="#f5455c" d="M177.703 291.25c-51.677 0-93.594-41.917-93.594-93.594s41.917-93.594 93.594-93.594c51.678 0 93.594 41.917 93.594 93.594s-41.916 93.594-93.594 93.594zm104.573-52.94c5.12-12.612 7.952-26.41 7.952-40.87 0-60.355-48.94-109.296-109.296-109.296-14.46 0-28.257 2.832-40.87 7.952-9.83-3.887-20.518-6.03-31.72-6.03-48.067 0-87.037 38.97-87.037 87.037 0 11.201 2.143 21.89 6.03 31.72-5.12 12.612-7.952 26.41-7.952 40.869 0 60.356 48.97 109.297 109.296 109.297 14.46 0 28.257-2.832 40.87-7.952 9.83 3.887 20.517 6.03 31.72 6.03 48.067 0 87.037-38.97 87.037-87.037 0-11.202-2.142-21.89-6.03-31.72z"/></svg>);
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Integrations() {
@@ -251,6 +251,44 @@ export default function Integrations() {
     const [webhookForm,    setWebhookForm]    = useState({ url:'', secret:'', events:'all' });
     const [webhookSaving,  setWebhookSaving]  = useState(false);
     const [webhookTesting, setWebhookTesting] = useState(false);
+
+    const [rcModal,   setRcModal]   = useState(false);
+    const [rcForm,    setRcForm]    = useState({ url:'', events:'all' });
+    const [rcSaving,  setRcSaving]  = useState(false);
+    const [rcTesting, setRcTesting] = useState(false);
+
+    const openRcModal = async () => {
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() });
+            const rc = r.data.find(i => i.type === 'rocketchat');
+            if (rc) setRcForm({ url: rc.config?.url||'', events: rc.events||'all' });
+        } catch {}
+        setRcModal(true);
+    };
+
+    const saveRc = async () => {
+        if (!rcForm.url) return;
+        setRcSaving(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/rocketchat`, { config: { url: rcForm.url }, events: rcForm.events||'all' }, { headers: authHeaders() });
+            setSaved(p=>({...p, rocketchat:true}));
+            showToast('✅ Rocket.Chat saved!');
+            setRcModal(false);
+        } catch {}
+        setRcSaving(false);
+    };
+
+    const testRc = async () => {
+        if (!rcForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
+        setRcTesting(true);
+        try {
+            await axios.post(rcForm.url, { text: '🚨 *UptimeForge Test* — Rocket.Chat integration is working!' }, { headers: { 'Content-Type':'application/json' } });
+            showToast('✅ Test message sent to Rocket.Chat!');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.message || 'Check URL'));
+        }
+        setRcTesting(false);
+    };
 
     const openWebhookModal = async () => {
         // Load saved webhook config if exists
@@ -335,13 +373,29 @@ export default function Integrations() {
                 </div>
             </div>
 
+            {/* Rocket.Chat */}
+            <div style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
+                <div style={{ width:46, height:46, borderRadius:12, background:'#fff0f1', border:'1px solid #fecdd3', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <IcoRocket/>
+                </div>
+                <div style={{ flex:1 }}>
+                    <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>Rocket.Chat</div>
+                    <div style={{ fontSize:13, color:'#64748b' }}>Send alerts to your Rocket.Chat workspace via incoming webhook.</div>
+                </div>
+                <div style={{ display:'flex', gap:8 }}>
+                    {saved.rocketchat && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
+                    <button onClick={openRcModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                        {saved.rocketchat ? '✏️ Edit' : '+ Add'}
+                    </button>
+                </div>
+            </div>
+
             {/* Coming Soon */}
             <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, margin:'20px 0 10px' }}>Coming Soon</div>
             {[
-                { iconEl:<IcoSlack/>,    name:'Slack',       desc:'Send alerts to your Slack channel via incoming webhook.' },
-                { iconEl:<IcoTelegram/>, name:'Telegram',    desc:'Get instant alerts via Telegram bot messages.' },
-                { iconEl:<IcoDiscord/>,  name:'Discord',     desc:'Post status updates to your Discord server.' },
-                { iconEl:<IcoRocket/>,   name:'Rocket.Chat', desc:'Send alerts to your Rocket.Chat workspace via webhook.' },
+                { iconEl:<IcoSlack/>,    name:'Slack',    desc:'Send alerts to your Slack channel via incoming webhook.' },
+                { iconEl:<IcoTelegram/>, name:'Telegram', desc:'Get instant alerts via Telegram bot messages.' },
+                { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
             ].map(intg => (
                 <div key={intg.name} style={{ background:'#f8fafc', border:'1.5px solid #f1f5f9', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14, opacity:0.7 }}>
                     <div style={{ width:46, height:46, borderRadius:12, background:'#f1f5f9', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{intg.iconEl}</div>
@@ -356,6 +410,47 @@ export default function Integrations() {
             {/* WhatsApp Modal */}
             {waModal    && <WhatsAppModal servers={servers} onClose={()=>setWaModal(false)}    onSaved={()=>showToast('✅ WhatsApp recipient added!')} />}
             {emailModal && <EmailModal    servers={servers} onClose={()=>setEmailModal(false)} onSaved={()=>showToast('✅ Email recipient added!')} />}
+
+            {/* Rocket.Chat Modal */}
+            {rcModal && (
+                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+                    onClick={e=>e.target===e.currentTarget&&setRcModal(false)}>
+                    <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:440, padding:28, position:'relative' }}>
+                        <button onClick={()=>setRcModal(false)} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer' }}>✕</button>
+                        <div style={{ textAlign:'center', marginBottom:20 }}>
+                            <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoRocket/></div>
+                            <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add <span style={{color:'#f5455c'}}>Rocket.Chat</span> Webhook</h2>
+                            <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>Admin → Integrations → Incoming WebHook → copy URL</p>
+                        </div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Webhook URL *</label>
+                                <input value={rcForm.url} onChange={e=>setRcForm({...rcForm,url:e.target.value})} placeholder="https://chat.yourserver.com/hooks/..."
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Events</label>
+                                <select value={rcForm.events} onChange={e=>setRcForm({...rcForm,events:e.target.value})}
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none' }}>
+                                    <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                    <option value="down">Down events only</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                            <button onClick={()=>setRcModal(false)} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
+                            <button onClick={testRc} disabled={rcTesting||!rcForm.url}
+                                style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.2)', borderRadius:10, background:'rgba(245,69,92,0.15)', color:'#f5455c', fontSize:13, fontWeight:700, cursor:'pointer', opacity:(!rcForm.url||rcTesting)?0.6:1 }}>
+                                {rcTesting ? '...' : '📨 Test'}
+                            </button>
+                            <button onClick={saveRc} disabled={rcSaving||!rcForm.url}
+                                style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!rcForm.url||rcSaving)?0.6:1 }}>
+                                {rcSaving ? 'Saving...' : '💾 Save'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Webhook Modal */}
             {webhookModal && (

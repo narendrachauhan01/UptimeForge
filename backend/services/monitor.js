@@ -37,10 +37,10 @@ async function fireIntegrations(server, type, userId) {
                 : `✅ *${server.name}* is back UP — ${server.url}`;
 
             try {
-                if (intg.type === 'slack' || intg.type === 'discord' || intg.type === 'webhook') {
+                if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
                     const url = intg.config?.url;
                     if (!url) continue;
-                    const body = intg.type === 'slack'
+                    const body = intg.type === 'slack' || intg.type === 'rocketchat'
                         ? JSON.stringify({ text })
                         : intg.type === 'discord'
                         ? JSON.stringify({ content: text })
