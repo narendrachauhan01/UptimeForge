@@ -239,19 +239,8 @@ export default function PaymentPage({ user, onUserUpdate }) {
             order_id:    orderData.orderId,
             prefill:     orderData.prefill,
             theme:       { color: '#7c3aed' },
-            config: {
-                display: {
-                    blocks: {
-                        utib: { name: 'Pay using UPI', instruments: [{ method: 'upi', flows: ['intent', 'collect', 'qr'] }] },
-                    },
-                    sequence: ['block.utib', 'block.other'],
-                    preferences: { show_default_blocks: true },
-                },
-            },
             modal: {
                 ondismiss: () => { setPaying(false); handleCancel(); },
-                backdropclose: false,
-                escape: false,
             },
             handler: async (response) => {
                 try {
