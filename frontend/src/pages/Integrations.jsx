@@ -352,7 +352,7 @@ export default function Integrations() {
         setWebhookTesting(true);
         try {
             const t = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
-            const payload = { text:'🔔 *UptimeForge Alert*', event:'test', site:'Test Site', url:'https://example.com', status:'DOWN', time: new Date().toISOString(), attachments:[{ color:'#ef4444', title:'🚨 Test Site is DOWN — Rocket.Chat · Slack · Discord · Zapier · n8n Multiple Webhook support is working!', title_link:'https://example.com', fields:[{title:'Status',value:'🔴 DOWN',short:true},{title:'Time',value:t,short:true},{title:'URL',value:'https://example.com',short:false}], footer:'UptimeForge Monitor' }] };
+            const payload = { text:'🔔 *UptimeForge Alert*', event:'test', site:'Test Message', url:'https://example.com', status:'TEST', time: new Date().toISOString(), attachments:[{ color:'#7c3aed', title:'🧪 This is a Test Message — Webhook is working!', title_link:'https://example.com', fields:[{title:'Type',value:'🧪 TEST',short:true},{title:'Time',value:t,short:true},{title:'Note',value:'This is a test — not a real alert',short:false}], footer:'UptimeForge Monitor' }] };
             await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: webhookForm.url, body: payload }, { withCredentials: true });
             showToast('✅ Test payload sent! Check your webhook receiver.');
         } catch (e) {
