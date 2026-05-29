@@ -37,36 +37,56 @@ async function fireIntegrations(server, type, userId) {
                 time: now.toISOString(),
             };
 
-            const rcBody = JSON.stringify({
+            const color     = isDown ? '#ef4444' : '#22c55e';
+            const colorHex  = isDown ? 0xef4444  : 0x22c55e;
+            const title     = isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`;
+
+            // RocketChat & Slack — attachments format
+            const rcSlackBody = JSON.stringify({
                 alias: 'UptimeForge Alert',
                 emoji: isDown ? ':rotating_light:' : ':white_check_mark:',
                 attachments: [{
-                    color: isDown ? '#ef4444' : '#22c55e',
-                    title: isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`,
+                    color,
+                    title,
                     title_link: server.url,
                     fields: [
-                        { title: 'Status',  value: isDown ? '🔴 DOWN' : '🟢 UP',   short: true },
-                        { title: 'Time',    value: timeStr,                          short: true },
-                        { title: 'URL',     value: server.url,                       short: false },
+                        { title: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
+                        { title: 'Time',   value: timeStr,                        short: true },
+                        { title: 'URL',    value: server.url,                     short: false },
                     ],
                     footer: 'UptimeForge Monitor',
                 }]
             });
 
-            const text = isDown
-                ? `🚨 *${server.name}* is DOWN — ${server.url}`
-                : `✅ *${server.name}* is back UP — ${server.url}`;
+            // Discord — embeds format
+            const discordBody = JSON.stringify({
+                username: 'UptimeForge Alert',
+                embeds: [{
+                    color: colorHex,
+                    title,
+                    url: server.url,
+                    fields: [
+                        { name: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', inline: true },
+                        { name: 'Time',   value: timeStr,                        inline: true },
+                        { name: 'URL',    value: server.url,                     inline: false },
+                    ],
+                    footer: { text: 'UptimeForge Monitor' },
+                }]
+            });
+
+            // Telegram — markdown
+            const tgText = isDown
+                ? `🚨 *${server.name} is DOWN*\n🔴 Status: DOWN\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`
+                : `✅ *${server.name} is back UP*\n🟢 Status: UP\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`;
 
             try {
                 if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
                     const url = intg.config?.url;
                     if (!url) continue;
-                    const body = intg.type === 'rocketchat'
-                        ? rcBody
-                        : intg.type === 'slack'
-                        ? JSON.stringify({ text })
+                    const body = intg.type === 'rocketchat' || intg.type === 'slack'
+                        ? rcSlackBody
                         : intg.type === 'discord'
-                        ? JSON.stringify({ content: text })
+                        ? discordBody
                         : JSON.stringify(payload);
 
                     const headers = { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) };
@@ -83,7 +103,7 @@ async function fireIntegrations(server, type, userId) {
                     const { botToken, chatId } = intg.config || {};
                     if (!botToken || !chatId) continue;
                     const tUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-                    const body = JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' });
+                    const body = JSON.stringify({ chat_id: chatId, text: tgText, parse_mode: 'Markdown' });
                     const req = https.request(tUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, () => {});
                     req.on('error', () => {});
                     req.write(body);
