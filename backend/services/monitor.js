@@ -36,6 +36,17 @@ async function fireIntegrations(server, type, userId) {
                 url: server.url,
                 status: isDown ? 'DOWN' : 'UP',
                 time: now.toISOString(),
+                attachments: [{
+                    color: isDown ? '#ef4444' : '#22c55e',
+                    title: isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`,
+                    title_link: server.url,
+                    fields: [
+                        { title: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
+                        { title: 'Time',   value: timeStr,                        short: true },
+                        { title: 'URL',    value: server.url,                     short: false },
+                    ],
+                    footer: 'UptimeForge Monitor',
+                }],
             };
 
             // SSL / Domain expiry handled separately via fireExpiryIntegrations
