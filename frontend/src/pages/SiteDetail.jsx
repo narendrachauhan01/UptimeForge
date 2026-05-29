@@ -4,8 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, R
 import { getAlerts, getExpiry, API_URL } from '../api';
 import axios from 'axios';
 
-const token = () => localStorage.getItem('sm_token');
-const headers = () => token() ? { Authorization: `Bearer ${token()}` } : {};
+const authCfg = { withCredentials: true };
 
 function fmt(d) { if (!d) return '—'; return new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
 function fmtTime(d) { if (!d) return '—'; return new Date(d).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }); }
@@ -44,8 +43,8 @@ export default function SiteDetail() {
                 ? `from=${encodeURIComponent(customFrom)}&to=${encodeURIComponent(customTo)}`
                 : `range=${range}`;
             const [serverRes, historyRes] = await Promise.all([
-                axios.get(`${API_URL}/api/servers/${id}`, { headers: headers() }),
-                axios.get(`${API_URL}/api/servers/${id}/history?${rangeParam}`, { headers: headers() }),
+                axios.get(`${API_URL}/api/servers/${id}`, authCfg),
+                axios.get(`${API_URL}/api/servers/${id}/history?${rangeParam}`, authCfg),
             ]);
             const s = serverRes.data;
             s.history = historyRes.data.history || [];
@@ -58,7 +57,7 @@ export default function SiteDetail() {
         // Stage 2: Load alerts (server-filtered) + expiry in background
         try {
             const [alertsRes, expiryRes] = await Promise.allSettled([
-                axios.get(`${API_URL}/api/alerts?server=${id}&limit=10`, { headers: headers() }),
+                axios.get(`${API_URL}/api/alerts?server=${id}&limit=10`, authCfg),
                 getExpiry(id),
             ]);
             if (alertsRes.status === 'fulfilled') setIncidents(alertsRes.value.data.slice(0, 10));
@@ -75,7 +74,7 @@ export default function SiteDetail() {
 
     const togglePause = async () => {
         setPausing(true);
-        await axios.put(`${API_URL}/api/servers/${id}`, { active: !server.active }, { headers: headers() });
+        await axios.put(`${API_URL}/api/servers/${id}`, { active: !server.active }, authCfg);
         await loadData();
         setPausing(false);
     };
