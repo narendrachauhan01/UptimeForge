@@ -4586,7 +4586,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .am-topbar { padding:14px 32px; background:#fff; border-bottom:1px solid #e2e8f0; }
 .am-back { background:none; border:none; color:#7c3aed; font-size:14px; font-weight:600; cursor:pointer; }
 .am-back:hover { opacity:0.75; }
-.am-wrap { max-width:740px; margin:0 auto; padding:32px 24px 60px; }
+.am-wrap { max-width:900px; margin:0 auto; padding:32px 24px 60px; }
 .am-title { font-size:26px; font-weight:900; color:#1e1b4b; margin:0 0 28px; }
 .am-section { margin-bottom:24px; }
 .am-section-label { font-size:13px; font-weight:700; color:#374151; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.4px; }
