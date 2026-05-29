@@ -294,7 +294,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         { id: 'overview',      label: 'Overview' },
         { id: 'users',         label: `Users (${users.length})` },
         { id: 'payments',      label: `Payments (${payments.length})` },
-        { id: 'transactions',  label: `Transactions (${payments.length})` },
+        { id: 'transactions',  label: `Payments & Refund (${payments.length})` },
     ];
 
     return (
