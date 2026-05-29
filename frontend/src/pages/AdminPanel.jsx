@@ -288,7 +288,6 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         { id: 'overview',     label: 'Overview' },
         { id: 'users',        label: `Users (${users.length})` },
         { id: 'payments',     label: `Payments (${payments.length})` },
-        { id: 'integrations', label: '🔗 Integration Backend' },
     ];
 
     return (

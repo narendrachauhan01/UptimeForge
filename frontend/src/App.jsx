@@ -26,6 +26,7 @@ import VerifyAccount from './pages/VerifyAccount';
 import PaymentPage from './pages/PaymentPage';
 import CompleteProfile from './pages/CompleteProfile';
 import Integrations from './pages/Integrations';
+import IntegrationBackend from './pages/IntegrationBackend';
 import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
@@ -80,7 +81,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/plan-settings',        label: 'Plan Settings',       icon: <IcoSettings /> },
     { to: '/feature-access',       label: 'Feature Access',      icon: <IcoToggle /> },
     { to: '/server-resources',     label: 'Infra',               icon: <IcoServer /> },
-    { to: '/admin?tab=integrations', label: '🔗 Integration Backend', icon: <IcoMail /> },
+    { to: '/integration-backend', label: '🔗 Integration Backend', icon: <IcoMail /> },
   ] : [
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
@@ -456,6 +457,7 @@ function AppInner() {
             {isAdmin && <Route path="/admin-profile" element={<AdminPanel initialTab="profile" />} />}
             {isAdmin && <Route path="/plan-settings" element={<PlanSettings />} />}
             {isAdmin && <Route path="/feature-access" element={<FeatureAccess />} />}
+            {isAdmin && <Route path="/integration-backend" element={<IntegrationBackend />} />}
             <Route path="/site/:id" element={<SiteDetail />} />
             <Route path="/add-monitor" element={<AddMonitor />} />
             <Route path="/integrations" element={<Integrations />} />
