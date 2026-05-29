@@ -243,15 +243,31 @@ export default function Integrations() {
         showToast('✅ Webhook saved!');
     };
 
-    const [webhookModal, setWebhookModal] = useState(false);
-    const [webhookForm,  setWebhookForm]  = useState({ url:'', secret:'', events:'all' });
-    const [webhookSaving,setWebhookSaving]= useState(false);
+    const [webhookModal,   setWebhookModal]   = useState(false);
+    const [webhookForm,    setWebhookForm]    = useState({ url:'', secret:'', events:'all' });
+    const [webhookSaving,  setWebhookSaving]  = useState(false);
+    const [webhookTesting, setWebhookTesting] = useState(false);
 
     const saveWebhook = async () => {
         if (!webhookForm.url) return;
         setWebhookSaving(true);
         try { await handleWebhookSave(webhookForm); setWebhookModal(false); } catch{}
         setWebhookSaving(false);
+    };
+
+    const testWebhook = async () => {
+        if (!webhookForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
+        setWebhookTesting(true);
+        try {
+            const payload = { event:'test', site:'UptimeForge Test', url:'https://uptimeforge.com', status:'DOWN', time: new Date().toISOString() };
+            await axios.post(webhookForm.url, payload, {
+                headers: { 'Content-Type':'application/json', ...(webhookForm.secret?{'X-UptimeForge-Secret':webhookForm.secret}:{}) }
+            });
+            showToast('✅ Test payload sent! Check your webhook receiver.');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.message || 'Check URL'));
+        }
+        setWebhookTesting(false);
     };
 
     return (
@@ -354,9 +370,13 @@ export default function Integrations() {
                         </div>
                         <div style={{ display:'flex', gap:10, marginTop:20 }}>
                             <button onClick={()=>setWebhookModal(false)} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
+                            <button onClick={testWebhook} disabled={webhookTesting||!webhookForm.url}
+                                style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.2)', borderRadius:10, background:'rgba(16,185,129,0.15)', color:'#34d399', fontSize:13, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookTesting)?0.6:1 }}>
+                                {webhookTesting ? '...' : '📨 Test'}
+                            </button>
                             <button onClick={saveWebhook} disabled={webhookSaving||!webhookForm.url}
                                 style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookSaving)?0.6:1 }}>
-                                {webhookSaving ? 'Saving...' : 'Save Webhook'}
+                                {webhookSaving ? 'Saving...' : '💾 Save'}
                             </button>
                         </div>
                     </div>
