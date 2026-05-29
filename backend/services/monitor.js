@@ -384,14 +384,23 @@ async function checkPingTargets() {
                 status: result.alive ? 'up' : 'down',
             };
 
+            // Get eligible recipients — use notifyRecipients if set, else all eligible
+            const getPingEligible = () => {
+                if (target.notifyRecipients?.length > 0) {
+                    const ids = target.notifyRecipients.map(id => id.toString());
+                    return recipients.filter(r => ids.includes(r._id.toString()));
+                }
+                return getEligibleRecipients(recipients, target._id, target.userId?._id);
+            };
+
             if (!result.alive) {
                 if (prevStatus !== 'down') setFields.lastDownAt = new Date();
                 if (prevStatus !== 'down' && !wasAlertSent) {
-                    const eligible = getEligibleRecipients(recipients, target._id, target.userId?._id);
+                    const eligible = getPingEligible();
                     const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, downEmailHtml(target.name, target.host, now())); }
+                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, downEmailHtml(target.name, target.host, now())); } catch(_){} }
                     }
                     setFields.downAlertSent = true;
                 }
@@ -399,11 +408,11 @@ async function checkPingTargets() {
                 if (prevStatus === 'down') {
                     setFields.lastUpAt = new Date();
                     setFields.downAlertSent = false;
-                    const eligible = getEligibleRecipients(recipients, target._id, target.userId?._id);
+                    const eligible = getPingEligible();
                     const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, recoveredEmailHtml(target.name, target.host, now())); }
+                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, recoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
                     }
                 }
             }

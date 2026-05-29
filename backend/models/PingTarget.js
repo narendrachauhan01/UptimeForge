@@ -10,8 +10,9 @@ const pingTargetSchema = new mongoose.Schema({
     responseTime:  { type: Number },
     lastDownAt:    { type: Date },
     lastUpAt:      { type: Date },
-    downAlertSent: { type: Boolean, default: false },
-    userId:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    downAlertSent:     { type: Boolean, default: false },
+    notifyRecipients:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recipient' }], // empty = all
+    userId:            { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     history: [{
         time:         { type: Date },
         responseTime: { type: Number },

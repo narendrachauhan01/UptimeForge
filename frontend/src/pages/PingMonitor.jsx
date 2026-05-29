@@ -30,11 +30,20 @@ function TargetModal({ target, onClose, onSave }) {
     const [form,       setForm]       = useState(target || { name:'', host:'', port:443 });
     const [saving,     setSaving]     = useState(false);
     const [recipients, setRecipients] = useState([]);
+    const [selected,   setSelected]   = useState([]); // selected recipient IDs
+    const [rSearch,    setRSearch]    = useState('');
     const [loadingR,   setLoadingR]   = useState(true);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/recipients`, { headers:authHeaders() })
-            .then(r => setRecipients(r.data.recipients ?? r.data))
+            .then(r => {
+                const data = r.data.recipients ?? r.data;
+                setRecipients(data);
+                // Pre-select from existing target
+                if (target?.notifyRecipients?.length > 0) {
+                    setSelected(target.notifyRecipients.map(id => typeof id === 'string' ? id : id._id || id));
+                }
+            })
             .catch(() => {})
             .finally(() => setLoadingR(false));
     }, []);
@@ -42,12 +51,14 @@ function TargetModal({ target, onClose, onSave }) {
     const save = async () => {
         if (!form.name.trim() || !form.host.trim()) return;
         setSaving(true);
-        await onSave(form);
+        await onSave({ ...form, notifyRecipients: selected });
         setSaving(false);
         onClose();
     };
 
-    const emailRecipients = recipients.filter(r => r.email && r.active);
+    const toggleR = (id) => setSelected(p => p.includes(id) ? p.filter(x=>x!==id) : [...p, id]);
+    const activeRecs = recipients.filter(r => r.active && (r.email || r.phone));
+    const filteredR  = activeRecs.filter(r => !rSearch || r.name.toLowerCase().includes(rSearch.toLowerCase()) || (r.email||'').includes(rSearch));
 
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
@@ -70,40 +81,66 @@ function TargetModal({ target, onClose, onSave }) {
                     </div>
                     <div>
                         <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Port</label>
-                        <input type="number" value={form.port} onChange={e=>setForm({...form,port:Number(e.target.value)})}
+                        <input type="number" min="1" max="65535" value={form.port} onChange={e=>setForm({...form,port:Number(e.target.value)||443})}
                             style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
                         <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
                     </div>
                 </div>
                 {/* Recipients */}
                 <div style={{ marginTop:4 }}>
-                    <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>🔔 Alert Recipients</label>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0' }}>🔔 Notify Recipients</label>
+                        <span style={{ fontSize:11, color:'#94a3b8' }}>
+                            {selected.length===0 ? 'All will be notified' : `${selected.length} selected`}
+                        </span>
+                    </div>
                     {loadingR ? (
                         <div style={{ fontSize:12, color:'#94a3b8', padding:'8px 0' }}>Loading...</div>
-                    ) : emailRecipients.length > 0 ? (
-                        <div style={{ background:'rgba(255,255,255,0.06)', borderRadius:10, overflow:'hidden', border:'1px solid rgba(255,255,255,0.1)' }}>
-                            {emailRecipients.map(r => (
-                                <div key={r._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
-                                    <div style={{ width:30, height:30, borderRadius:'50%', background:`hsl(${(r.name||'').charCodeAt(0)*37%360},55%,48%)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:13, flexShrink:0 }}>
-                                        {(r.name||'?')[0].toUpperCase()}
-                                    </div>
-                                    <div style={{ flex:1, minWidth:0 }}>
-                                        <div style={{ fontSize:13, fontWeight:600, color:'#e2e8f0' }}>{r.name}</div>
-                                        <div style={{ fontSize:11, color:'#94a3b8' }}>{r.email}</div>
-                                    </div>
-                                    <span style={{ fontSize:10, background:'rgba(16,185,129,0.15)', color:'#34d399', padding:'2px 8px', borderRadius:20, fontWeight:700, flexShrink:0 }}>✓ Will notify</span>
-                                </div>
-                            ))}
+                    ) : activeRecs.length === 0 ? (
+                        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
+                            <span>⚠️</span>
+                            <div>
+                                <div style={{ fontSize:12, color:'#fca5a5', fontWeight:600 }}>No recipients found</div>
+                                <a href="/integrations" style={{ fontSize:11, color:'#a78bfa', fontWeight:700 }}>Go to Integrations → Add recipient</a>
+                            </div>
                         </div>
                     ) : (
-                        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
-                            <span style={{ fontSize:18 }}>⚠️</span>
-                            <div>
-                                <div style={{ fontSize:12, color:'#fca5a5', fontWeight:600 }}>No email recipients found</div>
-                                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
-                                    <a href="/integrations" style={{ color:'#a78bfa', fontWeight:700 }}>Go to Integrations → Add Email recipient</a>
-                                </div>
+                        <div style={{ background:'rgba(255,255,255,0.04)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
+                            {/* Search */}
+                            <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.06)', position:'relative' }}>
+                                <svg style={{ position:'absolute', left:20, top:'50%', transform:'translateY(-50%)' }} width="12" height="12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                <input value={rSearch} onChange={e=>setRSearch(e.target.value)} placeholder="Search recipients..."
+                                    style={{ width:'100%', padding:'6px 8px 6px 26px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:7, fontSize:12, color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
                             </div>
+                            {/* List */}
+                            <div style={{ maxHeight:180, overflowY:'auto' }}>
+                                {filteredR.map(r => {
+                                    const isChecked = selected.includes(r._id);
+                                    const ac = `hsl(${(r.name||'').charCodeAt(0)*37%360},55%,48%)`;
+                                    return (
+                                        <label key={r._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom:'1px solid rgba(255,255,255,0.05)', cursor:'pointer',
+                                            background: isChecked ? 'rgba(124,58,237,0.15)' : 'transparent', transition:'background 0.12s' }}>
+                                            <input type="checkbox" checked={isChecked} onChange={()=>toggleR(r._id)}
+                                                style={{ width:15, height:15, accentColor:'#7c3aed', cursor:'pointer', flexShrink:0 }} />
+                                            <div style={{ width:28, height:28, borderRadius:'50%', background:ac, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:12, flexShrink:0 }}>
+                                                {(r.name||'?')[0].toUpperCase()}
+                                            </div>
+                                            <div style={{ flex:1, minWidth:0 }}>
+                                                <div style={{ fontSize:13, fontWeight:600, color:'#e2e8f0' }}>{r.name}</div>
+                                                <div style={{ fontSize:11, color:'#94a3b8', display:'flex', gap:6 }}>
+                                                    {r.email && <span>✉️ {r.email}</span>}
+                                                    {r.phone && <span>💬 +{r.phone.replace(/^91/,'91 ').slice(0,12)}</span>}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                            {selected.length === 0 && (
+                                <div style={{ padding:'8px 14px', fontSize:11, color:'#94a3b8', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+                                    ℹ️ No selection = all active recipients will be notified
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
