@@ -198,6 +198,58 @@ exports.verifyPayment = async (req, res) => {
     }
 };
 
+// POST /api/payment/:id/refund  — Admin initiates refund via Razorpay API
+exports.refundPayment = async (req, res) => {
+    try {
+        const pr = await PaymentRequest.findById(req.params.id);
+        if (!pr) return res.status(404).json({ error: 'Payment not found' });
+        if (pr.status === 'refunded') return res.status(400).json({ error: 'Already refunded' });
+        if (pr.status !== 'approved') return res.status(400).json({ error: 'Only approved payments can be refunded' });
+
+        const rzp = getRzp();
+        const paymentId = pr.razorpay_payment_id || pr.utr;
+
+        // Initiate refund via Razorpay API
+        const refund = await rzp.payments.refund(paymentId, { amount: pr.amount * 100, speed: 'normal' });
+        console.log(`[Refund] Initiated: ${refund.id} for payment ${paymentId}`);
+
+        // Revert user plan
+        const user = await User.findById(pr.userId);
+        const prevPlan = user?.plan;
+        if (user) {
+            user.plan = 'free_trial';
+            user.planEndsAt = null;
+            await user.save();
+        }
+
+        // Update payment record
+        pr.status   = 'refunded';
+        pr.adminNote = `Refunded by admin. Razorpay refund ID: ${refund.id}`;
+        pr.reviewedAt = new Date();
+        await pr.save();
+
+        console.log(`[Refund] User ${user?.email} reverted ${prevPlan} → free_trial`);
+
+        // Notify user
+        try {
+            await sendEmail(user.email, 'Your UptimeForge plan has been refunded',
+                `<div style="font-family:Inter,sans-serif;padding:28px;max-width:500px;margin:0 auto">
+                    <h2 style="color:#ef4444">Plan Refunded</h2>
+                    <p>Hi ${user.name},</p>
+                    <p>Your <strong>${PLAN_LABEL[prevPlan] || prevPlan}</strong> plan has been refunded (₹${pr.amount}).</p>
+                    <p>Your account has been reverted to <strong>Free Trial</strong>.</p>
+                    <p>Refund ID: <code>${refund.id}</code></p>
+                </div>`
+            );
+        } catch (_) {}
+
+        res.json({ success: true, refundId: refund.id });
+    } catch (e) {
+        console.error('[Refund] Error:', e?.error?.description || e.message);
+        res.status(500).json({ error: e?.error?.description || e.message });
+    }
+};
+
 // POST /api/payment/webhook  — Razorpay refund webhook
 exports.razorpayWebhook = async (req, res) => {
     try {

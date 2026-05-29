@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, getAdminProfile, updateAdminProfile, adminClearCache } from '../api';
+import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, adminRefundPayment, getAdminProfile, updateAdminProfile, adminClearCache } from '../api';
 
 const PLAN_OPTIONS = ['free_trial', 'bronze', 'silver', 'gold'];
 const PLAN_COLORS  = { free_trial: '#64748b', bronze: '#b45309', silver: '#475569', gold: '#ca8a04' };
@@ -192,14 +192,15 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
 
-    // Revenue
-    const totalRevenue     = payments.reduce((s, p) => s + (p.amount || 0), 0);
+    // Revenue — exclude refunded payments
+    const activePayments   = payments.filter(p => p.status !== 'refunded');
+    const totalRevenue     = activePayments.reduce((s, p) => s + (p.amount || 0), 0);
     const now              = new Date();
-    const monthRevenue     = payments.filter(p => {
+    const monthRevenue     = activePayments.filter(p => {
         const d = new Date(p.createdAt);
         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     }).reduce((s, p) => s + (p.amount || 0), 0);
-    const planRevenue      = payments.filter(p => p.type !== 'verification').reduce((s, p) => s + (p.amount || 0), 0);
+    const planRevenue      = activePayments.filter(p => p.type !== 'verification').reduce((s, p) => s + (p.amount || 0), 0);
 
     // Pending payments
     const pendingPayments = payments.filter(p => p.status === 'pending');
@@ -248,6 +249,11 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const rejectPayment = async (id) => {
         if (!window.confirm('Reject this payment request?')) return;
         try { await adminRejectPayment(id); showToast('Payment rejected'); loadPayments(); }
+        catch (e) { showToast('❌ ' + (e.response?.data?.error || 'Failed')); }
+    };
+    const refundPayment = async (id) => {
+        if (!window.confirm('Refund this payment on Razorpay? User plan will be cancelled.')) return;
+        try { await adminRefundPayment(id); showToast('✅ Refund initiated — plan cancelled'); loadPayments(); load(); }
         catch (e) { showToast(e.response?.data?.error || 'Reject failed'); }
     };
 
@@ -620,6 +626,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                         <span className="ap-badge" style={{ background:'#fef9c3',color:'#b45309' }}>Pending — {payments.filter(p=>p.status==='pending').length}</span>
                         <span className="ap-badge ap-badge-active">Approved — {payments.filter(p=>p.status==='approved').length}</span>
                         <span className="ap-badge ap-badge-blocked">Rejected — {payments.filter(p=>p.status==='rejected').length}</span>
+                        <span className="ap-badge" style={{background:'#fef2f2',color:'#dc2626'}}>Refunded — {payments.filter(p=>p.status==='refunded').length}</span>
                     </div>
 
                     {(() => {
@@ -666,6 +673,17 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                             <button className="ap-btn ap-btn-approve" style={{ fontSize:12 }} onClick={() => approvePayment(pr._id)}>✓ Approve</button>
                                             <button className="ap-btn ap-btn-reject"  style={{ fontSize:12 }} onClick={() => rejectPayment(pr._id)}>✕ Reject</button>
                                         </>
+                                    )}
+                                    {pr.status === 'approved' && (
+                                        <button onClick={() => refundPayment(pr._id)}
+                                            style={{ fontSize:12, padding:'4px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:8, color:'#dc2626', fontWeight:700, cursor:'pointer' }}>
+                                            💸 Refund
+                                        </button>
+                                    )}
+                                    {pr.status === 'refunded' && (
+                                        <span style={{ fontSize:12, padding:'4px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:8, color:'#dc2626', fontWeight:700 }}>
+                                            ↩ Refunded
+                                        </span>
                                     )}
                                     <button className="ap-btn ap-btn-del" style={{ fontSize:12, padding:'4px 12px' }} onClick={() => deletePayment(pr._id)}>🗑</button>
                                 </div>
