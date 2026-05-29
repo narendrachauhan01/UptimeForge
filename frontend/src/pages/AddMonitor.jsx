@@ -406,8 +406,10 @@ export default function AddMonitor() {
                         )}
 
                         {/* Info note */}
-                        <div style={{ marginTop:10, background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:10, padding:'10px 14px', fontSize:12, color:'#6d28d9', lineHeight:1.7 }}>
-                            💡 <strong>Want Webhook, Slack, Telegram?</strong> Go to <a href="/integrations" style={{color:'#7c3aed',fontWeight:700}}>Integrations</a> → create → it appears here automatically.
+                        <div style={{ marginTop:10, background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:10, padding:'10px 14px', fontSize:12, color:'#6d28d9', lineHeight:1.8 }}>
+                            💡 <strong>Want more channels?</strong><br/>
+                            • <strong>Email & WhatsApp</strong> — Add recipients above (name + email/phone)<br/>
+                            • <strong>Webhook, Slack, Telegram</strong> — Go to <a href="/integrations" style={{color:'#7c3aed',fontWeight:700}}>Integrations</a> → create → appears here automatically
                         </div>
                     </div>
 
