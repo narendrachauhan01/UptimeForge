@@ -12,8 +12,8 @@ const wa = require('./whatsapp');
 const { checkSSL, checkDomain, extractHostname, extractRootDomain } = require('./expiry');
 const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml } = require('./email');
 
-// Prevent concurrent checkAll runs (avoids duplicate alerts on overlap)
-let checkAllRunning = false;
+// Per-server lock — prevents duplicate alerts if a check overlaps next tick
+const serverLocks = new Set();
 
 // Fire user-configured integrations (Slack, Discord, Webhook, etc.)
 async function fireIntegrations(server, type, userId) {
@@ -260,6 +260,9 @@ function getEligibleRecipients(recipients, serverId, serverUserId) {
 }
 
 async function checkOne(server, settings, recipients) {
+    const sid = server._id.toString();
+    if (serverLocks.has(sid)) return; // already being checked this cycle
+
     // Plan-based interval check
     if (server.userId) {
         const plan        = server.userId.plan || 'free_trial';
@@ -267,6 +270,7 @@ async function checkOne(server, settings, recipients) {
         const lastChecked = server.lastChecked ? new Date(server.lastChecked).getTime() : 0;
         if (lastChecked && (Date.now() - lastChecked) < interval * 1000) return;
     }
+    serverLocks.add(sid);
 
     const result = await checkUrl(server.url, {
         timeout:         server.timeout         || 10,
@@ -322,7 +326,10 @@ async function checkOne(server, settings, recipients) {
         $push: { history: { $each: [{ time: new Date(), responseTime: result.time, status: result.up ? 'up' : 'down', httpCode: result.code }], $slice: -1440 } },
     });
 
-    // 2. Fire alerts & integrations in background — don't block checkAll
+    // 2. Release lock — next tick can check this server again
+    serverLocks.delete(sid);
+
+    // 3. Fire alerts & integrations in background
     if (alertType) {
         const eligible = getEligibleRecipients(recipients, server._id, server.userId);
         const userId   = server.userId?._id || server.userId;
@@ -334,27 +341,16 @@ async function checkOne(server, settings, recipients) {
 }
 
 async function checkAll() {
-    if (checkAllRunning) {
-        console.log('[Monitor] checkAll already running, skipping this tick');
-        return;
-    }
-    checkAllRunning = true;
-    const t0 = Date.now();
     try {
-        // Fetch all 3 in parallel to save time
         const [settings, servers, recipients] = await Promise.all([
             Settings.get(),
             Server.find({ active: true }).populate('userId', 'plan'),
             Recipient.find({ active: true }).populate('servers'),
         ]);
-
-        // Run ALL site checks in parallel
-        await Promise.allSettled(servers.map(server => checkOne(server, settings, recipients)));
-        console.log(`[Monitor] checkAll done in ${Date.now() - t0}ms`);
+        // Fire all checks in parallel — per-server lock prevents duplicates
+        Promise.allSettled(servers.map(server => checkOne(server, settings, recipients)));
     } catch (err) {
         console.error('[Monitor] checkAll error:', err.message);
-    } finally {
-        checkAllRunning = false;
     }
 }
 
