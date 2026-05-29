@@ -340,7 +340,7 @@ export default function Integrations() {
         if (!webhookForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
         setWebhookTesting(true);
         try {
-            const payload = { text:'🚨 *UptimeForge Test* — Rocket.Chat · Slack · Discord · Zapier · n8n Multipal Webhook support integration is working!', event:'test', site:'Test Site', url:'https://example.com', status:'DOWN', time: new Date().toISOString() };
+            const payload = { text:'🚨 *UptimeForge Test* — Rocket.Chat · Slack · Discord · Zapier · n8n Multiple Webhook support integration is working!', event:'test', site:'Test Site', url:'https://example.com', status:'DOWN', time: new Date().toISOString() };
             await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: webhookForm.url, body: payload }, { headers: authHeaders() });
             showToast('✅ Test payload sent! Check your webhook receiver.');
         } catch (e) {
