@@ -282,7 +282,7 @@ export default function Integrations() {
         if (!rcForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
         setRcTesting(true);
         try {
-            await axios.post(rcForm.url, { text: '🚨 *UptimeForge Test* — Rocket.Chat integration is working!' }, { headers: { 'Content-Type':'application/json' } });
+            await axios.post(rcForm.url, { text: '🚨 *Test* — Rocket.Chat integration is working!' }, { headers: { 'Content-Type':'application/json' } });
             showToast('✅ Test message sent to Rocket.Chat!');
         } catch (e) {
             showToast('❌ Failed: ' + (e.message || 'Check URL'));
