@@ -27,8 +27,17 @@ function PulseDot({ status, size = 12 }) {
 
 // ── Add/Edit Modal ────────────────────────────────────────────────────────────
 function TargetModal({ target, onClose, onSave }) {
-    const [form, setForm] = useState(target || { name:'', host:'', port:443 });
-    const [saving, setSaving] = useState(false);
+    const [form,       setForm]       = useState(target || { name:'', host:'', port:443 });
+    const [saving,     setSaving]     = useState(false);
+    const [recipients, setRecipients] = useState([]);
+    const [loadingR,   setLoadingR]   = useState(true);
+
+    useEffect(() => {
+        axios.get(`${API_URL}/api/recipients`, { headers:authHeaders() })
+            .then(r => setRecipients(r.data.recipients ?? r.data))
+            .catch(() => {})
+            .finally(() => setLoadingR(false));
+    }, []);
 
     const save = async () => {
         if (!form.name.trim() || !form.host.trim()) return;
@@ -37,6 +46,8 @@ function TargetModal({ target, onClose, onSave }) {
         setSaving(false);
         onClose();
     };
+
+    const emailRecipients = recipients.filter(r => r.email && r.active);
 
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
@@ -64,7 +75,40 @@ function TargetModal({ target, onClose, onSave }) {
                         <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
                     </div>
                 </div>
-                <div style={{ display:'flex', gap:10, marginTop:22 }}>
+                {/* Recipients */}
+                <div style={{ marginTop:4 }}>
+                    <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>🔔 Alert Recipients</label>
+                    {loadingR ? (
+                        <div style={{ fontSize:12, color:'#94a3b8', padding:'8px 0' }}>Loading...</div>
+                    ) : emailRecipients.length > 0 ? (
+                        <div style={{ background:'rgba(255,255,255,0.06)', borderRadius:10, overflow:'hidden', border:'1px solid rgba(255,255,255,0.1)' }}>
+                            {emailRecipients.map(r => (
+                                <div key={r._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+                                    <div style={{ width:30, height:30, borderRadius:'50%', background:`hsl(${(r.name||'').charCodeAt(0)*37%360},55%,48%)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:13, flexShrink:0 }}>
+                                        {(r.name||'?')[0].toUpperCase()}
+                                    </div>
+                                    <div style={{ flex:1, minWidth:0 }}>
+                                        <div style={{ fontSize:13, fontWeight:600, color:'#e2e8f0' }}>{r.name}</div>
+                                        <div style={{ fontSize:11, color:'#94a3b8' }}>{r.email}</div>
+                                    </div>
+                                    <span style={{ fontSize:10, background:'rgba(16,185,129,0.15)', color:'#34d399', padding:'2px 8px', borderRadius:20, fontWeight:700, flexShrink:0 }}>✓ Will notify</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
+                            <span style={{ fontSize:18 }}>⚠️</span>
+                            <div>
+                                <div style={{ fontSize:12, color:'#fca5a5', fontWeight:600 }}>No email recipients found</div>
+                                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+                                    <a href="/integrations" style={{ color:'#a78bfa', fontWeight:700 }}>Go to Integrations → Add Email recipient</a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ display:'flex', gap:10, marginTop:16 }}>
                     <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
                     <button onClick={save} disabled={saving || !form.name || !form.host}
                         style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(saving||!form.name||!form.host)?0.6:1 }}>
