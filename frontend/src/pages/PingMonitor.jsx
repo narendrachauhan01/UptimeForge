@@ -345,108 +345,143 @@ export default function PingMonitor() {
     const up   = targets.filter(t=>t.status==='up').length;
     const down = targets.filter(t=>t.status==='down').length;
 
-    return (
-        <div className="pg-wrap">
-            {/* Header */}
-            <div className="pg-header">
-                <div>
-                    <h1 className="pg-title">Ping Monitor <span style={{color:'#7c3aed'}}>.</span></h1>
-                    <p className="pg-sub">TCP connectivity monitoring — alerts on DOWN/UP</p>
+    // Uptime bar — same as monitoring page
+    const UptimeBar = ({ history=[] }) => {
+        const SLOTS = 30;
+        const upPct = history.length ? Math.round((history.filter(h=>h.status==='up').length/history.length)*100) : null;
+        const padded = history.length >= SLOTS ? history.slice(-SLOTS) : [...Array(SLOTS-history.length).fill({status:'empty'}), ...history];
+        return (
+            <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:3}}>
+                <div style={{display:'flex',gap:1.5}}>
+                    {padded.map((h,i)=>(
+                        <div key={i} style={{width:5,height:22,borderRadius:2,
+                            background:h.status==='up'?'#10b981':h.status==='down'?'#ef4444':'#e2e8f0',
+                            opacity:h.status==='empty'?0.3:0.85}} />
+                    ))}
                 </div>
-                <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-                    <span style={{ background:'#dcfce7', color:'#16a34a', padding:'6px 14px', borderRadius:20, fontWeight:700, fontSize:13 }}>● {up} Up</span>
-                    <span style={{ background:'#fee2e2', color:'#dc2626', padding:'6px 14px', borderRadius:20, fontWeight:700, fontSize:13 }}>● {down} Down</span>
-                    <button onClick={() => setAddModal(true)}
-                        style={{ padding:'9px 20px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, fontSize:14, cursor:'pointer' }}>
-                        + Add Target
-                    </button>
+                <span style={{fontSize:11,fontWeight:700,color:upPct===100?'#10b981':upPct>=95?'#f59e0b':upPct===null?'#94a3b8':'#ef4444'}}>
+                    {upPct!==null?`${upPct}%`:'—'}
+                </span>
+            </div>
+        );
+    };
+
+    const avgResp = targets.filter(t=>t.responseTime).length
+        ? Math.round(targets.filter(t=>t.responseTime).reduce((a,t)=>a+t.responseTime,0)/targets.filter(t=>t.responseTime).length) : 0;
+
+    return (
+      <>
+        <div className="mon-layout">
+            {/* ── Left: list ── */}
+            <div className="mon-main">
+                <div className="mon-header">
+                    <div>
+                        <h1 className="mon-title">Ping Monitor <span className="mon-dot">.</span></h1>
+                        <p className="mon-sub">TCP connectivity — alerts on DOWN/UP</p>
+                    </div>
+                    <button onClick={() => setAddModal(true)} className="mon-btn-check">+ Add Target</button>
+                </div>
+
+                {/* Toolbar */}
+                <div className="mon-toolbar">
+                    <div className="mon-search-wrap">
+                        <svg width="14" height="14" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search targets..." className="mon-search" />
+                    </div>
+                    <div className="mon-filter-tabs">
+                        {[['all','All',targets.length],['up','Online',up],['down','Offline',down]].map(([v,l,c])=>(
+                            <button key={v} className={`mon-filter-tab ${search===''&&v==='all'?'active-all':''}`}
+                                onClick={()=>setSearch('')}>{l} <span className="mon-tab-count">{c}</span></button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* List */}
+                <div className="mon-list" style={{maxHeight:'calc(10 * 68px)', overflowY:'auto'}}>
+                    {filtered.length === 0 ? (
+                        <div className="mon-empty">
+                            <div style={{fontSize:48,marginBottom:12}}>📡</div>
+                            <div style={{fontWeight:700,color:'#475569'}}>No targets yet</div>
+                            <div style={{fontSize:13,color:'#94a3b8',marginTop:4}}>Click + Add Target to start monitoring</div>
+                        </div>
+                    ) : filtered.map(t => (
+                        <div key={t._id} className={`mon-row mon-row-${t.status}`} onClick={()=>setSelected(t)}>
+                            <PulseDot status={t.active?t.status:'unknown'} size={12} />
+                            <div className="mon-site-info">
+                                <div className="mon-site-name">{t.name}</div>
+                                <div className="mon-site-meta">
+                                    <span className="mon-proto">TCP</span>
+                                    <span className="mon-sep">·</span>
+                                    <span className={`mon-status-txt mon-status-${t.status}`}>
+                                        {t.status==='up'?'Up':t.status==='down'?'Down':'Unknown'}
+                                    </span>
+                                    <span className="mon-sep">·</span>
+                                    <span className="mon-time" style={{fontFamily:'monospace',fontSize:11}}>{t.host}:{t.port}</span>
+                                    {t.responseTime && <>
+                                        <span className="mon-sep">·</span>
+                                        <span className="mon-resp" style={{color:latColor(t.responseTime)}}>{t.responseTime}ms</span>
+                                    </>}
+                                    {t.lastChecked && <>
+                                        <span className="mon-sep">·</span>
+                                        <span className="mon-time">{new Date(t.lastChecked).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                                    </>}
+                                </div>
+                            </div>
+                            <div className="mon-bar-wrap">
+                                <UptimeBar history={t.history?.slice(-30)||[]} />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Search */}
-            {targets.length > 3 && (
-                <div style={{ position:'relative', marginBottom:16 }}>
-                    <svg style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)' }} width="15" height="15" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search targets..."
-                        style={{ width:'100%', padding:'10px 12px 10px 36px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, background:'#fff', boxSizing:'border-box', outline:'none' }} />
+            {/* ── Right panel ── */}
+            <div className="mon-panel">
+                <div className="mon-panel-section">
+                    <div className="mon-panel-title">Current status</div>
+                    <div className="mon-panel-counts">
+                        <div className="mon-count-item mon-count-down"><div className="mon-count-num">{down}</div><div className="mon-count-label">Down</div></div>
+                        <div className="mon-count-item mon-count-up"><div className="mon-count-num">{up}</div><div className="mon-count-label">Up</div></div>
+                        <div className="mon-count-item mon-count-unknown"><div className="mon-count-num">{targets.filter(t=>t.status==='unknown').length}</div><div className="mon-count-label">Unknown</div></div>
+                    </div>
+                    <div className="mon-panel-total">Monitoring {targets.length} targets</div>
                 </div>
-            )}
-
-            {/* Cards grid */}
-            {filtered.length > 0 ? (
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:14 }}>
-                    {filtered.map(t => {
-                        const barColor = t.status==='up'?'#10b981':t.status==='down'?'#ef4444':'#e2e8f0';
-                        const lc = latColor(t.responseTime);
-                        return (
-                            <div key={t._id} onClick={() => setSelected(t)}
-                                style={{ background:'#fff', borderRadius:16, border:`2px solid ${t.status==='down'?'#fecdd3':t.status==='up'?'#d1fae5':'#e2e8f0'}`,
-                                    padding:18, cursor:'pointer', position:'relative', overflow:'hidden', transition:'all 0.18s' }}
-                                onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 10px 28px rgba(0,0,0,0.1)'; }}
-                                onMouseLeave={e=>{ e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
-                                <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:barColor }} />
-                                {!t.active && <div style={{ position:'absolute', top:10, right:10, fontSize:10, fontWeight:700, background:'#f1f5f9', color:'#94a3b8', padding:'2px 7px', borderRadius:10 }}>Paused</div>}
-                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
-                                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                                        <PulseDot status={t.active ? t.status : 'unknown'} size={10} />
-                                        <div>
-                                            <div style={{ fontWeight:700, fontSize:14, color:'#1e1b4b' }}>{t.name}</div>
-                                            <div style={{ fontSize:11, color:'#94a3b8', fontFamily:'monospace' }}>{t.host}:{t.port}</div>
-                                        </div>
-                                    </div>
-                                    <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:20,
-                                        background: t.status==='up'?'#dcfce7':t.status==='down'?'#fee2e2':'#f8fafc',
-                                        color: t.status==='up'?'#16a34a':t.status==='down'?'#dc2626':'#94a3b8' }}>
-                                        {t.status==='up'?'UP':t.status==='down'?'DOWN':'—'}
-                                    </span>
-                                </div>
-                                <div style={{ display:'flex', gap:16 }}>
-                                    <div>
-                                        <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase' }}>Latency</div>
-                                        <div style={{ fontSize:20, fontWeight:900, color:lc }}>{t.responseTime?`${t.responseTime}ms`:'—'}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase' }}>Checked</div>
-                                        <div style={{ fontSize:12, color:'#64748b', marginTop:2 }}>
-                                            {t.lastChecked ? new Date(t.lastChecked).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—'}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{ marginTop:10, fontSize:11, color:'#94a3b8', textAlign:'center', borderTop:'1px solid #f1f5f9', paddingTop:8 }}>
-                                    Click for details & live ping
-                                </div>
+                <div className="mon-panel-section">
+                    <div className="mon-panel-title">Response</div>
+                    <div className="mon-panel-uptime">
+                        <div style={{flex:1,background:'#f8fafc',borderRadius:10,padding:12,textAlign:'center',border:'1px solid #e2e8f0'}}>
+                            <div className="mon-uptime-val" style={{color:avgResp<100?'#10b981':avgResp<300?'#f59e0b':'#ef4444'}}>{avgResp?`${avgResp}ms`:'—'}</div>
+                            <div className="mon-uptime-label">Avg latency</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="mon-panel-section">
+                    <div className="mon-panel-title">Breakdown</div>
+                    {[{l:'Up',c:up,color:'#10b981'},{l:'Down',c:down,color:'#ef4444'}].map(item=>(
+                        <div key={item.l} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                            <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                                <div style={{width:`${targets.length?Math.round(item.c/targets.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
                             </div>
-                        );
-                    })}
+                            <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.c}</span>
+                            <span style={{fontSize:11,color:'#94a3b8',minWidth:36}}>{item.l}</span>
+                        </div>
+                    ))}
                 </div>
-            ) : (
-                <div style={{ textAlign:'center', padding:'70px 20px' }}>
-                    <div style={{ fontSize:54, marginBottom:14 }}>📡</div>
-                    <div style={{ fontSize:17, fontWeight:700, color:'#475569', marginBottom:6 }}>No targets yet</div>
-                    <div style={{ fontSize:13, color:'#94a3b8', marginBottom:20 }}>Add a host, IP or URL to start monitoring</div>
-                    <button onClick={() => setAddModal(true)}
-                        style={{ padding:'10px 24px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, fontSize:14, cursor:'pointer' }}>
-                        + Add First Target
-                    </button>
-                </div>
-            )}
-
-            {/* Add Modal */}
-            {addModal && <TargetModal onClose={() => setAddModal(false)} onSave={addTarget} />}
-
-            {/* Edit Modal */}
-            {editTarget && <TargetModal target={editTarget} onClose={() => setEditTarget(null)} onSave={editTargetSave} />}
-
-            {/* Detail Modal */}
-            {selected && (
-                <DetailModal
-                    target={targets.find(t=>t._id===selected._id) || selected}
-                    onClose={() => setSelected(null)}
-                    onDelete={deleteTarget}
-                    onToggle={toggleTarget}
-                    onEdit={(t) => { setSelected(null); setEditTarget(t); }}
-                />
-            )}
+            </div>
         </div>
+
+        {/* Modals */}
+        {addModal && <TargetModal onClose={() => setAddModal(false)} onSave={addTarget} />}
+        {editTarget && <TargetModal target={editTarget} onClose={() => setEditTarget(null)} onSave={editTargetSave} />}
+        {selected && (
+            <DetailModal
+                target={targets.find(t=>t._id===selected._id) || selected}
+                onClose={() => setSelected(null)}
+                onDelete={deleteTarget}
+                onToggle={toggleTarget}
+                onEdit={(t) => { setSelected(null); setEditTarget(t); }}
+            />
+        )}
+      </>
     );
 }
