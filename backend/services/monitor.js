@@ -56,6 +56,7 @@ async function fireIntegrations(server, type, userId) {
 
             // RocketChat & Slack — attachments format
             const rcSlackBody = JSON.stringify({
+                text: '🔔 *UptimeForge Alert*',
                 attachments: [{
                     color,
                     title,
@@ -72,6 +73,7 @@ async function fireIntegrations(server, type, userId) {
             // Discord — embeds format
             const discordBody = JSON.stringify({
                 username: 'UptimeForge Alert',
+                content: '🔔 **UptimeForge Alert**',
                 embeds: [{
                     color: colorHex,
                     title,
@@ -141,6 +143,7 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
         const title = `${emoji} ${label} Expiring in ${daysLeft} days: ${server.name}`;
 
         const rcSlackBody = JSON.stringify({
+            text: '🔔 *UptimeForge Alert*',
             attachments: [{
                 color,
                 title,
