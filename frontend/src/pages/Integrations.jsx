@@ -232,7 +232,11 @@ export default function Integrations() {
     useEffect(() => {
         getServers().then(r => setServers(r.data)).catch(()=>{});
         axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() })
-            .then(r => { const m={}; r.data.forEach(i=>m[i.type]=true); setSaved(m); }).catch(()=>{});
+            .then(r => {
+                const m={};
+                r.data.forEach(i => { m[i.type] = true; });
+                setSaved(m);
+            }).catch(()=>{});
         axios.get(`${API_URL}/api/email-config/status`, { headers: authHeaders() })
             .then(r => setEmailActive(r.data?.configured===true)).catch(()=>{});
     }, []);
@@ -247,6 +251,16 @@ export default function Integrations() {
     const [webhookForm,    setWebhookForm]    = useState({ url:'', secret:'', events:'all' });
     const [webhookSaving,  setWebhookSaving]  = useState(false);
     const [webhookTesting, setWebhookTesting] = useState(false);
+
+    const openWebhookModal = async () => {
+        // Load saved webhook config if exists
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() });
+            const wh = r.data.find(i => i.type === 'webhook');
+            if (wh?.config) setWebhookForm({ url: wh.config.url||'', secret: wh.config.secret||'', events: wh.events||'all' });
+        } catch {}
+        setWebhookModal(true);
+    };
 
     const saveWebhook = async () => {
         if (!webhookForm.url) return;
@@ -315,7 +329,7 @@ export default function Integrations() {
                 </div>
                 <div style={{ display:'flex', gap:8 }}>
                     {saved.webhook && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
-                    <button onClick={()=>setWebhookModal(true)} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                    <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
                         {saved.webhook ? '✏️ Edit' : '+ Add'}
                     </button>
                 </div>
