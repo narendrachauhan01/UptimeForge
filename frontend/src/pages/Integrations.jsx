@@ -253,15 +253,23 @@ export default function Integrations() {
     const [webhookTesting, setWebhookTesting] = useState(false);
 
     const [rcModal,   setRcModal]   = useState(false);
-    const [rcForm,    setRcForm]    = useState({ url:'', events:'all' });
-    const [rcSaving,  setRcSaving]  = useState(false);
-    const [rcTesting, setRcTesting] = useState(false);
+    const [rcForm,      setRcForm]      = useState({ url:'', events:'all' });
+    const [rcSaving,    setRcSaving]    = useState(false);
+    const [rcTesting,   setRcTesting]   = useState(false);
+    const [rcAllSites,  setRcAllSites]  = useState(true);
+    const [rcSelected,  setRcSelected]  = useState([]);
+    const [rcSearch,    setRcSearch]    = useState('');
 
     const openRcModal = async () => {
         try {
             const r = await axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() });
             const rc = r.data.find(i => i.type === 'rocketchat');
-            if (rc) setRcForm({ url: rc.config?.url||'', events: rc.events||'all' });
+            if (rc) {
+                setRcForm({ url: rc.config?.url||'', events: rc.events||'all' });
+                const srvs = rc.servers || [];
+                setRcAllSites(srvs.length === 0);
+                setRcSelected(srvs.map(s => s.toString()));
+            }
         } catch {}
         setRcModal(true);
     };
@@ -270,7 +278,7 @@ export default function Integrations() {
         if (!rcForm.url) return;
         setRcSaving(true);
         try {
-            await axios.post(`${API_URL}/api/integrations/rocketchat`, { config: { url: rcForm.url }, events: rcForm.events||'all' }, { headers: authHeaders() });
+            await axios.post(`${API_URL}/api/integrations/rocketchat`, { config: { url: rcForm.url }, events: rcForm.events||'all', servers: rcAllSites ? [] : rcSelected }, { headers: authHeaders() });
             setSaved(p=>({...p, rocketchat:true}));
             showToast('✅ Rocket.Chat saved!');
             setRcModal(false);
@@ -433,6 +441,36 @@ export default function Integrations() {
                                     <option value="all">All events (Down, Up, SSL, Domain)</option>
                                     <option value="down">Down events only</option>
                                 </select>
+                            </div>
+                            {/* Site selector */}
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
+                                <div onClick={()=>setRcAllSites(p=>!p)} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:10 }}>
+                                    <div style={{ width:18, height:18, borderRadius:4, border:'2px solid rgba(255,255,255,0.3)', background: rcAllSites?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                        {rcAllSites && <span style={{ color:'#fff', fontSize:11, fontWeight:900 }}>✓</span>}
+                                    </div>
+                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>All sites (current + future)</span>
+                                </div>
+                                {!rcAllSites && (
+                                    <div style={{ background:'#2d2466', borderRadius:10, border:'1.5px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
+                                        <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                                            <input value={rcSearch} onChange={e=>setRcSearch(e.target.value)} placeholder="Search sites..."
+                                                style={{ width:'100%', background:'transparent', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }} />
+                                        </div>
+                                        <div style={{ maxHeight:160, overflowY:'auto' }}>
+                                            {servers.filter(s=>s.name.toLowerCase().includes(rcSearch.toLowerCase())).map(s => (
+                                                <div key={s._id} onClick={()=>setRcSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])}
+                                                    style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', cursor:'pointer', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                                                    <div style={{ width:16, height:16, borderRadius:4, border:'2px solid rgba(255,255,255,0.25)', background:rcSelected.includes(s._id)?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                                        {rcSelected.includes(s._id) && <span style={{ color:'#fff', fontSize:10, fontWeight:900 }}>✓</span>}
+                                                    </div>
+                                                    <span style={{ width:8, height:8, borderRadius:'50%', background: s.status==='up'?'#22c55e':'#ef4444', flexShrink:0 }}/>
+                                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>{s.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div style={{ display:'flex', gap:10, marginTop:20 }}>
