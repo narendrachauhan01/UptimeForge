@@ -57,7 +57,7 @@ export default function Register({ onRegister }) {
 
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', state: '', country: 'India' });
   const [otp, setOtp] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,9 +96,12 @@ export default function Register({ onRegister }) {
     e?.preventDefault(); setError('');
     if (!form.name || !form.email || !form.password) { setError('Name, email and password are required'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return; }
+    if (!form.phone || form.phone.replace(/\D/g,'').length < 10) { setError('Enter valid 10-digit mobile number'); return; }
+    if (!form.state) { setError('State is required'); return; }
     setLoading(true);
     try {
-      await sendRegisterOtp({ ...form });
+      const phoneFormatted = '91' + form.phone.replace(/\D/g,'').slice(-10);
+      await sendRegisterOtp({ ...form, phone: phoneFormatted });
       setStep(2); setCanResend(false);
     } catch (err) { setError(err.response?.data?.error || 'Failed to send OTP'); }
     setLoading(false);
@@ -242,6 +245,19 @@ export default function Register({ onRegister }) {
                       {showPass ? <EyeClosed /> : <EyeOpen />}
                     </button>
                   </div>
+                </div>
+
+                <div className="reg-field">
+                  <label className="reg-label">Mobile Number <span className="reg-req">*</span></label>
+                  <input className="reg-input" type="tel" placeholder="10-digit mobile number"
+                    value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g,'').slice(0,10) })}
+                    maxLength={10} />
+                </div>
+
+                <div className="reg-field">
+                  <label className="reg-label">State / Province <span className="reg-req">*</span></label>
+                  <input className="reg-input" type="text" placeholder="e.g. Gujarat, Maharashtra"
+                    value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
                 </div>
 
                 {error && <div className="login-error-box">{error}</div>}
