@@ -303,10 +303,10 @@ exports.refundStatus = async (req, res) => {
         }
 
         const statusMap = {
-            'created':    { label: '⏳ Processing',     color: '#f59e0b', desc: 'Refund has been initiated' },
-            'processed':  { label: '✅ Credited',        color: '#16a34a', desc: 'Amount credited to customer account' },
-            'failed':     { label: '❌ Failed',          color: '#dc2626', desc: 'Refund failed — contact Razorpay' },
-            'pending':    { label: '⏳ Pending',         color: '#f59e0b', desc: 'Waiting to be processed' },
+            'created':    { label: '⏳ Initiated',         color: '#f59e0b', desc: 'Refund initiated — bank processing started' },
+            'processed':  { label: '🏦 Bank Processing',   color: '#3b82f6', desc: 'Razorpay sent to bank — customer will receive in 5-7 business days' },
+            'failed':     { label: '❌ Failed',             color: '#dc2626', desc: 'Refund failed — contact Razorpay support' },
+            'pending':    { label: '⏳ Pending',            color: '#f59e0b', desc: 'Queued — will be processed soon' },
         };
         const info = statusMap[refund.status] || { label: refund.status, color: '#64748b', desc: '' };
 
