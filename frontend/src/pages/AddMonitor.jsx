@@ -31,7 +31,8 @@ export default function AddMonitor() {
     const [recipients, setRecipients] = useState([]);
     const [recipientLimit, setRecipientLimit] = useState(null);
     const [selectedRecipients, setSelectedRecipients] = useState([]);
-    const [allRecipients, setAllRecipients] = useState(false);
+    const [allRecipients,   setAllRecipients]   = useState(false);
+    const [savedIntegrations, setSavedIntegrations] = useState([]);
     const [editRecipId, setEditRecipId] = useState(null);
     const [editRecipForm, setEditRecipForm] = useState({ name:'', email:'', phone:'' });
     const [showAddRecip, setShowAddRecip] = useState(false);
@@ -59,6 +60,9 @@ export default function AddMonitor() {
             setRecipSiteMap(map);
         }).catch(() => {});
         getServers().then(r => setServers(r.data)).catch(() => {});
+        // Fetch saved integrations (webhook etc.)
+        axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() })
+            .then(r => setSavedIntegrations(r.data)).catch(() => {});
     }, []);
 
     const intervalLabel = planInterval
@@ -333,11 +337,34 @@ export default function AddMonitor() {
                             Use the <strong>🌐 Sites</strong> button per recipient to assign specific sites. Leave empty = all sites.
                         </div>
 
+                        {/* Saved Integrations (Webhook etc.) */}
+                        {savedIntegrations.length > 0 && (
+                            <div style={{ marginTop:10 }}>
+                                <div style={{ fontSize:12, fontWeight:600, color:'#374151', marginBottom:6 }}>🔗 Active Integrations</div>
+                                {savedIntegrations.map(intg => {
+                                    const icons = { webhook:'🔗', slack:'', discord:'🎮', telegram:'✈️' };
+                                    return (
+                                        <div key={intg._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:10, marginBottom:6 }}>
+                                            <span style={{ fontSize:16 }}>{icons[intg.type]||'🔗'}</span>
+                                            <div style={{ flex:1 }}>
+                                                <div style={{ fontWeight:700, fontSize:13, color:'#1e1b4b', textTransform:'capitalize' }}>{intg.type}</div>
+                                                <div style={{ fontSize:11, color:'#94a3b8' }}>{intg.config?.url ? intg.config.url.slice(0,40)+'...' : 'Configured'}</div>
+                                            </div>
+                                            <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'2px 8px', borderRadius:20 }}>✓ Active</span>
+                                            <button type="button" onClick={async()=>{
+                                                if(!window.confirm(`Remove ${intg.type} integration?`)) return;
+                                                await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { headers:authHeaders() });
+                                                setSavedIntegrations(p => p.filter(x=>x._id!==intg._id));
+                                            }} style={{ padding:'3px 8px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:6, color:'#dc2626', cursor:'pointer', fontSize:12 }}>🗑</button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
                         {/* Info note */}
                         <div style={{ marginTop:10, background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:10, padding:'10px 14px', fontSize:12, color:'#6d28d9', lineHeight:1.7 }}>
-                            💡 <strong>Want Slack, Webhook, Telegram or more channels?</strong><br/>
-                            Go to <a href="/integrations" style={{color:'#7c3aed',fontWeight:700}}>Integrations</a> → create your integration → come back here to select recipients.<br/>
-                            Use <strong>🌐 Sites ▼</strong> per recipient: select specific sites = only those alerts · leave empty = all site alerts.
+                            💡 <strong>Want Webhook, Slack, Telegram?</strong> Go to <a href="/integrations" style={{color:'#7c3aed',fontWeight:700}}>Integrations</a> → create → it appears here automatically.
                         </div>
                     </div>
 
