@@ -29,6 +29,7 @@ import Integrations from './pages/Integrations';
 import IntegrationBackend from './pages/IntegrationBackend';
 import RedisCache from './pages/RedisCache';
 import PlanCanceling from './pages/PlanCanceling';
+import ContactSupport from './pages/ContactSupport';
 import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
@@ -94,6 +95,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
     { to: '/account',      label: 'My Plan',      icon: <IcoPlan /> },
+    { to: '/support',      label: '🎧 Support',    icon: <IcoPlan /> },
   ];
 
   return (
@@ -314,7 +316,7 @@ function AppInner() {
     return () => clearInterval(t);
   }, [authed, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const publicPaths = ['/', '/login', '/register', '/pricing', '/reset-password', '/terms'];
+  const publicPaths = ['/', '/login', '/register', '/pricing', '/reset-password', '/terms', '/support'];
   const isPublicPath = publicPaths.includes(location.pathname);
 
   if (authed === null && !isPublicPath) return (
@@ -332,6 +334,7 @@ function AppInner() {
           <Route path="/register" element={<Register onRegister={handleRegister} />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/support" element={<ContactSupport user={user} />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -366,6 +369,7 @@ function AppInner() {
           <Route path="/register" element={<Register onRegister={handleRegister} />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/support" element={<ContactSupport user={user} />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<Login onLogin={handleLogin} />} />
         </Routes>
@@ -481,6 +485,7 @@ function AppInner() {
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
             <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/support" element={<ContactSupport user={user} />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
         </main>

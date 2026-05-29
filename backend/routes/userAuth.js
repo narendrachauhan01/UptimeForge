@@ -14,5 +14,6 @@ router.put('/profile',               auth, ctrl.updateProfile);
 router.delete('/me',                 auth, ctrl.deleteMe);
 router.get('/me',                    auth, ctrl.getMe);
 router.post('/logout',               ctrl.logout);
+router.post('/support',              ctrl.contactSupport);
 
 module.exports = router;

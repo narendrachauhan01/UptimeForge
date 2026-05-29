@@ -272,6 +272,28 @@ exports.getMe = async (req, res) => {
     res.json({ ...userPayload(u), siteLimit: dynamicLimit });
 };
 
+// POST /api/users/support — send support email to admin
+exports.contactSupport = async (req, res) => {
+    try {
+        const { name, email, subject, message } = req.body;
+        if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields required' });
+        const { sendEmail } = require('../services/email');
+        const adminEmail = process.env.ADMIN_EMAIL || 'chauhan.narendrasingh.01@gmail.com';
+        await sendEmail(adminEmail, `[UptimeForge Support] ${subject}`,
+            `<div style="font-family:Inter,sans-serif;padding:24px;max-width:520px">
+                <h2 style="color:#7c3aed">New Support Request</h2>
+                <table style="width:100%;border-collapse:collapse;font-size:14px">
+                    <tr><td style="padding:8px;font-weight:700;color:#64748b;width:100px">From</td><td style="padding:8px">${name} &lt;${email}&gt;</td></tr>
+                    <tr style="background:#f8fafc"><td style="padding:8px;font-weight:700;color:#64748b">Subject</td><td style="padding:8px">${subject}</td></tr>
+                    <tr><td style="padding:8px;font-weight:700;color:#64748b;vertical-align:top">Message</td><td style="padding:8px;white-space:pre-wrap">${message}</td></tr>
+                </table>
+                <p style="margin-top:16px;font-size:12px;color:#94a3b8">Reply directly to ${email} to respond.</p>
+            </div>`
+        );
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // POST /api/users/logout
 exports.logout = (req, res) => {
     res.clearCookie('sm_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
