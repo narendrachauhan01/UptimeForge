@@ -7,6 +7,37 @@ const PLAN_COLORS  = { free_trial: '#64748b', bronze: '#b45309', silver: '#47556
 const PLAN_BG     = { free_trial: '#f1f5f9', bronze: '#fef3c7', silver: '#f8fafc', gold: '#fefce8' };
 const PLAN_LABEL  = { free_trial: 'Free Trial', bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
 
+// ── Shared inline style tokens ──────────────────────────────────────────────
+const C = {
+    primary:   '#7c3aed',
+    success:   '#16a34a',
+    danger:    '#ef4444',
+    warning:   '#f59e0b',
+    info:      '#3b82f6',
+    border:    '#e2e8f0',
+    bg:        '#f8fafc',
+    card:      '#ffffff',
+    text:      '#0f172a',
+    muted:     '#64748b',
+    light:     '#94a3b8',
+};
+
+const card = {
+    background: C.card,
+    border: `1px solid ${C.border}`,
+    borderRadius: 16,
+    padding: '20px 24px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+    marginBottom: 0,
+};
+
+const pill = (bg, color) => ({
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    padding: '3px 10px', borderRadius: 99,
+    fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+    background: bg, color,
+});
+
 function Avatar({ name, size = 40 }) {
     const initials = (name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const colors = ['#7c3aed','#2563eb','#059669','#d97706','#dc2626','#db2777'];
@@ -21,16 +52,77 @@ function Avatar({ name, size = 40 }) {
     );
 }
 
+function PlanBadge({ plan }) {
+    const bg   = PLAN_BG[plan]    || '#f1f5f9';
+    const color= PLAN_COLORS[plan] || '#64748b';
+    return <span style={pill(bg, color)}>{PLAN_LABEL[plan] || plan}</span>;
+}
+
 function StatusBadge({ u }) {
-    if (u.isBlocked) return <span className="ap-badge ap-badge-blocked">Blocked</span>;
-    if (!u.isActive) return <span className="ap-badge ap-badge-expired">Expired</span>;
-    if (u.plan === 'free_trial') return <span className="ap-badge ap-badge-trial">Trial</span>;
-    return <span className="ap-badge ap-badge-active">Active</span>;
+    if (u.isBlocked) return <span style={pill('#fef2f2','#dc2626')}>Blocked</span>;
+    if (!u.isActive) return <span style={pill('#fff7ed','#c2410c')}>Expired</span>;
+    if (u.plan === 'free_trial') return <span style={pill('#eff6ff','#1d4ed8')}>Trial</span>;
+    return <span style={pill('#f0fdf4','#15803d')}>Active</span>;
+}
+
+function PayStatusBadge({ status }) {
+    const map = {
+        approved: { bg:'#dcfce7', color:'#15803d', label:'Approved' },
+        pending:  { bg:'#fef9c3', color:'#b45309', label:'Pending'  },
+        rejected: { bg:'#fee2e2', color:'#dc2626', label:'Rejected' },
+        refunded: { bg:'#fee2e2', color:'#dc2626', label:'↩ Refunded' },
+    };
+    const s = map[status] || { bg:'#f1f5f9', color:'#64748b', label: status || 'Unknown' };
+    return <span style={pill(s.bg, s.color)}>{s.label}</span>;
 }
 
 function fmt(date) {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// ── Metric Card ──────────────────────────────────────────────────────────────
+function MetricCard({ label, value, color, icon, sub }) {
+    return (
+        <div style={{
+            ...card,
+            borderLeft: `4px solid ${color}`,
+            display: 'flex', alignItems: 'center', gap: 16,
+        }}>
+            <div style={{
+                width: 48, height: 48, borderRadius: 12,
+                background: `${color}18`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 22, flexShrink: 0,
+            }}>{icon}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1, fontFamily: 'Outfit, sans-serif' }}>{value}</div>
+                <div style={{ fontSize: 12, color: C.muted, fontWeight: 600, marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+                {sub && <div style={{ fontSize: 11, color: C.light, marginTop: 2 }}>{sub}</div>}
+            </div>
+        </div>
+    );
+}
+
+// ── Revenue Card ─────────────────────────────────────────────────────────────
+function RevCard({ label, value, sub, color }) {
+    return (
+        <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.light, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{label}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color, lineHeight: 1, fontFamily: 'Outfit, sans-serif' }}>{value}</div>
+            <div style={{ fontSize: 11, color: C.light, marginTop: 5 }}>{sub}</div>
+        </div>
+    );
+}
+
+// ── Section Header ────────────────────────────────────────────────────────────
+function SectionHeader({ title, right }) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{title}</div>
+            {right}
+        </div>
+    );
 }
 
 export default function AdminPanel({ initialTab = 'overview' }) {
@@ -49,6 +141,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const [expandedId, setExpandedId] = useState(null);
     const [payments, setPayments]   = useState([]);
     const [paySearch, setPaySearch] = useState('');
+    const [payStatusFilter, setPayStatusFilter] = useState('all');
     const [assignModal, setAssignModal] = useState(null); // { user }
     const [assignForm, setAssignForm]   = useState({ plan: 'bronze', duration: '1m', customDate: '' });
     const [profileForm, setProfileForm] = useState({ username: '', email: '', currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -298,24 +391,71 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         { id: 'transactions',  label: `Payments & Refund (${payments.length})` },
     ];
 
+    // Filtered payments for the payments tab
+    const filteredPayments = (() => {
+        const q = paySearch.toLowerCase();
+        return payments.filter(p => {
+            const matchSearch = !q || p.utr?.toLowerCase().includes(q) || p.userName?.toLowerCase().includes(q) || p.userEmail?.toLowerCase().includes(q);
+            const matchStatus = payStatusFilter === 'all' || p.status === payStatusFilter;
+            return matchSearch && matchStatus;
+        });
+    })();
+
+    // ── Shared input style ───────────────────────────────────────────────────
+    const inputStyle = {
+        width: '100%', padding: '9px 12px', border: `1.5px solid ${C.border}`,
+        borderRadius: 9, fontSize: 13, outline: 'none', background: '#fff',
+        color: C.text, fontFamily: 'inherit',
+        transition: 'border-color 0.15s',
+    };
+    const iconBtnStyle = (hoverColor) => ({
+        width: 32, height: 32, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        border: `1.5px solid ${C.border}`, borderRadius: 8, background: '#fff',
+        cursor: 'pointer', fontSize: 14, transition: 'all 0.15s', flexShrink: 0,
+    });
+
     return (
         <div className="pg-wrap">
-            {toast && <div className="ap-toast">{toast}</div>}
+            {/* ── Toast ── */}
+            {toast && (
+                <div style={{
+                    position: 'fixed', bottom: 24, right: 24,
+                    background: '#1e293b', color: '#fff',
+                    padding: '12px 20px', borderRadius: 12,
+                    fontSize: 14, fontWeight: 600,
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
+                    zIndex: 9999,
+                }}>{toast}</div>
+            )}
 
             {tab !== 'profile' && (
                 <>
+                    {/* ── Page Header ── */}
                     <div className="pg-header">
                         <div>
                             <h1 className="pg-title">Admin Panel</h1>
-                            <p className="pg-sub">Manage users, plans, and settings</p>
+                            <p className="pg-sub">Manage users, plans, and payments</p>
                         </div>
                         <button className="btn-refresh" onClick={() => window.location.reload()} style={{ fontSize: 13 }}>Refresh</button>
                     </div>
 
-                    {/* Tabs */}
-                    <div className="ap-tabs">
+                    {/* ── Tabs ── */}
+                    <div style={{
+                        display: 'flex', gap: 4, marginBottom: 24,
+                        background: '#f1f5f9', borderRadius: 12,
+                        padding: 4, width: 'fit-content',
+                    }}>
                         {TABS.map(t => (
-                            <button key={t.id} className={`ap-tab ${tab === t.id ? 'ap-tab-active' : ''}`} onClick={() => setTab(t.id)}>
+                            <button key={t.id}
+                                onClick={() => setTab(t.id)}
+                                style={{
+                                    padding: '8px 18px', border: 'none', borderRadius: 9,
+                                    fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                                    fontFamily: 'inherit', transition: 'all 0.15s',
+                                    background: tab === t.id ? '#fff' : 'transparent',
+                                    color: tab === t.id ? C.primary : C.muted,
+                                    boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                                }}>
                                 {t.label}
                             </button>
                         ))}
@@ -323,73 +463,56 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </>
             )}
 
-            {/* ══ OVERVIEW TAB ══ */}
+            {/* ══════════════════════════════════════
+                OVERVIEW TAB
+            ══════════════════════════════════════ */}
             {tab === 'overview' && (
-                <div>
-                    {/* Stats */}
-                    <div className="ap-stats-grid">
-                        {[
-                            { label: 'Total Users',  value: users.length,   color: '#7c3aed', icon: '👥' },
-                            { label: 'Active',       value: activeUsers,    color: '#10b981', icon: '✅' },
-                            { label: 'Paid Users',   value: paidUsers,      color: '#f59e0b', icon: '💰' },
-                            { label: 'Total Sites',  value: totalSites,     color: '#3b82f6', icon: '🌐' },
-                            { label: 'Free Trial',   value: users.filter(u => u.plan === 'free_trial').length, color: '#64748b', icon: '⏳' },
-                            { label: 'Blocked',      value: blockedUsers,   color: '#ef4444', icon: '🚫' },
-                        ].map(s => (
-                            <div key={s.label} className="ap-stat-card">
-                                <div className="ap-stat-icon">{s.icon}</div>
-                                <div className="ap-stat-value" style={{ color: s.color }}>{s.value}</div>
-                                <div className="ap-stat-label">{s.label}</div>
-                            </div>
-                        ))}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+                    {/* Metric Cards — row 1: user stats */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
+                        <MetricCard label="Total Users"  value={users.length}  color={C.primary}  icon="👥" />
+                        <MetricCard label="Active"       value={activeUsers}    color={C.success}  icon="✅" />
+                        <MetricCard label="Paid Users"   value={paidUsers}      color={C.warning}  icon="💰" />
+                        <MetricCard label="Total Sites"  value={totalSites}     color={C.info}     icon="🌐" />
+                        <MetricCard label="Free Trial"   value={users.filter(u => u.plan === 'free_trial').length} color="#64748b" icon="⏳" />
+                        <MetricCard label="Blocked"      value={blockedUsers}   color={C.danger}   icon="🚫" />
                     </div>
 
-                    {/* Revenue Summary */}
-                    <div className="ap-card" style={{ marginTop: 20 }}>
-                        <div className="ap-card-title">💰 Revenue Summary</div>
-                        <div className="ap-revenue-grid">
-                            <div className="ap-rev-box">
-                                <div className="ap-rev-label">Total Revenue</div>
-                                <div className="ap-rev-value" style={{ color: '#10b981' }}>₹{totalRevenue.toLocaleString('en-IN')}</div>
-                                <div className="ap-rev-sub">{payments.length} transactions</div>
-                            </div>
-                            <div className="ap-rev-box">
-                                <div className="ap-rev-label">This Month</div>
-                                <div className="ap-rev-value" style={{ color: '#7c3aed' }}>₹{monthRevenue.toLocaleString('en-IN')}</div>
-                                <div className="ap-rev-sub">{now.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</div>
-                            </div>
-                            <div className="ap-rev-box">
-                                <div className="ap-rev-label">Plan Revenue</div>
-                                <div className="ap-rev-value" style={{ color: '#f59e0b' }}>₹{planRevenue.toLocaleString('en-IN')}</div>
-                                <div className="ap-rev-sub">Subscriptions only</div>
-                            </div>
-                            <div className="ap-rev-box">
-                                <div className="ap-rev-label">Verification Fees</div>
-                                <div className="ap-rev-value" style={{ color: '#64748b' }}>₹{(totalRevenue - planRevenue).toLocaleString('en-IN')}</div>
-                                <div className="ap-rev-sub">₹2 trial fees</div>
-                            </div>
+                    {/* Revenue Cards */}
+                    <div style={{ ...card }}>
+                        <SectionHeader title="Revenue Summary" />
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                            <RevCard label="Total Revenue"      value={`₹${totalRevenue.toLocaleString('en-IN')}`}              sub={`${payments.length} transactions`}                                     color={C.success}  />
+                            <RevCard label="This Month"         value={`₹${monthRevenue.toLocaleString('en-IN')}`}              sub={now.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}      color={C.primary}  />
+                            <RevCard label="Plan Revenue"       value={`₹${planRevenue.toLocaleString('en-IN')}`}               sub="Subscriptions only"                                                     color={C.warning}  />
+                            <RevCard label="Verification Fees"  value={`₹${(totalRevenue - planRevenue).toLocaleString('en-IN')}`} sub="₹2 trial fees"                                                    color="#64748b"    />
                         </div>
                     </div>
 
-                    {/* Pending Payments */}
+                    {/* Pending Payments — action required */}
                     {pendingPayments.length > 0 && (
-                        <div className="ap-card ap-card-urgent" style={{ marginTop: 16 }}>
-                            <div className="ap-card-title">🔔 Pending Payments — Action Required ({pendingPayments.length})</div>
-                            <div className="ap-pending-list">
+                        <div style={{ ...card, borderLeft: `4px solid ${C.warning}`, background: '#fffbeb' }}>
+                            <SectionHeader title={`Pending Payments — Action Required (${pendingPayments.length})`} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                 {pendingPayments.map(pr => (
-                                    <div key={pr._id} className="ap-pending-row">
-                                        <div className="ap-pending-info">
-                                            <div className="ap-pending-name">{pr.userName}</div>
-                                            <div className="ap-pending-email">{pr.userEmail}</div>
-                                            <div className="ap-pending-meta">
-                                                <span className="ap-plan-pill" style={{ background: '#fef3c7', color: '#b45309' }}>
+                                    <div key={pr._id} style={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        gap: 12, background: '#fff', border: `1px solid #fde68a`,
+                                        borderRadius: 12, padding: '12px 16px', flexWrap: 'wrap',
+                                    }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{pr.userName}</div>
+                                            <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>{pr.userEmail}</div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                                <span style={pill('#fef3c7','#b45309')}>
                                                     {pr.type === 'verification' ? '₹2 Verification' : `${pr.plan?.charAt(0).toUpperCase() + pr.plan?.slice(1)} ₹${pr.amount}`}
                                                 </span>
-                                                <span style={{ fontSize: 11, color: '#94a3b8' }}>{fmt(pr.createdAt)}</span>
+                                                <span style={{ fontSize: 11, color: C.light }}>{fmt(pr.createdAt)}</span>
                                             </div>
-                                            <div className="ap-pending-utr">UTR: <strong>{pr.utr}</strong></div>
+                                            <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>UTR: <strong>{pr.utr}</strong></div>
                                         </div>
-                                        <div className="ap-pending-actions">
+                                        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                                             <button className="ap-btn ap-btn-approve" onClick={() => approvePayment(pr._id)}>✓ Approve</button>
                                             <button className="ap-btn ap-btn-reject"  onClick={() => rejectPayment(pr._id)}>✕ Reject</button>
                                         </div>
@@ -399,88 +522,100 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                         </div>
                     )}
 
-                    {/* Expiring Plans + Trial Expiring side by side */}
-                    <div className="ap-alert-row" style={{ marginTop: 16 }}>
+                    {/* Expiring Plans + Trial Expiring — side by side */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                         {/* Plans expiring in 7 days */}
-                        <div className={`ap-card ${expiringPlans.length > 0 ? 'ap-card-warn' : ''}`} style={{ flex: 1 }}>
-                            <div className="ap-card-title">⚠️ Plans Expiring (7 days) — {expiringPlans.length}</div>
+                        <div style={{ ...card, ...(expiringPlans.length > 0 ? { borderLeft: `4px solid ${C.warning}` } : {}) }}>
+                            <SectionHeader title={`Plans Expiring in 7 Days — ${expiringPlans.length}`} />
                             {expiringPlans.length === 0 ? (
-                                <div className="ap-empty-small">No plans expiring soon</div>
+                                <div style={{ fontSize: 13, color: C.light, padding: '8px 0' }}>No plans expiring soon</div>
                             ) : expiringPlans.map(u => (
-                                <div key={u._id} className="ap-alert-user-row">
+                                <div key={u._id} style={{
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    padding: '10px 0', borderBottom: `1px solid ${C.border}`, gap: 10,
+                                }}>
                                     <div>
-                                        <div className="ap-alert-name">{u.name}</div>
-                                        <div className="ap-alert-email">{u.email}</div>
+                                        <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{u.name}</div>
+                                        <div style={{ fontSize: 11, color: C.muted }}>{u.email}</div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <span className="ap-plan-pill" style={{ background: PLAN_BG[u.plan], color: PLAN_COLORS[u.plan] }}>{PLAN_LABEL[u.plan]}</span>
-                                        <div className="ap-alert-date">Ends {fmt(u.planEndsAt)}</div>
+                                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                        <PlanBadge plan={u.plan} />
+                                        <div style={{ fontSize: 11, color: C.warning, fontWeight: 600, marginTop: 3 }}>Ends {fmt(u.planEndsAt)}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* Trials expiring in 2 days */}
-                        <div className={`ap-card ${trialExpiring.length > 0 ? 'ap-card-warn' : ''}`} style={{ flex: 1 }}>
-                            <div className="ap-card-title">⏳ Trials Expiring (2 days) — {trialExpiring.length}</div>
+                        <div style={{ ...card, ...(trialExpiring.length > 0 ? { borderLeft: `4px solid ${C.warning}` } : {}) }}>
+                            <SectionHeader title={`Trials Expiring in 2 Days — ${trialExpiring.length}`} />
                             {trialExpiring.length === 0 ? (
-                                <div className="ap-empty-small">No trials expiring soon</div>
+                                <div style={{ fontSize: 13, color: C.light, padding: '8px 0' }}>No trials expiring soon</div>
                             ) : trialExpiring.map(u => (
-                                <div key={u._id} className="ap-alert-user-row">
+                                <div key={u._id} style={{
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    padding: '10px 0', borderBottom: `1px solid ${C.border}`, gap: 10,
+                                }}>
                                     <div>
-                                        <div className="ap-alert-name">{u.name}</div>
-                                        <div className="ap-alert-email">{u.email}</div>
+                                        <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{u.name}</div>
+                                        <div style={{ fontSize: 11, color: C.muted }}>{u.email}</div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div className="ap-alert-date">Ends {fmt(u.trialEndsAt)}</div>
-                                        <button className="ap-btn ap-btn-trial" style={{ marginTop: 4 }} onClick={() => extendTrial(u._id)}>+5 days</button>
+                                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                        <div style={{ fontSize: 11, color: C.warning, fontWeight: 600, marginBottom: 4 }}>Ends {fmt(u.trialEndsAt)}</div>
+                                        <button className="ap-btn ap-btn-trial" style={{ fontSize: 12 }} onClick={() => extendTrial(u._id)}>+5 days</button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Plan distribution */}
-                    <div className="ap-card" style={{ marginTop: 16 }}>
-                        <div className="ap-card-title">Plan Distribution</div>
-                        <div className="ap-plan-dist">
+                    {/* Plan Distribution */}
+                    <div style={{ ...card }}>
+                        <SectionHeader title="Plan Distribution" />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                             {PLAN_OPTIONS.map(p => {
                                 const count = users.filter(u => u.plan === p).length;
                                 const pct = users.length ? Math.round(count / users.length * 100) : 0;
                                 return (
-                                    <div key={p} className="ap-plan-dist-row">
-                                        <div className="ap-plan-dist-label">
-                                            <span className="ap-plan-dot" style={{ background: PLAN_COLORS[p] }} />
-                                            {PLAN_LABEL[p]}
+                                    <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 100, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: PLAN_COLORS[p], flexShrink: 0 }} />
+                                            <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{PLAN_LABEL[p]}</span>
                                         </div>
-                                        <div className="ap-plan-dist-bar-wrap">
-                                            <div className="ap-plan-dist-bar" style={{ width: `${pct}%`, background: PLAN_COLORS[p] }} />
+                                        <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
+                                            <div style={{ width: `${pct}%`, height: '100%', background: PLAN_COLORS[p], borderRadius: 99, transition: 'width 0.5s ease', minWidth: pct > 0 ? 4 : 0 }} />
                                         </div>
-                                        <div className="ap-plan-dist-count">{count} <span>({pct}%)</span></div>
+                                        <div style={{ width: 70, textAlign: 'right', flexShrink: 0, fontSize: 12, fontWeight: 700, color: C.text }}>
+                                            {count} <span style={{ color: C.light, fontWeight: 400 }}>({pct}%)</span>
+                                        </div>
                                     </div>
                                 );
                             })}
                         </div>
                     </div>
 
-                    {/* Recent Users */}
-                    <div className="ap-card" style={{ marginTop: 16 }}>
-                        <div className="ap-card-title">Recent Registrations</div>
-                        <div className="ap-recent-list">
-                            {users.slice(0, 8).map(u => (
-                                <div key={u._id} className="ap-recent-row">
+                    {/* Recent Registrations */}
+                    <div style={{ ...card }}>
+                        <SectionHeader title="Recent Registrations" />
+                        <div>
+                            {users.slice(0, 8).map((u, i) => (
+                                <div key={u._id} style={{
+                                    display: 'flex', alignItems: 'center', gap: 14,
+                                    padding: '12px 0',
+                                    borderBottom: i < 7 ? `1px solid ${C.border}` : 'none',
+                                }}>
                                     <Avatar name={u.name} size={36} />
-                                    <div className="ap-recent-info">
-                                        <div className="ap-recent-name">{u.name}</div>
-                                        <div className="ap-recent-email">{u.email}{u.phone ? ` · ${u.phone}` : ''}</div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                                        <div style={{ fontSize: 12, color: C.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {u.email}{u.phone ? ` · ${u.phone}` : ''}
+                                        </div>
                                     </div>
-                                    <div className="ap-recent-meta">
-                                        <span className="ap-plan-pill" style={{ background: PLAN_BG[u.plan], color: PLAN_COLORS[u.plan] }}>
-                                            {PLAN_LABEL[u.plan]}
-                                        </span>
-                                        <span className="ap-recent-sites">{u.serverCount || 0} sites</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                                        <PlanBadge plan={u.plan} />
+                                        <span style={{ fontSize: 12, color: C.muted }}>{u.serverCount || 0} sites</span>
                                     </div>
-                                    <div className="ap-recent-date">{fmt(u.createdAt)}</div>
+                                    <div style={{ fontSize: 12, color: C.light, whiteSpace: 'nowrap', flexShrink: 0 }}>{fmt(u.createdAt)}</div>
                                 </div>
                             ))}
                         </div>
@@ -488,11 +623,44 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </div>
             )}
 
-            {/* ══ USERS TAB ══ */}
+            {/* ══════════════════════════════════════
+                USERS TAB
+            ══════════════════════════════════════ */}
             {tab === 'users' && (
-                <div>
-                    {/* Export button */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Toolbar */}
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                        {/* Search */}
+                        <div style={{
+                            flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 10,
+                            background: '#fff', border: `1.5px solid ${C.border}`, borderRadius: 10,
+                            padding: '9px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}>
+                            <svg width="15" height="15" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.text, flex: 1, fontFamily: 'inherit' }}
+                                placeholder="Search name, email, phone..."
+                                value={search} onChange={e => setSearch(e.target.value)} />
+                            {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: C.light, cursor: 'pointer', fontSize: 13, padding: 0 }}>✕</button>}
+                        </div>
+
+                        {/* Plan filter pills */}
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {['all', ...PLAN_OPTIONS].map(p => (
+                                <button key={p}
+                                    onClick={() => setPlanFilter(p)}
+                                    style={{
+                                        padding: '8px 14px', border: `1.5px solid ${planFilter === p && p !== 'all' ? PLAN_COLORS[p] : planFilter === p ? C.primary : C.border}`,
+                                        borderRadius: 99, fontSize: 12, fontWeight: 600,
+                                        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                                        background: planFilter === p ? (p !== 'all' ? PLAN_COLORS[p] : C.primary) : '#fff',
+                                        color: planFilter === p ? '#fff' : C.muted,
+                                    }}>
+                                    {p === 'all' ? 'All' : PLAN_LABEL[p]}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Export CSV */}
                         <button className="btn-download" onClick={exportCSV} disabled={users.length === 0}>
                             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -501,204 +669,266 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             Export CSV
                         </button>
                     </div>
-                    {/* Filter bar */}
-                    <div className="ap-filter-bar">
-                        <div className="search-wrap" style={{ flex: 1 }}>
-                            <svg width="16" height="16" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                            <input className="search-input" placeholder="Search name, email, phone..." value={search} onChange={e => setSearch(e.target.value)} />
-                            {search && <button className="search-clear" onClick={() => setSearch('')}>✕</button>}
-                        </div>
-                        <div className="ap-plan-filter">
-                            {['all', ...PLAN_OPTIONS].map(p => (
-                                <button key={p}
-                                    className={`ap-filter-btn ${planFilter === p ? 'ap-filter-active' : ''}`}
-                                    style={planFilter === p && p !== 'all' ? { background: PLAN_COLORS[p], color: '#fff' } : {}}
-                                    onClick={() => setPlanFilter(p)}>
-                                    {p === 'all' ? 'All' : PLAN_LABEL[p]}
-                                </button>
-                            ))}
-                        </div>
+
+                    {/* User count label */}
+                    <div style={{ fontSize: 12, color: C.light, fontWeight: 500 }}>
+                        Showing {filtered.length} of {users.length} users
                     </div>
 
                     {/* Users list */}
-                    <div className="ap-users-list">
-                        {loading ? (
-                            <div className="ap-empty">Loading users...</div>
-                        ) : filtered.length === 0 ? (
-                            <div className="ap-empty">No users found.</div>
-                        ) : filtered.map(u => (
-                            <div key={u._id} className={`ap-user-card ${u.isBlocked ? 'ap-user-blocked' : ''}`}>
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: 48, color: C.light, fontSize: 14 }}>Loading users...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: 48, color: C.light, fontSize: 14 }}>No users found.</div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {filtered.map(u => (
+                                <div key={u._id} style={{
+                                    ...card,
+                                    padding: 0, overflow: 'hidden',
+                                    borderLeft: u.isBlocked ? `4px solid ${C.danger}` : `4px solid transparent`,
+                                    background: u.isBlocked ? '#fff5f5' : '#fff',
+                                    transition: 'box-shadow 0.15s',
+                                }}>
+                                    {/* Main row */}
+                                    <div style={{
+                                        display: 'flex', alignItems: 'center', gap: 14,
+                                        padding: '14px 20px', cursor: 'pointer',
+                                    }}
+                                        onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}>
+                                        <Avatar name={u.name} size={42} />
 
-                                {/* Main row */}
-                                <div className="ap-user-main" onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}>
-                                    <Avatar name={u.name} size={44} />
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                                <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{u.name}</span>
+                                                <PlanBadge plan={u.plan} />
+                                                <StatusBadge u={u} />
+                                            </div>
+                                            <div style={{ fontSize: 12, color: C.muted, marginTop: 3, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                                <span>{u.email}</span>
+                                                {u.phone && <span>{u.phone}</span>}
+                                                {u.state && <span>{u.state}{u.country ? `, ${u.country}` : ''}</span>}
+                                            </div>
+                                            <div style={{ fontSize: 12, color: C.light, marginTop: 2 }}>
+                                                {u.serverCount || 0} sites · Joined {fmt(u.createdAt)}
+                                                {u.plan !== 'free_trial' && u.planEndsAt ? ` · Plan ends ${fmt(u.planEndsAt)}` : ''}
+                                                {u.plan === 'free_trial' && u.trialEndsAt ? ` · Trial ends ${fmt(u.trialEndsAt)}` : ''}
+                                            </div>
+                                        </div>
 
-                                    <div className="ap-user-info">
-                                        <div className="ap-user-name">
-                                            {u.name}
-                                            {u.isBlocked && <span className="ap-badge ap-badge-blocked" style={{ marginLeft: 8 }}>Blocked</span>}
-                                        </div>
-                                        <div className="ap-user-detail">
-                                            <span>✉️ {u.email}</span>
-                                            {u.phone && <span>📱 {u.phone}</span>}
-                                            {u.state && <span>📍 {u.state}{u.country ? `, ${u.country}` : ''}</span>}
-                                        </div>
-                                        <div className="ap-user-meta">
-                                            <span className="ap-plan-pill" style={{ background: PLAN_BG[u.plan], color: PLAN_COLORS[u.plan] }}>
-                                                {PLAN_LABEL[u.plan]}
-                                            </span>
-                                            <StatusBadge u={u} />
-                                            <span className="ap-site-count">🌐 {u.serverCount || 0} sites</span>
-                                            <span className="ap-join-date">Joined {fmt(u.createdAt)}</span>
+                                        {/* Actions */}
+                                        <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}
+                                            onClick={e => e.stopPropagation()}>
+                                            <button title="Assign Plan" className="ap-btn ap-btn-assign" onClick={() => openAssign(u)}
+                                                style={{ fontSize: 12, padding: '5px 12px' }}>Assign Plan</button>
+                                            <button title="Edit" className="ap-btn ap-btn-edit" onClick={() => startEdit(u)}
+                                                style={{ fontSize: 12, padding: '5px 10px' }}>Edit</button>
+                                            <button title="Extend Trial" className="ap-btn ap-btn-trial" onClick={() => extendTrial(u._id)}
+                                                style={{ fontSize: 12, padding: '5px 10px' }}>+Trial</button>
+                                            <button title={u.isBlocked ? 'Unblock' : 'Block'}
+                                                className={`ap-btn ${u.isBlocked ? 'ap-btn-unblock' : 'ap-btn-block'}`}
+                                                onClick={() => toggleBlock(u)}
+                                                style={{ fontSize: 12, padding: '5px 10px' }}>
+                                                {u.isBlocked ? 'Unblock' : 'Block'}
+                                            </button>
+                                            <button title="Delete" className="ap-btn ap-btn-del" onClick={() => deleteUser(u)}
+                                                style={{ fontSize: 12, padding: '5px 10px' }}>Delete</button>
                                         </div>
                                     </div>
 
-                                    <div className="ap-user-actions" onClick={e => e.stopPropagation()}>
-                                        <button className="ap-btn ap-btn-assign" onClick={() => openAssign(u)}>Assign Plan</button>
-                                        <button className="ap-btn ap-btn-edit" onClick={() => startEdit(u)}>Edit</button>
-                                        <button className="ap-btn ap-btn-trial" onClick={() => extendTrial(u._id)}>+Trial</button>
-                                        <button className={`ap-btn ${u.isBlocked ? 'ap-btn-unblock' : 'ap-btn-block'}`} onClick={() => toggleBlock(u)}>
-                                            {u.isBlocked ? 'Unblock' : 'Block'}
-                                        </button>
-                                        <button className="ap-btn ap-btn-del" onClick={() => deleteUser(u)}>Delete</button>
-                                    </div>
+                                    {/* Expanded detail */}
+                                    {expandedId === u._id && (
+                                        <div style={{ padding: '14px 20px', background: C.bg, borderTop: `1px solid ${C.border}` }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
+                                                {[
+                                                    { label: 'Plan',        val: <PlanBadge plan={u.plan} /> },
+                                                    { label: 'Status',      val: <StatusBadge u={u} /> },
+                                                    { label: 'Sites',       val: <strong>{u.serverCount || 0}</strong> },
+                                                    { label: 'Trial Ends',  val: <strong>{fmt(u.trialEndsAt)}</strong> },
+                                                    { label: 'Plan Ends',   val: <strong>{fmt(u.planEndsAt)}</strong> },
+                                                    { label: 'Registered',  val: <strong>{fmt(u.createdAt)}</strong> },
+                                                    ...(u.address ? [{ label: 'Address', val: <strong>{u.address}</strong> }] : []),
+                                                    ...(u.state   ? [{ label: 'State',   val: <strong>{u.state}</strong>   }] : []),
+                                                    ...(u.country ? [{ label: 'Country', val: <strong>{u.country}</strong> }] : []),
+                                                ].map(item => (
+                                                    <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: C.light, textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.label}</span>
+                                                        <span style={{ fontSize: 13 }}>{item.val}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Edit panel */}
+                                    {editId === u._id && (
+                                        <div style={{ padding: '16px 20px', background: '#faf5ff', borderTop: `2px solid #ede9fe` }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
+                                                <div className="form-group">
+                                                    <label>Plan</label>
+                                                    <select value={editForm.plan} onChange={e => setEditForm({ ...editForm, plan: e.target.value })}>
+                                                        {PLAN_OPTIONS.map(p => <option key={p} value={p}>{PLAN_LABEL[p]}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Plan Ends At</label>
+                                                    <input type="date" value={editForm.planEndsAt} onChange={e => setEditForm({ ...editForm, planEndsAt: e.target.value })} />
+                                                </div>
+                                                <div className="form-group" style={{ justifyContent: 'flex-end' }}>
+                                                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', paddingTop: 22 }}>
+                                                        <input type="checkbox" checked={editForm.isBlocked} onChange={e => setEditForm({ ...editForm, isBlocked: e.target.checked })} />
+                                                        Block this account
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: 10 }}>
+                                                <button className="btn-save" onClick={saveEdit}>Save Changes</button>
+                                                <button className="btn-cancel" onClick={() => setEditId(null)}>Cancel</button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-
-                                {/* Expanded detail */}
-                                {expandedId === u._id && (
-                                    <div className="ap-user-expanded">
-                                        <div className="ap-detail-grid">
-                                            <div className="ap-detail-item"><span>Plan</span><strong>{PLAN_LABEL[u.plan]}</strong></div>
-                                            <div className="ap-detail-item"><span>Status</span><StatusBadge u={u} /></div>
-                                            <div className="ap-detail-item"><span>Sites Created</span><strong>{u.serverCount || 0}</strong></div>
-                                            <div className="ap-detail-item"><span>Trial Ends</span><strong>{fmt(u.trialEndsAt)}</strong></div>
-                                            <div className="ap-detail-item"><span>Plan Ends</span><strong>{fmt(u.planEndsAt)}</strong></div>
-                                            <div className="ap-detail-item"><span>Registered</span><strong>{fmt(u.createdAt)}</strong></div>
-                                            {u.address && <div className="ap-detail-item"><span>Address</span><strong>{u.address}</strong></div>}
-                                            {u.state && <div className="ap-detail-item"><span>State</span><strong>{u.state}</strong></div>}
-                                            {u.country && <div className="ap-detail-item"><span>Country</span><strong>{u.country}</strong></div>}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Edit panel */}
-                                {editId === u._id && (
-                                    <div className="ap-edit-panel">
-                                        <div className="ap-edit-grid">
-                                            <div className="form-group">
-                                                <label>Plan</label>
-                                                <select value={editForm.plan} onChange={e => setEditForm({ ...editForm, plan: e.target.value })}>
-                                                    {PLAN_OPTIONS.map(p => <option key={p} value={p}>{PLAN_LABEL[p]}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Plan Ends At</label>
-                                                <input type="date" value={editForm.planEndsAt} onChange={e => setEditForm({ ...editForm, planEndsAt: e.target.value })} />
-                                            </div>
-                                            <div className="form-group" style={{ justifyContent: 'flex-end' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', paddingTop: 22 }}>
-                                                    <input type="checkbox" checked={editForm.isBlocked} onChange={e => setEditForm({ ...editForm, isBlocked: e.target.checked })} />
-                                                    Block this account
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div className="ap-edit-btns">
-                                            <button className="btn-save" onClick={saveEdit}>Save Changes</button>
-                                            <button className="btn-cancel" onClick={() => setEditId(null)}>Cancel</button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* ══ PAYMENTS TAB ══ */}
+            {/* ══════════════════════════════════════
+                PAYMENTS TAB
+            ══════════════════════════════════════ */}
             {tab === 'payments' && (
-                <div>
-                    {/* Search filter */}
-                    <div className="search-wrap" style={{ marginBottom: 16 }}>
-                        <svg width="16" height="16" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                        <input className="search-input" placeholder="Search by Payment ID, user name or email..." value={paySearch} onChange={e => setPaySearch(e.target.value)} />
-                        {paySearch && <button className="search-clear" onClick={() => setPaySearch('')}>✕</button>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Summary pills / filter bar */}
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {[
+                            { key: 'all',      label: 'All',      count: payments.length,                                  bg: '#f1f5f9', color: C.muted,    activeBg: C.primary  },
+                            { key: 'pending',  label: 'Pending',  count: payments.filter(p=>p.status==='pending').length,   bg: '#fef9c3', color: '#b45309',  activeBg: '#d97706'  },
+                            { key: 'approved', label: 'Approved', count: payments.filter(p=>p.status==='approved').length,  bg: '#dcfce7', color: '#15803d',  activeBg: C.success  },
+                            { key: 'rejected', label: 'Rejected', count: payments.filter(p=>p.status==='rejected').length,  bg: '#fee2e2', color: C.danger,   activeBg: C.danger   },
+                            { key: 'refunded', label: 'Refunded', count: payments.filter(p=>p.status==='refunded').length,  bg: '#fef2f2', color: '#dc2626',  activeBg: '#dc2626'  },
+                        ].map(s => (
+                            <button key={s.key} onClick={() => setPayStatusFilter(s.key)}
+                                style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    padding: '8px 16px', borderRadius: 99,
+                                    border: `1.5px solid ${payStatusFilter === s.key ? s.activeBg : C.border}`,
+                                    background: payStatusFilter === s.key ? s.activeBg : '#fff',
+                                    color: payStatusFilter === s.key ? '#fff' : s.color,
+                                    fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                                    transition: 'all 0.15s',
+                                }}>
+                                {s.label}
+                                <span style={{
+                                    background: payStatusFilter === s.key ? 'rgba(255,255,255,0.25)' : s.bg,
+                                    color: payStatusFilter === s.key ? '#fff' : s.color,
+                                    borderRadius: 99, padding: '1px 7px', fontSize: 11, fontWeight: 800,
+                                }}>{s.count}</span>
+                            </button>
+                        ))}
+
+                        {/* Search */}
+                        <div style={{
+                            flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 10,
+                            background: '#fff', border: `1.5px solid ${C.border}`, borderRadius: 10,
+                            padding: '8px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}>
+                            <svg width="15" height="15" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.text, flex: 1, fontFamily: 'inherit' }}
+                                placeholder="Search by ID, name or email..."
+                                value={paySearch} onChange={e => setPaySearch(e.target.value)} />
+                            {paySearch && <button onClick={() => setPaySearch('')} style={{ background: 'none', border: 'none', color: C.light, cursor: 'pointer', fontSize: 13, padding: 0 }}>✕</button>}
+                        </div>
                     </div>
 
-                    <div className="ap-pay-legend">
-                        <span className="ap-badge" style={{ background:'#fef9c3',color:'#b45309' }}>Pending — {payments.filter(p=>p.status==='pending').length}</span>
-                        <span className="ap-badge ap-badge-active">Approved — {payments.filter(p=>p.status==='approved').length}</span>
-                        <span className="ap-badge ap-badge-blocked">Rejected — {payments.filter(p=>p.status==='rejected').length}</span>
-                        <span className="ap-badge" style={{background:'#fef2f2',color:'#dc2626'}}>Refunded — {payments.filter(p=>p.status==='refunded').length}</span>
-                    </div>
+                    {/* Payment cards */}
+                    {filteredPayments.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: 48, color: C.light, fontSize: 14 }}>
+                            {paySearch || payStatusFilter !== 'all' ? 'No payments match your filter.' : 'No payments yet.'}
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {filteredPayments.map(pr => {
+                                const planColor = { bronze:'#b45309', silver:'#475569', gold:'#ca8a04' }[pr.plan] || '#64748b';
+                                const isPending = !pr.status || pr.status === 'pending';
+                                return (
+                                    <div key={pr._id} style={{
+                                        ...card,
+                                        borderLeft: isPending ? `4px solid ${C.warning}` : `4px solid transparent`,
+                                        background: isPending ? '#fffbeb' : '#fff',
+                                    }}>
+                                        {/* Top row */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+                                                <Avatar name={pr.userName} size={38} />
+                                                <div style={{ minWidth: 0 }}>
+                                                    <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{pr.userName}</div>
+                                                    <div style={{ fontSize: 12, color: C.muted }}>{pr.userEmail}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
+                                                {pr.type === 'verification' ? (
+                                                    <span style={pill('#fef3c7','#b45309')}>₹{pr.amount} Verification</span>
+                                                ) : (
+                                                    <span style={pill(`${planColor}22`, planColor)}>
+                                                        {pr.plan?.charAt(0).toUpperCase() + pr.plan?.slice(1)}
+                                                    </span>
+                                                )}
+                                                <strong style={{ fontSize: 16, color: C.text }}>₹{pr.amount}</strong>
+                                                <PayStatusBadge status={pr.status} />
+                                            </div>
+                                        </div>
 
-                    {(() => {
-                        const q = paySearch.toLowerCase();
-                        const filteredPay = q
-                            ? payments.filter(p =>
-                                p.utr?.toLowerCase().includes(q) ||
-                                p.userName?.toLowerCase().includes(q) ||
-                                p.userEmail?.toLowerCase().includes(q))
-                            : payments;
-                        return filteredPay.length === 0 ? (
-                            <div className="ap-empty">{paySearch ? 'No payments match your search.' : 'No payments yet.'}</div>
-                        ) : <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 4 }}>{filteredPay.map(pr => {
-                        const planColor = { bronze:'#b45309', silver:'#475569', gold:'#ca8a04' }[pr.plan] || '#64748b';
-                        return (
-                            <div key={pr._id} className="ap-pay-card">
-                                <div className="ap-pay-top">
-                                    <div className="ap-pay-user">
-                                        <div className="ap-user-name">{pr.userName}</div>
-                                        <div style={{ fontSize:12, color:'#64748b' }}>{pr.userEmail}</div>
-                                    </div>
-                                    <div className="ap-pay-meta">
-                                        {pr.type === 'verification' ? (
-                                            <span className="ap-plan-pill" style={{ background: '#fef3c7', color: '#b45309' }}>₹{pr.amount} Verification</span>
-                                        ) : (
-                                            <span className="ap-plan-pill" style={{ background: `${planColor}22`, color: planColor }}>
-                                                {pr.plan?.charAt(0).toUpperCase() + pr.plan?.slice(1)}
+                                        {/* UTR + date row */}
+                                        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                            <div style={{ fontSize: 12, color: C.muted }}>
+                                                Razorpay ID: <strong style={{ fontFamily: 'monospace', color: C.text }}>{pr.utr}</strong>
+                                            </div>
+                                            <span style={{ fontSize: 12, color: C.light }}>
+                                                {new Date(pr.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
                                             </span>
-                                        )}
-                                        <strong style={{ fontSize:15 }}>₹{pr.amount}</strong>
-                                        <span className="ap-badge ap-badge-active">Paid</span>
+                                        </div>
+
+                                        {/* Action buttons */}
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+                                            {isPending && (
+                                                <>
+                                                    <button className="ap-btn ap-btn-approve" style={{ fontSize: 12 }} onClick={() => approvePayment(pr._id)}>✓ Approve</button>
+                                                    <button className="ap-btn ap-btn-reject"  style={{ fontSize: 12 }} onClick={() => rejectPayment(pr._id)}>✕ Reject</button>
+                                                </>
+                                            )}
+                                            {pr.status === 'approved' && (
+                                                <button onClick={() => refundPayment(pr._id)} style={{
+                                                    fontSize: 12, padding: '5px 14px', background: '#fef2f2',
+                                                    border: `1.5px solid #fecdd3`, borderRadius: 8,
+                                                    color: '#dc2626', fontWeight: 700, cursor: 'pointer',
+                                                }}>
+                                                    💸 Refund
+                                                </button>
+                                            )}
+                                            {pr.status === 'refunded' && (
+                                                <span style={{
+                                                    fontSize: 12, padding: '5px 14px', background: '#fef2f2',
+                                                    border: `1.5px solid #fecdd3`, borderRadius: 8,
+                                                    color: '#dc2626', fontWeight: 700,
+                                                }}>
+                                                    ↩ Refunded
+                                                </span>
+                                            )}
+                                            <button className="ap-btn ap-btn-del" style={{ fontSize: 12, padding: '5px 12px' }} onClick={() => deletePayment(pr._id)}>🗑</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="ap-pay-utr">
-                                    Razorpay ID: <strong style={{ fontFamily:'monospace' }}>{pr.utr}</strong>
-                                    <span style={{ color:'#94a3b8', marginLeft:12, fontSize:12 }}>
-                                        {new Date(pr.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
-                                    </span>
-                                    <span className={`ap-pay-status ap-pay-status-${pr.status || 'approved'}`}>{pr.status || 'approved'}</span>
-                                </div>
-                                <div style={{ display:'flex', justifyContent:'flex-end', gap: 8, marginTop: 8 }}>
-                                    {(!pr.status || pr.status === 'pending') && (
-                                        <>
-                                            <button className="ap-btn ap-btn-approve" style={{ fontSize:12 }} onClick={() => approvePayment(pr._id)}>✓ Approve</button>
-                                            <button className="ap-btn ap-btn-reject"  style={{ fontSize:12 }} onClick={() => rejectPayment(pr._id)}>✕ Reject</button>
-                                        </>
-                                    )}
-                                    {pr.status === 'approved' && (
-                                        <button onClick={() => refundPayment(pr._id)}
-                                            style={{ fontSize:12, padding:'4px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:8, color:'#dc2626', fontWeight:700, cursor:'pointer' }}>
-                                            💸 Refund
-                                        </button>
-                                    )}
-                                    {pr.status === 'refunded' && (
-                                        <span style={{ fontSize:12, padding:'4px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:8, color:'#dc2626', fontWeight:700 }}>
-                                            ↩ Refunded
-                                        </span>
-                                    )}
-                                    <button className="ap-btn ap-btn-del" style={{ fontSize:12, padding:'4px 12px' }} onClick={() => deletePayment(pr._id)}>🗑</button>
-                                </div>
-                            </div>
-                        );
-                        })}</div>;
-                    })()}
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* ══ TRANSACTIONS TAB ══ */}
+            {/* ══════════════════════════════════════
+                TRANSACTIONS TAB — auto-load refund statuses
+            ══════════════════════════════════════ */}
             {tab === 'transactions' && (() => {
-                // Auto-load refund statuses for refunded payments
                 const refunded = payments.filter(p => p.status === 'refunded');
                 refunded.forEach(p => {
                     if (!refundStatuses[p._id]) {
@@ -711,63 +941,76 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 });
                 return null;
             })()}
+
             {tab === 'transactions' && (
                 <div>
-                    <div style={{ overflowX:'auto' }}>
-                        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+                    <div style={{ overflowX: 'auto', borderRadius: 14, border: `1px solid ${C.border}`, background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                             <thead>
-                                <tr style={{ background:'#f8fafc', borderBottom:'2px solid #e2e8f0' }}>
-                                    {['#','Date','User','Type','Plan','Amount','Status','Razorpay ID'].map(h => (
-                                        <th key={h} style={{ padding:'10px 14px', textAlign:'left', fontWeight:700, color:'#64748b', fontSize:12, whiteSpace:'nowrap' }}>{h}</th>
+                                <tr style={{ background: C.bg }}>
+                                    {['#', 'Date', 'User', 'Type', 'Plan', 'Amount', 'Status', 'Razorpay ID'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '12px 16px', textAlign: 'left',
+                                            fontWeight: 700, color: C.muted, fontSize: 11,
+                                            textTransform: 'uppercase', letterSpacing: 0.6,
+                                            whiteSpace: 'nowrap',
+                                            borderBottom: `2px solid ${C.border}`,
+                                        }}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {payments.length === 0 ? (
-                                    <tr><td colSpan={8} style={{ padding:32, textAlign:'center', color:'#94a3b8' }}>No transactions yet</td></tr>
+                                    <tr><td colSpan={8} style={{ padding: 40, textAlign: 'center', color: C.light }}>No transactions yet</td></tr>
                                 ) : payments.map((p, i) => {
-                                    const statusColor = {
-                                        approved: { bg:'#dcfce7', color:'#16a34a' },
+                                    const isRefunded = p.status === 'refunded';
+                                    const statusMap = {
+                                        approved: { bg:'#dcfce7', color:'#15803d' },
                                         pending:  { bg:'#fef9c3', color:'#b45309' },
                                         rejected: { bg:'#fee2e2', color:'#dc2626' },
-                                        refunded: { bg:'#fef2f2', color:'#dc2626' },
-                                    }[p.status] || { bg:'#f1f5f9', color:'#64748b' };
+                                        refunded: { bg:'#fee2e2', color:'#dc2626' },
+                                    };
+                                    const sc = statusMap[p.status] || { bg:'#f1f5f9', color:'#64748b' };
                                     return (
-                                        <tr key={p._id} style={{ borderBottom:'1px solid #f1f5f9', background: p.status==='refunded'?'#fff5f5':'#fff' }}>
-                                            <td style={{ padding:'10px 14px', color:'#94a3b8', fontWeight:600 }}>{i+1}</td>
-                                            <td style={{ padding:'10px 14px', whiteSpace:'nowrap', color:'#475569' }}>
+                                        <tr key={p._id} style={{
+                                            borderBottom: `1px solid ${C.border}`,
+                                            background: isRefunded ? '#fff5f5' : '#fff',
+                                        }}>
+                                            <td style={{ padding: '12px 16px', color: C.light, fontWeight: 600 }}>{i + 1}</td>
+                                            <td style={{ padding: '12px 16px', whiteSpace: 'nowrap', color: '#475569' }}>
                                                 {new Date(p.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
                                             </td>
-                                            <td style={{ padding:'10px 14px' }}>
-                                                <div style={{ fontWeight:700, color:'#1e1b4b' }}>{p.userName || '—'}</div>
-                                                <div style={{ fontSize:11, color:'#94a3b8' }}>{p.userEmail || ''}</div>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <div style={{ fontWeight: 700, color: C.text }}>{p.userName || '—'}</div>
+                                                <div style={{ fontSize: 11, color: C.light }}>{p.userEmail || ''}</div>
                                             </td>
-                                            <td style={{ padding:'10px 14px', color:'#475569', textTransform:'capitalize' }}>{p.type}</td>
-                                            <td style={{ padding:'10px 14px' }}>
-                                                <span style={{ padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:700,
-                                                    background: p.plan==='gold'?'#fef9c3': p.plan==='silver'?'#f1f5f9': p.plan==='bronze'?'#fef3c7':'#f1f5f9',
-                                                    color: p.plan==='gold'?'#b45309': p.plan==='silver'?'#475569': p.plan==='bronze'?'#92400e':'#64748b' }}>
+                                            <td style={{ padding: '12px 16px', color: '#475569', textTransform: 'capitalize' }}>{p.type}</td>
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <span style={pill(
+                                                    p.plan==='gold'?'#fef9c3': p.plan==='silver'?'#f1f5f9': p.plan==='bronze'?'#fef3c7':'#f1f5f9',
+                                                    p.plan==='gold'?'#b45309': p.plan==='silver'?'#475569': p.plan==='bronze'?'#92400e':'#64748b'
+                                                )}>
                                                     {p.plan ? p.plan.charAt(0).toUpperCase()+p.plan.slice(1) : 'Verification'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding:'10px 14px', fontWeight:700, color: p.status==='refunded'?'#dc2626':'#1e1b4b' }}>
-                                                {p.status==='refunded' ? <s>₹{p.amount}</s> : `₹${p.amount}`}
+                                            <td style={{ padding: '12px 16px', fontWeight: 700, color: isRefunded ? '#dc2626' : C.text }}>
+                                                {isRefunded ? <s>₹{p.amount}</s> : `₹${p.amount}`}
                                             </td>
-                                            <td style={{ padding:'10px 14px' }}>
-                                                <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
-                                                    <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:statusColor.bg, color:statusColor.color }}>
-                                                        {p.status==='refunded'?'↩ Refunded': p.status?.charAt(0).toUpperCase()+p.status?.slice(1)}
+                                            <td style={{ padding: '12px 16px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                                    <span style={pill(sc.bg, sc.color)}>
+                                                        {isRefunded ? '↩ Refunded' : p.status?.charAt(0).toUpperCase()+p.status?.slice(1)}
                                                     </span>
-                                                    {p.status==='refunded' && (
+                                                    {isRefunded && (
                                                         refundStatuses[p._id]
-                                                            ? <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:'#f0fdf4', color: refundStatuses[p._id].color, border:`1px solid ${refundStatuses[p._id].color}44` }}>
+                                                            ? <span style={{ ...pill('#f0fdf4', refundStatuses[p._id].color), border: `1px solid ${refundStatuses[p._id].color}44`, width: 'fit-content' }}>
                                                                 {refundStatuses[p._id].label}
                                                               </span>
-                                                            : <span style={{ fontSize:11, color:'#94a3b8' }}>⏳ Checking...</span>
+                                                            : <span style={{ fontSize: 11, color: C.light }}>⏳ Checking...</span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td style={{ padding:'10px 14px', fontFamily:'monospace', fontSize:11, color:'#64748b' }}>
+                                            <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 11, color: C.muted }}>
                                                 {p.razorpay_payment_id || p.utr || '—'}
                                             </td>
                                         </tr>
@@ -775,10 +1018,12 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                 })}
                             </tbody>
                             <tfoot>
-                                <tr style={{ borderTop:'2px solid #e2e8f0', background:'#f8fafc' }}>
-                                    <td colSpan={5} style={{ padding:'10px 14px', fontWeight:700, color:'#1e1b4b', fontSize:13 }}>Total Revenue (excl. refunds)</td>
-                                    <td style={{ padding:'10px 14px', fontWeight:800, color:'#7c3aed', fontSize:15 }}>₹{totalRevenue}</td>
-                                    <td colSpan={2}/>
+                                <tr style={{ borderTop: `2px solid ${C.border}`, background: C.bg }}>
+                                    <td colSpan={5} style={{ padding: '12px 16px', fontWeight: 700, color: C.text, fontSize: 13 }}>
+                                        Total Revenue (excl. refunds)
+                                    </td>
+                                    <td style={{ padding: '12px 16px', fontWeight: 800, color: C.primary, fontSize: 16 }}>₹{totalRevenue}</td>
+                                    <td colSpan={2} />
                                 </tr>
                             </tfoot>
                         </table>
@@ -786,7 +1031,9 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </div>
             )}
 
-            {/* ══ INTEGRATION BACKEND TAB ══ */}
+            {/* ══════════════════════════════════════
+                INTEGRATION BACKEND TAB
+            ══════════════════════════════════════ */}
             {tab === 'integrations' && (
                 <div>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
@@ -846,7 +1093,9 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </div>
             )}
 
-            {/* ══ SETTINGS TAB — moved to /plan-settings ══ */}
+            {/* ══════════════════════════════════════
+                SETTINGS TAB — moved to /plan-settings
+            ══════════════════════════════════════ */}
             {false && settingsForm && (
                 <div>
                     <div className="ap-card">
@@ -973,7 +1222,10 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                     </button>
                 </div>
             )}
-            {/* ══ PROFILE TAB ══ */}
+
+            {/* ══════════════════════════════════════
+                PROFILE TAB
+            ══════════════════════════════════════ */}
             {tab === 'profile' && (
                 <div style={{ maxWidth: 520 }}>
                     <div className="ap-card">
@@ -1085,37 +1337,60 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 </div>
             )}
 
-            {/* ══ ASSIGN PLAN MODAL ══ */}
+            {/* ══════════════════════════════════════
+                ASSIGN PLAN MODAL
+            ══════════════════════════════════════ */}
             {assignModal && (
-                <div className="ap-modal-overlay" onClick={() => setAssignModal(null)}>
-                    <div className="ap-modal" onClick={e => e.stopPropagation()}>
-                        <div className="ap-modal-header">
+                <div style={{
+                    position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)',
+                    backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', padding: 20, zIndex: 500,
+                }} onClick={() => setAssignModal(null)}>
+                    <div style={{
+                        background: '#fff', borderRadius: 20, width: '100%', maxWidth: 480,
+                        boxShadow: '0 25px 60px rgba(0,0,0,0.2)',
+                        animation: 'fadeIn 0.2s ease',
+                    }} onClick={e => e.stopPropagation()}>
+                        {/* Modal header */}
+                        <div style={{
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+                            padding: '22px 24px 18px', borderBottom: `1px solid ${C.border}`,
+                        }}>
                             <div>
-                                <div className="ap-modal-title">Assign Plan</div>
-                                <div className="ap-modal-sub">{assignModal.user.name} · {assignModal.user.email}</div>
+                                <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>Assign Plan</div>
+                                <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{assignModal.user.name} · {assignModal.user.email}</div>
                             </div>
-                            <button className="ap-modal-close" onClick={() => setAssignModal(null)}>✕</button>
+                            <button onClick={() => setAssignModal(null)} style={{
+                                width: 32, height: 32, borderRadius: '50%', border: 'none',
+                                background: C.bg, color: C.muted, fontSize: 16, cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                transition: 'all 0.15s',
+                            }}>✕</button>
                         </div>
 
-                        <div className="ap-modal-body">
+                        {/* Modal body */}
+                        <div style={{ padding: '20px 24px 24px' }}>
                             {/* Plan selector */}
-                            <div className="ap-assign-label">Select Plan</div>
-                            <div className="ap-assign-plans">
+                            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Select Plan</div>
+                            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
                                 {['bronze', 'silver', 'gold'].map(p => (
-                                    <button
-                                        key={p}
-                                        className={`ap-assign-plan-btn ${assignForm.plan === p ? 'ap-assign-plan-active' : ''}`}
-                                        style={assignForm.plan === p ? { background: PLAN_COLORS[p], color: '#fff', borderColor: PLAN_COLORS[p] } : { borderColor: PLAN_COLORS[p], color: PLAN_COLORS[p] }}
+                                    <button key={p}
                                         onClick={() => setAssignForm(f => ({ ...f, plan: p }))}
-                                    >
+                                        style={{
+                                            flex: 1, padding: '10px', border: `2px solid ${assignForm.plan === p ? PLAN_COLORS[p] : C.border}`,
+                                            borderRadius: 10, background: assignForm.plan === p ? PLAN_COLORS[p] : '#fff',
+                                            color: assignForm.plan === p ? '#fff' : PLAN_COLORS[p],
+                                            fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
+                                            fontFamily: 'inherit',
+                                        }}>
                                         {PLAN_LABEL[p]}
                                     </button>
                                 ))}
                             </div>
 
                             {/* Duration presets */}
-                            <div className="ap-assign-label" style={{ marginTop: 20 }}>Duration</div>
-                            <div className="ap-assign-durations">
+                            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Duration</div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
                                 {[
                                     { val: '1m',     label: '1 Month' },
                                     { val: '3m',     label: '3 Months' },
@@ -1123,35 +1398,39 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                     { val: '1y',     label: '1 Year' },
                                     { val: 'custom', label: 'Custom Date' },
                                 ].map(d => (
-                                    <button
-                                        key={d.val}
-                                        className={`ap-assign-dur-btn ${assignForm.duration === d.val ? 'ap-assign-dur-active' : ''}`}
+                                    <button key={d.val}
                                         onClick={() => setAssignForm(f => ({ ...f, duration: d.val }))}
-                                    >
+                                        style={{
+                                            padding: '8px 14px', border: `1.5px solid ${assignForm.duration === d.val ? C.primary : C.border}`,
+                                            borderRadius: 99, fontSize: 12, fontWeight: 600,
+                                            background: assignForm.duration === d.val ? C.primary : '#fff',
+                                            color: assignForm.duration === d.val ? '#fff' : C.muted,
+                                            cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                                        }}>
                                         {d.label}
                                     </button>
                                 ))}
                             </div>
 
                             {assignForm.duration === 'custom' && (
-                                <input
-                                    type="date"
-                                    className="ap-settings-input"
-                                    style={{ marginTop: 12 }}
+                                <input type="date" className="ap-settings-input" style={{ marginBottom: 16 }}
                                     value={assignForm.customDate}
                                     onChange={e => setAssignForm(f => ({ ...f, customDate: e.target.value }))}
                                 />
                             )}
 
                             {/* Preview */}
-                            <div className="ap-assign-preview">
+                            <div style={{
+                                background: C.bg, border: `1px solid ${C.border}`, borderRadius: 10,
+                                padding: '12px 16px', fontSize: 13, color: C.muted, marginBottom: 20,
+                            }}>
                                 Plan: <strong style={{ color: PLAN_COLORS[assignForm.plan] }}>{PLAN_LABEL[assignForm.plan]}</strong>
                                 &nbsp;·&nbsp;
-                                Expires: <strong>{calcEndsAt() || '—'}</strong>
+                                Expires: <strong style={{ color: C.text }}>{calcEndsAt() || '—'}</strong>
                             </div>
 
-                            <div className="ap-edit-btns" style={{ marginTop: 20 }}>
-                                <button className="btn-save" onClick={saveAssign}>Assign Plan</button>
+                            <div style={{ display: 'flex', gap: 10 }}>
+                                <button className="btn-save" onClick={saveAssign} style={{ flex: 1 }}>Assign Plan</button>
                                 <button className="btn-cancel" onClick={() => setAssignModal(null)}>Cancel</button>
                             </div>
                         </div>
