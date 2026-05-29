@@ -303,8 +303,6 @@ export default function Integrations() {
         setRcTesting(true);
         try {
             await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: rcForm.url, body: {
-                alias: 'UptimeForge Alert',
-                emoji: ':rotating_light:',
                 attachments: [{
                     color: '#ef4444',
                     title: '🚨 Test Site is DOWN',
