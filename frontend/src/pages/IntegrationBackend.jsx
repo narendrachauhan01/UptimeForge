@@ -322,11 +322,6 @@ export default function IntegrationBackend() {
                         <button onClick={() => setEmailOpen(true)} style={{ flex:1, padding:'9px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer' }}>
                             ✏️ {emailOk ? 'Edit' : 'Configure'}
                         </button>
-                        {emailOk && (
-                            <button onClick={deleteEmail} style={{ padding:'9px 14px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:10, fontSize:13, color:'#dc2626', fontWeight:700, cursor:'pointer' }}>
-                                🗑 Delete
-                            </button>
-                        )}
                     </div>
                 </div>
 
