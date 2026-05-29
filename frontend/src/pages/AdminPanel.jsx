@@ -301,6 +301,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             <h1 className="pg-title">Admin Panel</h1>
                             <p className="pg-sub">Manage users, plans, and settings</p>
                         </div>
+                        <button className="btn-refresh" onClick={() => window.location.reload()} style={{ fontSize: 13 }}>🔄 Refresh</button>
                     </div>
 
                     {/* Tabs */}
