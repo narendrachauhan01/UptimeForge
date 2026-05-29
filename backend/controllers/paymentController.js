@@ -213,22 +213,23 @@ exports.refundPayment = async (req, res) => {
         const refund = await rzp.payments.refund(paymentId, { amount: pr.amount * 100, speed: 'normal' });
         console.log(`[Refund] Initiated: ${refund.id} for payment ${paymentId}`);
 
-        // Revert user plan
+        // Lock user account after refund
         const user = await User.findById(pr.userId);
         const prevPlan = user?.plan;
         if (user) {
-            user.plan = 'free_trial';
+            user.plan       = 'free_trial';
             user.planEndsAt = null;
+            user.isBlocked  = true;  // Account locked — admin must unblock
             await user.save();
         }
 
         // Update payment record
-        pr.status   = 'refunded';
-        pr.adminNote = `Refunded by admin. Razorpay refund ID: ${refund.id}`;
+        pr.status    = 'refunded';
+        pr.adminNote = `Refunded by admin. Account locked. Razorpay refund ID: ${refund.id}`;
         pr.reviewedAt = new Date();
         await pr.save();
 
-        console.log(`[Refund] User ${user?.email} reverted ${prevPlan} → free_trial`);
+        console.log(`[Refund] User ${user?.email} plan ${prevPlan} refunded → account LOCKED`);
 
         // Notify user
         try {
@@ -254,7 +255,10 @@ exports.refundPayment = async (req, res) => {
                         </table>
                         <p style="margin:10px 0 0;font-size:12px;color:#b45309">Refund will be credited to your original payment method by your bank.</p>
                     </div>
-                    <p style="font-size:13px;color:#64748b">Your account has been reverted to <strong>Free Trial</strong>. For any queries, reply to this email.</p>
+                    <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-top:16px">
+                        <p style="margin:0;font-size:13px;color:#dc2626;font-weight:700">⛔ Account Locked</p>
+                        <p style="margin:6px 0 0;font-size:12px;color:#b91c1c">Your account has been locked due to this refund. Please contact support to reactivate your account.</p>
+                    </div>
                     <div style="margin-top:24px;padding:14px;background:#f1f5f9;border-radius:10px;text-align:center;color:#94a3b8;font-size:12px">UptimeForge — © ${new Date().getFullYear()}</div>
                 </div>`
             );
@@ -293,13 +297,13 @@ exports.razorpayWebhook = async (req, res) => {
                 return res.json({ ok: true });
             }
 
-            // Revert user plan to free_trial
+            // Lock user account after refund
             const user = await User.findById(pr.userId);
             if (user) {
                 const prevPlan = user.plan;
-                user.plan = 'free_trial';
+                user.plan       = 'free_trial';
                 user.planEndsAt = null;
-                user.isActive = false;
+                user.isBlocked  = true;  // Account locked
                 await user.save();
 
                 // Update payment record
