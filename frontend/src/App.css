@@ -4976,3 +4976,26 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .mon-del-btn { padding:5px 8px; background:#fef2f2; border:1.5px solid #fecdd3; border-radius:7px; color:#dc2626; cursor:pointer; font-size:13px; flex-shrink:0; opacity:0; transition:opacity 0.15s; }
 .mon-row:hover .mon-del-btn { opacity:1; }
 @media(max-width:640px) { .mon-del-btn { opacity:1; } }
+
+/* ══ PING MONITOR MOBILE ══ */
+@media (max-width: 768px) {
+  /* Ping modal */
+  .pm-modal { border-radius: 14px; }
+  .pm-stats-row { grid-template-columns: 1fr 1fr !important; }
+}
+
+@media (max-width: 500px) {
+  /* Ping monitor list — same as mon-layout */
+  .pm-stats-row { grid-template-columns: 1fr 1fr !important; }
+  .pm-terminal-body { height: 150px !important; font-size: 12px !important; }
+
+  /* Mon layout on ping page mobile */
+  .mon-toolbar { flex-direction: column; }
+  .mon-search-wrap { width: 100%; }
+
+  /* Ping rows on mobile */
+  .mon-row { flex-wrap: wrap; gap: 8px; }
+  .mon-bar-wrap { width: 100%; }
+  .mon-bar-wrap > div { width: 100% !important; }
+  .mon-bar-wrap > div > div:first-child { width: 100% !important; }
+}
