@@ -247,10 +247,13 @@ export default function Integrations() {
         showToast('✅ Webhook saved!');
     };
 
-    const [webhookModal,   setWebhookModal]   = useState(false);
-    const [webhookForm,    setWebhookForm]    = useState({ url:'', secret:'', events:'all' });
-    const [webhookSaving,  setWebhookSaving]  = useState(false);
-    const [webhookTesting, setWebhookTesting] = useState(false);
+    const [webhookModal,      setWebhookModal]      = useState(false);
+    const [webhookForm,       setWebhookForm]       = useState({ url:'', secret:'', events:'all' });
+    const [webhookSaving,     setWebhookSaving]     = useState(false);
+    const [webhookTesting,    setWebhookTesting]    = useState(false);
+    const [webhookAllSites,   setWebhookAllSites]   = useState(true);
+    const [webhookSelected,   setWebhookSelected]   = useState([]);
+    const [webhookSearch,     setWebhookSearch]     = useState('');
 
     const [rcModal,   setRcModal]   = useState(false);
     const [rcForm,      setRcForm]      = useState({ url:'', events:'all' });
@@ -299,11 +302,15 @@ export default function Integrations() {
     };
 
     const openWebhookModal = async () => {
-        // Load saved webhook config if exists
         try {
             const r = await axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() });
             const wh = r.data.find(i => i.type === 'webhook');
-            if (wh) setWebhookForm({ url: wh.config?.url||'', secret: wh.config?.secret||'', events: wh.events||'all' });
+            if (wh) {
+                setWebhookForm({ url: wh.config?.url||'', secret: wh.config?.secret||'', events: wh.events||'all' });
+                const srvs = wh.servers || [];
+                setWebhookAllSites(srvs.length === 0);
+                setWebhookSelected(srvs.map(s => s.toString()));
+            }
         } catch {}
         setWebhookModal(true);
     };
@@ -311,7 +318,12 @@ export default function Integrations() {
     const saveWebhook = async () => {
         if (!webhookForm.url) return;
         setWebhookSaving(true);
-        try { await handleWebhookSave(webhookForm); setWebhookModal(false); } catch{}
+        try {
+            await axios.post(`${API_URL}/api/integrations/webhook`, { config: webhookForm, events: webhookForm.events||'all', servers: webhookAllSites ? [] : webhookSelected }, { headers: authHeaders() });
+            setSaved(p=>({...p, webhook:true}));
+            showToast('✅ Webhook saved!');
+            setWebhookModal(false);
+        } catch {}
         setWebhookSaving(false);
     };
 
@@ -511,6 +523,36 @@ export default function Integrations() {
                                     <option value="all">All events (Down, Up, SSL, Domain)</option>
                                     <option value="down">Down events only</option>
                                 </select>
+                            </div>
+                            {/* Site selector */}
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
+                                <div onClick={()=>setWebhookAllSites(p=>!p)} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:10 }}>
+                                    <div style={{ width:18, height:18, borderRadius:4, border:'2px solid rgba(255,255,255,0.3)', background: webhookAllSites?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                        {webhookAllSites && <span style={{ color:'#fff', fontSize:11, fontWeight:900 }}>✓</span>}
+                                    </div>
+                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>All sites (current + future)</span>
+                                </div>
+                                {!webhookAllSites && (
+                                    <div style={{ background:'#2d2466', borderRadius:10, border:'1.5px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
+                                        <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                                            <input value={webhookSearch} onChange={e=>setWebhookSearch(e.target.value)} placeholder="Search sites..."
+                                                style={{ width:'100%', background:'transparent', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }} />
+                                        </div>
+                                        <div style={{ maxHeight:160, overflowY:'auto' }}>
+                                            {servers.filter(s=>s.name.toLowerCase().includes(webhookSearch.toLowerCase())).map(s => (
+                                                <div key={s._id} onClick={()=>setWebhookSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])}
+                                                    style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', cursor:'pointer', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                                                    <div style={{ width:16, height:16, borderRadius:4, border:'2px solid rgba(255,255,255,0.25)', background:webhookSelected.includes(s._id)?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                                        {webhookSelected.includes(s._id) && <span style={{ color:'#fff', fontSize:10, fontWeight:900 }}>✓</span>}
+                                                    </div>
+                                                    <span style={{ width:8, height:8, borderRadius:'50%', background: s.status==='up'?'#22c55e':'#ef4444', flexShrink:0 }}/>
+                                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>{s.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div style={{ display:'flex', gap:10, marginTop:20 }}>
