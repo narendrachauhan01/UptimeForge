@@ -37,6 +37,7 @@ async function fireIntegrations(server, type, userId) {
                 time: now.toISOString(),
             };
 
+            // SSL / Domain expiry handled separately via fireExpiryIntegrations
             const color     = isDown ? '#ef4444' : '#22c55e';
             const colorHex  = isDown ? 0xef4444  : 0x22c55e;
             const title     = isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`;
@@ -107,6 +108,93 @@ async function fireIntegrations(server, type, userId) {
                     const req = https.request(tUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, () => {});
                     req.on('error', () => {});
                     req.write(body);
+                    req.end();
+                }
+            } catch (_) {}
+        }
+    } catch (_) {}
+}
+
+async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, extra) {
+    const userId = server.userId?._id || server.userId;
+    if (!userId) return;
+    try {
+        const integrations = await Integration.find({ userId, active: true });
+        const now = new Date();
+        const timeStr = now.toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+        const expiryStr = expiryDate ? new Date(expiryDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : 'N/A';
+        const emoji = daysLeft <= 7 ? '🚨' : daysLeft <= 15 ? '⚠️' : '📢';
+        const isSSL = expiryType === 'ssl';
+        const label = isSSL ? 'SSL Certificate' : 'Domain';
+        const color = daysLeft <= 7 ? '#ef4444' : daysLeft <= 15 ? '#f59e0b' : '#3b82f6';
+        const colorHex = daysLeft <= 7 ? 0xef4444 : daysLeft <= 15 ? 0xf59e0b : 0x3b82f6;
+        const title = `${emoji} ${label} Expiring in ${daysLeft} days: ${server.name}`;
+
+        const rcSlackBody = JSON.stringify({
+            alias: 'UptimeForge Alert',
+            emoji: daysLeft <= 7 ? ':rotating_light:' : ':warning:',
+            attachments: [{
+                color,
+                title,
+                title_link: server.url,
+                fields: [
+                    { title: 'Service',         value: server.name,           short: true  },
+                    { title: 'Days Until Expiry',value: `${daysLeft} days`,   short: true  },
+                    { title: 'URL',             value: server.url,            short: false },
+                    { title: 'Expires At',      value: expiryStr,             short: true  },
+                    ...(extra ? [{ title: isSSL ? 'Issuer' : 'Registrar', value: extra, short: true }] : []),
+                ],
+                footer: 'UptimeForge Monitor',
+            }]
+        });
+
+        const discordBody = JSON.stringify({
+            username: 'UptimeForge Alert',
+            embeds: [{
+                color: colorHex,
+                title,
+                url: server.url,
+                fields: [
+                    { name: 'Service',          value: server.name,          inline: true  },
+                    { name: 'Days Until Expiry', value: `${daysLeft} days`,  inline: true  },
+                    { name: 'URL',              value: server.url,           inline: false },
+                    { name: 'Expires At',       value: expiryStr,            inline: true  },
+                    ...(extra ? [{ name: isSSL ? 'Issuer' : 'Registrar', value: extra, inline: true }] : []),
+                ],
+                footer: { text: 'UptimeForge Monitor' },
+            }]
+        });
+
+        const tgText = `${emoji} *${label} Expiring in ${daysLeft} days!*\n\n*Service:* ${server.name}\n*URL:* ${server.url}\n*Days Until Expiry:* ${daysLeft} days\n*Expires At:* ${expiryStr}${extra ? `\n*${isSSL ? 'Issuer' : 'Registrar'}:* ${extra}` : ''}`;
+
+        for (const intg of integrations) {
+            if (intg.events === 'down') continue; // skip if only down events
+            if (intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
+            try {
+                if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
+                    const url = intg.config?.url;
+                    if (!url) continue;
+                    const body = intg.type === 'rocketchat' || intg.type === 'slack'
+                        ? rcSlackBody
+                        : intg.type === 'discord'
+                        ? discordBody
+                        : JSON.stringify({ event: expiryType, site: server.name, url: server.url, daysLeft, expiresAt: expiryStr });
+                    const headers = { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) };
+                    const mod = url.startsWith('https') ? https : http;
+                    const parsed = new URL(url);
+                    const req = mod.request({ hostname: parsed.hostname, path: parsed.pathname + parsed.search, method: 'POST', headers }, () => {});
+                    req.on('error', () => {});
+                    req.write(body);
+                    req.end();
+                }
+                if (intg.type === 'telegram') {
+                    const { botToken, chatId } = intg.config || {};
+                    if (!botToken || !chatId) continue;
+                    const tUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                    const b = JSON.stringify({ chat_id: chatId, text: tgText, parse_mode: 'Markdown' });
+                    const req = https.request(tUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, () => {});
+                    req.on('error', () => {});
+                    req.write(b);
                     req.end();
                 }
             } catch (_) {}
@@ -339,6 +427,7 @@ async function checkExpiry() {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
                         if (r.email) { await sendEmail(r.email, `[UptimeForge] SSL Expiring: ${server.name} (${ssl.daysLeft} days)`, sslEmailHtml(server.name, server.url, ssl.daysLeft, ssl.expiry)); }
                     }
+                    await fireExpiryIntegrations(server, 'ssl', ssl.daysLeft, ssl.expiry, ssl.issuer);
                     console.log(`[Monitor] SSL expiry alert sent for ${server.name} (${ssl.daysLeft} days left)`);
                 }
             }
@@ -352,8 +441,9 @@ async function checkExpiry() {
                     const emoji = domainDaysLeft <= 7 ? '🚨' : domainDaysLeft <= 15 ? '⚠️' : '📢';
                     const msg = `${emoji} *Domain Expiry Alert!*\n\n*Site:* ${server.name}\n*Domain:* ${rootDomain}\n*Expires:* ${domain.expiry.toDateString()}\n*Days Left:* ${domainDaysLeft} days\n\nPlease renew the domain before it expires!`;
                     for (const r of eligible) {
-                        try { await wa.sendMessage(r.phone, msg); } catch (_) {}
+                        if (r.phone) { try { await wa.sendMessage(r.phone, msg); } catch (_) {} }
                     }
+                    await fireExpiryIntegrations(server, 'domain', domainDaysLeft, domain.expiry, domain.registrar);
                     console.log(`[Monitor] Domain expiry alert sent for ${server.name} (${domainDaysLeft} days left)`);
                 }
             }
