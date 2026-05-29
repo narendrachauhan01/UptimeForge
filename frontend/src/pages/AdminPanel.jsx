@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, getAdminProfile, updateAdminProfile } from '../api';
+import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, getAdminProfile, updateAdminProfile, adminClearCache } from '../api';
 
 const PLAN_OPTIONS = ['free_trial', 'bronze', 'silver', 'gold'];
 const PLAN_COLORS  = { free_trial: '#64748b', bronze: '#b45309', silver: '#475569', gold: '#ca8a04' };
@@ -679,9 +679,19 @@ export default function AdminPanel({ initialTab = 'overview' }) {
             {/* ══ INTEGRATION BACKEND TAB ══ */}
             {tab === 'integrations' && (
                 <div>
-                    <p style={{ fontSize:14, color:'#64748b', marginBottom:20 }}>
-                        Configure backend notification services. These are platform-level settings — users receive alerts automatically.
-                    </p>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+                        <p style={{ fontSize:14, color:'#64748b', margin:0 }}>
+                            Configure backend notification services. These are platform-level settings — users receive alerts automatically.
+                        </p>
+                        <button onClick={async()=>{
+                            try {
+                                const r = await adminClearCache();
+                                showToast(`✅ Cache cleared — ${r.data.cleared} entries removed`);
+                            } catch { showToast('❌ Cache clear failed'); }
+                        }} style={{ padding:'8px 18px', background:'#fef3c7', border:'1.5px solid #fde68a', borderRadius:9, fontSize:13, fontWeight:700, color:'#d97706', cursor:'pointer', whiteSpace:'nowrap' }}>
+                            🗑 Clear SSL/Domain Cache
+                        </button>
+                    </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
                         {/* Email */}
                         <div className="ap-card" style={{ display:'flex', flexDirection:'column', gap:16 }}>

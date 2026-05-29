@@ -69,6 +69,7 @@ export const adminDeleteUser = (id) => api.delete(`/admin/users/${id}`);
 export const adminGetServers = () => api.get('/admin/servers');
 export const adminGetSettings = () => api.get('/admin/settings');
 export const adminUpdateSettings = (data) => api.put('/admin/settings', data);
+export const adminClearCache = () => api.post('/admin/clear-cache');
 export const adminGetPayments    = ()         => api.get('/admin/payments');
 export const adminDeletePayment  = (id)       => api.delete(`/admin/payments/${id}`);
 export const adminApprovePayment = (id, data) => api.put(`/admin/payments/${id}/approve`, data || {});

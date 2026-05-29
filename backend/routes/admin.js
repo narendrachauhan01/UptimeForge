@@ -5,6 +5,9 @@ const Server = require('../models/Server');
 const Settings = require('../models/Settings');
 const PaymentRequest = require('../models/PaymentRequest');
 const auth = require('../middleware/auth');
+const Redis = require('ioredis');
+const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', { lazyConnect: true, enableOfflineQueue: false });
+redis.on('error', () => {});
 
 function adminOnly(req, res, next) {
     if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
@@ -175,6 +178,20 @@ router.put('/payments/:id/reject', auth, adminOnly, async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
+});
+
+// Clear SSL/Domain Redis cache
+router.post('/clear-cache', auth, adminOnly, async (req, res) => {
+    try {
+        const [sslKeys, domainKeys] = await Promise.all([
+            redis.keys('ssl:*'),
+            redis.keys('domain:*'),
+        ]);
+        let cleared = 0;
+        if (sslKeys.length)    { await redis.del(...sslKeys);    cleared += sslKeys.length; }
+        if (domainKeys.length) { await redis.del(...domainKeys); cleared += domainKeys.length; }
+        res.json({ success: true, cleared, message: `Cleared ${cleared} cached entries` });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;

@@ -1,5 +1,18 @@
 const tls = require('tls');
 const https = require('https');
+const Redis = require('ioredis');
+
+const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', { lazyConnect: true, enableOfflineQueue: false });
+redis.on('error', () => {}); // silent if Redis not available
+
+const TTL = 30 * 60; // 30 minutes
+
+async function redisGet(key) {
+    try { const v = await redis.get(key); return v ? JSON.parse(v) : null; } catch { return null; }
+}
+async function redisSet(key, val) {
+    try { await redis.set(key, JSON.stringify(val), 'EX', TTL); } catch {}
+}
 
 function extractCert(cert) {
     if (!cert || !cert.valid_to) return null;
@@ -54,16 +67,20 @@ function httpsRequest(hostname, method = 'GET') {
 }
 
 async function checkSSL(hostname) {
+    // Check Redis cache first (40 min TTL)
+    const cached = await redisGet(`ssl:${hostname}`);
+    if (cached) { console.log(`[Redis] SSL cache hit: ${hostname}`); return cached; }
     // 1. Direct TLS (fastest, works for most sites including Cloudflare with SNI)
     let result = await tlsConnect(hostname);
-    if (result) return result;
+    if (result) { await redisSet(`ssl:${hostname}`, result); return result; }
 
     // 2. HTTPS GET (for sites that need actual HTTP request)
     result = await httpsRequest(hostname, 'GET');
-    if (result) return result;
+    if (result) { await redisSet(`ssl:${hostname}`, result); return result; }
 
     // 3. HTTPS HEAD fallback
     result = await httpsRequest(hostname, 'HEAD');
+    if (result) await redisSet(`ssl:${hostname}`, result);
     return result;
 }
 
@@ -94,11 +111,17 @@ function fetchWhois(rootDomain) {
 }
 
 async function checkDomain(rootDomain) {
+    // Check Redis cache (40 min TTL)
+    const cached = await redisGet(`domain:${rootDomain}`);
+    if (cached) { console.log(`[Redis] Domain cache hit: ${rootDomain}`); return cached; }
+
     // Retry up to 3 times with increasing delay
     for (let attempt = 0; attempt < 3; attempt++) {
         try {
             if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 1500));
-            return await fetchWhois(rootDomain);
+            const result = await fetchWhois(rootDomain);
+            if (result) { await redisSet(`domain:${rootDomain}`, result); }
+            return result;
         } catch (_) {}
     }
     return null;
