@@ -291,9 +291,10 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     };
 
     const TABS = [
-        { id: 'overview',     label: 'Overview' },
-        { id: 'users',        label: `Users (${users.length})` },
-        { id: 'payments',     label: `Payments (${payments.length})` },
+        { id: 'overview',      label: 'Overview' },
+        { id: 'users',         label: `Users (${users.length})` },
+        { id: 'payments',      label: `Payments (${payments.length})` },
+        { id: 'transactions',  label: `Transactions (${payments.length})` },
     ];
 
     return (
@@ -691,6 +692,73 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                         );
                         })}</div>;
                     })()}
+                </div>
+            )}
+
+            {/* ══ TRANSACTIONS TAB ══ */}
+            {tab === 'transactions' && (
+                <div>
+                    <div style={{ overflowX:'auto' }}>
+                        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+                            <thead>
+                                <tr style={{ background:'#f8fafc', borderBottom:'2px solid #e2e8f0' }}>
+                                    {['#','Date','User','Type','Plan','Amount','Status','Razorpay ID'].map(h => (
+                                        <th key={h} style={{ padding:'10px 14px', textAlign:'left', fontWeight:700, color:'#64748b', fontSize:12, whiteSpace:'nowrap' }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {payments.length === 0 ? (
+                                    <tr><td colSpan={8} style={{ padding:32, textAlign:'center', color:'#94a3b8' }}>No transactions yet</td></tr>
+                                ) : payments.map((p, i) => {
+                                    const statusColor = {
+                                        approved: { bg:'#dcfce7', color:'#16a34a' },
+                                        pending:  { bg:'#fef9c3', color:'#b45309' },
+                                        rejected: { bg:'#fee2e2', color:'#dc2626' },
+                                        refunded: { bg:'#fef2f2', color:'#dc2626' },
+                                    }[p.status] || { bg:'#f1f5f9', color:'#64748b' };
+                                    return (
+                                        <tr key={p._id} style={{ borderBottom:'1px solid #f1f5f9', background: p.status==='refunded'?'#fff5f5':'#fff' }}>
+                                            <td style={{ padding:'10px 14px', color:'#94a3b8', fontWeight:600 }}>{i+1}</td>
+                                            <td style={{ padding:'10px 14px', whiteSpace:'nowrap', color:'#475569' }}>
+                                                {new Date(p.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                                            </td>
+                                            <td style={{ padding:'10px 14px' }}>
+                                                <div style={{ fontWeight:700, color:'#1e1b4b' }}>{p.userName || '—'}</div>
+                                                <div style={{ fontSize:11, color:'#94a3b8' }}>{p.userEmail || ''}</div>
+                                            </td>
+                                            <td style={{ padding:'10px 14px', color:'#475569', textTransform:'capitalize' }}>{p.type}</td>
+                                            <td style={{ padding:'10px 14px' }}>
+                                                <span style={{ padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:700,
+                                                    background: p.plan==='gold'?'#fef9c3': p.plan==='silver'?'#f1f5f9': p.plan==='bronze'?'#fef3c7':'#f1f5f9',
+                                                    color: p.plan==='gold'?'#b45309': p.plan==='silver'?'#475569': p.plan==='bronze'?'#92400e':'#64748b' }}>
+                                                    {p.plan ? p.plan.charAt(0).toUpperCase()+p.plan.slice(1) : 'Verification'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding:'10px 14px', fontWeight:700, color: p.status==='refunded'?'#dc2626':'#1e1b4b' }}>
+                                                {p.status==='refunded' ? <s>₹{p.amount}</s> : `₹${p.amount}`}
+                                            </td>
+                                            <td style={{ padding:'10px 14px' }}>
+                                                <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:statusColor.bg, color:statusColor.color }}>
+                                                    {p.status==='refunded'?'↩ Refunded': p.status?.charAt(0).toUpperCase()+p.status?.slice(1)}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding:'10px 14px', fontFamily:'monospace', fontSize:11, color:'#64748b' }}>
+                                                {p.razorpay_payment_id || p.utr || '—'}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                            <tfoot>
+                                <tr style={{ borderTop:'2px solid #e2e8f0', background:'#f8fafc' }}>
+                                    <td colSpan={5} style={{ padding:'10px 14px', fontWeight:700, color:'#1e1b4b', fontSize:13 }}>Total Revenue (excl. refunds)</td>
+                                    <td style={{ padding:'10px 14px', fontWeight:800, color:'#7c3aed', fontSize:15 }}>₹{totalRevenue}</td>
+                                    <td colSpan={2}/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             )}
 
