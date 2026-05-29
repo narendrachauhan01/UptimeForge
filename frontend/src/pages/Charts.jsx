@@ -27,8 +27,7 @@ export default function Charts() {
   useEffect(() => {
     if (!selectedId) return;
     
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    axios.get(`${API_URL}/api/servers/${selectedId}/history`, { headers })
+    axios.get(`${API_URL}/api/servers/${selectedId}/history`, { withCredentials: true })
       .then(r => setHistory(r.data?.history || []));
   }, [selectedId]);
 

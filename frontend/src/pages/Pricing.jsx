@@ -66,7 +66,7 @@ export default function Pricing() {
     ];
 
     const handleCta = (plan) => {
-        const isLoggedIn = !!localStorage.getItem('sm_token');
+        const isLoggedIn = !!localStorage.getItem('sm_user');
         if (plan.key !== 'free_trial') localStorage.setItem('sm_intended_plan', plan.key);
         else localStorage.removeItem('sm_intended_plan');
 

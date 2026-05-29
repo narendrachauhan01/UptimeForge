@@ -16,7 +16,6 @@ export default function CookieConsent() {
   const reject = () => {
     localStorage.setItem('uf_cookie_consent', 'rejected');
     // Clear non-essential storage on reject
-    localStorage.removeItem('sm_token');
     localStorage.removeItem('sm_user');
     localStorage.removeItem('sm_intended_plan');
     setVisible(false);

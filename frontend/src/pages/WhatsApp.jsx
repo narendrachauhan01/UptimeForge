@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getWaStatus, API_URL } from '../api';
 
-    const t = localStorage.getItem('sm_token') || localStorage.getItem('sm_admin_token');
 
 const GreenAPILogo = () => (
     <svg width="36" height="36" viewBox="0 0 36 36">
