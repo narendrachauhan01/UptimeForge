@@ -271,6 +271,14 @@ export default function IntegrationBackend() {
                     <h1 className="pg-title">Integration Backend <span style={{color:'#7c3aed'}}>.</span></h1>
                     <p className="pg-sub">Configure notification services — click a card to set up</p>
                 </div>
+                <button onClick={async()=>{
+                    try {
+                        const r = await axios.post(`${API_URL}/api/admin/clear-cache`, {}, { headers: authHeaders() });
+                        alert(`✅ Cache cleared — ${r.data.cleared} entries removed. Fresh SSL/Domain data will be fetched.`);
+                    } catch { alert('❌ Failed to clear cache'); }
+                }} style={{ padding:'9px 18px', background:'#fef3c7', border:'1.5px solid #fde68a', borderRadius:10, fontSize:13, fontWeight:700, color:'#d97706', cursor:'pointer', whiteSpace:'nowrap' }}>
+                    🗑 Clear SSL/Domain Cache
+                </button>
             </div>
 
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:20 }}>
