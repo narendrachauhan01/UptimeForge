@@ -34,14 +34,14 @@ function TargetModal({ target, onClose, onSave }) {
     const [integExpanded,setIntegExpanded]= useState(null);
 
     useEffect(() => {
-        axios.get(`${API_URL}/api/integrations`, { headers:authHeaders() })
+        axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
             .then(r => {
                 setIntegrations(r.data);
                 const m={};
                 r.data.forEach(i => { m[i._id] = (i.servers||[]).map(s=>s._id||s); });
                 setIntegSites(m);
             }).catch(()=>{});
-        axios.get(`${API_URL}/api/recipients`, { headers:authHeaders() })
+        axios.get(`${API_URL}/api/recipients`, { withCredentials: true })
             .then(r => {
                 const data = r.data.recipients ?? r.data;
                 setRecipients(data);
@@ -176,7 +176,7 @@ function TargetModal({ target, onClose, onSave }) {
                                         <span style={{ fontSize:10, fontWeight:700, background:'rgba(16,185,129,0.2)', color:'#34d399', padding:'2px 7px', borderRadius:20 }}>✓ Active</span>
                                         <button type="button" onClick={async()=>{
                                             if(!window.confirm(`Remove ${intg.type} integration?`)) return;
-                                            await axios.delete(`${API_URL}/api/integrations/${intg.type}`,{headers:authHeaders()});
+                                            await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
                                             setIntegrations(p=>p.filter(x=>x._id!==intg._id));
                                         }} style={{ padding:'3px 8px', background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:6, color:'#f87171', fontSize:11, cursor:'pointer' }}>🗑</button>
                                     </div>
@@ -191,7 +191,7 @@ function TargetModal({ target, onClose, onSave }) {
                                                             onClick={async()=>{
                                                                 const n = sel ? siteSel.filter(x=>x!==s._id) : [...siteSel, s._id];
                                                                 setIntegSites(p=>({...p,[intg._id]:n}));
-                                                                await axios.post(`${API_URL}/api/integrations/${intg.type}`,{config:intg.config,events:intg.events,servers:n},{headers:authHeaders()});
+                                                                await axios.post(`${API_URL}/api/integrations/${intg.type}`,{config:intg.config,events:intg.events,servers:n}, { withCredentials: true });
                                                             }}
                                                             style={{ padding:'2px 8px', borderRadius:20, border:`1px solid ${sel?'#a78bfa':'rgba(255,255,255,0.15)'}`, background:sel?'rgba(124,58,237,0.2)':'transparent', color:sel?'#a78bfa':'#94a3b8', fontSize:10, cursor:'pointer' }}>
                                                             {s.name} {sel&&'✓'}
@@ -244,7 +244,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
         seqRef.current++;
         const n = seqRef.current;
         try {
-            const r = await axios.post(`${API_URL}/api/ping`, { target:target.host, port:target.port }, { headers:authHeaders() });
+            const r = await axios.post(`${API_URL}/api/ping`, { target:target.host, port:target.port }, { withCredentials: true });
             r.data.alive
                 ? addLine(`Reply from ${target.host}: seq=${n}  time=${r.data.ms}ms`, '#4ade80')
                 : addLine(`Request timeout for seq ${n}`, '#f87171');
@@ -375,25 +375,25 @@ export default function PingMonitor() {
     const [editTarget, setEditTarget] = useState(null);
 
     const load = () =>
-        axios.get(`${API_URL}/api/ping-targets`, { headers:authHeaders() }).then(r=>setTargets(r.data)).catch(()=>{});
+        axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true }).then(r=>setTargets(r.data)).catch(()=>{});
 
     useEffect(() => { load(); const t=setInterval(load,30000); return()=>clearInterval(t); }, []);
 
     const addTarget = async (form) => {
-        await axios.post(`${API_URL}/api/ping-targets`, form, { headers:authHeaders() });
+        await axios.post(`${API_URL}/api/ping-targets`, form, { withCredentials: true });
         load();
     };
     const editTargetSave = async (form) => {
-        await axios.put(`${API_URL}/api/ping-targets/${editTarget._id}`, form, { headers:authHeaders() });
+        await axios.put(`${API_URL}/api/ping-targets/${editTarget._id}`, form, { withCredentials: true });
         load();
     };
     const deleteTarget = async (id) => {
         if (!window.confirm('Delete this target?')) return;
-        await axios.delete(`${API_URL}/api/ping-targets/${id}`, { headers:authHeaders() });
+        await axios.delete(`${API_URL}/api/ping-targets/${id}`, { withCredentials: true });
         setSelected(null); load();
     };
     const toggleTarget = async (t) => {
-        await axios.put(`${API_URL}/api/ping-targets/${t._id}`, { active:!t.active }, { headers:authHeaders() });
+        await axios.put(`${API_URL}/api/ping-targets/${t._id}`, { active:!t.active }, { withCredentials: true });
         load();
     };
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-let gsiReady = false;
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL, loginUser, googleAuth, forgotPassword } from '../api';
 import { getGoogleClientId } from '../googleConfig';
 import Toast from '../components/Toast';
 import UWLogo from '../components/UWLogo';
+
+let gsiReady = false;
 
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@ export default function Login({ onLogin }) {
   const handleForgot = async () => {
     setForgotLoading(true);
     try {
-      await axios.post(`${API_URL}/api/auth/forgot-password`);
+      await axios.post(`${API_URL}/api/auth/forgot-password`, {}, { withCredentials: true });
       setForgotSent(true);
       setToast({ message: 'Reset link sent to admin email!', type: 'success' });
     } catch (e) {
@@ -107,7 +107,7 @@ export default function Login({ onLogin }) {
     if (!form.username || !form.password) { setError('Username and password required'); return; }
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, { username: form.username, password: form.password });
+      const res = await axios.post(`${API_URL}/api/auth/login`, { username: form.username, password: form.password }, { withCredentials: true });
       // token now in httpOnly cookie;
       localStorage.removeItem('sm_user');
       onLogin(null);

@@ -6,7 +6,7 @@ export default function Alerts() {
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState('all');
 
-  useEffect(() => { getAlerts().then(r => setAlerts(r.data)); }, []);
+  useEffect(() => { getAlerts().then(r => setAlerts(r.data)).catch(() => {}); }, []);
 
   const filtered = alerts.filter(a => {
     const q = search.toLowerCase();

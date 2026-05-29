@@ -75,7 +75,7 @@ export default function SiteDetail() {
     const togglePause = async () => {
         setPausing(true);
         await axios.put(`${API_URL}/api/servers/${id}`, { active: !server.active }, authCfg);
-        await loadData();
+        await loadCore();
         setPausing(false);
     };
 
