@@ -1130,84 +1130,71 @@ export default function AdminPanel({ initialTab = 'overview' }) {
             {tab === 'canceling' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-                    {/* Summary Metric Cards — red theme */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    {/* Summary — 3 clean stat tiles */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
                         {[
-                            { label: 'Total Cancelled',   value: refundedPayments.length, icon: '❌', color: T.danger },
-                            { label: 'Total Refunded',    value: `₹${totalRefunded.toLocaleString('en-IN')}`, icon: '💸', color: '#B91C1C' },
-                            { label: 'Plan Revenue Lost', value: `₹${refundedPayments.filter(p=>p.type!=='verification').reduce((s,p)=>s+(p.amount||0),0).toLocaleString('en-IN')}`, icon: '📉', color: '#991B1B' },
+                            { label: 'Total Cancelled',   value: refundedPayments.length,  accent:'#EF4444', bg:'#FFF5F5' },
+                            { label: 'Total Refunded',    value: `₹${totalRefunded}`,       accent:'#F59E0B', bg:'#FFFBEB' },
+                            { label: 'Revenue Lost',      value: `₹${refundedPayments.filter(p=>p.type!=='verification').reduce((s,p)=>s+(p.amount||0),0)}`, accent:'#6B7280', bg:'#F9FAFB' },
                         ].map(c => (
-                            <div key={c.label} style={{ ...cardStyle, borderLeft: `4px solid ${c.color}`, padding: '20px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{c.icon}</div>
-                                <div>
-                                    <div style={{ fontSize: 24, fontWeight: 800, color: c.color, lineHeight: 1 }}>{c.value}</div>
-                                    <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{c.label}</div>
-                                </div>
+                            <div key={c.label} style={{ background:'#fff', borderRadius:10, border:`1px solid #E5E7EB`, borderTop:`3px solid ${c.accent}`, padding:'20px 24px', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
+                                <div style={{ fontSize:28, fontWeight:800, color:c.accent, lineHeight:1, marginBottom:6 }}>{c.value}</div>
+                                <div style={{ fontSize:12, color:'#6B7280', fontWeight:600, textTransform:'uppercase', letterSpacing:0.6 }}>{c.label}</div>
                             </div>
                         ))}
                     </div>
 
                     {/* Table */}
-                    <div style={{ ...cardStyle, borderLeft: `4px solid ${T.danger}`, overflow: 'hidden' }}>
-                        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontWeight: 700, color: T.text, fontSize: 15 }}>Cancelled & Refunded Plans ({refundedPayments.length})</div>
+                    <div style={{ background:'#fff', borderRadius:10, border:'1px solid #E5E7EB', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', overflow:'hidden' }}>
+                        <div style={{ padding:'16px 20px', borderBottom:'1px solid #F3F4F6', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAFAFA' }}>
+                            <div style={{ fontWeight:700, color:'#111827', fontSize:14 }}>Cancelled & Refunded Plans <span style={{ color:'#6B7280', fontWeight:500 }}>({refundedPayments.length})</span></div>
                             {refundedPayments.length > 0 && (
-                                <span style={pill('#FEE2E2','#B91C1C')}>Total Lost: ₹{totalRefunded}</span>
+                                <span style={{ fontSize:12, fontWeight:700, color:'#EF4444', background:'#FFF5F5', border:'1px solid #FECDD3', padding:'3px 12px', borderRadius:20 }}>Total Lost: ₹{totalRefunded}</span>
                             )}
                         </div>
 
                         {refundedPayments.length === 0 ? (
-                            <div style={{ padding: 60, textAlign: 'center' }}>
-                                <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-                                <div style={{ fontWeight: 700, fontSize: 16, color: T.success }}>No Cancelled Plans</div>
-                                <div style={{ fontSize: 13, color: T.muted, marginTop: 6 }}>All plans are active — no refunds issued</div>
+                            <div style={{ padding:60, textAlign:'center' }}>
+                                <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
+                                <div style={{ fontWeight:700, fontSize:16, color:'#10B981' }}>No Cancelled Plans</div>
+                                <div style={{ fontSize:13, color:'#9CA3AF', marginTop:6 }}>All plans are active</div>
                             </div>
                         ) : (
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                            <div style={{ overflowX:'auto' }}>
+                                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
                                     <thead>
-                                        <tr>
-                                            {['#', 'Cancelled On', 'User', 'Plan', 'Amount Refunded', 'Razorpay Payment ID', 'Note'].map(h => (
-                                                <th key={h} style={{ ...thStyle, color: '#B91C1C' }}>{h}</th>
+                                        <tr style={{ background:'#F9FAFB', borderBottom:'1px solid #E5E7EB' }}>
+                                            {['#','Date','User','Plan','Refunded','Payment ID'].map(h => (
+                                                <th key={h} style={{ padding:'11px 16px', textAlign:'left', fontSize:11, fontWeight:700, color:'#6B7280', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {refundedPayments.map((p, i) => (
-                                            <tr key={p._id} style={{ background: i % 2 === 0 ? '#fff' : '#FFF5F5', borderBottom: `1px solid #FEE2E2` }}>
-                                                <td style={{ ...tdStyle, color: T.danger, fontWeight: 700 }}>{i + 1}</td>
-                                                <td style={{ ...tdStyle, whiteSpace: 'nowrap', color: T.sub }}>
-                                                    {fmt(p.reviewedAt || p.createdAt)}
+                                            <tr key={p._id} style={{ borderBottom:'1px solid #F3F4F6' }}
+                                                onMouseEnter={e=>e.currentTarget.style.background='#FFF5F5'}
+                                                onMouseLeave={e=>e.currentTarget.style.background='#fff'}>
+                                                <td style={{ padding:'13px 16px', color:'#9CA3AF', fontSize:12 }}>{i+1}</td>
+                                                <td style={{ padding:'13px 16px', color:'#6B7280', whiteSpace:'nowrap', fontSize:12 }}>{fmt(p.reviewedAt||p.createdAt)}</td>
+                                                <td style={{ padding:'13px 16px' }}>
+                                                    <div style={{ fontWeight:600, color:'#111827' }}>{p.userName||'—'}</div>
+                                                    <div style={{ fontSize:11, color:'#9CA3AF', marginTop:2 }}>{p.userEmail||''}</div>
                                                 </td>
-                                                <td style={tdStyle}>
-                                                    <div style={{ fontWeight: 700, color: T.text }}>{p.userName || '—'}</div>
-                                                    <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{p.userEmail || ''}</div>
+                                                <td style={{ padding:'13px 16px' }}><PlanBadge plan={p.plan||'free_trial'} /></td>
+                                                <td style={{ padding:'13px 16px' }}>
+                                                    <span style={{ fontWeight:700, color:'#EF4444', textDecoration:'line-through', fontSize:14 }}>₹{p.amount}</span>
                                                 </td>
-                                                <td style={tdStyle}>
-                                                    <PlanBadge plan={p.plan || 'free_trial'} />
-                                                </td>
-                                                <td style={tdStyle}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                        <s style={{ color: T.danger, fontWeight: 700, fontSize: 15 }}>₹{p.amount}</s>
-                                                        <span style={{ fontSize: 10, color: T.muted, fontWeight: 600 }}>refunded</span>
-                                                    </div>
-                                                </td>
-                                                <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: 11, color: T.muted }}>
-                                                    {p.razorpay_payment_id || p.utr || '—'}
-                                                </td>
-                                                <td style={{ ...tdStyle, fontSize: 11, color: T.danger, maxWidth: 220 }}>
-                                                    {p.adminNote || '—'}
+                                                <td style={{ padding:'13px 16px', fontFamily:'monospace', fontSize:11, color:'#9CA3AF' }}>
+                                                    {(p.razorpay_payment_id||p.utr||'—').slice(0,18)}
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
-                                        <tr style={{ borderTop: `2px solid #FECDD3`, background: '#FFF1F2' }}>
-                                            <td colSpan={4} style={{ padding: '13px 16px', fontWeight: 700, color: T.danger, fontSize: 13 }}>Total Refunded Amount</td>
-                                            <td style={{ padding: '13px 16px', fontWeight: 800, color: T.danger, fontSize: 16 }}>
-                                                <s>₹{totalRefunded}</s>
-                                            </td>
-                                            <td colSpan={2} />
+                                        <tr style={{ background:'#F9FAFB', borderTop:'2px solid #E5E7EB' }}>
+                                            <td colSpan={4} style={{ padding:'12px 16px', fontWeight:700, color:'#374151', fontSize:13 }}>Total Refunded</td>
+                                            <td style={{ padding:'12px 16px', fontWeight:800, color:'#EF4444', fontSize:15 }}>₹{totalRefunded}</td>
+                                            <td/>
                                         </tr>
                                     </tfoot>
                                 </table>
