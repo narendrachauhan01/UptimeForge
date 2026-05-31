@@ -305,7 +305,10 @@ exports.myTickets = async (req, res) => {
 exports.replyTicket = async (req, res) => {
     try {
         const SupportTicket = require('../models/SupportTicket');
-        const t = await SupportTicket.findOne({ _id: req.params.id, userId: req.userId });
+        const t = await SupportTicket.findOne({
+            _id: req.params.id,
+            $or: [{ userId: req.userId }, { email: req.user?.email }]
+        });
         if (!t) return res.status(404).json({ error: 'Ticket not found' });
         const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
         t.replies.push({ from: 'user', message: req.body.message, images });
