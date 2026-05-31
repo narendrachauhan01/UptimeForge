@@ -756,21 +756,21 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             ))}
                         </div>
 
-                        {/* Billing filter pills */}
+                        {/* Billing filter */}
                         <div style={{ display: 'flex', gap: 6 }}>
-                            {[['all','All Billing'],['monthly','📅 Monthly'],['annually','📆 Annual']].map(([val, label]) => (
-                                <button key={val} onClick={() => setBillingFilter(val)} style={{
+                            {[['monthly','📅 Monthly'],['annually','📆 Annual']].map(([val, label]) => (
+                                <button key={val} onClick={() => setBillingFilter(billingFilter === val ? 'all' : val)} style={{
                                     padding: '7px 14px',
-                                    border: `1px solid ${billingFilter === val ? (val === 'annually' ? '#f59e0b' : val === 'monthly' ? '#3b82f6' : T.primary) : T.border}`,
+                                    border: `1px solid ${billingFilter === val ? (val === 'annually' ? '#f59e0b' : '#3b82f6') : T.border}`,
                                     borderRadius: 9999, fontSize: 12, fontWeight: 600,
                                     cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                                    background: billingFilter === val ? (val === 'annually' ? '#f59e0b' : val === 'monthly' ? '#3b82f6' : T.primary) : '#fff',
+                                    background: billingFilter === val ? (val === 'annually' ? '#f59e0b' : '#3b82f6') : '#fff',
                                     color: billingFilter === val ? '#fff' : T.sub,
                                 }}>
                                     {label}
-                                    {val !== 'all' && <span style={{ marginLeft:6, background:'rgba(255,255,255,0.25)', borderRadius:50, padding:'1px 7px', fontSize:11 }}>
+                                    <span style={{ marginLeft:6, background: billingFilter === val ? 'rgba(255,255,255,0.25)' : '#f1f5f9', borderRadius:50, padding:'1px 7px', fontSize:11, color: billingFilter === val ? '#fff' : T.sub }}>
                                         {val === 'annually' ? users.filter(u => u.billing === 'annually').length : users.filter(u => u.billing === 'monthly' || !u.billing).length}
-                                    </span>}
+                                    </span>
                                 </button>
                             ))}
                         </div>
