@@ -327,12 +327,12 @@ export default function Landing() {
                         <div style={{ fontSize:12, color:'rgba(255,255,255,0.65)' }}>billed every {c.duration}</div>
                       </div>
                     )}
-                    <button onClick={() => navigate('/support')}
-                      style={{ padding:'12px 28px', borderRadius:50, border:'2px solid rgba(255,255,255,0.8)', background:'rgba(255,255,255,0.15)', color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', backdropFilter:'blur(8px)', transition:'all 0.2s' }}
+                    <a href={`mailto:chauhan.narendrasingh.01@gmail.com?subject=Custom Plan Enquiry - ${c.label}&body=Hi, I am interested in the ${c.label}. Please share more details.`}
+                      style={{ padding:'12px 28px', borderRadius:50, border:'2px solid rgba(255,255,255,0.8)', background:'rgba(255,255,255,0.15)', color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', backdropFilter:'blur(8px)', transition:'all 0.2s', textDecoration:'none', display:'inline-block' }}
                       onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.25)'}
                       onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,0.15)'}>
                       Contact Support →
-                    </button>
+                    </a>
                   </div>
                 </div>
                 {features.length > 0 && (
