@@ -2136,57 +2136,59 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 /* Navbar */
 .lp-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-  background: rgba(10,6,24,0.75); backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(8,4,20,0.85); backdrop-filter: blur(28px);
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  box-shadow: 0 1px 24px rgba(0,0,0,0.3);
 }
-.lp-nav + * { padding-top: 68px; }
+.lp-nav + * { padding-top: 72px; }
 .lp-nav-wrap {
-  max-width: 1140px; margin: 0 auto; padding: 12px 24px;
-  display: flex; align-items: center; gap: 32px;
+  max-width: 1180px; margin: 0 auto; padding: 0 32px;
+  height: 68px;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 32px;
 }
-.lp-brand { display:flex; align-items:center; gap:10px; text-decoration:none; margin-right:auto; }
+.lp-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
 .lp-brand-logo {
   width:36px; height:36px; border-radius:10px;
   background:linear-gradient(135deg,#7c3aed,#06b6d4);
   display:flex; align-items:center; justify-content:center;
   color:#fff; font-weight:800; font-size:14px; flex-shrink:0;
 }
-.lp-brand-text { font-size:16px; font-weight:800; color:#fff; font-family:'Outfit','Plus Jakarta Sans',sans-serif; }
+.lp-brand-text { font-size:17px; font-weight:800; color:#fff; font-family:'Outfit','Plus Jakarta Sans',sans-serif; letter-spacing:-0.3px; }
 .lp-footer-brand .lp-brand-text { color:#cbd5e1; }
-.lp-nav-center { display:flex; gap:2px; }
+.lp-nav-center { display:flex; gap:0px; justify-content:center; }
 .lp-nav-center a {
-  color:rgba(255,255,255,0.65); font-size:14px; font-weight:500; text-decoration:none;
-  padding:7px 14px; border-radius:8px; transition:all 0.2s;
+  color:rgba(255,255,255,0.6); font-size:14px; font-weight:500; text-decoration:none;
+  padding:8px 16px; border-radius:50px; transition:all 0.2s; letter-spacing:0.1px;
 }
 .lp-nav-center a:hover { color:#fff; background:rgba(255,255,255,0.08); }
-.lp-nav-right { display:flex; align-items:center; gap:8px; }
+.lp-nav-right { display:flex; align-items:center; gap:10px; }
 .lp-nav-login {
-  color:rgba(255,255,255,0.75); font-size:14px; font-weight:600; text-decoration:none;
-  padding:8px 16px; border-radius:8px; transition:all 0.2s;
+  color:rgba(255,255,255,0.8); font-size:14px; font-weight:600; text-decoration:none;
+  padding:9px 18px; border-radius:50px; transition:all 0.2s; letter-spacing:0.1px;
 }
 .lp-nav-login:hover { color:#fff; background:rgba(255,255,255,0.08); }
 .lp-nav-cta {
   background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff;
   font-size:14px; font-weight:700; text-decoration:none;
-  padding:10px 24px; border-radius:50px; transition:all 0.2s; white-space:nowrap;
-  box-shadow:0 0 16px rgba(124,58,237,0.4);
+  padding:10px 26px; border-radius:50px; transition:all 0.25s; white-space:nowrap;
+  box-shadow:0 0 18px rgba(124,58,237,0.45);
 }
-.lp-nav-cta:hover { opacity:0.9; box-shadow:0 0 24px rgba(124,58,237,0.6); transform:translateY(-1px); }
+.lp-nav-cta:hover { box-shadow:0 0 26px rgba(124,58,237,0.65); transform:translateY(-1px); }
 .lp-burger {
   display:none; flex-direction:column; gap:5px; background:none;
-  border:none; cursor:pointer; padding:6px; margin-left:auto;
+  border:none; cursor:pointer; padding:6px;
 }
 .lp-burger span { display:block; width:22px; height:2px; background:rgba(255,255,255,0.8); border-radius:4px; transition:all 0.3s; }
 .lp-mobile-menu {
   display:flex; flex-direction:column; gap:4px; padding:12px 24px 20px;
-  background:rgba(10,6,24,0.95);
-  border-top:1px solid rgba(255,255,255,0.07);
+  background:rgba(8,4,20,0.97);
+  border-top:1px solid rgba(124,58,237,0.15);
 }
 .lp-mobile-menu a {
   color:rgba(255,255,255,0.7); font-size:14px; font-weight:500; text-decoration:none;
-  padding:10px 14px; border-radius:8px; transition:all 0.2s;
+  padding:10px 14px; border-radius:10px; transition:all 0.2s;
 }
-.lp-mobile-menu a:hover { color:#fff; background:rgba(255,255,255,0.07); }
+.lp-mobile-menu a:hover { color:#fff; background:rgba(124,58,237,0.15); }
 
 /* Hero */
 .lp-hero {
