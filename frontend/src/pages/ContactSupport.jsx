@@ -324,14 +324,24 @@ export default function ContactSupport({ user }) {
 
                     {/* Priority */}
                     <div>
-                        <label style={{ fontSize:13, fontWeight:600, color:'#374151', display:'block', marginBottom:8 }}>Priority</label>
-                        <div style={{ display:'flex', gap:8 }}>
-                            {[{v:'low',l:'Low',c:'#6b7280'},{v:'medium',l:'Normal',c:'#d97706'},{v:'high',l:'High',c:'#e53e3e'}].map(p => (
-                                <button key={p.v} type="button" onClick={()=>setForm({...form,priority:p.v})}
-                                    style={{ flex:1, padding:'9px', border:`2px solid ${form.priority===p.v?p.c:'#e2e8f0'}`, borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', background:form.priority===p.v?p.c:'#fff', color:form.priority===p.v?'#fff':p.c, transition:'all 0.15s' }}>
-                                    {p.l}
-                                </button>
-                            ))}
+                        <label style={{ fontSize:13, fontWeight:600, color:'#374151', display:'block', marginBottom:10 }}>Priority</label>
+                        <div style={{ display:'flex', gap:10 }}>
+                            {[
+                                { v:'low',    l:'Low',    icon:'🟢', desc:'Not urgent',     c:'#16a34a', bg:'#f0fdf4', border:'#86efac', activeBg:'#16a34a' },
+                                { v:'medium', l:'Medium', icon:'🟡', desc:'Moderate',        c:'#d97706', bg:'#fffbeb', border:'#fde68a', activeBg:'#f59e0b' },
+                                { v:'high',   l:'High',   icon:'🔴', desc:'Urgent issue',    c:'#dc2626', bg:'#fef2f2', border:'#fca5a5', activeBg:'#ef4444' },
+                            ].map(p => {
+                                const active = form.priority === p.v;
+                                return (
+                                    <button key={p.v} type="button" onClick={()=>setForm({...form,priority:p.v})}
+                                        style={{ flex:1, padding:'14px 10px', border:`2px solid ${active?p.activeBg:p.border}`, borderRadius:12, cursor:'pointer', background: active?p.activeBg:p.bg, transition:'all 0.18s', textAlign:'center', boxShadow: active?`0 4px 12px ${p.activeBg}55`:'none', transform: active?'translateY(-2px)':'none' }}>
+                                        <div style={{ fontSize:22, marginBottom:4 }}>{p.icon}</div>
+                                        <div style={{ fontSize:13, fontWeight:800, color: active?'#fff':p.c }}>{p.l}</div>
+                                        <div style={{ fontSize:11, color: active?'rgba(255,255,255,0.75)':p.c, opacity: active?1:0.7, marginTop:2 }}>{p.desc}</div>
+                                        {active && <div style={{ marginTop:6, fontSize:12, color:'#fff', fontWeight:700 }}>✓ Selected</div>}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
