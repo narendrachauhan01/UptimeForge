@@ -343,12 +343,15 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const matchPlan = planFilter === 'all' || u.plan === planFilter;
         const matchDuration = durationFilter === 'all'
             || (durationFilter === 'free_trial' && u.plan === 'free_trial')
-            || (durationFilter === '1y' && (u.planDuration === '1y' || u.billing === 'annually'))
-            || (durationFilter !== 'free_trial' && durationFilter !== '1y' && u.planDuration === durationFilter);
+            || (durationFilter === '1m'  && u.plan !== 'free_trial' && (u.planDuration === '1m' || (!u.planDuration && u.billing !== 'annually')))
+            || (durationFilter === '3m'  && u.planDuration === '3m')
+            || (durationFilter === '6m'  && u.planDuration === '6m')
+            || (durationFilter === '1y'  && (u.planDuration === '1y' || u.billing === 'annually'));
         return matchSearch && matchPlan && matchDuration;
     });
-    const monthlyFiltered = filtered.filter(u => u.billing !== 'annually');
-    const annualFiltered  = filtered.filter(u => u.billing === 'annually');
+    const freeTrialFiltered = filtered.filter(u => u.plan === 'free_trial');
+    const monthlyFiltered   = filtered.filter(u => u.plan !== 'free_trial' && u.billing !== 'annually');
+    const annualFiltered    = filtered.filter(u => u.billing === 'annually');
 
     // Stats for overview
     const totalSites   = users.reduce((a, u) => a + (u.serverCount || 0), 0);
@@ -777,8 +780,60 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                         <div style={{ textAlign: 'center', padding: 60, color: T.muted, fontSize: 14 }}>No users found.</div>
                     ) : (
                     <>
+                    {/* ── Free Trial Users ── */}
+                    {(durationFilter === 'all' || durationFilter === 'free_trial') && freeTrialFiltered.length > 0 && <div style={{ marginBottom: 24 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                            <span style={{ fontWeight:800, fontSize:15, color:'#6d28d9' }}>🆓 Free Trial Users</span>
+                            <span style={{ background:'#ede9fe', color:'#6d28d9', fontWeight:700, fontSize:12, padding:'2px 10px', borderRadius:50 }}>{freeTrialFiltered.length}</span>
+                        </div>
+                        <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead><tr>{['User', 'Plan', 'Sites', 'Status', 'Expiry', 'Actions'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+                                    <tbody>
+                                        {freeTrialFiltered.map(u => (
+                                            <React.Fragment key={u._id}>
+                                                <tr style={{ borderBottom: `1px solid #F3F4F6`, cursor: 'pointer', transition: 'background 0.1s' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                    onMouseLeave={e => e.currentTarget.style.background = u.isBlocked ? '#FFF5F5' : '#fff'}
+                                                    onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}>
+                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                            <Avatar name={u.name} size={36} />
+                                                            <div>
+                                                                <div style={{ fontWeight: 700, color: T.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                    {u.name}
+                                                                    {u.accountId && <span style={{ fontSize: 10, fontFamily: 'monospace', background: '#EDE9FE', color: T.primary, padding: '1px 7px', borderRadius: 9999 }}>{u.accountId}</span>}
+                                                                </div>
+                                                                <div style={{ fontSize: 11, color: T.sub, marginTop: 1 }}>{u.email}</div>
+                                                                {u.phone && <div style={{ fontSize: 11, color: T.muted }}>{u.phone}</div>}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ ...tdStyle }}><PlanBadge plan={u.plan} /></td>
+                                                    <td style={{ ...tdStyle, fontWeight: 700 }}>{u.serverCount || 0}</td>
+                                                    <td style={{ ...tdStyle }}><StatusBadge u={u} /></td>
+                                                    <td style={{ ...tdStyle, fontSize: 12, color: T.sub }}>{u.trialEndsAt ? fmt(u.trialEndsAt) : '—'}</td>
+                                                    <td style={{ ...tdStyle }} onClick={e => e.stopPropagation()}>
+                                                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                                                            <button onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Assign Plan</button>
+                                                            <button onClick={() => startEdit(u)} style={{ ...btnSecondary, padding: '5px 10px', fontSize: 11 }}>Edit</button>
+                                                            <button onClick={() => extendTrial(u._id, u.name)} style={{ padding: '5px 10px', fontSize: 11, background: '#EFF6FF', color: T.info, border: `1px solid #BFDBFE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+Trial</button>
+                                                            <button onClick={() => toggleBlock(u)} style={{ padding: '5px 10px', fontSize: 11, borderRadius: 8, cursor: 'pointer', fontWeight: 600, border: `1px solid ${u.isBlocked ? '#BBF7D0' : '#FECDD3'}`, background: u.isBlocked ? '#F0FDF4' : '#FFF1F2', color: u.isBlocked ? T.success : T.danger }}>{u.isBlocked ? 'Unblock' : 'Block'}</button>
+                                                            <button onClick={() => deleteUser(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#FEF2F2', color: T.danger, border: `1px solid #FECDD3`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </React.Fragment>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>}
+
                     {/* ── Monthly Users ── */}
-                    {(durationFilter === 'all' || monthlyFiltered.length > 0) && <div style={{ marginBottom: 24 }}>
+                    {(durationFilter === 'all' || (durationFilter !== 'free_trial' && durationFilter !== '1y' && monthlyFiltered.length > 0)) && <div style={{ marginBottom: 24 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
                             <span style={{ fontWeight:800, fontSize:15, color:'#1e40af' }}>📅 {durationFilter==='3m'?'3 Monthly':durationFilter==='6m'?'6 Monthly':'Monthly'} Users</span>
                             <span style={{ background:'#dbeafe', color:'#1e40af', fontWeight:700, fontSize:12, padding:'2px 10px', borderRadius:50 }}>{monthlyFiltered.length}</span>
