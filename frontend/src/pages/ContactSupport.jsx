@@ -384,7 +384,7 @@ export default function ContactSupport({ user }) {
                     <div style={{fontWeight:600,color:'#374151',marginBottom:8}}>No tickets found</div>
                     <button onClick={()=>setView('new')} style={{padding:'8px 20px',background:'#4F46E5',color:'#fff',border:'none',borderRadius:8,fontWeight:600,cursor:'pointer'}}>+ New Ticket</button>
                 </div>
-                :<table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+                :<div style={{overflowX:'auto',WebkitOverflowScrolling:'touch'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:550}}>
                     <thead>
                         <tr style={{background:'#F9FAFB',borderBottom:'1px solid #E5E7EB'}}>
                             {['Ticket ID','Subject','Priority','Create Date','Status',''].map(h=>(
@@ -423,7 +423,7 @@ export default function ContactSupport({ user }) {
                             </tr>
                         ))}
                     </tbody>
-                </table>}
+                </table></div>}
             </div>
         </div>
     );

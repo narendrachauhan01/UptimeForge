@@ -380,7 +380,8 @@ export default function SupportTickets() {
                         <div style={{ fontWeight:600,color:'#374151' }}>No tickets found</div>
                     </div>
                 ) : (
-                    <table style={{ width:'100%',borderCollapse:'collapse',fontSize:13 }}>
+                    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+                    <table style={{ width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600 }}>
                         <thead>
                             <tr style={{ background:'#F9FAFB',borderBottom:'1px solid #E5E7EB' }}>
                                 <th style={{ padding:'11px 16px',textAlign:'left',fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:0.5 }}>Ticket ID</th>
@@ -450,6 +451,7 @@ export default function SupportTickets() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>
