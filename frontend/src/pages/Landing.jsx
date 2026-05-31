@@ -24,6 +24,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [planData, setPlanData] = useState(null);
+  const [billing, setBilling] = useState('monthly');
 
   useEffect(() => {
     getPlans().then(r => setPlanData(r.data)).catch(() => {});
@@ -37,11 +38,12 @@ export default function Landing() {
     gold:       parseFeatures(planData?.plans?.gold?.features),
   };
 
+  const disc = (p) => billing === 'annually' ? Math.round(p * 0.8) : p;
   const plans = [
-    { key: 'free_trial', ...PLAN_META.free_trial, price: `₹${planData?.verificationFee ?? 2}`, note: '5-day trial · one-time verification' },
-    { key: 'bronze', ...PLAN_META.bronze, price: `₹${planData?.plans?.bronze?.price ?? 499}`, note: `${planData?.plans?.bronze?.sites ?? 5} sites` },
-    { key: 'silver', ...PLAN_META.silver, price: `₹${planData?.plans?.silver?.price ?? 999}`, note: `${planData?.plans?.silver?.sites ?? 15} sites` },
-    { key: 'gold',   ...PLAN_META.gold,   price: `₹${planData?.plans?.gold?.price ?? 1499}`,  note: `${planData?.plans?.gold?.sites ?? 30} sites` },
+    { key: 'free_trial', ...PLAN_META.free_trial, price: `₹${planData?.verificationFee ?? 2}`, origPrice: null, note: '5-day trial · one-time verification' },
+    { key: 'bronze', ...PLAN_META.bronze, price: `₹${disc(planData?.plans?.bronze?.price ?? 499)}`, origPrice: billing==='annually'?`₹${planData?.plans?.bronze?.price??499}`:null, note: `${planData?.plans?.bronze?.sites ?? 5} sites` },
+    { key: 'silver', ...PLAN_META.silver, price: `₹${disc(planData?.plans?.silver?.price ?? 999)}`, origPrice: billing==='annually'?`₹${planData?.plans?.silver?.price??999}`:null, note: `${planData?.plans?.silver?.sites ?? 15} sites` },
+    { key: 'gold',   ...PLAN_META.gold,   price: `₹${disc(planData?.plans?.gold?.price ?? 1499)}`,  origPrice: billing==='annually'?`₹${planData?.plans?.gold?.price??1499}`:null,  note: `${planData?.plans?.gold?.sites ?? 30} sites` },
   ];
 
   const handlePlan = (key) => {
@@ -243,6 +245,21 @@ export default function Landing() {
             ))}
           </div>
 
+          {/* Monthly / Annually Toggle */}
+          <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:4, marginBottom:32, background:'#f1f5f9', borderRadius:50, padding:5, width:'fit-content', margin:'0 auto 32px' }}>
+            <button onClick={()=>setBilling('monthly')} style={{ padding:'10px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s',
+              background: billing==='monthly' ? '#1e293b' : 'transparent',
+              color: billing==='monthly' ? '#fff' : '#64748b' }}>
+              Monthly
+            </button>
+            <button onClick={()=>setBilling('annually')} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s',
+              background: billing==='annually' ? '#1e293b' : 'transparent',
+              color: billing==='annually' ? '#fff' : '#64748b' }}>
+              Annually
+              <span style={{ background:'#f59e0b', color:'#fff', fontSize:11, fontWeight:800, padding:'2px 10px', borderRadius:50 }}>Save 20%</span>
+            </button>
+          </div>
+
           <div className="lp-plans">
             {plans.map(p => (
               <div key={p.key} className={`lp-plan ${p.popular ? 'lp-plan-popular' : ''}`}>
@@ -254,6 +271,7 @@ export default function Landing() {
                     <span className="lp-plan-price">{p.price}</span>
                     <span className="lp-plan-period">{p.period}</span>
                   </div>
+                  {p.origPrice && <div style={{ fontSize:12, color:'rgba(255,255,255,0.6)', textDecoration:'line-through', marginTop:2 }}>{p.origPrice}/month</div>}
                   <div className="lp-plan-sites">{p.note}</div>
                 </div>
                 <div className="lp-plan-body">
