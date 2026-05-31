@@ -370,14 +370,17 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PingMonitor() {
-    const [targets,  setTargets]  = useState([]);
-    const [search,   setSearch]   = useState('');
-    const [selected, setSelected] = useState(null);
-    const [addModal, setAddModal] = useState(false);
-    const [editTarget, setEditTarget] = useState(null);
+    const [targets,     setTargets]     = useState([]);
+    const [search,      setSearch]      = useState('');
+    const [selected,    setSelected]    = useState(null);
+    const [addModal,    setAddModal]    = useState(false);
+    const [editTarget,  setEditTarget]  = useState(null);
+    const [pageLoading, setPageLoading] = useState(true);
 
     const load = () =>
-        axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true }).then(r=>setTargets(r.data)).catch(()=>{});
+        axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true })
+            .then(r=>{ setTargets(r.data); setPageLoading(false); })
+            .catch(()=>setPageLoading(false));
 
     useEffect(() => { load(); const t=setInterval(load,30000); return()=>clearInterval(t); }, []);
 
@@ -456,7 +459,13 @@ export default function PingMonitor() {
 
                 {/* List */}
                 <div className="mon-list" style={{maxHeight:'calc(10 * 68px)', overflowY:'auto'}}>
-                    {filtered.length === 0 ? (
+                    {pageLoading ? (
+                        <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 0',gap:14}}>
+                            <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
+                            <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading targets...</div>
+                            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                        </div>
+                    ) : filtered.length === 0 ? (
                         <div className="mon-empty">
                             <div style={{fontSize:48,marginBottom:12}}>📡</div>
                             <div style={{fontWeight:700,color:'#475569'}}>No targets yet</div>
