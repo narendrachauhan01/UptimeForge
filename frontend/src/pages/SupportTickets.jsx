@@ -79,13 +79,21 @@ export default function SupportTickets() {
             }
             prevUnread.current = fresh.filter(t=>t.adminUnread).map(t=>t._id);
             setTickets(fresh);
+            // Update detail view if open
+            if (selectedRef.current) {
+                const updated = fresh.find(t => t._id === selectedRef.current._id);
+                if (updated) setSelected(updated);
+            }
         } catch {}
         if (!silent) setLoading(false);
     };
 
+    const selectedRef = React.useRef(null);
+    useEffect(() => { selectedRef.current = selected; }, [selected]);
+
     useEffect(() => {
         load();
-        const t = setInterval(() => load(true), 15000); // poll every 15s
+        const t = setInterval(() => load(true), 10000); // poll every 10s
         return () => clearInterval(t);
     }, []);
 

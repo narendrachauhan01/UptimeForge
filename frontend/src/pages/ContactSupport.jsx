@@ -89,6 +89,8 @@ export default function ContactSupport({ user }) {
     const [notif,      setNotif]      = useState(null);
     const prevUnread = React.useRef([]);
 
+    const selectedRef = React.useRef(null);
+
     const load = async (silent=false) => {
         if (!silent) setLoading(true);
         try {
@@ -102,13 +104,21 @@ export default function ContactSupport({ user }) {
             }
             prevUnread.current = fresh.filter(t=>t.userUnread).map(t=>t._id);
             setTickets(fresh);
+            // Also update detail view if open
+            if (selectedRef.current) {
+                const updated = fresh.find(t => t._id === selectedRef.current._id);
+                if (updated) setSelected(updated);
+            }
         } catch {}
         if (!silent) setLoading(false);
     };
 
+    // Keep selectedRef in sync
+    useEffect(() => { selectedRef.current = selected; }, [selected]);
+
     useEffect(() => {
         load();
-        const t = setInterval(() => load(true), 15000);
+        const t = setInterval(() => load(true), 10000); // poll every 10s
         return () => clearInterval(t);
     }, []);
 
