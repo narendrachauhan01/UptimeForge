@@ -516,7 +516,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             <p style={{ fontSize: 13, color: T.sub, margin: '4px 0 0' }}>Manage users, plans, and payments</p>
                         </div>
                         <button
-                            onClick={() => { load(); loadPayments(); }}
+                            onClick={() => { load(); loadPayments(); loadSettings(); loadProfile(); }}
                             style={{ ...btnSecondary, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                 <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
