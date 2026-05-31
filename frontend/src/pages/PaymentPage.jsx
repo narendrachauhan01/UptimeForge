@@ -59,6 +59,7 @@ const PLAN_BADGE = {
 };
 
 function PlanSelectScreen({ planData, user, onSelect, onBack }) {
+    const [billing, setBilling] = useState('monthly');
     const discPct = planData?.annualDiscount ?? 20;
     const ap = planData?.annualPlans;
     const annualPrice = (key, monthly) => {
@@ -82,11 +83,20 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                 <p className="pss-sub">Welcome, <strong>{user?.name}</strong>! Select a plan to get started.</p>
             </div>
 
-            {/* Annual savings badge */}
+            {/* Monthly / Annually Toggle */}
             <div style={{ display:'flex', justifyContent:'center', marginBottom:28 }}>
-                <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.3)', borderRadius:50, padding:'8px 20px' }}>
-                    <span style={{ fontSize:16 }}>🎉</span>
-                    <span style={{ fontWeight:700, fontSize:14, color:'#fbbf24' }}>Annual pricing — Save {discPct}% on all plans!</span>
+                <div style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.08)', borderRadius:50, padding:5 }}>
+                    <button onClick={() => setBilling('monthly')} style={{ padding:'9px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s',
+                        background: billing==='monthly' ? '#fff' : 'transparent',
+                        color: billing==='monthly' ? '#1e293b' : 'rgba(255,255,255,0.6)' }}>
+                        Monthly
+                    </button>
+                    <button onClick={() => setBilling('annually')} style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s',
+                        background: billing==='annually' ? '#fff' : 'transparent',
+                        color: billing==='annually' ? '#1e293b' : 'rgba(255,255,255,0.6)' }}>
+                        Annually
+                        <span style={{ background:'#f59e0b', color:'#fff', fontSize:11, fontWeight:800, padding:'2px 10px', borderRadius:50 }}>Save {discPct}%</span>
+                    </button>
                 </div>
             </div>
 
@@ -96,7 +106,7 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                     const monthlyPrice = isVerif
                         ? (planData?.verificationFee ?? 2)
                         : (planData?.plans?.[p]?.price ?? { bronze: 499, silver: 999, gold: 1499 }[p]);
-                    const price = !isVerif ? annualPrice(p, monthlyPrice) : monthlyPrice;
+                    const price = (!isVerif && billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
                     const features = isVerif
                         ? (planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures : PLAN_FEATURES_FALLBACK.verification)
                         : (planData?.plans?.[p]?.features?.length ? planData.plans[p].features : PLAN_FEATURES_FALLBACK[p]);
@@ -119,14 +129,14 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                                 ) : (
                                     <div style={{ textAlign:'center' }}>
                                         <div className="pss-price-big" style={{ color: accent }}>₹{price}</div>
-                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textDecoration:'line-through' }}>₹{monthlyPrice}/mo</div>
+                                        {billing === 'annually' && <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textDecoration:'line-through' }}>₹{monthlyPrice}/mo</div>}
                                     </div>
                                 )}
                             </div>
                             <div className="pss-plan-name">{PLAN_LABEL[p]}</div>
                             {isVerif
                                 ? <div className="pss-period">one-time verification</div>
-                                : <div className="pss-period">per month · billed annually</div>
+                                : <div className="pss-period">{billing === 'annually' ? 'per month · billed annually' : 'per month'}</div>
                             }
                             {isVerif && <div className="pss-trial-note">5-day free trial · Non-refundable</div>}
                             <ul className="pss-features">
