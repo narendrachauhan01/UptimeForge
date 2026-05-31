@@ -87,11 +87,12 @@ exports.getPlans = async (req, res) => {
 exports.createOrder = async (req, res) => {
     if (req.isAdmin) return res.status(400).json({ error: 'Admin does not need a plan' });
     try {
-        const { plan } = req.body;
+        const { plan, billing = 'monthly' } = req.body;
         const settings  = await Settings.get();
         const user      = await User.findById(req.userId);
 
         let amountPaise, description;
+        const isAnnual = billing === 'annually' && plan !== 'verification';
 
         if (plan === 'verification') {
             if (user.trialVerified) return res.status(400).json({ error: 'Account already verified' });
@@ -100,8 +101,16 @@ exports.createOrder = async (req, res) => {
         } else if (['bronze', 'silver', 'gold'].includes(plan)) {
             const cfg = settings.plans[plan];
             if (!cfg) return res.status(400).json({ error: 'Plan not configured' });
-            amountPaise = cfg.price * 100;
-            description = `${PLAN_LABEL[plan]} Plan — Monthly`;
+            let monthlyPrice;
+            if (isAnnual) {
+                const ap = settings.annualPlans?.[plan];
+                monthlyPrice = (ap?.price > 0) ? ap.price : Math.round(cfg.price * (1 - (settings.annualDiscount ?? 20) / 100));
+                amountPaise = monthlyPrice * 12 * 100;
+                description = `${PLAN_LABEL[plan]} Plan — Annual (12 months)`;
+            } else {
+                amountPaise = cfg.price * 100;
+                description = `${PLAN_LABEL[plan]} Plan — Monthly`;
+            }
         } else {
             return res.status(400).json({ error: 'Invalid plan' });
         }
@@ -112,7 +121,7 @@ exports.createOrder = async (req, res) => {
             amount:   amountPaise,
             currency: 'INR',
             receipt,
-            notes:    { userId: user._id.toString(), plan, userName: user.name, userEmail: user.email },
+            notes:    { userId: user._id.toString(), plan, billing, userName: user.name, userEmail: user.email },
         });
 
         res.json({
@@ -133,7 +142,7 @@ exports.createOrder = async (req, res) => {
 exports.verifyPayment = async (req, res) => {
     if (req.isAdmin) return res.status(400).json({ error: 'Not applicable for admin' });
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan, billing = 'monthly' } = req.body;
 
         const expected = crypto
             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -154,11 +163,19 @@ exports.verifyPayment = async (req, res) => {
             user.trialVerified = true;
         } else if (['bronze', 'silver', 'gold'].includes(plan)) {
             const cfg = settings.plans[plan];
-            amount = cfg?.price || 0;
+            const isAnnual = billing === 'annually';
+            const months = isAnnual ? 12 : 1;
+            if (isAnnual) {
+                const ap = settings.annualPlans?.[plan];
+                const monthlyPrice = (ap?.price > 0) ? ap.price : Math.round((cfg?.price || 0) * (1 - (settings.annualDiscount ?? 20) / 100));
+                amount = monthlyPrice * 12;
+            } else {
+                amount = cfg?.price || 0;
+            }
             const now        = new Date();
             const currentEnd = user.planEndsAt && user.planEndsAt > now ? user.planEndsAt : now;
             const newEnd     = new Date(currentEnd);
-            newEnd.setMonth(newEnd.getMonth() + 1);
+            newEnd.setMonth(newEnd.getMonth() + months);
             user.plan        = plan;
             user.planEndsAt  = newEnd;
             user.trialVerified = true;
@@ -175,6 +192,7 @@ exports.verifyPayment = async (req, res) => {
             userEmail: user.email,
             type:      plan === 'verification' ? 'verification' : 'plan',
             plan:      plan === 'verification' ? null : plan,
+            billing:   plan === 'verification' ? null : billing,
             amount,
             utr:       razorpay_payment_id,
             razorpay_payment_id,

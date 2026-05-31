@@ -155,7 +155,7 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                                 })}
                             </ul>
                             <button className="pss-btn" style={{ background: PLAN_GRADIENT[p] || `linear-gradient(135deg,${accent},${accent}cc)` }}
-                                onClick={() => onSelect(p)}>
+                                onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}>
                                 {isVerif ? 'Start Free Trial' : `Get ${PLAN_LABEL[p]}`}
                             </button>
                         </div>
@@ -176,6 +176,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const [paying,   setPaying]  = useState(false);
     const [success,  setSuccess] = useState(false);
     const [error,    setError]   = useState('');
+    const [billing,  setBilling] = useState('monthly');
     const paymentDone = React.useRef(false);
 
     const isSelect       = plan === 'select';
@@ -228,7 +229,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
         let orderData;
         try {
-            const res = await createOrder({ plan });
+            const res = await createOrder({ plan, billing });
             orderData = res.data;
         } catch (e) {
             setError(e.response?.data?.error || 'Could not create payment order. Please try again.');
@@ -256,6 +257,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature:  response.razorpay_signature,
                         plan,
+                        billing,
                     });
                     // Fetch fresh user data so profile gate doesn't trigger
                     try {
@@ -294,13 +296,8 @@ export default function PaymentPage({ user, onUserUpdate }) {
                 planData={planData}
                 user={user}
                 onBack={() => navigate(-1)}
-                onSelect={(p, customSites) => {
-                    if (p === 'custom') {
-                        const subject = encodeURIComponent('Custom Plan Enquiry');
-                        const body = encodeURIComponent(`Hi,\n\nI need a custom plan for ${customSites} sites.\n\nName: ${user?.name}\nEmail: ${user?.email}`);
-                        window.location.href = `mailto:support@servermonitor.narendrasingh.site?subject=${subject}&body=${body}`;
-                        return;
-                    }
+                onSelect={(p, selectedBilling) => {
+                    setBilling(selectedBilling || 'monthly');
                     navigate(p === 'verification' ? '/pay?plan=verification' : `/pay?plan=${p}`);
                 }}
             />
