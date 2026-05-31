@@ -438,7 +438,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const endsAt = calcEndsAt();
         if (!endsAt) { showToast('Select plan end date'); return; }
         try {
-            await adminUpdateUser(assignModal.user._id, { plan: assignForm.plan, planEndsAt: endsAt, billing: assignForm.billing, planDuration: assignForm.duration === 'custom' ? '1m' : assignForm.duration, isBlocked: false });
+            await adminUpdateUser(assignModal.user._id, { plan: assignForm.plan, planEndsAt: endsAt, billing: assignForm.billing, planDuration: assignForm.planDuration || (assignForm.duration === 'custom' ? '1m' : assignForm.duration), isBlocked: false });
             showToast(`${PLAN_LABEL[assignForm.plan]} assigned to ${assignModal.user.name}`);
             setAssignModal(null);
             load();
@@ -1755,12 +1755,17 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             {/* Billing Type */}
                             <div style={{ marginBottom: 16 }}>
                                 <div style={{ fontSize: 12, fontWeight: 700, color: T.sub, marginBottom: 8 }}>BILLING TYPE</div>
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                    {[['monthly','📅 Monthly'],['annually','📆 Annual']].map(([val, label]) => (
-                                        <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing: val }))}
-                                            style={{ flex:1, padding:'9px 0', border:`2px solid ${assignForm.billing===val?(val==='annually'?'#f59e0b':'#3b82f6'):T.border}`, borderRadius:8, fontWeight:700, fontSize:13, cursor:'pointer',
-                                                background: assignForm.billing===val?(val==='annually'?'#fef3c7':'#eff6ff'):'#fff',
-                                                color: assignForm.billing===val?(val==='annually'?'#b45309':'#1d4ed8'):T.sub }}>
+                                <div style={{ display: 'flex', gap: 8, flexWrap:'wrap' }}>
+                                    {[
+                                        ['monthly','📅 Monthly','#3b82f6','#eff6ff','#1d4ed8'],
+                                        ['3m','📅 3 Months','#8b5cf6','#f3f0ff','#6d28d9'],
+                                        ['6m','📅 6 Months','#10b981','#f0fdf4','#065f46'],
+                                        ['annually','📆 Annual','#f59e0b','#fef3c7','#b45309'],
+                                    ].map(([val, label, border, bg, color]) => (
+                                        <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing: val === 'annually' ? 'annually' : 'monthly', planDuration: val === 'annually' ? '1y' : val }))}
+                                            style={{ flex:1, minWidth:80, padding:'9px 0', border:`2px solid ${assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? border : T.border}`, borderRadius:8, fontWeight:700, fontSize:12, cursor:'pointer',
+                                                background: assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? bg : '#fff',
+                                                color: assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? color : T.sub }}>
                                             {label}
                                         </button>
                                     ))}
@@ -1774,7 +1779,9 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             }}>
                                 Plan: <strong style={{ color: PLAN_COLORS[assignForm.plan] }}>{PLAN_LABEL[assignForm.plan]}</strong>
                                 &nbsp;·&nbsp;
-                                Billing: <strong style={{ color: assignForm.billing==='annually'?'#b45309':'#1d4ed8' }}>{assignForm.billing==='annually'?'Annual':'Monthly'}</strong>
+                                Billing: <strong style={{ color: assignForm.billing==='annually'?'#b45309':'#1d4ed8' }}>
+                                    {assignForm.billing==='annually'?'Annual':assignForm.planDuration==='3m'?'3 Months':assignForm.planDuration==='6m'?'6 Months':'Monthly'}
+                                </strong>
                                 &nbsp;·&nbsp;
                                 Expires: <strong style={{ color: T.text }}>{calcEndsAt() || '—'}</strong>
                             </div>
