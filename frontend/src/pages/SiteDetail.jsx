@@ -119,16 +119,22 @@ export default function SiteDetail() {
     // 24h uptime bar
     const hist24 = server?.history?.slice(-48) || [];
 
-    if (loading) return (
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:300, color:'#94a3b8', fontSize:16 }}>
-            Loading...
-        </div>
-    );
-    if (!server) return (
-        <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>
-            <div style={{fontSize:40, marginBottom:12}}>🔍</div>
-            <div style={{fontWeight:700}}>Site not found</div>
-            <button onClick={()=>navigate('/monitoring')} style={{marginTop:16, padding:'8px 20px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, cursor:'pointer'}}>← Back</button>
+    if (loading || !server) return (
+        <div style={{ padding:'32px 24px' }}>
+            {/* Skeleton loader */}
+            <div style={{ display:'flex', gap:12, marginBottom:28 }}>
+                <div style={{ width:120, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
+                <div style={{ flex:1 }}/>
+                <div style={{ width:80, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
+                <div style={{ width:80, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:16, marginBottom:24 }}>
+                {[1,2,3,4].map(i=>(
+                    <div key={i} style={{ height:90, borderRadius:14, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
+                ))}
+            </div>
+            <div style={{ height:200, borderRadius:16, background:'#f1f5f9', marginBottom:20, animation:'pulse 1.5s ease-in-out infinite' }}/>
+            <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
         </div>
     );
 
