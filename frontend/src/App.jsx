@@ -633,7 +633,7 @@ function AppInner() {
               {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
               <Route path="/add-monitor" element={<AddMonitor />} />
-              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} />} />
               <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />

@@ -215,7 +215,9 @@ const IcoDiscord  = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill=
 const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xmlns="http://www.w3.org/2000/svg"><g fillRule="nonzero" fill="none"><path d="M302.326 118.304l.005.007-.002-.003-.003-.004zM103.893 13.408c10.625 5.903 20.67 13.37 29.247 21.67 13.827-2.504 28.084-3.767 42.547-3.767 43.298 0 84.348 11.36 115.58 31.981 16.175 10.684 29.031 23.36 38.207 37.68 10.22 15.957 15.4 33.116 15.4 51.503 0 17.892-5.18 35.058-15.4 51.011-9.176 14.327-22.032 27-38.206 37.684-31.233 20.62-72.28 31.974-115.58 31.974-14.464 0-28.718-1.263-42.548-3.765-8.581 8.297-18.622 15.769-29.247 21.67-56.773 28.438-103.854.67-103.854.67s43.773-37.168 36.655-69.75c-19.586-20.077-30.197-44.291-30.197-69.982 0-25.207 10.615-49.42 30.197-69.5C43.811 49.913.054 12.752.039 12.74c.014-.009 47.09-27.768 103.854.668z" fill="#DB2323"/><path d="M69.964 208.766c-19.484-15.38-31.18-35.061-31.18-56.512 0-49.223 61.582-89.126 137.547-89.126s137.547 39.903 137.547 89.126c0 49.223-61.582 89.126-137.547 89.126-18.722 0-36.57-2.424-52.839-6.814l-11.894 11.49c-6.462 6.242-14.037 11.892-21.932 16.343-10.466 5.148-20.8 7.957-31.024 8.814.576-1.05 1.107-2.114 1.678-3.166 11.917-21.989 15.132-41.75 9.644-59.281z" fill="#FFF"/><path d="M110.528 172.151c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.194 0-20.267-9.043-20.267-20.2 0-11.155 9.073-20.199 20.267-20.199 11.193 0 20.267 9.044 20.267 20.2 0 11.156-9.074 20.2-20.267 20.2v-.001z" fill="#DB2323"/></g></svg>);
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
-export default function Integrations() {
+export default function Integrations({ user, freeAccess = {} }) {
+    const isFree = user?.plan === 'free_trial';
+    const blocked = (key) => isFree && freeAccess[key] === false;
     const [servers,     setServers]     = useState([]);
     const [emailActive, setEmailActive] = useState(false);
     const [waModal,     setWaModal]     = useState(false);
@@ -376,7 +378,7 @@ export default function Integrations() {
             <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, marginBottom:10 }}>Platform Alerts</div>
 
             {[
-                { iconEl:<IcoWhatsApp/>, name:'WhatsApp', desc:'Receive WhatsApp alerts when your site goes down or recovers.', onAdd:()=>setWaModal(true), badge: null },
+                { iconEl:<IcoWhatsApp/>, name:'WhatsApp', desc:'Receive WhatsApp alerts when your site goes down or recovers.', onAdd: blocked('whatsapp') ? null : ()=>setWaModal(true), badge: null, isBlocked: blocked('whatsapp') },
                 { iconEl:<IcoGmail/>,    name:'Email',    desc:'Receive email alerts when your site goes down or recovers.', onAdd:()=>setEmailModal(true), badge: null },
             ].map(intg => (
                 <div key={intg.name} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
@@ -389,7 +391,9 @@ export default function Integrations() {
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         {intg.badge && <span style={{ fontSize:11, fontWeight:700, background:intg.badge.bg, color:intg.badge.color, padding:'3px 10px', borderRadius:20 }}>{intg.badge.label}</span>}
-                        {intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
+                        {intg.isBlocked
+                            ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                            : intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
                     </div>
                 </div>
             ))}
@@ -407,9 +411,10 @@ export default function Integrations() {
                 <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                     {saved.webhook && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
                     {saved.webhook && <button onClick={()=>deleteIntegration('webhook')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
-                    <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
-                        {saved.webhook ? '✏️ Edit' : '+ Add'}
-                    </button>
+                    {blocked('webhook')
+                        ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                        : <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.webhook ? '✏️ Edit' : '+ Add'}</button>
+                    }
                 </div>
             </div>
 
@@ -425,9 +430,10 @@ export default function Integrations() {
                 <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                     {saved.rocketchat && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
                     {saved.rocketchat && <button onClick={()=>deleteIntegration('rocketchat')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
-                    <button onClick={openRcModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
-                        {saved.rocketchat ? '✏️ Edit' : '+ Add'}
-                    </button>
+                    {blocked('rocketChat')
+                        ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                        : <button onClick={openRcModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.rocketchat ? '✏️ Edit' : '+ Add'}</button>
+                    }
                 </div>
             </div>
 
