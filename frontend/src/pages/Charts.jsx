@@ -1,3 +1,4 @@
+let _loaded_Charts = false;
 import React, { useEffect, useState } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -15,13 +16,13 @@ export default function Charts() {
   const [siteSearch, setSiteSearch]     = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [uptimeSearch, setUptimeSearch] = useState('');
-  const [pageLoading, setPageLoading]   = useState(true);
+  const [pageLoading, setPageLoading]   = useState(!_loaded_Charts);
 
   useEffect(() => {
     getServers().then(r => {
       setServers(r.data);
       if (r.data.length > 0) setSelectedId(r.data[0]._id);
-      setPageLoading(false);
+      setPageLoading(false); _loaded_Charts = true;
     }).catch(()=>setPageLoading(false));
     getAlerts().then(r => setAlerts(r.data));
   }, []);

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+let _loaded = false;
 import { useNavigate } from 'react-router-dom';
 import { getServers, checkNow, deleteServer } from '../api';
 
@@ -46,9 +47,9 @@ export default function Dashboard({ readOnly = false }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(!_loaded);
 
-  const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); setPageLoading(false); }).catch(()=>setPageLoading(false));
+  const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); setPageLoading(false); _loaded = true; }).catch(()=>setPageLoading(false));
 
   useEffect(() => {
     load();

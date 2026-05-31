@@ -1,3 +1,4 @@
+let _loaded_DomainSSL = false;
 import React, { useEffect, useState } from 'react';
 import { getServers, getExpiry } from '../api';
 
@@ -8,9 +9,9 @@ export default function DomainSSL() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [checkingAll, setCheckingAll] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(!_loaded_DomainSSL);
 
-  const load = () => getServers().then(r => { setServers(r.data); setPageLoading(false); }).catch(()=>setPageLoading(false));
+  const load = () => getServers().then(r => { setServers(r.data); setPageLoading(false); _loaded_DomainSSL = true; }).catch(()=>setPageLoading(false));
   useEffect(() => { load(); }, []);
 
   const checkOne = async (server) => {

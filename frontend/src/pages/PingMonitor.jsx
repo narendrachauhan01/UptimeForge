@@ -1,3 +1,4 @@
+let _loaded_PingMonitor = false;
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { API_URL } from '../api';
@@ -375,11 +376,11 @@ export default function PingMonitor() {
     const [selected,    setSelected]    = useState(null);
     const [addModal,    setAddModal]    = useState(false);
     const [editTarget,  setEditTarget]  = useState(null);
-    const [pageLoading, setPageLoading] = useState(true);
+    const [pageLoading, setPageLoading] = useState(!_loaded_PingMonitor);
 
     const load = () =>
         axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true })
-            .then(r=>{ setTargets(r.data); setPageLoading(false); })
+            .then(r=>{ setTargets(r.data); setPageLoading(false); _loaded_PingMonitor = true; })
             .catch(()=>setPageLoading(false));
 
     useEffect(() => { load(); const t=setInterval(load,30000); return()=>clearInterval(t); }, []);

@@ -1,3 +1,4 @@
+let _loaded_Alerts = false;
 import React, { useEffect, useState } from 'react';
 import { getAlerts } from '../api';
 
@@ -5,9 +6,9 @@ export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState('all');
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(!_loaded_Alerts);
 
-  useEffect(() => { getAlerts().then(r => { setAlerts(r.data); setPageLoading(false); }).catch(()=>setPageLoading(false)); }, []);
+  useEffect(() => { getAlerts().then(r => { setAlerts(r.data); setPageLoading(false); _loaded_Alerts = true; }).catch(()=>setPageLoading(false)); }, []);
 
   const filtered = alerts.filter(a => {
     const q = search.toLowerCase();
