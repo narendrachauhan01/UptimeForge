@@ -177,6 +177,7 @@ exports.verifyPayment = async (req, res) => {
             const newEnd     = new Date(currentEnd);
             newEnd.setMonth(newEnd.getMonth() + months);
             user.plan        = plan;
+            user.billing     = billing;
             user.planEndsAt  = newEnd;
             user.trialVerified = true;
             planEndsAt = newEnd;

@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, default: null },
     googleId:   { type: String, default: null },
     plan: { type: String, enum: ['free_trial', 'bronze', 'silver', 'gold'], default: 'free_trial' },
+    billing: { type: String, enum: ['monthly', 'annually'], default: 'monthly' },
     trialEndsAt: { type: Date },
     planEndsAt: { type: Date },
     isBlocked: { type: Boolean, default: false },

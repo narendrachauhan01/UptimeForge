@@ -192,6 +192,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const [editForm, setEditForm]   = useState({});
     const [search, setSearch]       = useState('');
     const [planFilter, setPlanFilter] = useState('all');
+    const [billingFilter, setBillingFilter] = useState('all');
     const [toast, setToast]         = useState('');
     const [settingsForm, setSettingsForm] = useState(null);
     const [settingsSaving, setSettingsSaving] = useState(false);
@@ -339,7 +340,8 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const q = search.toLowerCase();
         const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q);
         const matchPlan = planFilter === 'all' || u.plan === planFilter;
-        return matchSearch && matchPlan;
+        const matchBilling = billingFilter === 'all' || (billingFilter === 'annually' ? u.billing === 'annually' : (u.billing === 'monthly' || !u.billing));
+        return matchSearch && matchPlan && matchBilling;
     });
 
     // Stats for overview
@@ -749,7 +751,26 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                     background: planFilter === p ? (p !== 'all' ? PLAN_COLORS[p] : T.primary) : '#fff',
                                     color: planFilter === p ? '#fff' : T.sub,
                                 }}>
-                                    {p === 'all' ? 'All' : PLAN_LABEL[p]}
+                                    {p === 'all' ? 'All Plans' : PLAN_LABEL[p]}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Billing filter pills */}
+                        <div style={{ display: 'flex', gap: 6 }}>
+                            {[['all','All Billing'],['monthly','📅 Monthly'],['annually','📆 Annual']].map(([val, label]) => (
+                                <button key={val} onClick={() => setBillingFilter(val)} style={{
+                                    padding: '7px 14px',
+                                    border: `1px solid ${billingFilter === val ? (val === 'annually' ? '#f59e0b' : val === 'monthly' ? '#3b82f6' : T.primary) : T.border}`,
+                                    borderRadius: 9999, fontSize: 12, fontWeight: 600,
+                                    cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                                    background: billingFilter === val ? (val === 'annually' ? '#f59e0b' : val === 'monthly' ? '#3b82f6' : T.primary) : '#fff',
+                                    color: billingFilter === val ? '#fff' : T.sub,
+                                }}>
+                                    {label}
+                                    {val !== 'all' && <span style={{ marginLeft:6, background:'rgba(255,255,255,0.25)', borderRadius:50, padding:'1px 7px', fontSize:11 }}>
+                                        {val === 'annually' ? users.filter(u => u.billing === 'annually').length : users.filter(u => u.billing === 'monthly' || !u.billing).length}
+                                    </span>}
                                 </button>
                             ))}
                         </div>
@@ -847,6 +868,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 14 }}>
                                                                     {[
                                                                         { label: 'Plan',       val: <PlanBadge plan={u.plan} /> },
+                                                                        { label: 'Billing',    val: <span style={{ fontWeight:700, fontSize:12, padding:'2px 10px', borderRadius:50, background: u.billing==='annually'?'#fef3c7':'#eff6ff', color: u.billing==='annually'?'#b45309':'#2563eb' }}>{u.billing === 'annually' ? '📆 Annual' : '📅 Monthly'}</span> },
                                                                         { label: 'Status',     val: <StatusBadge u={u} /> },
                                                                         { label: 'Sites',      val: <strong>{u.serverCount || 0}</strong> },
                                                                         { label: 'Trial Ends', val: <strong>{fmt(u.trialEndsAt)}</strong> },
