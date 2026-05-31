@@ -195,13 +195,13 @@ export default function SupportTickets() {
                         <div key={t._id} onClick={()=>openTicket(t)}
                             style={{ background: t.adminUnread?'#faf5ff':'#fff', borderRadius:12, border:`1.5px solid ${selected?._id===t._id?'#7c3aed':t.adminUnread?'#c4b5fd':'#e2e8f0'}`, padding:'14px 16px', marginBottom:8, cursor:'pointer', borderLeft:`4px solid ${prioColor(t.priority)}`, transition:'all 0.15s', position:'relative' }}>
                             {t.adminUnread && (
-                                <div style={{ position:'absolute', top:10, right:10, width:10, height:10, borderRadius:'50%', background:'#7c3aed', boxShadow:'0 0 0 3px rgba(124,58,237,0.25)' }}/>
+                                <div style={{ position:'absolute', top:10, right:10, minWidth:18, height:18, borderRadius:9, background:'#ef4444', color:'#fff', fontSize:11, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 5px', boxShadow:'0 0 0 3px rgba(239,68,68,0.2)' }}>1</div>
                             )}
                             <div style={{ fontWeight: t.adminUnread?800:700, fontSize:13, color:'#1e1b4b', marginBottom:4, paddingRight:16 }}>{t.subject}</div>
                             <div style={{ fontSize:11, color:'#94a3b8', marginBottom:6 }}>
                                 {t.name} · {new Date(t.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}
                                 {t.replies?.length>0 && <span style={{ marginLeft:6 }}>· {t.replies.length} replies</span>}
-                                {t.adminUnread && <span style={{ marginLeft:6, color:'#7c3aed', fontWeight:700 }}>· New message!</span>}
+                                {t.adminUnread && <span style={{ marginLeft:6, color:'#ef4444', fontWeight:700 }}>· New message!</span>}
                             </div>
                             <div style={{ display:'flex', gap:6 }}>
                                 <span style={{ padding:'2px 8px', borderRadius:20, fontSize:10, fontWeight:700, background:prioBg(t.priority), color:prioColor(t.priority) }}>{prioLabel(t.priority)}</span>

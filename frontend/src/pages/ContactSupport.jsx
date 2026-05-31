@@ -416,7 +416,7 @@ export default function ContactSupport({ user }) {
                         <div>
                             <div style={{ fontSize:14, color:'#1d4ed8', fontWeight: t.userUnread?800:500, display:'flex', alignItems:'center', gap:8 }}>
                                 {t.subject}
-                                {t.userUnread && <span style={{ width:8, height:8, borderRadius:'50%', background:'#7c3aed', display:'inline-block', flexShrink:0 }}/>}
+                                {t.userUnread && <span style={{ minWidth:18, height:18, borderRadius:9, background:'#ef4444', color:'#fff', fontSize:11, fontWeight:800, display:'inline-flex', alignItems:'center', justifyContent:'center', padding:'0 5px', flexShrink:0 }}>1</span>}
                             </div>
                             {t.userUnread
                                 ? <div style={{ fontSize:11, color:'#7c3aed', fontWeight:700, marginTop:2 }}>🛡 Support team replied!</div>
