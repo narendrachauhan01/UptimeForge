@@ -283,7 +283,7 @@ export default function IntegrationBackend() {
             {toast && <div style={{ background: toast.startsWith('✅')?'#f0fdf4':'#fef2f2', border:`1px solid ${toast.startsWith('✅')?'#bbf7d0':'#fecdd3'}`, color: toast.startsWith('✅')?'#16a34a':'#dc2626', borderRadius:10, padding:'10px 16px', marginBottom:16, fontWeight:600, fontSize:14 }}>{toast}</div>}
             <div className="pg-header">
                 <div>
-                    <h1 className="pg-title">Integration Backend <span style={{color:'#7c3aed'}}>.</span></h1>
+                    <h1 className="pg-title">Payment Admin Panel <span style={{color:'#7c3aed'}}>.</span></h1>
                     <p className="pg-sub">Configure notification services — click a card to set up</p>
                 </div>
                 <button onClick={async()=>{
