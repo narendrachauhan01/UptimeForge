@@ -118,7 +118,6 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <main>
     <div className="login-split">
 
       {/* ── LEFT PANEL ── */}
@@ -327,6 +326,5 @@ export default function Login({ onLogin }) {
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
-    </main>
   );
 }
