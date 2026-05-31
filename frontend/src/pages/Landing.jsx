@@ -303,6 +303,55 @@ export default function Landing() {
               </div>
             ))}
           </div>
+          {/* 3M / 6M Custom Cards */}
+          {[
+            { key:'threeMonth', emoji:'🗓️', gradient:'linear-gradient(135deg,#8b5cf6,#6d28d9)', label: planData?.customPlans?.threeMonth?.label || '3 Month Plan', duration:'3 months', color:'#8b5cf6' },
+            { key:'sixMonth',   emoji:'📅', gradient:'linear-gradient(135deg,#10b981,#059669)', label: planData?.customPlans?.sixMonth?.label   || '6 Month Plan', duration:'6 months', color:'#10b981' },
+          ].filter(c => planData?.customPlans?.[c.key]?.enabled !== false).map(c => {
+            const cp = planData?.customPlans?.[c.key];
+            const features = (cp?.features || []).map(f => { const i=f.indexOf(':'); return i===-1?{type:'ok',label:f}:{type:f.slice(0,i),label:f.slice(i+1)}; });
+            return (
+              <div key={c.key} style={{ maxWidth:900, margin:'24px auto 0', background:'#fff', borderRadius:16, border:'1px solid #E5E7EB', boxShadow:'0 4px 20px rgba(0,0,0,0.08)', overflow:'hidden' }}>
+                <div style={{ background:c.gradient, padding:'20px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                    <span style={{ fontSize:32 }}>{c.emoji}</span>
+                    <div>
+                      <div style={{ fontSize:20, fontWeight:800, color:'#fff' }}>{c.label}</div>
+                      <div style={{ fontSize:13, color:'rgba(255,255,255,0.75)', marginTop:2 }}>Custom {c.duration} plan · Contact our team</div>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap:20 }}>
+                    {cp?.price > 0 && (
+                      <div style={{ textAlign:'right' }}>
+                        <div style={{ fontSize:28, fontWeight:900, color:'#fff' }}>₹{cp.price}<span style={{ fontSize:14, fontWeight:500, opacity:0.75 }}>/mo</span></div>
+                        <div style={{ fontSize:12, color:'rgba(255,255,255,0.65)' }}>billed every {c.duration}</div>
+                      </div>
+                    )}
+                    <button onClick={() => navigate('/support')}
+                      style={{ padding:'12px 28px', borderRadius:50, border:'2px solid rgba(255,255,255,0.8)', background:'rgba(255,255,255,0.15)', color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', backdropFilter:'blur(8px)', transition:'all 0.2s' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.25)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,0.15)'}>
+                      Contact Support →
+                    </button>
+                  </div>
+                </div>
+                {features.length > 0 && (
+                  <div style={{ padding:'16px 28px', display:'flex', flexWrap:'wrap', gap:'8px 32px' }}>
+                    {features.map(({type,label}) => (
+                      <div key={label} style={{ display:'flex', alignItems:'center', gap:6, fontSize:13, color: type==='no'?'#9CA3AF':'#374151', opacity:type==='no'?0.5:1 }}>
+                        {type==='ok'      && <svg width="13" height="13" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>}
+                        {type==='no'      && <svg width="13" height="13" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                        {type==='limited' && <span style={{fontSize:12}}>😐</span>}
+                        {type==='soon'    && <span style={{fontSize:11}}>🔜</span>}
+                        <span>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
           <div className="lp-pricing-note">
             <span>💳 Pay via UPI · Card · Netbanking · Wallets</span>
             <span>🔒 Secure checkout by Razorpay</span>

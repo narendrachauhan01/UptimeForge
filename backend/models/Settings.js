@@ -68,6 +68,20 @@ const settingsSchema = new mongoose.Schema({
         silver:   { price: { type: Number, default: 0 } },
         gold:     { price: { type: Number, default: 0 } },
     },
+    customPlans: {
+        threeMonth: {
+            enabled: { type: Boolean, default: true },
+            price:   { type: Number, default: 0 },
+            label:   { type: String, default: '3 Month Plan' },
+            features:{ type: [String], default: [] },
+        },
+        sixMonth: {
+            enabled: { type: Boolean, default: true },
+            price:   { type: Number, default: 0 },
+            label:   { type: String, default: '6 Month Plan' },
+            features:{ type: [String], default: [] },
+        },
+    },
     plans: {
         bronze: {
             price:           { type: Number, default: 499 },
@@ -157,6 +171,20 @@ settingsSchema.statics.update = async function (data) {
             if (data.annualPlans[k]?.price !== undefined) s.annualPlans[k].price = Number(data.annualPlans[k].price) || 0;
         }
         s.markModified('annualPlans');
+    }
+    if (data.customPlans) {
+        for (const k of ['threeMonth', 'sixMonth']) {
+            if (data.customPlans[k]) {
+                if (data.customPlans[k].enabled !== undefined) s.customPlans[k].enabled = !!data.customPlans[k].enabled;
+                if (data.customPlans[k].price   !== undefined) s.customPlans[k].price   = Number(data.customPlans[k].price) || 0;
+                if (data.customPlans[k].label   !== undefined) s.customPlans[k].label   = data.customPlans[k].label;
+                if (data.customPlans[k].features !== undefined) {
+                    const f = sanitizeFeatures(data.customPlans[k].features);
+                    if (f) s.customPlans[k].features = f;
+                }
+            }
+        }
+        s.markModified('customPlans');
     }
     if (data.plans) {
         for (const key of ['bronze', 'silver', 'gold']) {

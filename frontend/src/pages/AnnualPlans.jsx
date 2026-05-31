@@ -29,6 +29,18 @@ export default function AnnualPlans() {
                 bronze: { monthlyPrice: monthly.bronze, annualPrice: d.annualPlans?.bronze?.price || 0 },
                 silver: { monthlyPrice: monthly.silver, annualPrice: d.annualPlans?.silver?.price || 0 },
                 gold:   { monthlyPrice: monthly.gold,   annualPrice: d.annualPlans?.gold?.price   || 0 },
+                threeMonth: {
+                    enabled:  d.customPlans?.threeMonth?.enabled ?? true,
+                    price:    d.customPlans?.threeMonth?.price || 0,
+                    label:    d.customPlans?.threeMonth?.label || '3 Month Plan',
+                    features: (d.customPlans?.threeMonth?.features || []).join('\n'),
+                },
+                sixMonth: {
+                    enabled:  d.customPlans?.sixMonth?.enabled ?? true,
+                    price:    d.customPlans?.sixMonth?.price || 0,
+                    label:    d.customPlans?.sixMonth?.label || '6 Month Plan',
+                    features: (d.customPlans?.sixMonth?.features || []).join('\n'),
+                },
             });
             setPageLoading(false);
             _loaded_AnnualPlans = true;
@@ -47,6 +59,10 @@ export default function AnnualPlans() {
                     bronze: { price: Number(form.bronze.annualPrice) },
                     silver: { price: Number(form.silver.annualPrice) },
                     gold:   { price: Number(form.gold.annualPrice)   },
+                },
+                customPlans: {
+                    threeMonth: { enabled: form.threeMonth.enabled, price: Number(form.threeMonth.price), label: form.threeMonth.label, features: form.threeMonth.features.split('\n').map(s=>s.trim()).filter(Boolean) },
+                    sixMonth:   { enabled: form.sixMonth.enabled,   price: Number(form.sixMonth.price),   label: form.sixMonth.label,   features: form.sixMonth.features.split('\n').map(s=>s.trim()).filter(Boolean) },
                 },
             });
             setSaved(true);
@@ -134,6 +150,56 @@ export default function AnnualPlans() {
                         </div>
                     );
                 })}
+            </div>
+
+            {/* 3 Month & 6 Month Custom Plans */}
+            <div style={{ background:'#fff', borderRadius:12, border:'1px solid #E5E7EB', padding:'20px 24px', marginBottom:20 }}>
+                <div style={{ fontWeight:700, fontSize:15, color:'#111827', marginBottom:4 }}>Custom Duration Plans</div>
+                <div style={{ fontSize:13, color:'#6B7280', marginBottom:20 }}>3-Month and 6-Month plan cards shown on Landing page with "Contact Support" button</div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:20 }}>
+                    {[
+                        { key:'threeMonth', label:'3 Month Plan', color:'#8b5cf6', bg:'#f3f0ff', emoji:'🗓️' },
+                        { key:'sixMonth',   label:'6 Month Plan', color:'#10b981', bg:'#f0fdf4', emoji:'📅' },
+                    ].map(({ key, label, color, bg, emoji }) => {
+                        const p = form[key];
+                        return (
+                            <div key={key} style={{ borderRadius:12, border:`1px solid #E5E7EB`, borderTop:`4px solid ${color}`, padding:'20px 24px' }}>
+                                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                                        <span style={{ fontSize:24 }}>{emoji}</span>
+                                        <div style={{ fontWeight:800, fontSize:16, color }}>{label}</div>
+                                    </div>
+                                    <button onClick={() => setForm(f => ({ ...f, [key]: { ...f[key], enabled: !f[key].enabled } }))}
+                                        style={{ width:44, height:24, borderRadius:50, border:'none', cursor:'pointer', position:'relative', background: p.enabled ? color : '#D1D5DB' }}>
+                                        <span style={{ position:'absolute', top:2, left: p.enabled?22:2, width:20, height:20, borderRadius:'50%', background:'#fff', transition:'all 0.2s' }}/>
+                                    </button>
+                                </div>
+                                <div style={{ display:'grid', gap:12 }}>
+                                    <div>
+                                        <label style={labelStyle}>Card Title</label>
+                                        <input type="text" value={p.label} onChange={e => setForm(f => ({ ...f, [key]: { ...f[key], label: e.target.value } }))} style={inputStyle} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Price (₹/month shown)</label>
+                                        <input type="number" min="0" value={p.price} placeholder="e.g. 399" onChange={e => setForm(f => ({ ...f, [key]: { ...f[key], price: e.target.value } }))} style={inputStyle} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Features (one per line, use ok:/no:/limited:/soon: prefix)</label>
+                                        <textarea rows={6} value={p.features} onChange={e => setForm(f => ({ ...f, [key]: { ...f[key], features: e.target.value } }))}
+                                            placeholder={'ok:5 sites monitored\nok:Email alerts\nno:WhatsApp alerts'}
+                                            style={{ ...inputStyle, resize:'vertical', lineHeight:1.6 }} />
+                                    </div>
+                                    {p.price > 0 && (
+                                        <div style={{ background: bg, borderRadius:8, padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                                            <span style={{ fontSize:13, color:'#374151', fontWeight:500 }}>Price shown on card:</span>
+                                            <span style={{ fontSize:18, fontWeight:800, color }}>₹{p.price}<span style={{ fontSize:12, fontWeight:500, color:'#9CA3AF' }}>/mo</span></span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
