@@ -105,7 +105,12 @@ export default function SupportTickets() {
     const filtered = sorted.filter(t=>{
         const q=search.toLowerCase();
         const matchSearch=!q||t.subject?.toLowerCase().includes(q)||t.name?.toLowerCase().includes(q)||t.email?.toLowerCase().includes(q);
-        const matchFilter=filter==='all'||(filter==='solved'&&t.status==='resolved')||(filter==='pending'&&(t.status==='open'||t.status==='in_progress'));
+        const matchFilter=filter==='all'
+            ||(filter==='solved'&&t.status==='resolved')
+            ||(filter==='pending'&&(t.status==='open'||t.status==='in_progress'))
+            ||(filter==='high'&&t.priority==='high')
+            ||(filter==='medium'&&t.priority==='medium')
+            ||(filter==='low'&&t.priority==='low');
         return matchSearch&&matchFilter;
     });
 
@@ -137,8 +142,16 @@ export default function SupportTickets() {
                                 <div style={{ fontWeight:700, fontSize:15, color:'#111827' }}>
                                     Ticket #{selected._id.slice(-6).toUpperCase()} — {selected.subject}
                                 </div>
-                                <div style={{ fontSize:12, color:'#9CA3AF', marginTop:3 }}>
-                                    {new Date(selected.createdAt).toLocaleDateString('en-US',{weekday:'short'})}, {new Date(selected.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})} ({timeAgo(selected.createdAt)})
+                                <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
+                                    <span style={{ fontSize:12, color:'#9CA3AF' }}>
+                                        {new Date(selected.createdAt).toLocaleDateString('en-US',{weekday:'short'})}, {new Date(selected.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})} ({timeAgo(selected.createdAt)})
+                                    </span>
+                                    <span style={{ fontSize:11, fontWeight:700, padding:'2px 10px', borderRadius:20,
+                                        color: selected.priority==='high'?'#DC2626':selected.priority==='medium'?'#D97706':'#6B7280',
+                                        background: selected.priority==='high'?'#FEF2F2':selected.priority==='medium'?'#FFFBEB':'#F9FAFB',
+                                        border: `1px solid ${selected.priority==='high'?'#FECDD3':selected.priority==='medium'?'#FDE68A':'#E5E7EB'}` }}>
+                                        {selected.priority==='high'?'🔴 High':selected.priority==='medium'?'🟡 Medium':'🟢 Low'}
+                                    </span>
                                 </div>
                             </div>
                             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -229,13 +242,7 @@ export default function SupportTickets() {
                                     <span style={{ color:selected.status===v?c:'#6B7280', fontWeight:selected.status===v?700:500 }}>{l}</span>
                                 </label>
                             ))}
-                            <div style={{ marginLeft:'auto', display:'flex', gap:8 }}>
-                                <select value={selected.priority} onChange={e=>update(selected._id,{priority:e.target.value})}
-                                    style={{ padding:'5px 10px', border:'1px solid #E5E7EB', borderRadius:6, fontSize:12, color:'#374151', cursor:'pointer' }}>
-                                    <option value="low">🟢 Low</option>
-                                    <option value="medium">🟡 Medium</option>
-                                    <option value="high">🔴 High</option>
-                                </select>
+                            <div style={{ marginLeft:'auto' }}>
                                 <button onClick={()=>del(selected._id)} style={{ padding:'5px 14px', background:'#FEF2F2', border:'1px solid #FECDD3', borderRadius:6, color:'#EF4444', fontSize:12, cursor:'pointer', fontWeight:600 }}>Delete</button>
                             </div>
                         </div>
@@ -289,21 +296,24 @@ export default function SupportTickets() {
                 <p style={{ fontSize:14,color:'#6B7280',margin:0 }}>Manage customer support requests</p>
             </div>
 
-            {/* Stats row */}
+            {/* Stats row — clickable filters */}
             <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginBottom:24 }}>
                 {[
-                    { label:'Total tickets',   value:tickets.length,                                          icon:'🎫', bg:'#EEF2FF', color:'#4F46E5' },
-                    { label:'Pending tickets', value:tickets.filter(t=>t.status==='open'||t.status==='in_progress').length, icon:'⏳', bg:'#FFF7ED', color:'#EA580C' },
-                    { label:'Solved tickets',  value:tickets.filter(t=>t.status==='resolved').length,         icon:'✅', bg:'#F0FDF4', color:'#16A34A' },
-                ].map(s=>(
-                    <div key={s.label} style={{ background:'#fff',borderRadius:12,border:'1px solid #E5E7EB',padding:'20px 24px',boxShadow:'0 1px 3px rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:16 }}>
-                        <div style={{ width:52,height:52,borderRadius:12,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0 }}>{s.icon}</div>
-                        <div>
-                            <div style={{ fontSize:28,fontWeight:800,color:'#111827',lineHeight:1 }}>{s.value}</div>
-                            <div style={{ fontSize:13,color:'#6B7280',marginTop:4 }}>{s.label}</div>
+                    { label:'Total tickets',   value:tickets.length,                                                                       icon:'🎫', bg:'#EEF2FF', color:'#4F46E5', f:'all' },
+                    { label:'Pending tickets', value:tickets.filter(t=>t.status==='open'||t.status==='in_progress').length,                icon:'⏳', bg:'#FFF7ED', color:'#EA580C', f:'pending' },
+                    { label:'Solved tickets',  value:tickets.filter(t=>t.status==='resolved').length,                                     icon:'✅', bg:'#F0FDF4', color:'#16A34A', f:'solved' },
+                ].map(s=>{
+                    const active=filter===s.f;
+                    return (
+                        <div key={s.label} onClick={()=>setFilter(active?'all':s.f)} style={{ background:'#fff',borderRadius:12,border:`1px solid ${active?s.color:'#E5E7EB'}`,padding:'20px 24px',boxShadow:active?`0 4px 12px ${s.color}25`:'0 1px 3px rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:16,cursor:'pointer',transition:'all 0.15s' }}>
+                            <div style={{ width:52,height:52,borderRadius:12,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0 }}>{s.icon}</div>
+                            <div>
+                                <div style={{ fontSize:28,fontWeight:800,color:active?s.color:'#111827',lineHeight:1 }}>{s.value}</div>
+                                <div style={{ fontSize:13,color:'#6B7280',marginTop:4 }}>{s.label}</div>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Table card */}
