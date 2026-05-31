@@ -216,7 +216,8 @@ const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xml
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Integrations({ user, freeAccess = {} }) {
-    const isFree = user?.plan === 'free_trial';
+    const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free_trial');
+    const isFree = currentPlan === 'free_trial';
     const blocked = (key) => isFree && freeAccess[key] === false;
     const [servers,     setServers]     = useState([]);
     const [emailActive, setEmailActive] = useState(false);
@@ -228,6 +229,9 @@ export default function Integrations({ user, freeAccess = {} }) {
     const showToast = (m) => { setToast(m); setTimeout(()=>setToast(''), 3000); };
 
     useEffect(() => {
+        // Fetch fresh user plan from API to avoid stale session issue
+        axios.get(`${API_URL}/api/users/me`, { withCredentials: true })
+            .then(r => { if (r.data?.plan) setCurrentPlan(r.data.plan); }).catch(()=>{});
         getServers().then(r => setServers(r.data)).catch(()=>{});
         axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
             .then(r => {
