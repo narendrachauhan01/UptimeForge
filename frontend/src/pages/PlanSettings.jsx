@@ -1,9 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { adminGetSettings, adminUpdateSettings } from '../api';
 
-const PLAN_COLORS = { bronze: '#b45309', silver: '#475569', gold: '#ca8a04' };
-const PLAN_LABEL  = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
-const PLAN_EMOJI  = { bronze: '🥉', silver: '🥈', gold: '🥇' };
+const PLAN_COLORS   = { bronze: '#B45309', silver: '#475569', gold: '#CA8A04' };
+const PLAN_BG       = { bronze: '#FEF3C7', silver: '#F1F5F9', gold: '#FEF9C3' };
+const PLAN_LABEL    = { bronze: 'Bronze',  silver: 'Silver',  gold: 'Gold'   };
+const PLAN_EMOJI    = { bronze: '🥉',      silver: '🥈',      gold: '🥇'    };
+
+const inputStyle = {
+    width: '100%',
+    padding: '10px 14px',
+    border: '1px solid #E5E7EB',
+    borderRadius: 8,
+    fontSize: 14,
+    color: '#111827',
+    background: '#fff',
+    boxSizing: 'border-box',
+    outline: 'none',
+};
+
+const labelStyle = {
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#374151',
+    display: 'block',
+    marginBottom: 6,
+};
+
+const hintStyle = {
+    fontSize: 11,
+    color: '#9CA3AF',
+    marginTop: 4,
+    display: 'block',
+};
 
 export default function PlanSettings() {
     const [form, setForm] = useState(null);
@@ -58,128 +86,273 @@ export default function PlanSettings() {
         setSaving(false);
     };
 
-    if (!form) return <div className="pg-wrap"><p style={{ color:'#94a3b8', padding:40 }}>Loading...</p></div>;
+    if (!form) return (
+        <div className="pg-wrap">
+            <p style={{ color: '#9CA3AF', padding: 40, fontSize: 14 }}>Loading...</p>
+        </div>
+    );
+
+    const isSuccess = toast.startsWith('✅');
 
     return (
         <div className="pg-wrap">
+            {/* Page Header */}
             <div className="pg-header">
                 <div>
-                    <h1 className="pg-title">Plan Settings</h1>
-                    <p className="pg-sub">Configure pricing, limits and features for each plan</p>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111827', margin: 0 }}>
+                        Plan Settings
+                    </h1>
+                    <p style={{ fontSize: 14, color: '#6B7280', margin: '4px 0 0' }}>
+                        Configure pricing, limits and features for each plan
+                    </p>
                 </div>
-                <button onClick={save} disabled={saving}
-                    style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, padding:'10px 24px', fontWeight:700, fontSize:14, cursor:'pointer', opacity: saving ? 0.7 : 1 }}>
-                    {saving ? 'Saving...' : '💾 Save Changes'}
+                <button
+                    onClick={save}
+                    disabled={saving}
+                    style={{
+                        background: saving ? '#9CA3AF' : '#4F46E5',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '9px 18px',
+                        fontWeight: 600,
+                        fontSize: 14,
+                        cursor: saving ? 'not-allowed' : 'pointer',
+                    }}
+                >
+                    {saving ? 'Saving...' : 'Save Changes'}
                 </button>
             </div>
 
+            {/* Toast */}
             {toast && (
-                <div style={{ background: toast.startsWith('✅') ? '#f0fdf4' : '#fef2f2', border:`1px solid ${toast.startsWith('✅') ? '#bbf7d0' : '#fecdd3'}`, color: toast.startsWith('✅') ? '#15803d' : '#dc2626', borderRadius:10, padding:'10px 16px', marginBottom:20, fontWeight:600, fontSize:14 }}>
+                <div style={{
+                    background: isSuccess ? '#F0FDF4' : '#FEF2F2',
+                    border: `1px solid ${isSuccess ? '#BBF7D0' : '#FECDD3'}`,
+                    color: isSuccess ? '#15803D' : '#DC2626',
+                    borderRadius: 10,
+                    padding: '10px 16px',
+                    marginBottom: 20,
+                    fontWeight: 600,
+                    fontSize: 14,
+                }}>
                     {toast}
                 </div>
             )}
 
-            {/* Free Trial */}
-            <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:24, marginBottom:20 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
-                    <span style={{ fontSize:24 }}>🆓</span>
+            {/* Free Trial card */}
+            <div style={{
+                background: '#fff',
+                borderRadius: 10,
+                border: '1px solid #E5E7EB',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                padding: 24,
+                marginBottom: 20,
+            }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: '#9CA3AF', marginBottom: 16 }}>
+                    Free Trial
+                </div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>
+                    Applied to all new registrations
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
                     <div>
-                        <div style={{ fontWeight:800, fontSize:16, color:'#1e1b4b' }}>Free Trial</div>
-                        <div style={{ fontSize:12, color:'#94a3b8' }}>Applied to all new registrations</div>
+                        <label style={labelStyle}>Trial Duration (days)</label>
+                        <input
+                            type="number" min="1"
+                            value={form.trialDays}
+                            onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Verification Fee (₹)</label>
+                        <input
+                            type="number" min="0"
+                            value={form.verificationFee}
+                            onChange={e => setForm({ ...form, verificationFee: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Site Check Interval (sec)</label>
+                        <input
+                            type="number" min="60" step="30"
+                            value={form.freeTrialInterval}
+                            onChange={e => setForm({ ...form, freeTrialInterval: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
+                        <span style={hintStyle}>{Math.floor(form.freeTrialInterval / 60)} min per check</span>
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Ping Interval (sec)</label>
+                        <input
+                            type="number" min="30" step="30"
+                            value={form.freeTrialPingInterval}
+                            onChange={e => setForm({ ...form, freeTrialPingInterval: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
+                        <span style={hintStyle}>{Math.floor(form.freeTrialPingInterval / 60)} min per ping</span>
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Max Recipients</label>
+                        <input
+                            type="number" min="1"
+                            value={form.freeTrialRecipientLimit}
+                            onChange={e => setForm({ ...form, freeTrialRecipientLimit: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
                     </div>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:16 }}>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Trial Duration (days)</label>
-                        <input type="number" min="1" value={form.trialDays} onChange={e => setForm({...form, trialDays: Number(e.target.value)})}
-                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
-                    </div>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Verification Fee (₹)</label>
-                        <input type="number" min="0" value={form.verificationFee} onChange={e => setForm({...form, verificationFee: Number(e.target.value)})}
-                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
-                    </div>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Site Check Interval (sec)</label>
-                        <input type="number" min="60" step="30" value={form.freeTrialInterval} onChange={e => setForm({...form, freeTrialInterval: Number(e.target.value)})}
-                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
-                        <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>{Math.floor(form.freeTrialInterval/60)} min per check</span>
-                    </div>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Ping Interval (sec)</label>
-                        <input type="number" min="30" step="30" value={form.freeTrialPingInterval} onChange={e => setForm({...form, freeTrialPingInterval: Number(e.target.value)})}
-                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
-                        <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>{Math.floor(form.freeTrialPingInterval/60)} min per ping</span>
-                    </div>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Max Recipients</label>
-                        <input type="number" min="1" value={form.freeTrialRecipientLimit} onChange={e => setForm({...form, freeTrialRecipientLimit: Number(e.target.value)})}
-                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
-                    </div>
-                </div>
-                <div style={{ marginTop:16 }}>
-                    <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Features (one per line · format: ok/no/limited/soon:text)</label>
-                    <textarea value={form.freeTrialFeatures} onChange={e => setForm({...form, freeTrialFeatures: e.target.value})}
-                        style={{ width:'100%', minHeight:120, padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:12, fontFamily:'monospace', lineHeight:1.7, resize:'vertical', boxSizing:'border-box' }}
-                        placeholder="ok:2 sites monitored&#10;limited:5 min check interval&#10;no:SSL expiry monitoring" />
+                <div style={{ marginTop: 16 }}>
+                    <label style={{ ...labelStyle, marginBottom: 6 }}>
+                        Features <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(one per line · format: ok/no/limited/soon:text)</span>
+                    </label>
+                    <textarea
+                        value={form.freeTrialFeatures}
+                        onChange={e => setForm({ ...form, freeTrialFeatures: e.target.value })}
+                        style={{
+                            width: '100%',
+                            minHeight: 120,
+                            padding: '10px 14px',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                            lineHeight: 1.7,
+                            resize: 'vertical',
+                            boxSizing: 'border-box',
+                            color: '#374151',
+                            outline: 'none',
+                        }}
+                        placeholder="ok:2 sites monitored&#10;limited:5 min check interval&#10;no:SSL expiry monitoring"
+                    />
                 </div>
             </div>
 
-            {/* Paid Plans */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:20 }}>
+            {/* Paid Plans grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
                 {['bronze', 'silver', 'gold'].map(pk => (
-                    <div key={pk} style={{ background:'#fff', borderRadius:16, border:`2px solid ${PLAN_COLORS[pk]}30`, padding:24, borderTop:`4px solid ${PLAN_COLORS[pk]}` }}>
-                        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
-                            <span style={{ fontSize:24 }}>{PLAN_EMOJI[pk]}</span>
-                            <div style={{ fontWeight:800, fontSize:16, color: PLAN_COLORS[pk] }}>{PLAN_LABEL[pk]}</div>
+                    <div key={pk} style={{
+                        background: '#fff',
+                        borderRadius: 10,
+                        border: '1px solid #E5E7EB',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                        overflow: 'hidden',
+                    }}>
+                        {/* Plan header bar */}
+                        <div style={{
+                            padding: '14px 20px',
+                            background: PLAN_BG[pk],
+                            borderBottom: `1px solid ${PLAN_COLORS[pk]}30`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                        }}>
+                            <span style={{ fontSize: 20 }}>{PLAN_EMOJI[pk]}</span>
+                            <span style={{ fontWeight: 800, fontSize: 15, color: PLAN_COLORS[pk] }}>
+                                {PLAN_LABEL[pk]}
+                            </span>
                         </div>
-                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Price (₹/month)</label>
-                                <input type="number" min="0" value={form.plans[pk].price} onChange={e => setPlanField(pk, 'price', e.target.value)}
-                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+
+                        <div style={{ padding: 20 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                                <div>
+                                    <label style={labelStyle}>Price (₹/month)</label>
+                                    <input
+                                        type="number" min="0"
+                                        value={form.plans[pk].price}
+                                        onChange={e => setPlanField(pk, 'price', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Max Sites</label>
+                                    <input
+                                        type="number" min="1"
+                                        value={form.plans[pk].sites}
+                                        onChange={e => setPlanField(pk, 'sites', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Site Check Interval (sec)</label>
+                                    <input
+                                        type="number" min="30" step="30"
+                                        value={form.plans[pk].interval}
+                                        onChange={e => setPlanField(pk, 'interval', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                    <span style={hintStyle}>
+                                        {form.plans[pk].interval >= 60 ? `${form.plans[pk].interval / 60}m` : `${form.plans[pk].interval}s`} per check
+                                    </span>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Ping Interval (sec)</label>
+                                    <input
+                                        type="number" min="30" step="30"
+                                        value={form.plans[pk].pingInterval}
+                                        onChange={e => setPlanField(pk, 'pingInterval', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                    <span style={hintStyle}>
+                                        {form.plans[pk].pingInterval >= 60 ? `${form.plans[pk].pingInterval / 60}m` : `${form.plans[pk].pingInterval}s`} per ping
+                                    </span>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Max Recipients</label>
+                                    <input
+                                        type="number" min="1"
+                                        value={form.plans[pk].recipientLimit}
+                                        onChange={e => setPlanField(pk, 'recipientLimit', e.target.value)}
+                                        style={inputStyle}
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Max Sites</label>
-                                <input type="number" min="1" value={form.plans[pk].sites} onChange={e => setPlanField(pk, 'sites', e.target.value)}
-                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+                                <label style={labelStyle}>Features (one per line)</label>
+                                <textarea
+                                    value={form.plans[pk].features}
+                                    onChange={e => setPlanField(pk, 'features', e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        minHeight: 150,
+                                        padding: '10px 14px',
+                                        border: '1px solid #E5E7EB',
+                                        borderRadius: 8,
+                                        fontSize: 12,
+                                        fontFamily: 'monospace',
+                                        lineHeight: 1.7,
+                                        resize: 'vertical',
+                                        boxSizing: 'border-box',
+                                        color: '#374151',
+                                        outline: 'none',
+                                    }}
+                                    placeholder={`ok:${form.plans[pk].sites} sites monitored\nok:Email alerts\nno:SSL expiry monitoring`}
+                                />
                             </div>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Site Check Interval (sec)</label>
-                                <input type="number" min="30" step="30" value={form.plans[pk].interval} onChange={e => setPlanField(pk, 'interval', e.target.value)}
-                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
-                                <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>
-                                    {form.plans[pk].interval >= 60 ? `${form.plans[pk].interval/60}m` : `${form.plans[pk].interval}s`} per check
-                                </span>
-                            </div>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Ping Interval (sec)</label>
-                                <input type="number" min="30" step="30" value={form.plans[pk].pingInterval} onChange={e => setPlanField(pk, 'pingInterval', e.target.value)}
-                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
-                                <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>
-                                    {form.plans[pk].pingInterval >= 60 ? `${form.plans[pk].pingInterval/60}m` : `${form.plans[pk].pingInterval}s`} per ping
-                                </span>
-                            </div>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Max Recipients</label>
-                                <input type="number" min="1" value={form.plans[pk].recipientLimit} onChange={e => setPlanField(pk, 'recipientLimit', e.target.value)}
-                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
-                            </div>
-                        </div>
-                        <div>
-                            <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Features (one per line)</label>
-                            <textarea value={form.plans[pk].features} onChange={e => setPlanField(pk, 'features', e.target.value)}
-                                style={{ width:'100%', minHeight:150, padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:12, fontFamily:'monospace', lineHeight:1.7, resize:'vertical', boxSizing:'border-box' }}
-                                placeholder={`ok:${form.plans[pk].sites} sites monitored\nok:Email alerts\nno:SSL expiry monitoring`} />
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div style={{ marginTop:24, textAlign:'right' }}>
-                <button onClick={save} disabled={saving}
-                    style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, padding:'12px 32px', fontWeight:700, fontSize:15, cursor:'pointer', opacity: saving ? 0.7 : 1 }}>
-                    {saving ? 'Saving...' : '💾 Save All Changes'}
+            {/* Save footer */}
+            <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                    onClick={save}
+                    disabled={saving}
+                    style={{
+                        background: saving ? '#9CA3AF' : '#4F46E5',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '9px 24px',
+                        fontWeight: 600,
+                        fontSize: 14,
+                        cursor: saving ? 'not-allowed' : 'pointer',
+                    }}
+                >
+                    {saving ? 'Saving...' : 'Save All Changes'}
                 </button>
             </div>
         </div>

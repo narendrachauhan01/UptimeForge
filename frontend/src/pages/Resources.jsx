@@ -25,34 +25,67 @@ function pct(used, total) {
 }
 
 function colorByPct(p) {
-  return p >= 90 ? '#ef4444' : p >= 70 ? '#f59e0b' : '#10b981';
+  return p >= 90 ? '#EF4444' : p >= 70 ? '#F59E0B' : '#10B981';
 }
 
 function MiniBar({ value, color }) {
   return (
-    <div style={{ height: 6, background: '#f1f5f9', borderRadius: 10, overflow: 'hidden', marginTop: 4 }}>
+    <div style={{ height: 6, background: '#F1F5F9', borderRadius: 10, overflow: 'hidden', marginTop: 6 }}>
       <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 10, transition: 'width 0.5s' }} />
     </div>
   );
 }
 
-function InfoBox({ icon, title, children, accent = '#7c3aed' }) {
+// TailAdmin-style info card
+function InfoBox({ icon, title, children, accent = '#4F46E5' }) {
   return (
-    <div className="res-info-box">
-      <div className="res-info-box-header" style={{ borderLeft: `3px solid ${accent}` }}>
-        <span>{icon}</span>
-        <span className="res-info-box-title">{title}</span>
+    <div style={{
+      background: '#fff',
+      borderRadius: 10,
+      border: '1px solid #E5E7EB',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '12px 16px',
+        background: '#F9FAFB',
+        borderBottom: '1px solid #E5E7EB',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        borderLeft: `3px solid ${accent}`,
+      }}>
+        <span style={{ fontSize: 16 }}>{icon}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#374151' }}>
+          {title}
+        </span>
       </div>
-      <div className="res-info-box-body">{children}</div>
+      <div style={{ padding: '12px 16px' }}>{children}</div>
     </div>
   );
 }
 
 function InfoRow({ label, value, mono }) {
   return (
-    <div className="res-info-item">
-      <span className="res-info-key">{label}</span>
-      <span className={`res-info-val ${mono ? 'mono' : ''}`}>{value || '—'}</span>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '6px 0',
+      borderBottom: '1px solid #F9FAFB',
+      gap: 8,
+    }}>
+      <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 500, flexShrink: 0 }}>{label}</span>
+      <span style={{
+        fontSize: 13,
+        fontWeight: 600,
+        color: '#111827',
+        fontFamily: mono ? 'monospace' : 'inherit',
+        textAlign: 'right',
+        wordBreak: 'break-all',
+      }}>
+        {value || '—'}
+      </span>
     </div>
   );
 }
@@ -107,312 +140,354 @@ export default function Resources() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="chart-tooltip">
-        <p className="chart-tooltip-label">{label}</p>
-        {payload.map((p, i) => <p key={i} style={{ color: p.color }}>{p.name}: {p.value}%</p>)}
+      <div style={{
+        background: '#fff',
+        border: '1px solid #E5E7EB',
+        borderRadius: 8,
+        padding: '8px 12px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        fontSize: 12,
+      }}>
+        <p style={{ fontWeight: 700, color: '#374151', marginBottom: 4 }}>{label}</p>
+        {payload.map((p, i) => (
+          <p key={i} style={{ color: p.color, margin: '2px 0' }}>{p.name}: {p.value}%</p>
+        ))}
       </div>
     );
   };
 
   if (loading) return (
     <div className="pg-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
-      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+      <div style={{ textAlign: 'center', color: '#9CA3AF' }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>⏳</div>
-        <p>Loading metrics...</p>
+        <p style={{ fontSize: 14 }}>Loading metrics...</p>
       </div>
     </div>
   );
 
   const s = selected;
-  const ramPct = s ? pct(s.ramUsed, s.ramTotal) : 0;
+  const ramPct  = s ? pct(s.ramUsed,  s.ramTotal)  : 0;
   const diskPct = s ? pct(s.diskUsed, s.diskTotal) : 0;
   const swapPct = s ? pct(s.swapUsed, s.swapTotal) : 0;
   const isOnline = s ? (Date.now() - new Date(s.timestamp).getTime()) < 60000 : false;
 
   return (
     <div className="pg-wrap">
+      {/* Page Header */}
       <div className="pg-header">
         <div>
-          <h1 className="pg-title">Infra Monitor</h1>
-          <p className="pg-sub">Real-time server resource monitoring</p>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111827', margin: 0 }}>
+            Infra Monitor
+          </h1>
+          <p style={{ fontSize: 14, color: '#6B7280', margin: '4px 0 0' }}>
+            Real-time server resource monitoring
+          </p>
         </div>
-        <span className="res-live-badge">🟢 Live {secondsAgo > 0 && `— ${secondsAgo}s ago`}</span>
+        {/* Live badge */}
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '6px 14px',
+          background: '#F0FDF4',
+          border: '1px solid #BBF7D0',
+          borderRadius: 20,
+          fontSize: 13,
+          fontWeight: 600,
+          color: '#15803D',
+        }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
+          Live {secondsAgo > 0 && `— ${secondsAgo}s ago`}
+        </span>
       </div>
 
       {servers.length === 0 ? (
-        <div className="data-card">
-          <div className="empty-msg">
-            <div style={{ fontSize: 48, marginBottom: 14 }}>📡</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#475569', marginBottom: 8 }}>No agents connected</div>
-            <code style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: 8, fontSize: 13 }}>
-              git clone https://github.com/narendrachauhan01/Agent-collect-server-resource.git
-            </code>
-          </div>
+        <div style={{
+          background: '#fff',
+          borderRadius: 10,
+          border: '1px solid #E5E7EB',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+          padding: 48,
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 48, marginBottom: 14 }}>📡</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#374151', marginBottom: 8 }}>No agents connected</div>
+          <code style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '6px 12px', borderRadius: 8, fontSize: 13, color: '#374151' }}>
+            git clone https://github.com/narendrachauhan01/Agent-collect-server-resource.git
+          </code>
         </div>
       ) : (
         <>
           {/* Server selector tabs */}
           {servers.length > 1 && (
-            <div className="res-server-tabs">
-              {servers.map(sv => (
-                <button key={sv.serverId}
-                  className={`res-server-tab ${selected?.serverId === sv.serverId ? 'active' : ''}`}
-                  onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                  <span className={`res-online-dot ${(Date.now() - new Date(sv.timestamp).getTime()) < 60000 ? 'online' : 'offline'}`} style={{ width: 8, height: 8 }} />
-                  {sv.serverName}
-                </button>
-              ))}
+            <div style={{
+              display: 'flex',
+              gap: 8,
+              marginBottom: 16,
+              flexWrap: 'wrap',
+            }}>
+              {servers.map(sv => {
+                const svOnline = (Date.now() - new Date(sv.timestamp).getTime()) < 60000;
+                const active = selected?.serverId === sv.serverId;
+                return (
+                  <button
+                    key={sv.serverId}
+                    onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      border: active ? '1px solid #4F46E5' : '1px solid #E5E7EB',
+                      background: active ? '#4F46E5' : '#fff',
+                      color: active ? '#fff' : '#374151',
+                      fontWeight: 600,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: svOnline ? '#10B981' : '#9CA3AF',
+                      display: 'inline-block',
+                      flexShrink: 0,
+                    }} />
+                    {sv.serverName}
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {s && (
             <>
-              {/* Server header */}
-              <div className="res-server-header">
-                <div className="res-server-header-left">
-                  <div className={`res-online-dot ${isOnline ? 'online' : 'offline'}`} />
+              {/* Server header card */}
+              <div style={{
+                background: '#fff',
+                borderRadius: 10,
+                border: '1px solid #E5E7EB',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 16,
+                flexWrap: 'wrap',
+                gap: 12,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    background: isOnline ? '#10B981' : '#EF4444',
+                    flexShrink: 0,
+                  }} />
                   <div>
-                    <div className="res-server-name">{s.serverName}</div>
-                    <div className="res-server-meta">{s.hostname} • {s.platform} • {s.uptimeStr || formatUptime(s.uptime)}</div>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: '#111827' }}>{s.serverName}</div>
+                    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                      {s.hostname} &bull; {s.platform} &bull; {s.uptimeStr || formatUptime(s.uptime)}
+                    </div>
                   </div>
                 </div>
-                <span className={`pill ${isOnline ? 'pill-up' : 'pill-down'}`}>{isOnline ? 'Online' : 'Offline'}</span>
+                <span style={{
+                  padding: '4px 12px',
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: isOnline ? '#D1FAE5' : '#FEE2E2',
+                  color: isOnline ? '#065F46' : '#991B1B',
+                  border: `1px solid ${isOnline ? '#A7F3D0' : '#FECDD3'}`,
+                }}>
+                  {isOnline ? 'Online' : 'Offline'}
+                </span>
               </div>
 
-              {/* Quick metrics row */}
-              <div className="res-quick-row">
-                <div className="res-quick-box" style={{ borderTop: `3px solid ${colorByPct(s.cpu)}` }}>
-                  <div className="res-quick-val" style={{ color: colorByPct(s.cpu) }}>{s.cpu || 0}%</div>
-                  <div className="res-quick-label">CPU</div>
-                  <MiniBar value={s.cpu || 0} color={colorByPct(s.cpu)} />
-                </div>
-                <div className="res-quick-box" style={{ borderTop: `3px solid ${colorByPct(ramPct)}` }}>
-                  <div className="res-quick-val" style={{ color: colorByPct(ramPct) }}>{ramPct}%</div>
-                  <div className="res-quick-label">RAM</div>
-                  <MiniBar value={ramPct} color={colorByPct(ramPct)} />
-                </div>
-                <div className="res-quick-box" style={{ borderTop: `3px solid ${colorByPct(diskPct)}` }}>
-                  <div className="res-quick-val" style={{ color: colorByPct(diskPct) }}>{diskPct}%</div>
-                  <div className="res-quick-label">Disk</div>
-                  <MiniBar value={diskPct} color={colorByPct(diskPct)} />
-                </div>
-                {s.swapTotal > 0 && (
-                  <div className="res-quick-box" style={{ borderTop: `3px solid ${colorByPct(swapPct)}` }}>
-                    <div className="res-quick-val" style={{ color: colorByPct(swapPct) }}>{swapPct}%</div>
-                    <div className="res-quick-label">Swap</div>
-                    <MiniBar value={swapPct} color={colorByPct(swapPct)} />
-                  </div>
-                )}
-                {s.cpuTemp && (
-                  <div className="res-quick-box" style={{ borderTop: `3px solid ${s.cpuTemp >= 80 ? '#ef4444' : s.cpuTemp >= 60 ? '#f59e0b' : '#10b981'}` }}>
-                    <div className="res-quick-val" style={{ color: s.cpuTemp >= 80 ? '#ef4444' : s.cpuTemp >= 60 ? '#f59e0b' : '#10b981' }}>{s.cpuTemp}°C</div>
-                    <div className="res-quick-label">CPU Temp</div>
-                  </div>
-                )}
-                <div className="res-quick-box" style={{ borderTop: '3px solid #7c3aed' }}>
-                  <div className="res-quick-val" style={{ color: '#7c3aed' }}>{s.load1 || 0}</div>
-                  <div className="res-quick-label">Load (1m)</div>
-                </div>
+              {/* Quick metric cards */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                gap: 12,
+                marginBottom: 20,
+              }}>
+                {[
+                  { label: 'CPU', value: `${s.cpu || 0}%`, pctVal: s.cpu || 0 },
+                  { label: 'RAM', value: `${ramPct}%`, pctVal: ramPct },
+                  { label: 'Disk', value: `${diskPct}%`, pctVal: diskPct },
+                  ...(s.swapTotal > 0 ? [{ label: 'Swap', value: `${swapPct}%`, pctVal: swapPct }] : []),
+                  ...(s.cpuTemp ? [{ label: 'CPU Temp', value: `${s.cpuTemp}°C`, pctVal: s.cpuTemp, tempMode: true }] : []),
+                  { label: 'Load (1m)', value: `${s.load1 || 0}`, fixed: true, accent: '#4F46E5' },
+                ].map((m, idx) => {
+                  const color = m.fixed ? m.accent : m.tempMode
+                    ? (m.pctVal >= 80 ? '#EF4444' : m.pctVal >= 60 ? '#F59E0B' : '#10B981')
+                    : colorByPct(m.pctVal);
+                  return (
+                    <div key={idx} style={{
+                      background: '#fff',
+                      borderRadius: 10,
+                      border: '1px solid #E5E7EB',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      padding: '16px 16px 14px',
+                      borderTop: `3px solid ${color}`,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: '#9CA3AF', marginBottom: 6 }}>
+                        {m.label}
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 800, color }}>
+                        {m.value}
+                      </div>
+                      {!m.fixed && !m.tempMode && (
+                        <MiniBar value={m.pctVal} color={color} />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Info boxes grid */}
-              <div className="res-boxes-grid">
-
-                {/* System */}
-                <InfoBox icon="🖥️" title="System" accent="#7c3aed">
-                  <InfoRow label="Hostname" value={s.hostname} />
-                  <InfoRow label="Platform" value={s.platform} />
-                  <InfoRow label="Uptime" value={s.uptimeStr || formatUptime(s.uptime)} />
-                  <InfoRow label="Users" value={s.users ? `${s.users} logged in` : null} />
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: 16,
+                marginBottom: 20,
+              }}>
+                <InfoBox icon="🖥️" title="System" accent="#4F46E5">
+                  <InfoRow label="Hostname"   value={s.hostname} />
+                  <InfoRow label="Platform"   value={s.platform} />
+                  <InfoRow label="Uptime"     value={s.uptimeStr || formatUptime(s.uptime)} />
+                  <InfoRow label="Users"      value={s.users ? `${s.users} logged in` : null} />
                   <InfoRow label="Last check" value={new Date(s.timestamp).toLocaleTimeString('en-IN')} />
                 </InfoBox>
 
-                {/* CPU */}
-                <InfoBox icon="⚙️" title="CPU" accent="#7c3aed">
-                  <InfoRow label="Usage" value={`${s.cpu || 0}%`} />
-                  <InfoRow label="Cores" value={s.cpuCores ? `${s.cpuCores} cores` : null} />
+                <InfoBox icon="⚙️" title="CPU" accent="#4F46E5">
+                  <InfoRow label="Usage"        value={`${s.cpu || 0}%`} />
+                  <InfoRow label="Cores"        value={s.cpuCores ? `${s.cpuCores} cores` : null} />
                   <InfoRow label="Architecture" value={s.cpuArch} />
                   {s.cpuTemp && <InfoRow label="Temperature" value={`${s.cpuTemp}°C`} />}
-                  <InfoRow label="Model" value={s.cpuModel ? s.cpuModel.substring(0, 35) : null} />
-                  <InfoRow label="Load avg" value={s.load1 !== undefined ? `${s.load1} · ${s.load5} · ${s.load15}` : null} />
+                  <InfoRow label="Model"        value={s.cpuModel ? s.cpuModel.substring(0, 35) : null} />
+                  <InfoRow label="Load avg"     value={s.load1 !== undefined ? `${s.load1} · ${s.load5} · ${s.load15}` : null} />
                 </InfoBox>
 
-                {/* Memory */}
-                <InfoBox icon="🧠" title="Memory" accent="#10b981">
-                  <InfoRow label="RAM Used" value={formatBytes(s.ramUsed)} />
-                  <InfoRow label="RAM Free" value={formatBytes(s.ramTotal - s.ramUsed)} />
-                  <InfoRow label="RAM Total" value={formatBytes(s.ramTotal)} />
+                <InfoBox icon="🧠" title="Memory" accent="#10B981">
+                  <InfoRow label="RAM Used"   value={formatBytes(s.ramUsed)} />
+                  <InfoRow label="RAM Free"   value={formatBytes(s.ramTotal - s.ramUsed)} />
+                  <InfoRow label="RAM Total"  value={formatBytes(s.ramTotal)} />
                   {s.swapTotal > 0 && <>
-                    <InfoRow label="Swap Used" value={formatBytes(s.swapUsed)} />
+                    <InfoRow label="Swap Used"  value={formatBytes(s.swapUsed)} />
                     <InfoRow label="Swap Total" value={formatBytes(s.swapTotal)} />
                   </>}
                 </InfoBox>
 
-                {/* Disk */}
-                <InfoBox icon="💾" title="Storage" accent="#06b6d4">
-                  <InfoRow label="Used" value={formatBytes(s.diskUsed)} />
-                  <InfoRow label="Free" value={formatBytes(s.diskTotal - s.diskUsed)} />
+                <InfoBox icon="💾" title="Storage" accent="#06B6D4">
+                  <InfoRow label="Used"  value={formatBytes(s.diskUsed)} />
+                  <InfoRow label="Free"  value={formatBytes(s.diskTotal - s.diskUsed)} />
                   <InfoRow label="Total" value={formatBytes(s.diskTotal)} />
                   <InfoRow label="Usage" value={`${diskPct}%`} />
                 </InfoBox>
 
-                {/* Network */}
-                <InfoBox icon="🌐" title="Network" accent="#f59e0b">
-                  <InfoRow label="Local IP" value={s.localIp} mono />
+                <InfoBox icon="🌐" title="Network" accent="#F59E0B">
+                  <InfoRow label="Local IP"  value={s.localIp}  mono />
                   <InfoRow label="Public IP" value={s.publicIp} mono />
                   {s.networkRoutes && s.networkRoutes.length > 0 && (
-                    <div className="res-routes">
-                      <div className="res-routes-title">Routes (ip r)</div>
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#9CA3AF', marginBottom: 8 }}>
+                        Routes (ip r)
+                      </div>
                       {s.networkRoutes.map((r, i) => (
-                        <div key={i} className="res-route-item">
-                          <span className={`res-route-dev ${r.isDefault ? 'default' : ''}`}>{r.dev}</span>
-                          <span className="res-route-net">{r.network || 'default'}</span>
-                          {r.src && <span className="res-route-src">{r.src}</span>}
+                        <div key={i} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '4px 0',
+                          borderBottom: '1px solid #F9FAFB',
+                          fontSize: 12,
+                        }}>
+                          <span style={{
+                            fontWeight: 700,
+                            color: r.isDefault ? '#4F46E5' : '#374151',
+                            fontFamily: 'monospace',
+                          }}>{r.dev}</span>
+                          <span style={{ color: '#6B7280', fontFamily: 'monospace' }}>{r.network || 'default'}</span>
+                          {r.src && <span style={{ color: '#9CA3AF', fontFamily: 'monospace' }}>{r.src}</span>}
                         </div>
                       ))}
                     </div>
                   )}
                 </InfoBox>
-
-                {/* Who is Logged In - w command */}
               </div>
 
-              {/* Active SSH Sessions */}
+              {/* Active SSH Sessions table */}
               {s.activeSessions && (
-                <div
-                  className="res-info-box"
-                  style={{
-                    marginTop: 24,
-                    marginBottom: 40,
-                    borderRadius: 24,
-                    overflow: 'hidden',
-                    background: '#fff',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-                    width: '100%'
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: '20px 28px',
-                      borderBottom: '1px solid #f1f5f9',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 24,
-                        marginRight: 12
-                      }}
-                    >
-                      👥
-                    </span>
-
-                    <h1
-                      style={{
-                        margin: 0,
-                        fontSize: 16,
-                        fontWeight: 800,
-                        color: '#0f172a',
-                        letterSpacing: '-0.5px'
-                      }}
-                    >
+                <div style={{
+                  background: '#fff',
+                  borderRadius: 10,
+                  border: '1px solid #E5E7EB',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  overflow: 'hidden',
+                  marginBottom: 20,
+                }}>
+                  <div style={{
+                    padding: '14px 20px',
+                    background: '#F9FAFB',
+                    borderBottom: '1px solid #E5E7EB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                  }}>
+                    <span style={{ fontSize: 16 }}>👥</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>
                       Active SSH Sessions
-                    </h1>
-
-                    <div
-                      style={{
-                        marginLeft: 'auto',
-                        color: '#10b981',
-                        fontWeight: 700,
-                        fontSize: 18
-                      }}
-                    >
+                    </span>
+                    <span style={{
+                      marginLeft: 'auto',
+                      padding: '3px 10px',
+                      borderRadius: 20,
+                      background: '#D1FAE5',
+                      color: '#065F46',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      border: '1px solid #A7F3D0',
+                    }}>
                       {s.activeSessions.length} online
-                    </div>
+                    </span>
                   </div>
-
-                  <div
-                    style={{
-                      overflowX: 'auto'
-                    }}
-                  >
-                    <table
-                      style={{
-                        width: '100%',
-                        borderCollapse: 'collapse'
-                      }}
-                    >
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
-                        <tr
-                          style={{
-                            background: '#f8fafc'
-                          }}
-                        >
-                          <th style={{ padding: 16 }}>USER</th>
-                          <th style={{ padding: 16 }}>TTY</th>
-                          <th style={{ padding: 16 }}>IP ADDRESS</th>
-                          <th style={{ padding: 16 }}>LOGIN</th>
-                          <th style={{ padding: 16 }}>IDLE</th>
-                          <th style={{ padding: 16 }}>COMMAND</th>
+                        <tr style={{ background: '#F9FAFB' }}>
+                          {['User', 'TTY', 'IP Address', 'Login', 'Idle', 'Command'].map(h => (
+                            <th key={h} style={{
+                              padding: '12px 16px',
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: '#6B7280',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              textAlign: 'left',
+                              borderBottom: '1px solid #E5E7EB',
+                            }}>
+                              {h}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
-
                       <tbody>
                         {s.activeSessions.map((u, i) => (
                           <tr
                             key={i}
-                            style={{
-                              borderTop: '1px solid #f1f5f9'
-                            }}
+                            style={{ borderBottom: '1px solid #F3F4F6' }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
+                            onMouseLeave={e => e.currentTarget.style.background = ''}
                           >
-                            <td
-                              style={{
-                                padding: 16,
-                                color: '#7c3aed',
-                                fontWeight: 700
-                              }}
-                            >
-                              {u.user}
-                            </td>
-
-                            <td style={{ padding: 16 }}>
-                              {u.tty}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: 12,
-                                color: '#10b981',
-                                fontFamily: 'monospace'
-                              }}
-                            >
-                              {u.from}
-                            </td>
-
-                            <td style={{ padding: 16 }}>
-                              {u.loginTime}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: 12,
-                                color: '#f59e0b'
-                              }}
-                            >
-                              {u.idle}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: 16,
-                                fontFamily: 'monospace',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              {u.what}
-                            </td>
+                            <td style={{ padding: '14px 16px', fontWeight: 700, color: '#4F46E5', fontSize: 13 }}>{u.user}</td>
+                            <td style={{ padding: '14px 16px', fontSize: 13, color: '#374151' }}>{u.tty}</td>
+                            <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontSize: 13, color: '#10B981' }}>{u.from}</td>
+                            <td style={{ padding: '14px 16px', fontSize: 13, color: '#374151' }}>{u.loginTime}</td>
+                            <td style={{ padding: '14px 16px', fontSize: 13, color: '#F59E0B', fontWeight: 600 }}>{u.idle}</td>
+                            <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap' }}>{u.what}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -421,46 +496,96 @@ export default function Resources() {
                 </div>
               )}
 
-              <div className="res-chart-section">
-
-                {/* Charts Start */}
-
-                <InfoBox icon="🔐" title="SSH Active Sessions" accent="#ef4444">
+              {/* SSH Sessions info box (summary card) */}
+              <div style={{ marginBottom: 20 }}>
+                <InfoBox icon="🔐" title="SSH Active Sessions" accent="#EF4444">
                   {s.activeSessions && s.activeSessions.length > 0 ? (
                     <>
                       {s.activeSessions.map((l, i) => (
-                        <div key={i} className="res-ssh-entry">
-                          <span className="res-ssh-user">{l.user}</span>
-                          <span className="res-ssh-ip">{l.from !== '-' ? l.from : l.tty}</span>
-                          <span className="res-ssh-time">Login: {l.loginTime} · Idle: {l.idle}</span>
-                          <span className="res-ssh-status active">🟢 Connected</span>
+                        <div key={i} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          padding: '8px 0',
+                          borderBottom: '1px solid #F3F4F6',
+                          flexWrap: 'wrap',
+                          fontSize: 13,
+                        }}>
+                          <span style={{ fontWeight: 700, color: '#4F46E5' }}>{l.user}</span>
+                          <span style={{ color: '#10B981', fontFamily: 'monospace' }}>{l.from !== '-' ? l.from : l.tty}</span>
+                          <span style={{ color: '#6B7280' }}>Login: {l.loginTime} · Idle: {l.idle}</span>
+                          <span style={{
+                            marginLeft: 'auto',
+                            padding: '2px 8px',
+                            borderRadius: 20,
+                            background: '#D1FAE5',
+                            color: '#065F46',
+                            fontSize: 11,
+                            fontWeight: 600,
+                          }}>Connected</span>
                         </div>
                       ))}
                       {s.lastSsh && s.lastSsh.filter(l => !l.active).length > 0 && (
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
-                          <div style={{ fontSize: 18, fontWeight: 700, color: '#94a3b8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Sessions</div>
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #F3F4F6' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#9CA3AF', marginBottom: 8 }}>
+                            Recent Sessions
+                          </div>
                           {s.lastSsh.filter(l => !l.active).slice(0, 3).map((l, i) => (
-                            <div key={i} className="res-ssh-entry">
-                              <span className="res-ssh-user">{l.user}</span>
-                              <span className="res-ssh-ip">{l.ip}</span>
-                              <span className="res-ssh-time">{l.time}</span>
-                              <span className="res-ssh-status">⚫ Ended</span>
+                            <div key={i} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              padding: '7px 0',
+                              borderBottom: '1px solid #F3F4F6',
+                              flexWrap: 'wrap',
+                              fontSize: 13,
+                            }}>
+                              <span style={{ fontWeight: 700, color: '#374151' }}>{l.user}</span>
+                              <span style={{ color: '#6B7280', fontFamily: 'monospace' }}>{l.ip}</span>
+                              <span style={{ color: '#9CA3AF' }}>{l.time}</span>
+                              <span style={{
+                                marginLeft: 'auto',
+                                padding: '2px 8px',
+                                borderRadius: 20,
+                                background: '#F3F4F6',
+                                color: '#6B7280',
+                                fontSize: 11,
+                                fontWeight: 600,
+                              }}>Ended</span>
                             </div>
                           ))}
                         </div>
                       )}
                     </>
                   ) : (
-                    <div style={{ color: '#94a3b8', fontSize: 18, padding: '8px 0' }}>
-                      🔴 No active sessions
+                    <div style={{ fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>
+                      No active sessions
                       {s.lastSsh && s.lastSsh.length > 0 && (
                         <div style={{ marginTop: 10 }}>
                           {s.lastSsh.slice(0, 3).map((l, i) => (
-                            <div key={i} className="res-ssh-entry">
-                              <span className="res-ssh-user">{l.user}</span>
-                              <span className="res-ssh-ip">{l.ip}</span>
-                              <span className="res-ssh-time">{l.time}</span>
-                              <span className={`res-ssh-status ${l.active ? 'active' : ''}`}>{l.active ? '🟢 Active' : '⚫ Ended'}</span>
+                            <div key={i} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              padding: '7px 0',
+                              borderBottom: '1px solid #F3F4F6',
+                              flexWrap: 'wrap',
+                              fontSize: 13,
+                            }}>
+                              <span style={{ fontWeight: 700, color: '#374151' }}>{l.user}</span>
+                              <span style={{ color: '#6B7280', fontFamily: 'monospace' }}>{l.ip}</span>
+                              <span style={{ color: '#9CA3AF' }}>{l.time}</span>
+                              <span style={{
+                                marginLeft: 'auto',
+                                padding: '2px 8px',
+                                borderRadius: 20,
+                                background: l.active ? '#D1FAE5' : '#F3F4F6',
+                                color: l.active ? '#065F46' : '#6B7280',
+                                fontSize: 11,
+                                fontWeight: 600,
+                              }}>
+                                {l.active ? 'Active' : 'Ended'}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -469,21 +594,33 @@ export default function Resources() {
                   )}
                 </InfoBox>
               </div>
-              <div><br></br></div>
 
               {/* History Charts */}
               {history.length > 0 && (
-                <div className="res-charts-section">
-                  <div className="res-charts-title">📊 {s.serverName} — Last 1 Hour</div>
-                  <div className="res-charts-grid">
-                    {[{ key: 'cpu', name: 'CPU %', color: '#7c3aed' }, { key: 'ram', name: 'RAM %', color: '#10b981' }, { key: 'disk', name: 'Disk %', color: '#06b6d4' }].map(({ key, name, color }) => (
-                      <div key={key} className="res-chart-card">
-                        <div className="res-chart-label" style={{ color }}>{name}</div>
+                <div style={{
+                  background: '#fff',
+                  borderRadius: 10,
+                  border: '1px solid #E5E7EB',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  padding: 24,
+                  marginBottom: 24,
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: '#9CA3AF', marginBottom: 16 }}>
+                    {s.serverName} — Last 1 Hour
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
+                    {[
+                      { key: 'cpu',  name: 'CPU %',  color: '#4F46E5' },
+                      { key: 'ram',  name: 'RAM %',  color: '#10B981' },
+                      { key: 'disk', name: 'Disk %', color: '#06B6D4' },
+                    ].map(({ key, name, color }) => (
+                      <div key={key}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 10 }}>{name}</div>
                         <ResponsiveContainer width="100%" height={140}>
                           <LineChart data={history} margin={{ top: 4, right: 8, left: -20, bottom: 4 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                            <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#94a3b8' }} interval="preserveStartEnd" />
-                            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} unit="%" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                            <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#9CA3AF' }} interval="preserveStartEnd" />
+                            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#9CA3AF' }} unit="%" />
                             <Tooltip content={<CustomTooltip />} />
                             <Line type="monotone" dataKey={key} name={name} stroke={color} strokeWidth={2} dot={false} />
                           </LineChart>
