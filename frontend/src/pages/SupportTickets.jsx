@@ -164,20 +164,24 @@ export default function SupportTickets() {
                 <button onClick={load} style={{ padding:'9px 18px', background:'#f1f5f9', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer' }}>🔄 Refresh</button>
             </div>
 
-            {/* Summary */}
+            {/* Summary — clickable filters */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))', gap:10, marginBottom:20 }}>
                 {[
-                    ['Total', tickets.length, '#7c3aed','#f5f3ff','#ddd6fe'],
-                    ['🔴 High', tickets.filter(t=>t.priority==='high'&&t.status!=='closed').length,'#dc2626','#fef2f2','#fecdd3'],
-                    ['🟡 Medium',tickets.filter(t=>t.priority==='medium'&&t.status!=='closed').length,'#b45309','#fffbeb','#fde68a'],
-                    ['🟢 Low',  tickets.filter(t=>t.priority==='low'&&t.status!=='closed').length,  '#15803d','#f0fdf4','#bbf7d0'],
-                    ['✓ Closed',tickets.filter(t=>t.status==='closed').length,'#64748b','#f8fafc','#e2e8f0'],
-                ].map(([l,v,c,bg,br]) => (
-                    <div key={l} style={{ background:bg, border:`1.5px solid ${br}`, borderRadius:12, padding:'12px', textAlign:'center' }}>
-                        <div style={{ fontSize:20, fontWeight:800, color:c }}>{v}</div>
-                        <div style={{ fontSize:11, color:c, fontWeight:600, opacity:0.8 }}>{l}</div>
-                    </div>
-                ))}
+                    ['Total',    'all',      tickets.length,                                                  '#7c3aed','#f5f3ff','#ddd6fe'],
+                    ['🔴 High',  'high',     tickets.filter(t=>t.priority==='high'&&t.status!=='closed').length, '#dc2626','#fef2f2','#fecdd3'],
+                    ['🟡 Medium','medium',   tickets.filter(t=>t.priority==='medium'&&t.status!=='closed').length,'#b45309','#fffbeb','#fde68a'],
+                    ['🟢 Low',   'low',      tickets.filter(t=>t.priority==='low'&&t.status!=='closed').length,  '#15803d','#f0fdf4','#bbf7d0'],
+                    ['✓ Closed', 'closed',   tickets.filter(t=>t.status==='closed').length,                     '#64748b','#f8fafc','#e2e8f0'],
+                ].map(([l,f,v,c,bg,br]) => {
+                    const active = filter === f;
+                    return (
+                        <div key={l} onClick={()=>setFilter(active?'all':f)}
+                            style={{ background: active?c:bg, border:`2px solid ${active?c:br}`, borderRadius:12, padding:'12px', textAlign:'center', cursor:'pointer', transition:'all 0.15s', transform: active?'translateY(-2px)':'none', boxShadow: active?`0 4px 12px ${c}40`:'none' }}>
+                            <div style={{ fontSize:20, fontWeight:800, color: active?'#fff':c }}>{v}</div>
+                            <div style={{ fontSize:11, color: active?'rgba(255,255,255,0.85)':c, fontWeight:600 }}>{l}</div>
+                        </div>
+                    );
+                })}
             </div>
 
             <div style={{ display:'grid', gridTemplateColumns: selected?'1fr 1.4fr':'1fr', gap:16, alignItems:'start' }}>
