@@ -89,8 +89,11 @@ export default function SupportTickets() {
     };
 
     const selectedRef  = React.useRef(null);
-    const chatEndRef   = React.useRef(null);
-    const scrollToBottom = () => { chatEndRef.current?.scrollIntoView({ behavior:'smooth' }); };
+    const chatBoxRef   = React.useRef(null);
+    const scrollToBottom = () => {
+        const el = chatBoxRef.current;
+        if (el) el.scrollTop = el.scrollHeight;
+    };
     useEffect(() => {
         selectedRef.current = selected;
         if (selected) setTimeout(scrollToBottom, 100);
@@ -261,7 +264,7 @@ export default function SupportTickets() {
                         </div>
 
                         {/* Chat bubbles */}
-                        <div style={{ padding:'16px 12px', minHeight:300, maxHeight:420, overflowY:'auto', display:'flex', flexDirection:'column', gap:14, background:'#f8fafc' }}>
+                        <div ref={chatBoxRef} style={{ padding:'16px 12px', minHeight:300, maxHeight:420, overflowY:'auto', display:'flex', flexDirection:'column', gap:14, background:'#f8fafc' }}>
                             {/* Original */}
                             <div style={{ display:'flex', justifyContent:'flex-start', gap:6 }}>
                                 <div style={{ width:28, height:28, borderRadius:'50%', background:'#6366f1', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:800, flexShrink:0, alignSelf:'flex-end' }}>
@@ -295,7 +298,6 @@ export default function SupportTickets() {
                                     </div>
                                 );
                             })}
-                            <div ref={chatEndRef} />
                         </div>
 
                         {/* Reply bar */}

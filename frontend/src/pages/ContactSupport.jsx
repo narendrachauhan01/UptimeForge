@@ -89,9 +89,12 @@ export default function ContactSupport({ user }) {
     const [notif,      setNotif]      = useState(null);
     const prevUnread = React.useRef([]);
 
-    const selectedRef = React.useRef(null);
-    const chatEndRef   = React.useRef(null);
-    const scrollToBottom = () => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); };
+    const selectedRef  = React.useRef(null);
+    const chatBoxRef   = React.useRef(null);
+    const scrollToBottom = () => {
+        const el = chatBoxRef.current;
+        if (el) el.scrollTop = el.scrollHeight;
+    };
 
     const load = async (silent=false) => {
         if (!silent) setLoading(true);
@@ -199,7 +202,7 @@ export default function ContactSupport({ user }) {
                     </div>
 
                     {/* Chat bubbles */}
-                    <div style={{ padding:'20px 16px', minHeight:350, maxHeight:480, overflowY:'auto', display:'flex', flexDirection:'column', gap:16, background:'#f8fafc' }} id="chat-scroll">
+                    <div ref={chatBoxRef} style={{ padding:'20px 16px', minHeight:350, maxHeight:480, overflowY:'auto', display:'flex', flexDirection:'column', gap:16, background:'#f8fafc' }}>
 
                         {/* Original message — YOU (right) */}
                         <div style={{ display:'flex', justifyContent:'flex-end', gap:8 }}>
@@ -242,7 +245,6 @@ export default function ContactSupport({ user }) {
                                 </div>
                             );
                         })}
-                        <div ref={chatEndRef} />
                     </div>
 
                     {/* Reply input bar */}
