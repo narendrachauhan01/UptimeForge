@@ -202,7 +202,12 @@ export default function SupportTickets() {
                                 <AdminImageUpload sendReply={sendReply} reply={reply} sending={sending}/>
                             </div>
                         ) : (
-                            <div style={{ padding:16, textAlign:'center', color:'#9CA3AF', fontSize:13, borderTop:'1px solid #E5E7EB' }}>Ticket is closed</div>
+                            <div style={{ padding:16, display:'flex', alignItems:'center', justifyContent:'space-between', borderTop:'1px solid #E5E7EB' }}>
+                                <span style={{ fontSize:13, color:'#9CA3AF' }}>🔒 Ticket is closed</span>
+                                <button onClick={()=>update(selected._id,{status:'open'})} style={{ padding:'7px 18px', background:'#4F46E5', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                                    🔓 Reopen Ticket
+                                </button>
+                            </div>
                         )}
                     </div>
 
