@@ -112,7 +112,12 @@ export default function SupportTickets() {
         <div className="pg-wrap">
             {/* Header breadcrumb */}
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-                <h1 style={{ fontSize:22, fontWeight:800, color:'#111827', margin:0 }}>Ticket Reply</h1>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <button onClick={()=>setView('list')} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', background:'#fff', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, fontWeight:600, color:'#374151', cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,0.05)' }}>
+                        ← Back to List
+                    </button>
+                    <h1 style={{ fontSize:22, fontWeight:800, color:'#111827', margin:0 }}>Ticket Reply</h1>
+                </div>
                 <div style={{ fontSize:13, color:'#9CA3AF' }}>
                     <span style={{ cursor:'pointer', color:'#4F46E5' }} onClick={()=>setView('list')}>Home</span>
                     <span style={{ margin:'0 6px' }}>›</span>
