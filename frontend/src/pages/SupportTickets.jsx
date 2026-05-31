@@ -210,7 +210,7 @@ export default function SupportTickets() {
                     {selected.status!=='closed' && (
                         <div style={{ display:'flex', alignItems:'center', gap:24, marginTop:16, padding:'14px 20px', background:'#fff', borderRadius:10, border:'1px solid #E5E7EB' }}>
                             <span style={{ fontSize:13, fontWeight:600, color:'#374151' }}>Status:</span>
-                            {[['in_progress','In-Progress','#4F46E5'],['resolved','Solved','#10B981'],['closed','On-Hold','#6B7280']].map(([v,l,c])=>(
+                            {[['in_progress','In-Progress','#4F46E5'],['resolved','Solved','#10B981'],['closed','Closed','#6B7280']].map(([v,l,c])=>(
                                 <label key={v} style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontSize:13 }}>
                                     <input type="radio" checked={selected.status===v} onChange={()=>update(selected._id,{status:v})}
                                         style={{ accentColor:c, width:16, height:16 }}/>
