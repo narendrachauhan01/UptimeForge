@@ -59,7 +59,14 @@ function TargetModal({ target, onClose, onSave }) {
         if (!form.name.trim() || !form.host.trim()) return;
         setSaving(true);
         try {
-            await onSave({ ...form, notifyRecipients: selected });
+            // Only send relevant fields — exclude history/status arrays
+            const payload = {
+                name: form.name,
+                host: form.host,
+                port: form.port || '',
+                notifyRecipients: selected,
+            };
+            await onSave(payload);
             onClose();
         } catch(e) {
             alert('Save failed: ' + (e.response?.data?.error || e.message));
