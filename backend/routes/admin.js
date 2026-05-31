@@ -20,6 +20,7 @@ function adminOnly(req, res, next) {
 router.get('/users',                auth, adminOnly, ctrl.getUsers);
 router.put('/users/:id',            auth, adminOnly, ctrl.updateUser);
 router.delete('/users/:id',         auth, adminOnly, ctrl.deleteUser);
+router.get('/deleted-users',        auth, adminOnly, ctrl.getDeletedUsers);
 router.get('/servers',              auth, adminOnly, ctrl.getServers);
 router.get('/settings',             auth, adminOnly, ctrl.getSettings);
 router.put('/settings',             auth, adminOnly, ctrl.updateSettings);

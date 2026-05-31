@@ -29,6 +29,7 @@ import Integrations from './pages/Integrations';
 import IntegrationBackend from './pages/IntegrationBackend';
 import RedisCache from './pages/RedisCache';
 import PlanCanceling from './pages/PlanCanceling';
+import DeletedUsers from './pages/DeletedUsers';
 import ContactSupport from './pages/ContactSupport';
 import SupportTickets from './pages/SupportTickets';
 import Servers from './pages/Servers';
@@ -100,6 +101,12 @@ const ADMIN_NAV_GROUPS = [
       { to: '/integration-backend', label: 'Integration Backend', icon: <IcoLink /> },
       { to: '/redis-cache',         label: 'Redis Cache',         icon: <IcoDatabase /> },
       { to: '/admin-profile',       label: 'My Profile',          icon: <IcoProfile /> },
+    ],
+  },
+  {
+    label: 'RECORDS',
+    items: [
+      { to: '/deleted-users', label: 'Deleted Users', icon: <IcoUsers /> },
     ],
   },
   {
@@ -534,6 +541,7 @@ function AppInner() {
             {isAdmin && <Route path="/redis-cache" element={<RedisCache />} />}
             {isAdmin && <Route path="/plan-canceling" element={<PlanCanceling />} />}
             {isAdmin && <Route path="/support-tickets" element={<SupportTickets />} />}
+            {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
             <Route path="/site/:id" element={<SiteDetail />} />
             <Route path="/add-monitor" element={<AddMonitor />} />
             <Route path="/integrations" element={<Integrations />} />

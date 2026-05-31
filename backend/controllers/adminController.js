@@ -59,12 +59,40 @@ exports.updateUser = async (req, res) => {
 // DELETE /api/admin/users/:id
 exports.deleteUser = async (req, res) => {
     try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Save user details to archive before deleting
+        const DeletedUser = require('../models/DeletedUser');
+        const siteCount = await Server.countDocuments({ userId: req.params.id });
+        await DeletedUser.create({
+            accountId: user.accountId || null,
+            name:      user.name,
+            email:     user.email,
+            phone:     user.phone || null,
+            plan:      user.plan,
+            state:     user.state || null,
+            country:   user.country || null,
+            siteCount,
+            createdAt: user.createdAt,
+        });
+
+        // Delete all user data
         await Server.deleteMany({ userId: req.params.id });
         await User.findByIdAndDelete(req.params.id);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
+};
+
+// GET /api/admin/deleted-users
+exports.getDeletedUsers = async (req, res) => {
+    try {
+        const DeletedUser = require('../models/DeletedUser');
+        const users = await DeletedUser.find().sort('-deletedAt');
+        res.json(users);
+    } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
 // GET /api/admin/servers
