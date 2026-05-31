@@ -454,7 +454,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                     {/* ── Page Header ── */}
                     <div className="pg-header">
                         <div>
-                            <h1 className="pg-title">Admin Panel</h1>
+                            <h1 className="pg-title">Payment Admin Panel</h1>
                             <p className="pg-sub">Manage users, plans, and payments</p>
                         </div>
                         <button className="btn-refresh" onClick={() => window.location.reload()} style={{ fontSize: 13 }}>Refresh</button>
