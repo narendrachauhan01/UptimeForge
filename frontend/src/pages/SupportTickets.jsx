@@ -116,6 +116,7 @@ export default function SupportTickets() {
         const matchFilter=filter==='all'
             ||(filter==='solved'&&t.status==='resolved')
             ||(filter==='pending'&&(t.status==='open'||t.status==='in_progress'))
+            ||(filter==='closed'&&t.status==='closed')
             ||(filter==='high'&&t.priority==='high')
             ||(filter==='medium'&&t.priority==='medium')
             ||(filter==='low'&&t.priority==='low');
@@ -322,11 +323,12 @@ export default function SupportTickets() {
             </div>
 
             {/* Stats row — clickable filters */}
-            <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginBottom:24 }}>
+            <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24 }}>
                 {[
                     { label:'Total tickets',   value:tickets.length,                                                                       icon:'🎫', bg:'#EEF2FF', color:'#4F46E5', f:'all' },
                     { label:'Pending tickets', value:tickets.filter(t=>t.status==='open'||t.status==='in_progress').length,                icon:'⏳', bg:'#FFF7ED', color:'#EA580C', f:'pending' },
                     { label:'Solved tickets',  value:tickets.filter(t=>t.status==='resolved').length,                                     icon:'✅', bg:'#F0FDF4', color:'#16A34A', f:'solved' },
+                    { label:'Closed tickets',  value:tickets.filter(t=>t.status==='closed').length,                                       icon:'🔒', bg:'#F9FAFB', color:'#6B7280', f:'closed' },
                 ].map(s=>{
                     const active=filter===s.f;
                     return (
