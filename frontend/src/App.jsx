@@ -29,6 +29,7 @@ const Integrations      = lazy(() => import('./pages/Integrations'));
 const IntegrationBackend= lazy(() => import('./pages/IntegrationBackend'));
 const RedisCache        = lazy(() => import('./pages/RedisCache'));
 const PlanCanceling     = lazy(() => import('./pages/PlanCanceling'));
+const AnnualPlans       = lazy(() => import('./pages/AnnualPlans'));
 const DeletedUsers      = lazy(() => import('./pages/DeletedUsers'));
 const ContactSupport    = lazy(() => import('./pages/ContactSupport'));
 const SupportTickets    = lazy(() => import('./pages/SupportTickets'));
@@ -91,6 +92,7 @@ const ADMIN_NAV_GROUPS = [
     label: 'MANAGEMENT',
     items: [
       { to: '/plan-settings',    label: 'Plan Settings',       icon: <IcoSettings /> },
+      { to: '/annual-plans',     label: 'Annual Plans',        icon: <IcoSettings /> },
       { to: '/feature-access',   label: 'Feature Access',      icon: <IcoToggle /> },
       { to: '/server-resources', label: 'Infra',               icon: <IcoServer /> },
     ],
@@ -622,6 +624,7 @@ function AppInner() {
               {isAdmin && <Route path="/admin" element={<AdminPanel />} />}
               {isAdmin && <Route path="/admin-profile" element={<AdminPanel initialTab="profile" />} />}
               {isAdmin && <Route path="/plan-settings" element={<PlanSettings />} />}
+              {isAdmin && <Route path="/annual-plans" element={<AnnualPlans />} />}
               {isAdmin && <Route path="/feature-access" element={<FeatureAccess />} />}
               {isAdmin && <Route path="/integration-backend" element={<IntegrationBackend />} />}
               {isAdmin && <Route path="/redis-cache" element={<RedisCache />} />}

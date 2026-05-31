@@ -62,6 +62,12 @@ const settingsSchema = new mongoose.Schema({
         pingMonitor: { type: Boolean, default: true },
     },
     annualDiscount: { type: Number, default: 20 },
+    annualPlans: {
+        enabled:  { type: Boolean, default: true },
+        bronze:   { price: { type: Number, default: 0 } },
+        silver:   { price: { type: Number, default: 0 } },
+        gold:     { price: { type: Number, default: 0 } },
+    },
     plans: {
         bronze: {
             price:           { type: Number, default: 499 },
@@ -145,6 +151,13 @@ settingsSchema.statics.update = async function (data) {
         if (f) s.freeTrialFeatures = f;
     }
     if (data.annualDiscount !== undefined) s.annualDiscount = Math.min(80, Math.max(0, Number(data.annualDiscount) || 0));
+    if (data.annualPlans) {
+        if (data.annualPlans.enabled !== undefined) s.annualPlans.enabled = !!data.annualPlans.enabled;
+        for (const k of ['bronze', 'silver', 'gold']) {
+            if (data.annualPlans[k]?.price !== undefined) s.annualPlans[k].price = Number(data.annualPlans[k].price) || 0;
+        }
+        s.markModified('annualPlans');
+    }
     if (data.plans) {
         for (const key of ['bronze', 'silver', 'gold']) {
             if (data.plans[key]) {

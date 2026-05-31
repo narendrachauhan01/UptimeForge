@@ -39,12 +39,18 @@ export default function Landing() {
   };
 
   const discPct = planData?.annualDiscount ?? 20;
-  const disc = (p) => billing === 'annually' ? Math.round(p * (1 - discPct / 100)) : p;
+  const ap = planData?.annualPlans;
+  const annualPrice = (key, monthly) => {
+    if (billing !== 'annually') return monthly;
+    const custom = ap?.[key]?.price;
+    if (custom && custom > 0) return custom;
+    return Math.round(monthly * (1 - discPct / 100));
+  };
   const plans = [
     { key: 'free_trial', ...PLAN_META.free_trial, price: `₹${planData?.verificationFee ?? 2}`, origPrice: null, note: '5-day trial · one-time verification' },
-    { key: 'bronze', ...PLAN_META.bronze, price: `₹${disc(planData?.plans?.bronze?.price ?? 499)}`, origPrice: billing==='annually'?`₹${planData?.plans?.bronze?.price??499}`:null, note: `${planData?.plans?.bronze?.sites ?? 5} sites` },
-    { key: 'silver', ...PLAN_META.silver, price: `₹${disc(planData?.plans?.silver?.price ?? 999)}`, origPrice: billing==='annually'?`₹${planData?.plans?.silver?.price??999}`:null, note: `${planData?.plans?.silver?.sites ?? 15} sites` },
-    { key: 'gold',   ...PLAN_META.gold,   price: `₹${disc(planData?.plans?.gold?.price ?? 1499)}`,  origPrice: billing==='annually'?`₹${planData?.plans?.gold?.price??1499}`:null,  note: `${planData?.plans?.gold?.sites ?? 30} sites` },
+    { key: 'bronze', ...PLAN_META.bronze, price: `₹${annualPrice('bronze', planData?.plans?.bronze?.price ?? 499)}`, origPrice: billing==='annually'?`₹${planData?.plans?.bronze?.price??499}`:null, note: `${planData?.plans?.bronze?.sites ?? 5} sites` },
+    { key: 'silver', ...PLAN_META.silver, price: `₹${annualPrice('silver', planData?.plans?.silver?.price ?? 999)}`, origPrice: billing==='annually'?`₹${planData?.plans?.silver?.price??999}`:null, note: `${planData?.plans?.silver?.sites ?? 15} sites` },
+    { key: 'gold',   ...PLAN_META.gold,   price: `₹${annualPrice('gold',   planData?.plans?.gold?.price ?? 1499)}`,  origPrice: billing==='annually'?`₹${planData?.plans?.gold?.price??1499}`:null,  note: `${planData?.plans?.gold?.sites ?? 30} sites` },
   ];
 
   const handlePlan = (key) => {
