@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { API_URL, getServers, addRecipient, getRecipients } from '../api';
 
 
@@ -216,12 +217,19 @@ const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xml
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} }) {
+    const navigate = useNavigate();
     const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free_trial');
     const isFree   = currentPlan === 'free_trial';
     const isBronze = currentPlan === 'bronze';
     const blocked  = (key) =>
         (isFree   && freeAccess[key]   === false) ||
         (isBronze && bronzeAccess[key] === false);
+    const UpgradeBtn = () => (
+        <button onClick={() => navigate('/pay?plan=select')}
+            style={{ padding:'8px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+            ⬆️ Upgrade Plan
+        </button>
+    );
     const [servers,     setServers]     = useState([]);
     const [emailActive, setEmailActive] = useState(false);
     const [waModal,     setWaModal]     = useState(false);
@@ -399,7 +407,7 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         {intg.badge && <span style={{ fontSize:11, fontWeight:700, background:intg.badge.bg, color:intg.badge.color, padding:'3px 10px', borderRadius:20 }}>{intg.badge.label}</span>}
                         {intg.isBlocked
-                            ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                            ? <UpgradeBtn />
                             : intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
                     </div>
                 </div>
