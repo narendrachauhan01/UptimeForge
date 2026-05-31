@@ -756,21 +756,6 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             <option value="1y">📆 Yearly (1Y)</option>
                         </select>
 
-                        {/* Plan filter pills */}
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            {['all', ...PLAN_OPTIONS].map(p => (
-                                <button key={p} onClick={() => setPlanFilter(p)} style={{
-                                    padding: '7px 14px',
-                                    border: `1px solid ${planFilter === p ? (p !== 'all' ? PLAN_COLORS[p] : T.primary) : T.border}`,
-                                    borderRadius: 9999, fontSize: 12, fontWeight: 600,
-                                    cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                                    background: planFilter === p ? (p !== 'all' ? PLAN_COLORS[p] : T.primary) : '#fff',
-                                    color: planFilter === p ? '#fff' : T.sub,
-                                }}>
-                                    {p === 'all' ? 'All Plans' : PLAN_LABEL[p]}
-                                </button>
-                            ))}
-                        </div>
 
 
                         {/* Export CSV */}
