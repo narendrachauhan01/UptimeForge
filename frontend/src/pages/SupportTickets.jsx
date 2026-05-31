@@ -75,7 +75,11 @@ export default function SupportTickets() {
             const r = await axios.get(`${API_URL}/api/admin/support-tickets`,{withCredentials:true});
             const fresh = r.data;
             const newUnread = fresh.filter(t=>t.adminUnread && !prevUnread.current.includes(t._id));
-            if(newUnread.length>0){ setNotif({id:newUnread[0]._id,name:newUnread[0].name,subject:newUnread[0].subject}); setTimeout(()=>setNotif(null),5000); }
+            const totalUnread = fresh.filter(t=>t.adminUnread).length;
+            if(newUnread.length>0){
+                setNotif({ id:newUnread[0]._id, name:newUnread[0].name, subject:newUnread[0].subject, count:totalUnread });
+                setTimeout(()=>setNotif(null),6000);
+            }
             prevUnread.current = fresh.filter(t=>t.adminUnread).map(t=>t._id);
             setTickets(fresh);
             if(selectedRef.current){ const u=fresh.find(t=>t._id===selectedRef.current._id); if(u) setSelected(u); }
@@ -283,10 +287,26 @@ export default function SupportTickets() {
             {/* Notification popup */}
             {notif && (
                 <div onClick={()=>{ const t=tickets.find(x=>x._id===notif.id); if(t) openTicket(t); setNotif(null); }}
-                    style={{ position:'fixed',bottom:24,right:24,zIndex:9999,background:'#4F46E5',color:'#fff',borderRadius:12,padding:'14px 18px',boxShadow:'0 8px 24px rgba(79,70,229,0.35)',cursor:'pointer',display:'flex',gap:10,alignItems:'center',maxWidth:300 }}>
-                    <span style={{ fontSize:22 }}>💬</span>
-                    <div><div style={{ fontWeight:700,fontSize:13 }}>New message!</div><div style={{ fontSize:12,opacity:0.8 }}>{notif.name}: {notif.subject}</div></div>
-                    <button onClick={e=>{e.stopPropagation();setNotif(null);}} style={{ background:'rgba(255,255,255,0.2)',border:'none',borderRadius:'50%',width:20,height:20,color:'#fff',cursor:'pointer',fontSize:11,flexShrink:0 }}>✕</button>
+                    style={{ position:'fixed',bottom:24,right:24,zIndex:9999,background:'#4F46E5',color:'#fff',borderRadius:14,padding:'14px 18px',boxShadow:'0 8px 28px rgba(79,70,229,0.4)',cursor:'pointer',display:'flex',gap:12,alignItems:'center',maxWidth:320 }}>
+                    {/* Count badge */}
+                    <div style={{ position:'relative', flexShrink:0 }}>
+                        <div style={{ width:44,height:44,borderRadius:'50%',background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22 }}>💬</div>
+                        {notif.count>0 && (
+                            <span style={{ position:'absolute',top:-4,right:-4,minWidth:18,height:18,borderRadius:9,background:'#EF4444',color:'#fff',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',border:'2px solid #4F46E5' }}>
+                                {notif.count}
+                            </span>
+                        )}
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontWeight:800, fontSize:13, marginBottom:3 }}>
+                            {notif.count>1 ? `${notif.count} new messages!` : 'New message!'}
+                        </div>
+                        <div style={{ fontSize:12, opacity:0.85, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                            {notif.name}: {notif.subject}
+                        </div>
+                        <div style={{ fontSize:11, opacity:0.65, marginTop:2 }}>Click to view →</div>
+                    </div>
+                    <button onClick={e=>{e.stopPropagation();setNotif(null);}} style={{ background:'rgba(255,255,255,0.2)',border:'none',borderRadius:'50%',width:22,height:22,color:'#fff',cursor:'pointer',fontSize:12,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center' }}>✕</button>
                 </div>
             )}
 
