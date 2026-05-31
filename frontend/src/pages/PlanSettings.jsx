@@ -46,6 +46,7 @@ export default function PlanSettings() {
             setForm({
                 trialDays: d.trialDays,
                 verificationFee: d.verificationFee ?? 2,
+                annualDiscount: d.annualDiscount ?? 20,
                 freeTrialInterval: d.freeTrialInterval ?? 300,
                 freeTrialPingInterval: d.freeTrialPingInterval ?? 180,
                 freeTrialRecipientLimit: d.freeTrialRecipientLimit ?? 2,
@@ -71,6 +72,7 @@ export default function PlanSettings() {
             await adminUpdateSettings({
                 trialDays: form.trialDays,
                 verificationFee: form.verificationFee,
+                annualDiscount: Number(form.annualDiscount),
                 freeTrialInterval: Number(form.freeTrialInterval),
                 freeTrialPingInterval: Number(form.freeTrialPingInterval),
                 freeTrialRecipientLimit: Number(form.freeTrialRecipientLimit),
@@ -171,6 +173,15 @@ export default function PlanSettings() {
                             type="number" min="0"
                             value={form.verificationFee}
                             onChange={e => setForm({ ...form, verificationFee: Number(e.target.value) })}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Annual Discount (%)</label>
+                        <input
+                            type="number" min="0" max="80"
+                            value={form.annualDiscount ?? 20}
+                            onChange={e => setForm({ ...form, annualDiscount: Number(e.target.value) })}
                             style={inputStyle}
                         />
                     </div>
