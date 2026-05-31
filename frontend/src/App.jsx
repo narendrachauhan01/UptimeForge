@@ -189,16 +189,21 @@ function AdminNotifBell() {
 
 function DarkModeToggle() {
   const [dark, setDark] = React.useState(() => localStorage.getItem('theme') === 'dark');
+  const apply = (isDark) => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.body.style.background = isDark ? '#0f172a' : '';
+    document.body.style.color = isDark ? '#e2e8f0' : '';
+  };
   const toggle = () => {
     const next = !dark;
     setDark(next);
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    apply(next);
     localStorage.setItem('theme', next ? 'dark' : 'light');
   };
   React.useEffect(() => {
     const saved = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
-    if (saved === 'dark') setDark(true);
+    if (saved === 'dark') { setDark(true); apply(true); }
   }, []);
   return (
     <button onClick={toggle} title={dark ? 'Light mode' : 'Dark mode'}
