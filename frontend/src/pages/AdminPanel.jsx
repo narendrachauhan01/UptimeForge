@@ -1454,70 +1454,97 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 PROFILE TAB
             ================================================================ */}
             {tab === 'profile' && (
-                <div style={{ maxWidth: 520 }}>
-                    <div className="ap-card">
-                        <div className="ap-card-title">Admin Account</div>
-                        <p className="ap-card-sub">Update your admin username, email, or password. Current password is required to save any change.</p>
-
-                        <div className="form-group" style={{ marginTop: 16 }}>
-                            <label style={{ fontWeight: 600, fontSize: 13, color: '#374151', display: 'block', marginBottom: 6 }}>Username</label>
-                            <input className="ap-settings-input" type="text" placeholder="Admin username" value={profileForm.username} onChange={e => setProfileForm(f => ({ ...f, username: e.target.value }))} />
-                        </div>
-
-                        <div className="form-group" style={{ marginTop: 14 }}>
-                            <label style={{ fontWeight: 600, fontSize: 13, color: '#374151', display: 'block', marginBottom: 6 }}>Email</label>
-                            <input className="ap-settings-input" type="email" placeholder="Admin email" value={profileForm.email} onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
-                        </div>
-
-                        <div style={{ height: 1, background: '#e2e8f0', margin: '20px 0' }} />
-
-                        <div className="ap-card-title" style={{ fontSize: 14 }}>Change Password</div>
-
-                        <div className="form-group" style={{ marginTop: 12 }}>
-                            <label style={{ fontWeight: 600, fontSize: 13, color: '#374151', display: 'block', marginBottom: 6 }}>New Password <span style={{ color: '#94a3b8', fontWeight: 400 }}>(leave blank to keep current)</span></label>
-                            <input className="ap-settings-input" type="password" placeholder="Min. 6 characters" value={profileForm.newPassword} onChange={e => setProfileForm(f => ({ ...f, newPassword: e.target.value }))} />
-                        </div>
-
-                        <div className="form-group" style={{ marginTop: 14 }}>
-                            <label style={{ fontWeight: 600, fontSize: 13, color: '#374151', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
-                            <input className="ap-settings-input" type="password" placeholder="Re-enter new password" value={profileForm.confirmPassword} onChange={e => setProfileForm(f => ({ ...f, confirmPassword: e.target.value }))} />
-                        </div>
-
-                        <div style={{ height: 1, background: '#e2e8f0', margin: '20px 0' }} />
-
-                        <div className="form-group">
-                            <label style={{ fontWeight: 700, fontSize: 13, color: '#374151', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#ef4444' }}>*</span></label>
-                            <input className="ap-settings-input" type="password" placeholder="Required to save changes" value={profileForm.currentPassword} onChange={e => setProfileForm(f => ({ ...f, currentPassword: e.target.value }))} />
-                        </div>
-
-                        {profileMsg.text && (
-                            <div style={{
-                                marginTop: 14, padding: '10px 14px', borderRadius: 10, fontSize: 13,
-                                background: profileMsg.type === 'success' ? '#d1fae5' : '#fee2e2',
-                                color: profileMsg.type === 'success' ? '#065f46' : '#991b1b',
-                            }}>
-                                {profileMsg.text}
+                <div style={{ maxWidth:580 }}>
+                    {/* Profile header card */}
+                    <div style={{ background:'#fff', borderRadius:12, border:'1px solid #E5E7EB', boxShadow:'0 1px 3px rgba(0,0,0,0.08)', overflow:'hidden', marginBottom:20 }}>
+                        <div style={{ background:'linear-gradient(135deg,#4F46E5,#3730A3)', padding:'28px 28px 20px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+                                <div style={{ width:64, height:64, borderRadius:'50%', background:'rgba(255,255,255,0.2)', border:'3px solid rgba(255,255,255,0.5)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, fontWeight:800, color:'#fff' }}>A</div>
+                                <div>
+                                    <div style={{ fontSize:20, fontWeight:800, color:'#fff' }}>{profileForm.username || 'Admin'}</div>
+                                    <div style={{ fontSize:13, color:'rgba(255,255,255,0.7)', marginTop:3 }}>{profileForm.email || 'admin@uptimeforge.com'}</div>
+                                    <div style={{ marginTop:8 }}><span style={{ padding:'3px 12px', borderRadius:20, fontSize:11, fontWeight:700, background:'rgba(255,255,255,0.2)', color:'#fff' }}>Full Access</span></div>
+                                </div>
                             </div>
-                        )}
+                        </div>
+                    </div>
 
-                        <button className="btn-submit" style={{ marginTop: 18 }} disabled={profileSaving}
-                            onClick={async () => {
-                                if (!profileForm.currentPassword) { setProfileMsg({ text: 'Current password is required', type: 'error' }); return; }
-                                if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) { setProfileMsg({ text: 'New passwords do not match', type: 'error' }); return; }
-                                setProfileSaving(true);
-                                setProfileMsg({ text: '', type: '' });
-                                try {
-                                    await updateAdminProfile({ username: profileForm.username, email: profileForm.email, currentPassword: profileForm.currentPassword, newPassword: profileForm.newPassword || undefined });
-                                    setProfileMsg({ text: 'Profile updated successfully!', type: 'success' });
-                                    setProfileForm(f => ({ ...f, currentPassword: '', newPassword: '', confirmPassword: '' }));
-                                } catch (e) {
-                                    setProfileMsg({ text: e.response?.data?.error || 'Update failed', type: 'error' });
-                                }
-                                setProfileSaving(false);
-                            }}
-                        >
-                            {profileSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
+                    {/* Edit form */}
+                    <div style={{ background:'#fff', borderRadius:12, border:'1px solid #E5E7EB', boxShadow:'0 1px 3px rgba(0,0,0,0.08)', overflow:'hidden' }}>
+                        <div style={{ padding:'16px 24px', background:'#F9FAFB', borderBottom:'1px solid #E5E7EB' }}>
+                            <div style={{ fontWeight:700, fontSize:14, color:'#111827' }}>Account Information</div>
+                            <div style={{ fontSize:12, color:'#6B7280', marginTop:2 }}>Update your username, email, or password</div>
+                        </div>
+                        <div style={{ padding:'24px' }}>
+                            {/* Username + Email row */}
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+                                <div>
+                                    <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Username</label>
+                                    <input type="text" placeholder="Admin username" value={profileForm.username}
+                                        onChange={e=>setProfileForm(f=>({...f,username:e.target.value}))}
+                                        style={{ width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box', color:'#111827' }} />
+                                </div>
+                                <div>
+                                    <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Email</label>
+                                    <input type="email" placeholder="Admin email" value={profileForm.email}
+                                        onChange={e=>setProfileForm(f=>({...f,email:e.target.value}))}
+                                        style={{ width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box', color:'#111827' }} />
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div style={{ borderTop:'1px solid #F3F4F6', margin:'20px 0 18px', display:'flex', alignItems:'center', gap:12 }}>
+                                <span style={{ fontSize:11, fontWeight:700, color:'#9CA3AF', textTransform:'uppercase', letterSpacing:0.6, whiteSpace:'nowrap' }}>Change Password</span>
+                            </div>
+
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+                                <div>
+                                    <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>New Password <span style={{ color:'#9CA3AF', fontWeight:400 }}>(optional)</span></label>
+                                    <input type="password" placeholder="Min. 6 characters" value={profileForm.newPassword}
+                                        onChange={e=>setProfileForm(f=>({...f,newPassword:e.target.value}))}
+                                        style={{ width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box' }} />
+                                </div>
+                                <div>
+                                    <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Confirm Password</label>
+                                    <input type="password" placeholder="Re-enter new password" value={profileForm.confirmPassword}
+                                        onChange={e=>setProfileForm(f=>({...f,confirmPassword:e.target.value}))}
+                                        style={{ width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box' }} />
+                                </div>
+                            </div>
+
+                            <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'12px 14px', marginBottom:16, fontSize:13, color:'#92400E' }}>
+                                🔑 <strong>Current password required</strong> to save any changes
+                            </div>
+
+                            <div style={{ marginBottom:20 }}>
+                                <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Current Password <span style={{ color:'#EF4444' }}>*</span></label>
+                                <input type="password" placeholder="Enter your current password" value={profileForm.currentPassword}
+                                    onChange={e=>setProfileForm(f=>({...f,currentPassword:e.target.value}))}
+                                    style={{ width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box' }} />
+                            </div>
+
+                            {profileMsg.text && (
+                                <div style={{ marginBottom:16, padding:'10px 14px', borderRadius:8, fontSize:13, fontWeight:600, background:profileMsg.type==='success'?'#D1FAE5':'#FEE2E2', color:profileMsg.type==='success'?'#065F46':'#991B1B', border:`1px solid ${profileMsg.type==='success'?'#A7F3D0':'#FECDD3'}` }}>
+                                    {profileMsg.type==='success'?'✅':'⚠️'} {profileMsg.text}
+                                </div>
+                            )}
+
+                            <button disabled={profileSaving}
+                                style={{ padding:'10px 28px', background:'#4F46E5', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer', opacity:profileSaving?0.7:1 }}
+                                onClick={async()=>{
+                                    if (!profileForm.currentPassword) { setProfileMsg({ text:'Current password is required', type:'error' }); return; }
+                                    if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) { setProfileMsg({ text:'New passwords do not match', type:'error' }); return; }
+                                    setProfileSaving(true); setProfileMsg({ text:'', type:'' });
+                                    try {
+                                        await updateAdminProfile({ username:profileForm.username, email:profileForm.email, currentPassword:profileForm.currentPassword, newPassword:profileForm.newPassword||undefined });
+                                        setProfileMsg({ text:'Profile updated successfully!', type:'success' });
+                                        setProfileForm(f=>({...f, currentPassword:'', newPassword:'', confirmPassword:''}));
+                                    } catch(e) { setProfileMsg({ text:e.response?.data?.error||'Update failed', type:'error' }); }
+                                    setProfileSaving(false);
+                                }}>
+                                {profileSaving ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
