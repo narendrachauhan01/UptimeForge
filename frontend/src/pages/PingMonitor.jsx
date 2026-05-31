@@ -23,7 +23,7 @@ function PulseDot({ status, size = 12 }) {
 
 // ── Add/Edit Modal ────────────────────────────────────────────────────────────
 function TargetModal({ target, onClose, onSave }) {
-    const [form,         setForm]         = useState(target || { name:'', host:'', port:443 });
+    const [form,         setForm]         = useState(target || { name:'', host:'', port:'' });
     const [saving,       setSaving]       = useState(false);
     const [recipients,   setRecipients]   = useState([]);
     const [selected,     setSelected]     = useState([]);
@@ -87,9 +87,11 @@ function TargetModal({ target, onClose, onSave }) {
                     </div>
                     <div>
                         <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Port</label>
-                        <input type="number" min="1" max="65535" value={form.port} onChange={e=>setForm({...form,port:Number(e.target.value)||443})}
+                        <input type="number" min="1" max="65535" placeholder="e.g. 443 (blank = auto)"
+                            value={form.port}
+                            onChange={e => setForm({...form, port: e.target.value === '' ? '' : Number(e.target.value)})}
                             style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
-                        <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
+                        <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>Blank = auto (443→80) · 443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
                     </div>
                 </div>
                 {/* Recipients */}
