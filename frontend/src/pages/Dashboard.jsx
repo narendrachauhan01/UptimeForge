@@ -46,8 +46,9 @@ export default function Dashboard({ readOnly = false }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [pageLoading, setPageLoading] = useState(true);
 
-  const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); });
+  const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); setPageLoading(false); }).catch(()=>setPageLoading(false));
 
   useEffect(() => {
     load();
@@ -178,7 +179,13 @@ export default function Dashboard({ readOnly = false }) {
 
         {/* Site list */}
         <div className="mon-list" style={{maxHeight:'calc(10 * 68px)', overflowY:'auto', paddingRight:2}}>
-          {displayList.length===0 ? (
+          {pageLoading ? (
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 0',gap:14}}>
+                <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
+                <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading monitors...</div>
+                <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            </div>
+          ) : displayList.length===0 ? (
             <div className="mon-empty">
               <div style={{fontSize:48,marginBottom:12}}>🖥️</div>
               <div style={{fontWeight:700,color:'#475569'}}>No sites found</div>
