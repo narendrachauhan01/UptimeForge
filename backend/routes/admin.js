@@ -31,6 +31,11 @@ router.put('/payments/:id/reject',  auth, adminOnly, ctrl.rejectPayment);
 router.post('/clear-cache',         auth, adminOnly, ctrl.clearCache);
 
 // Support tickets — admin
+router.get('/support-tickets/unread',       auth, adminOnly, async (req, res) => {
+    const SupportTicket = require('../models/SupportTicket');
+    const tickets = await SupportTicket.find({ adminUnread: true }).sort('-updatedAt').limit(10).select('name subject priority updatedAt');
+    res.json({ count: tickets.length, tickets });
+});
 router.get('/support-tickets',              auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     res.json(await SupportTicket.find().sort('-createdAt'));

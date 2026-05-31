@@ -117,6 +117,76 @@ const ADMIN_NAV_GROUPS = [
   },
 ];
 
+function AdminNotifBell() {
+  const [count,    setCount]    = React.useState(0);
+  const [tickets,  setTickets]  = React.useState([]);
+  const [open,     setOpen]     = React.useState(false);
+  const navigate = useNavigate();
+  const ref = React.useRef();
+
+  const load = async () => {
+    try {
+      const r = await axios.get(`${API_URL}/api/admin/support-tickets/unread`, { withCredentials: true });
+      setCount(r.data.count); setTickets(r.data.tickets);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    load();
+    const t = setInterval(load, 15000);
+    return () => clearInterval(t);
+  }, []);
+
+  React.useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position:'relative', marginLeft:'auto' }}>
+      <button onClick={() => setOpen(o => !o)} style={{ position:'relative', background:'rgba(255,255,255,0.08)', border:'none', borderRadius:8, width:34, height:34, cursor:'pointer', color:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <IcoBell />
+        {count > 0 && (
+          <span style={{ position:'absolute', top:-4, right:-4, minWidth:16, height:16, borderRadius:8, background:'#EF4444', color:'#fff', fontSize:9, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 3px', border:'2px solid #1C2434' }}>
+            {count > 9 ? '9+' : count}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div style={{ position:'absolute', top:'calc(100% + 8px)', right:0, width:300, background:'#fff', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.15)', border:'1px solid #E5E7EB', zIndex:999, overflow:'hidden' }}>
+          <div style={{ padding:'12px 16px', borderBottom:'1px solid #F3F4F6', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span style={{ fontWeight:700, fontSize:13, color:'#111827' }}>Support Messages</span>
+            {count > 0 && <span style={{ fontSize:11, fontWeight:700, background:'#EEF2FF', color:'#4F46E5', padding:'2px 8px', borderRadius:20 }}>{count} new</span>}
+          </div>
+          {tickets.length === 0 ? (
+            <div style={{ padding:'24px', textAlign:'center', color:'#9CA3AF', fontSize:13 }}>No new messages</div>
+          ) : tickets.map(t => (
+            <div key={t._id} onClick={() => { navigate('/support-tickets'); setOpen(false); }}
+              style={{ padding:'12px 16px', borderBottom:'1px solid #F9FAFB', cursor:'pointer', display:'flex', gap:10, alignItems:'flex-start' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
+              onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+              <div style={{ width:36, height:36, borderRadius:'50%', background:'#EEF2FF', color:'#4F46E5', fontWeight:800, fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                {(t.name||'U')[0].toUpperCase()}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontWeight:600, fontSize:13, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.name}</div>
+                <div style={{ fontSize:12, color:'#6B7280', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.subject}</div>
+                <div style={{ fontSize:11, color:'#9CA3AF', marginTop:2 }}>{t.priority==='high'?'🔴':t.priority==='medium'?'🟡':'🟢'} {t.priority}</div>
+              </div>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:'#EF4444', flexShrink:0, marginTop:4 }}/>
+            </div>
+          ))}
+          <div onClick={() => { navigate('/support-tickets'); setOpen(false); }}
+            style={{ padding:'10px 16px', textAlign:'center', fontSize:12, fontWeight:600, color:'#4F46E5', cursor:'pointer', borderTop:'1px solid #F3F4F6' }}>
+            View all tickets →
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }) {
   const location = useLocation();
   useEffect(() => setOpen(false), [location]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -147,6 +217,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
               {unreadCount > 0 && <span className="sb-bell-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
             </button>
           )}
+          {isAdmin && <AdminNotifBell />}
         </div>
 
         {/* Nav links */}
