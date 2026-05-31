@@ -279,9 +279,8 @@ export default function IntegrationBackend() {
     };
 
     const statCards = [
-        { label:'Email SMTP',   status: emailOk, connected:'Connected', disconnected:'Not Configured', icon:'📧', color:'#ea4335' },
-        { label:'WhatsApp',     status: waOk,    connected:'Connected', disconnected:'Disconnected',   icon:'💬', color:'#25d366' },
-        { label:'Redis Cache',  status: true,    connected:'Active',    disconnected:'Inactive',        icon:'⚡', color:'#f59e0b' },
+        { label:'Email SMTP', status: emailOk, connected:'Connected', disconnected:'Not Configured', icon:'📧', color:'#ea4335' },
+        { label:'WhatsApp',   status: waOk,    connected:'Connected', disconnected:'Disconnected',   icon:'💬', color:'#25d366' },
     ];
 
     return (
@@ -388,26 +387,6 @@ export default function IntegrationBackend() {
                         )}
                     </div>
                 </div>
-            </div>
-
-            {/* Cache Section */}
-            <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:0.8, marginBottom:12 }}>Cache Management</div>
-            <div style={{ background:'#fff', borderRadius:12, border:'1px solid #f3f4f6', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', padding:'20px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-                    <div style={{ width:42, height:42, borderRadius:10, background:'#fffbeb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>⚡</div>
-                    <div>
-                        <div style={{ fontWeight:700, fontSize:15, color:'#111827' }}>SSL & Domain Cache</div>
-                        <div style={{ fontSize:12, color:'#6b7280', marginTop:2 }}>Redis cache stores SSL/domain expiry data for 30 minutes to reduce API calls</div>
-                    </div>
-                </div>
-                <button onClick={async()=>{
-                    try {
-                        const r = await axios.post(`${API_URL}/api/admin/clear-cache`, {}, { withCredentials: true });
-                        showToast(`✅ Cache cleared — ${r.data.cleared} entries removed`);
-                    } catch { showToast('❌ Failed to clear cache'); }
-                }} style={{ padding:'9px 18px', background:'#f59e0b', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0 }}>
-                    🗑 Clear Cache
-                </button>
             </div>
 
             {emailOpen && <EmailModal onClose={() => setEmailOpen(false)} />}
