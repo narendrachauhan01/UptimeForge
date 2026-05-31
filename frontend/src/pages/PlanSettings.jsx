@@ -177,15 +177,6 @@ export default function PlanSettings() {
                         />
                     </div>
                     <div>
-                        <label style={labelStyle}>Annual Discount (%)</label>
-                        <input
-                            type="number" min="0" max="80"
-                            value={form.annualDiscount ?? 20}
-                            onChange={e => setForm({ ...form, annualDiscount: Number(e.target.value) })}
-                            style={inputStyle}
-                        />
-                    </div>
-                    <div>
                         <label style={labelStyle}>Site Check Interval (sec)</label>
                         <input
                             type="number" min="60" step="30"
