@@ -10,7 +10,7 @@ const Settings = require('../models/Settings');
 const Integration = require('../models/Integration');
 const wa = require('./whatsapp');
 const { checkSSL, checkDomain, extractHostname, extractRootDomain } = require('./expiry');
-const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml } = require('./email');
+const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml } = require('./email');
 
 // Per-server lock — prevents duplicate alerts if a check overlaps next tick
 const serverLocks = new Set();
@@ -559,7 +559,7 @@ async function checkPingTargets() {
                     const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, downEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); } catch(_){} }
                     }
                     setFields.downAlertSent = true;
                 }
@@ -571,7 +571,7 @@ async function checkPingTargets() {
                     const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, recoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
                     }
                 }
             }
