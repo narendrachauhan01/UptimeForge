@@ -427,7 +427,7 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                     {saved.webhook && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
                     {saved.webhook && <button onClick={()=>deleteIntegration('webhook')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
                     {blocked('webhook')
-                        ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                        ? <UpgradeBtn />
                         : <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.webhook ? '✏️ Edit' : '+ Add'}</button>
                     }
                 </div>
@@ -446,7 +446,7 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                     {saved.rocketchat && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
                     {saved.rocketchat && <button onClick={()=>deleteIntegration('rocketchat')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
                     {blocked('rocketChat')
-                        ? <span style={{ fontSize:11, fontWeight:700, background:'#fef2f2', color:'#dc2626', padding:'5px 12px', borderRadius:9, border:'1px solid #fecaca' }}>🔒 Access Denied</span>
+                        ? <UpgradeBtn />
                         : <button onClick={openRcModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.rocketchat ? '✏️ Edit' : '+ Add'}</button>
                     }
                 </div>
