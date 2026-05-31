@@ -84,6 +84,8 @@ export default function Landing() {
         )}
       </nav>
 
+      {/* ── MAIN CONTENT ── */}
+      <main>
       {/* ── HERO ── */}
       <section className="lp-hero">
         <div className="lp-hero-bg">
@@ -323,6 +325,7 @@ export default function Landing() {
           <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong>Narendra Singh</strong></div>
         </div>
       </footer>
+      </main>
 
     </div>
   );
