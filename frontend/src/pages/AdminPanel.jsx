@@ -314,18 +314,21 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         } catch (e) { showToast(e.response?.data?.error || 'Update failed'); }
     };
 
-    const extendTrial = async (id) => {
+    const extendTrial = async (id, name) => {
+        if (!window.confirm(`Extend trial by 5 days for "${name}"?`)) return;
         try { await adminUpdateUser(id, { extendTrial: true }); showToast('Trial extended by 5 days'); load(); }
         catch (e) { showToast('Failed'); }
     };
 
     const toggleBlock = async (u) => {
+        const action = u.isBlocked ? 'Unblock' : 'Block';
+        if (!window.confirm(`${action} user "${u.name}"?`)) return;
         try { await adminUpdateUser(u._id, { isBlocked: !u.isBlocked }); showToast(u.isBlocked ? 'User unblocked' : 'User blocked'); load(); }
         catch (e) { showToast('Failed'); }
     };
 
     const deleteUser = async (u) => {
-        if (!window.confirm(`Delete "${u.name}" (${u.email}) and all their sites?`)) return;
+        if (!window.confirm(`Delete "${u.name}" (${u.email}) and all their sites? This cannot be undone.`)) return;
         try { await adminDeleteUser(u._id); showToast('User deleted'); load(); }
         catch (e) { showToast('Delete failed'); }
     };
@@ -642,7 +645,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                     </div>
                                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                                         <div style={{ fontSize: 11, color: T.warning, fontWeight: 600, marginBottom: 4 }}>Ends {fmt(u.trialEndsAt)}</div>
-                                        <button style={{ ...btnPrimary, padding: '5px 12px', fontSize: 11 }} onClick={() => extendTrial(u._id)}>+5 days</button>
+                                        <button style={{ ...btnPrimary, padding: '5px 12px', fontSize: 11 }} onClick={() => extendTrial(u._id, u.name)}>+5 days</button>
                                     </div>
                                 </div>
                             ))}
@@ -820,14 +823,14 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                                     {/* Actions */}
                                                     <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }} onClick={e => e.stopPropagation()}>
                                                         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                                                            <button title="Assign Plan" onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Plan</button>
+                                                            <button title="Assign Plan" onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Assign Plan</button>
                                                             <button title="Edit" onClick={() => startEdit(u)} style={{ ...btnSecondary, padding: '5px 10px', fontSize: 11 }}>Edit</button>
-                                                            <button title="Extend Trial" onClick={() => extendTrial(u._id)} style={{ padding: '5px 10px', fontSize: 11, background: '#EFF6FF', color: T.info, border: `1px solid #BFDBFE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+Trial</button>
-                                                            <button title={u.isBlocked ? 'Unblock' : 'Block'} onClick={() => toggleBlock(u)}
+                                                            <button title="Extend Trial +5 days" onClick={() => extendTrial(u._id, u.name)} style={{ padding: '5px 10px', fontSize: 11, background: '#EFF6FF', color: T.info, border: `1px solid #BFDBFE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+Trial</button>
+                                                            <button title={u.isBlocked ? 'Unblock user' : 'Block user'} onClick={() => toggleBlock(u)}
                                                                 style={{ padding: '5px 10px', fontSize: 11, borderRadius: 8, cursor: 'pointer', fontWeight: 600, border: `1px solid ${u.isBlocked ? '#BBF7D0' : '#FECDD3'}`, background: u.isBlocked ? '#F0FDF4' : '#FFF1F2', color: u.isBlocked ? T.success : T.danger }}>
                                                                 {u.isBlocked ? 'Unblock' : 'Block'}
                                                             </button>
-                                                            <button title="Delete" onClick={() => deleteUser(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#FEF2F2', color: T.danger, border: `1px solid #FECDD3`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Del</button>
+                                                            <button title="Delete user permanently" onClick={() => deleteUser(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#FEF2F2', color: T.danger, border: `1px solid #FECDD3`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
                                                         </div>
                                                     </td>
                                                 </tr>
