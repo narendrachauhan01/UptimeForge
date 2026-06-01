@@ -119,14 +119,19 @@ function fmt(date) {
 }
 
 // ── Metric Card (left color border + icon) ────────────────────────────────────
-function MetricCard({ label, value, color, icon, sub }) {
+function MetricCard({ label, value, color, icon, sub, onClick }) {
     return (
-        <div style={{
+        <div onClick={onClick} style={{
             ...cardStyle,
             borderLeft: `4px solid ${color}`,
             padding: '20px 20px',
             display: 'flex', alignItems: 'center', gap: 16,
-        }}>
+            cursor: onClick ? 'pointer' : 'default',
+            transition: 'all 0.15s',
+            ...(onClick ? { ':hover': { transform: 'translateY(-2px)' } } : {}),
+        }}
+        onMouseEnter={e => onClick && (e.currentTarget.style.boxShadow = `0 4px 16px ${color}30`)}
+        onMouseLeave={e => onClick && (e.currentTarget.style.boxShadow = '')}>
             <div style={{
                 width: 48, height: 48, borderRadius: 10,
                 background: `${color}18`,
@@ -137,6 +142,7 @@ function MetricCard({ label, value, color, icon, sub }) {
                 <div style={{ fontSize: 26, fontWeight: 800, color: T.text, lineHeight: 1 }}>{value}</div>
                 <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
                 {sub && <div style={{ fontSize: 11, color: T.muted, marginTop: 3 }}>{sub}</div>}
+                {onClick && <div style={{ fontSize:10, color: color, marginTop:3, fontWeight:600 }}>Click to filter →</div>}
             </div>
         </div>
     );
@@ -362,6 +368,18 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
+    const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
+
+    // Navigate to Users tab with filter
+    const goToUsersFilter = (filterType) => {
+        setTab('users');
+        if (filterType === 'paid') setDurationFilter('1m');
+        else if (filterType === 'free_trial') setDurationFilter('free_trial');
+        else if (filterType === 'annual') setDurationFilter('1y');
+        else if (filterType === 'blocked') { setDurationFilter('all'); setSearch(''); }
+        else { setDurationFilter('all'); }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     // Revenue — exclude refunded payments
     const activePayments   = payments.filter(p => p.status !== 'refunded');
@@ -577,12 +595,12 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
                     {/* Row 1 — User Metric Cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 16 }}>
-                        <MetricCard label="Total Users"  value={users.length}  color={T.primary}  icon="👥" />
-                        <MetricCard label="Active"       value={activeUsers}    color={T.success}  icon="✅" />
-                        <MetricCard label="Paid Users"   value={paidUsers}      color={T.warning}  icon="💳" />
-                        <MetricCard label="Total Sites"  value={totalSites}     color={T.info}     icon="🌐" />
-                        <MetricCard label="Free Trial"   value={users.filter(u => u.plan === 'free_trial').length} color="#64748B" icon="⏳" />
-                        <MetricCard label="Blocked"      value={blockedUsers}   color={T.danger}   icon="🚫" />
+                        <MetricCard label="Total Users"  value={users.length}    color={T.primary}  icon="👥" onClick={() => goToUsersFilter('all')} />
+                        <MetricCard label="Free Trial"   value={freeTrialUsers}  color="#64748B"    icon="⏳" onClick={() => goToUsersFilter('free_trial')} />
+                        <MetricCard label="Paid Users"   value={paidUsers}       color={T.warning}  icon="💳" onClick={() => goToUsersFilter('paid')} />
+                        <MetricCard label="Annual Users" value={users.filter(u=>u.billing==='annually').length} color="#7c3aed" icon="📆" onClick={() => goToUsersFilter('annual')} />
+                        <MetricCard label="Total Sites"  value={totalSites}      color={T.info}     icon="🌐" />
+                        <MetricCard label="Blocked"      value={blockedUsers}    color={T.danger}   icon="🚫" onClick={() => goToUsersFilter('blocked')} />
                     </div>
 
                     {/* Row 2 — Revenue Tiles */}
