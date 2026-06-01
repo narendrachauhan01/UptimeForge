@@ -1,4 +1,5 @@
 let _loaded_Staff = false;
+import { useConfirm } from '../components/ConfirmDialog';
 import React, { useEffect, useState } from 'react';
 import { staffList, staffCreate, staffUpdate, staffDelete } from '../api';
 
@@ -176,6 +177,7 @@ function StaffModal({ staff, onClose, onSaved }) {
 }
 
 export default function StaffManagement() {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [staff, setStaff]             = useState([]);
     const [modal, setModal]             = useState(null);
     const [pageLoading, setPageLoading] = useState(!_loaded_Staff);
@@ -185,7 +187,7 @@ export default function StaffManagement() {
     useEffect(() => { load(); }, []);
 
     const del = async (s) => {
-        if (!window.confirm(`Delete ${s.name}?`)) return;
+        if (!confirm(`Delete ${s.name}?`)) return;
         setDeleting(s._id);
         await staffDelete(s._id).catch(() => {});
         load();
@@ -208,6 +210,7 @@ export default function StaffManagement() {
 
     return (
         <div className="pg-wrap">
+      <ConfirmDialog />
             {modal && <StaffModal staff={modal === 'new' ? null : modal} onClose={() => setModal(null)} onSaved={load} />}
 
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24, flexWrap:'wrap', gap:12 }}>

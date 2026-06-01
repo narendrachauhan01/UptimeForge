@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { addServer, getPlans, getRecipients, getServers, API_URL } from '../api';
 
 
 export default function AddMonitor() {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const navigate = useNavigate();
     const location = useLocation();
     const editServer = location.state?.editServer || null;
@@ -112,6 +114,7 @@ export default function AddMonitor() {
 
     return (
         <div className="am-page">
+            <ConfirmDialog />
             <div className="am-topbar">
                 <button className="am-back" onClick={() => navigate('/monitoring')}>← Monitoring</button>
             </div>
@@ -218,7 +221,7 @@ export default function AddMonitor() {
                                                         </button>
                                                         <button type="button" title="Delete recipient"
                                                             onClick={async()=>{
-                                                                if(!window.confirm(`Delete ${r.name}?`)) return;
+                                                                confirm(\`Delete \${r.name}?\`, {title:'Delete Recipient',confirmText:'Delete',danger:true}).then(ok=>{ if(!ok) return;
                                                                 await axios.delete(`${API_URL}/api/recipients/${r._id}`, { withCredentials: true });
                                                                 setRecipients(prev=>prev.filter(x=>x._id!==r._id));
                                                                 setSelectedRecipients(prev=>prev.filter(x=>x!==r._id));
@@ -367,7 +370,7 @@ export default function AddMonitor() {
                                                     🌐 {siteSel.length===0?'All':siteSel.length} {isExpanded?'▲':'▼'}
                                                 </button>
                                                 <button type="button" onClick={async()=>{
-                                                    if(!window.confirm(`Remove ${intg.type}?`)) return;
+                                                    if(!confirm(`Remove ${intg.type}?`)) return;
                                                     await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
                                                     setSavedIntegrations(p=>p.filter(x=>x._id!==intg._id));
                                                 }} style={{ padding:'4px 8px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:6, color:'#dc2626', cursor:'pointer', fontSize:12 }}>🗑</button>

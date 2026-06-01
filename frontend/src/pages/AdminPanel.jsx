@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, adminRefundPayment, adminRefundStatus, getAdminProfile, updateAdminProfile, adminClearCache, API_URL } from '../api';
@@ -183,6 +184,7 @@ function SectionTitle({ title, right }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AdminPanel({ initialTab = 'overview', staffMode = false, readOnly = false, permissions = [] }) {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const location = useLocation();
     const urlTab = new URLSearchParams(location.search).get('tab');
     const [tab, setTab] = useState(urlTab || initialTab);
@@ -318,20 +320,23 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     };
 
     const extendTrial = async (id, name) => {
-        if (!window.confirm(`Extend trial by 5 days for "${name}"?`)) return;
+        const ok = await confirm(`Extend trial by 5 days for "${name}"?`, { title:'Extend Trial', confirmText:'+5 Days', danger:false });
+        if (!ok) return;
         try { await adminUpdateUser(id, { extendTrial: true }); showToast('Trial extended by 5 days'); load(); }
         catch (e) { showToast('Failed'); }
     };
 
     const toggleBlock = async (u) => {
         const action = u.isBlocked ? 'Unblock' : 'Block';
-        if (!window.confirm(`${action} user "${u.name}"?`)) return;
+        const ok = await confirm(`${action} user "${u.name}"?`, { title:`${action} User`, confirmText:action, danger: !u.isBlocked });
+        if (!ok) return;
         try { await adminUpdateUser(u._id, { isBlocked: !u.isBlocked }); showToast(u.isBlocked ? 'User unblocked' : 'User blocked'); load(); }
         catch (e) { showToast('Failed'); }
     };
 
     const deleteUser = async (u) => {
-        if (!window.confirm(`Delete "${u.name}" (${u.email}) and all their sites? This cannot be undone.`)) return;
+        const ok = await confirm(`Delete "${u.name}" and all their data? This cannot be undone.`, { title:'Delete User', confirmText:'Delete', danger:true });
+        if (!ok) return;
         try { await adminDeleteUser(u._id); showToast('User deleted'); load(); }
         catch (e) { showToast('Delete failed'); }
     };
@@ -413,12 +418,14 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         catch (e) { showToast(e.response?.data?.error || 'Approve failed'); }
     };
     const rejectPayment = async (id) => {
-        if (!window.confirm('Reject this payment request?')) return;
+        const ok = await confirm('Reject this payment request?', { title:'Reject Payment', confirmText:'Reject', danger:true });
+        if (!ok) return;
         try { await adminRejectPayment(id); showToast('Payment rejected'); loadPayments(); }
         catch (e) { showToast('❌ ' + (e.response?.data?.error || 'Failed')); }
     };
     const refundPayment = async (id) => {
-        if (!window.confirm('Refund this payment on Razorpay? User plan will be cancelled.')) return;
+        const ok = await confirm('Refund this payment on Razorpay? User plan will be cancelled.', { title:'Refund Payment', confirmText:'Refund', danger:true });
+        if (!ok) return;
         try { await adminRefundPayment(id); showToast('Refund initiated — plan cancelled'); loadPayments(); load(); }
         catch (e) { showToast(e.response?.data?.error || 'Reject failed'); }
     };
@@ -448,7 +455,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     };
 
     const deletePayment = async (id) => {
-        if (!window.confirm('Delete this payment record permanently?')) return;
+        const ok = await confirm('Delete this payment record permanently?', { title:'Delete Payment', confirmText:'Delete', danger:true });
+        if (!ok) return;
         try {
             await adminDeletePayment(id);
             showToast('Payment record deleted');
@@ -470,7 +478,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         loadTickets();
     };
     const deleteTicket = async (id) => {
-        if (!window.confirm('Delete this ticket?')) return;
+        const ok = await confirm('Delete this support ticket?', { title:'Delete Ticket', confirmText:'Delete', danger:true });
+        if (!ok) return;
         await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`, { withCredentials: true });
         loadTickets();
     };
@@ -1522,6 +1531,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog />
 
             {/* Assign Plan Modal */}
             {assignModal && (

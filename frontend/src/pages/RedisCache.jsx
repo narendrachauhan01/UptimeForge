@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import axios from 'axios';
 import { API_URL } from '../api';
 
 
 export default function RedisCache({ readOnly = false }) {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [msg,     setMsg]     = useState('');
     const [loading, setLoading] = useState(false);
 
     const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 5000); };
 
     const clearAll = async () => {
-        if (!window.confirm('Clear all SSL & Domain cache? Fresh data will be fetched on next check.')) return;
+        if (!confirm('Clear all SSL & Domain cache? Fresh data will be fetched on next check.')) return;
         setLoading(true);
         try {
             const r = await axios.post(`${API_URL}/api/admin/clear-cache`, {}, { withCredentials: true });
@@ -23,6 +25,7 @@ export default function RedisCache({ readOnly = false }) {
 
     return (
         <div className="pg-wrap">
+      <ConfirmDialog />
             {/* Page Header */}
             <div className="pg-header">
                 <div>

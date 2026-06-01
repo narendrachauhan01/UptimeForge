@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import axios from 'axios';
 import { API_URL } from '../api';
 
@@ -56,6 +57,7 @@ function AdminImageUpload({ sendReply, reply, sending }) {
 }
 
 export default function SupportTickets({ readOnly = false }) {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [tickets,  setTickets]   = useState([]);
     const [loading,  setLoading]   = useState(true);
     const [filter,   setFilter]    = useState('all');
@@ -97,7 +99,7 @@ export default function SupportTickets({ readOnly = false }) {
     const markRead = async(id)=>{ await axios.post(`${API_URL}/api/admin/support-tickets/${id}/mark-read`,{},{withCredentials:true}).catch(()=>{}); setTickets(p=>p.map(t=>t._id===id?{...t,adminUnread:false}:t)); };
     const openTicket = (t)=>{ setSelected(t); setView('reply'); if(t.adminUnread) markRead(t._id); };
     const update = async(id,data)=>{ await axios.put(`${API_URL}/api/admin/support-tickets/${id}`,data,{withCredentials:true}); load(true); if(selected?._id===id) setSelected(s=>({...s,...data})); };
-    const del = async(id)=>{ if(!window.confirm('Delete this ticket?')) return; await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`,{withCredentials:true}); setSelected(null); setView('list'); load(); };
+    const del = async(id)=>{ if(!confirm('Delete this ticket?')) return; await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`,{withCredentials:true}); setSelected(null); setView('list'); load(); };
     const sendReply = async(files=[])=>{
         if(!reply.trim()||!selected) return Promise.resolve();
         setSending(true);
@@ -126,6 +128,7 @@ export default function SupportTickets({ readOnly = false }) {
     // ── Ticket Reply View ────────────────────────────────────────────────────
     if(view==='reply' && selected) return (
         <div className="pg-wrap">
+      <ConfirmDialog />
             {/* Header breadcrumb */}
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:12 }}>

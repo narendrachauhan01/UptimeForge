@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 let _loaded = false;
 import { useNavigate } from 'react-router-dom';
 import { getServers, checkNow, deleteServer } from '../api';
@@ -41,6 +42,7 @@ function NewDropdown({ onNavigate }) {
 }
 
 export default function Dashboard({ readOnly = false }) {
+  const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
   const [checking, setChecking] = useState(false);
@@ -140,6 +142,7 @@ export default function Dashboard({ readOnly = false }) {
 
   return (
     <>
+    <ConfirmDialog />
     <div className="mon-layout">
 
       {/* ── LEFT: Main monitor list ── */}
@@ -225,9 +228,9 @@ export default function Dashboard({ readOnly = false }) {
                   className="mon-del-btn"
                   onClick={e => {
                     e.stopPropagation();
-                    if (window.confirm(`Delete "${s.name}"?`)) {
-                      deleteServer(s._id).then(load);
-                    }
+                    confirm(`Delete "${s.name}"?`, { title:'Delete Site', confirmText:'Delete', danger:true }).then(ok => {
+                      if (ok) deleteServer(s._id).then(load);
+                    });
                   }}
                   title="Delete monitor"
                 >🗑</button>

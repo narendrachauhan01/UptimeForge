@@ -1,4 +1,5 @@
 let _loaded_PingMonitor = false;
+import { useConfirm } from '../components/ConfirmDialog';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { API_URL } from '../api';
@@ -185,7 +186,7 @@ function TargetModal({ target, onClose, onSave }) {
                                         </div>
                                         <span style={{ fontSize:10, fontWeight:700, background:'rgba(16,185,129,0.2)', color:'#34d399', padding:'2px 7px', borderRadius:20 }}>✓ Active</span>
                                         <button type="button" onClick={async()=>{
-                                            if(!window.confirm(`Remove ${intg.type} integration?`)) return;
+                                            if(!confirm(`Remove ${intg.type} integration?`)) return;
                                             await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
                                             setIntegrations(p=>p.filter(x=>x._id!==intg._id));
                                         }} style={{ padding:'3px 8px', background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:6, color:'#f87171', fontSize:11, cursor:'pointer' }}>🗑</button>
@@ -391,6 +392,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PingMonitor() {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [targets,     setTargets]     = useState([]);
     const [search,      setSearch]      = useState('');
     const [selected,    setSelected]    = useState(null);
@@ -432,7 +434,7 @@ export default function PingMonitor() {
         return r;
     };
     const deleteTarget = async (id) => {
-        if (!window.confirm('Delete this target?')) return;
+        const _ok1 = await confirm('Delete this ping target?', { title:'Delete Target', confirmText:'Delete', danger:true }); if (!_ok1) return;
         await axios.delete(`${API_URL}/api/ping-targets/${id}`, { withCredentials: true });
         setSelected(null); load();
     };
@@ -471,6 +473,7 @@ export default function PingMonitor() {
 
     return (
       <>
+        <ConfirmDialog />
         <div className="mon-layout">
             {/* ── Left: list ── */}
             <div className="mon-main">

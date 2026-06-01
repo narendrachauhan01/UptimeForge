@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, getServers, addRecipient, getRecipients } from '../api';
@@ -217,6 +218,7 @@ const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xml
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} }) {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const navigate = useNavigate();
     const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free_trial');
     const isFree   = currentPlan === 'free_trial';
@@ -289,7 +291,7 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     };
 
     const deleteIntegration = async (type) => {
-        if (!window.confirm(`Remove ${type} integration?`)) return;
+        if (!confirm(`Remove ${type} integration?`)) return;
         try {
             await axios.delete(`${API_URL}/api/integrations/${type}`, { withCredentials: true });
             setSaved(p => { const n={...p}; delete n[type]; return n; });
@@ -380,6 +382,7 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
 
     return (
         <div className="pg-wrap">
+      <ConfirmDialog />
             <div className="pg-header">
                 <div>
                     <h1 className="pg-title">Integrations <span style={{color:'#7c3aed'}}>.</span></h1>

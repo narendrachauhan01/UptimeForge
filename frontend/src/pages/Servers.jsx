@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
 import { getServers, deleteServer, updateServer, getPlans } from '../api';
 
 export default function Servers({ user, isAdmin, onNotify }) {
+  const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
   const [editId, setEditId] = useState(null);
@@ -28,7 +30,7 @@ export default function Servers({ user, isAdmin, onNotify }) {
   }, []);
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Delete "${name}"?`)) return;
+    if (!confirm(`Delete "${name}"?`)) return;
     await deleteServer(id);
     load();
     onNotify?.();
@@ -64,6 +66,7 @@ export default function Servers({ user, isAdmin, onNotify }) {
 
   return (
     <div className="pg-wrap">
+      <ConfirmDialog />
       {/* Header */}
       <div className="pg-header">
         <div>

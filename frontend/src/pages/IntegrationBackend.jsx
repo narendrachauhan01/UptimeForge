@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ConfirmDialog';
 import axios from 'axios';
 import { getWaStatus, API_URL } from '../api';
 
@@ -240,6 +241,7 @@ function WhatsAppModal({ onClose }) {
 
 // ── Main Cards Page ───────────────────────────────────────────────────────────
 export default function IntegrationBackend({ readOnly = false }) {
+    const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [emailOpen,  setEmailOpen]  = useState(false);
     const [waOpen,     setWaOpen]     = useState(false);
     const [emailOk,    setEmailOk]    = useState(null);
@@ -260,7 +262,7 @@ export default function IntegrationBackend({ readOnly = false }) {
 
     const deleteEmail = async (e) => {
         e.stopPropagation();
-        if (!window.confirm('Remove Email SMTP configuration?')) return;
+        if (!confirm('Remove Email SMTP configuration?')) return;
         try {
             await axios.delete(`${API_URL}/api/email-config/reset`, { withCredentials: true });
             setEmailOk(false); setEmailUser('');
@@ -270,7 +272,7 @@ export default function IntegrationBackend({ readOnly = false }) {
 
     const deleteWa = async (e) => {
         e.stopPropagation();
-        if (!window.confirm('Remove WhatsApp configuration?')) return;
+        if (!confirm('Remove WhatsApp configuration?')) return;
         try {
             await axios.delete(`${API_URL}/api/whatsapp/reset`, { withCredentials: true });
             setWaOk(false); setWaProvider('');
@@ -285,6 +287,7 @@ export default function IntegrationBackend({ readOnly = false }) {
 
     return (
         <div className="pg-wrap">
+      <ConfirmDialog />
             {toast && (
                 <div style={{ position:'fixed', top:20, right:20, zIndex:9999, background: toast.startsWith('✅')?'#16a34a':'#dc2626', color:'#fff', borderRadius:12, padding:'12px 20px', fontWeight:700, fontSize:14, boxShadow:'0 8px 24px rgba(0,0,0,0.15)' }}>
                     {toast}
