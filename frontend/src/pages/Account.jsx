@@ -231,48 +231,62 @@ export default function Account({ user, onUserUpdate }) {
     return (
       <>
         <div className="pg-wrap">
-            <div className="pg-header">
-                <div>
-                    <h1 className="pg-title">My Account</h1>
-                    <p className="pg-sub">Plan & billing management</p>
-                </div>
-                {user?.accountId && (
-                    <div style={{ background:'#1e1b4b', borderRadius:12, padding:'10px 18px', display:'flex', alignItems:'center', gap:10 }}>
-                        <div>
-                            <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:0.8 }}>Account ID</div>
-                            <div style={{ fontSize:18, fontWeight:800, color:'#a78bfa', fontFamily:'monospace', letterSpacing:1 }}>{user.accountId}</div>
-                        </div>
-                        <button onClick={()=>navigator.clipboard.writeText(user.accountId).then(()=>alert('Copied!'))}
-                            style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:6, padding:'4px 10px', color:'rgba(255,255,255,0.6)', fontSize:11, cursor:'pointer' }}>
-                            📋 Copy
-                        </button>
+            {/* Profile Hero Card */}
+            <div style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81)', borderRadius:16, padding:'28px 32px', marginBottom:24, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:20, boxShadow:'0 4px 24px rgba(124,58,237,0.2)' }}>
+                {/* Left: Avatar + Info */}
+                <div style={{ display:'flex', alignItems:'center', gap:18 }}>
+                    <div style={{ width:60, height:60, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:800, color:'#fff', flexShrink:0, boxShadow:'0 0 0 3px rgba(167,139,250,0.3)' }}>
+                        {user?.name?.charAt(0)?.toUpperCase()}
                     </div>
-                )}
-            </div>
+                    <div>
+                        <div style={{ fontSize:20, fontWeight:800, color:'#fff', marginBottom:3 }}>{user?.name}</div>
+                        <div style={{ fontSize:13, color:'rgba(255,255,255,0.6)', marginBottom:8 }}>{user?.email}</div>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                            <span style={{ fontSize:11, fontWeight:700, padding:'3px 12px', borderRadius:20, background: planColor, color:'#fff', letterSpacing:0.5 }}>
+                                {plan === 'free_trial' ? '🆓 FREE TRIAL' : `⭐ ${plan.toUpperCase()}`}
+                            </span>
+                            {plan === 'free_trial' && (
+                                <span style={{ fontSize:11, fontWeight:700, padding:'3px 12px', borderRadius:20,
+                                    background: !isActive ? 'rgba(239,68,68,0.2)' : trialLeft <= 2 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)',
+                                    color: !isActive ? '#f87171' : trialLeft <= 2 ? '#fbbf24' : '#34d399',
+                                    border: `1px solid ${!isActive ? 'rgba(239,68,68,0.3)' : trialLeft <= 2 ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)'}` }}>
+                                    {isActive ? `⏱ ${trialLeft} day${trialLeft !== 1 ? 's' : ''} left` : '⛔ Trial expired'}
+                                </span>
+                            )}
+                            {plan !== 'free_trial' && user?.planEndsAt && (
+                                <span style={{ fontSize:11, color:'rgba(255,255,255,0.5)', padding:'3px 10px', borderRadius:20, background:'rgba(255,255,255,0.08)' }}>
+                                    Renews {fmt(user.planEndsAt)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
-            {/* Current Plan Card */}
-            <div className="acct-current-plan" style={{ borderColor: planColor }}>
-                <div className="acct-plan-left">
-                    <div className="acct-plan-badge" style={{ background: planColor }}>
-                        {plan === 'free_trial' ? 'FREE TRIAL' : plan.toUpperCase()}
+                {/* Right: Stats + Account ID */}
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:12 }}>
+                    {/* Sites used */}
+                    <div style={{ textAlign:'right' }}>
+                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', fontWeight:600, textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Sites Used</div>
+                        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                            <div style={{ width:100, height:6, background:'rgba(255,255,255,0.15)', borderRadius:10, overflow:'hidden' }}>
+                                <div style={{ width:`${Math.min(100,(serverCount/siteLimit)*100)}%`, height:'100%', background: serverCount >= siteLimit ? '#ef4444' : '#7c3aed', borderRadius:10, transition:'width 0.4s' }}/>
+                            </div>
+                            <span style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{serverCount}<span style={{ color:'rgba(255,255,255,0.4)', fontWeight:400 }}>/{siteLimit}</span></span>
+                        </div>
                     </div>
-                    <div className="acct-plan-info">
-                        <div className="acct-user-name">{user?.name}</div>
-                        <div className="acct-user-email">{user?.email}</div>
-                    </div>
-                </div>
-                <div className="acct-plan-right">
-                    {plan === 'free_trial' && (
-                        <div className={`acct-trial-days ${trialLeft <= 1 ? 'critical' : trialLeft <= 3 ? 'warn' : ''}`}>
-                            {isActive ? `${trialLeft} day${trialLeft !== 1 ? 's' : ''} left` : 'Trial expired'}
+                    {/* Account ID */}
+                    {user?.accountId && (
+                        <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.08)', borderRadius:10, padding:'8px 14px', border:'1px solid rgba(255,255,255,0.1)' }}>
+                            <div>
+                                <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', fontWeight:700, textTransform:'uppercase', letterSpacing:0.8 }}>Account ID</div>
+                                <div style={{ fontSize:15, fontWeight:800, color:'#a78bfa', fontFamily:'monospace', letterSpacing:1 }}>{user.accountId}</div>
+                            </div>
+                            <button onClick={()=>navigator.clipboard.writeText(user.accountId).then(()=>{})}
+                                style={{ background:'rgba(124,58,237,0.3)', border:'1px solid rgba(124,58,237,0.4)', borderRadius:7, padding:'4px 10px', color:'#c4b5fd', fontSize:11, cursor:'pointer', fontWeight:600 }}>
+                                📋 Copy
+                            </button>
                         </div>
                     )}
-                    {plan !== 'free_trial' && user?.planEndsAt && (
-                        <div className="acct-plan-expiry">Renews: {fmt(user.planEndsAt)}</div>
-                    )}
-                    <div className="acct-usage">
-                        <span>{serverCount}</span> / <span>{siteLimit}</span> sites used
-                    </div>
                 </div>
             </div>
 
