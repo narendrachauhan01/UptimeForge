@@ -37,14 +37,14 @@ export default function AdminLogin() {
                         <span>UptimeForge</span>
                     </Link>
                     <div className="login-left-body">
-                        <h2 className="login-left-h2">Monitor your sites.<br />Sleep peacefully.</h2>
-                        <p className="login-left-p">24/7 uptime monitoring with instant alerts via WhatsApp and Email.</p>
+                        <h2 className="login-left-h2">Admin Control.<br />Full power at hand.</h2>
+                        <p className="login-left-p">Complete control over users, plans, payments, integrations and platform settings.</p>
                         <div className="login-left-features">
                             {[
-                                ['🔔','Instant down alerts — WhatsApp & Email'],
-                                ['🔒','SSL & Domain expiry warnings'],
-                                ['📊','Performance charts & history'],
-                                ['⚡','Checks every 30s – 5min (plan-based)'],
+                                ['⚡','Full access to all platform sections'],
+                                ['👥','Manage users, plans & billing'],
+                                ['💳','Approve payments & handle refunds'],
+                                ['🛠️','Configure integrations & settings'],
                             ].map(([icon,text]) => (
                                 <div key={text} className="login-left-feat">
                                     <div className="login-left-feat-icon">{icon}</div>
@@ -53,9 +53,9 @@ export default function AdminLogin() {
                             ))}
                         </div>
                         <div className="login-left-preview">
-                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>myshop.com</span><span className="login-preview-ms">⚡ 234ms</span><span className="login-preview-badge up">Online</span></div>
-                            <div className="login-preview-row down"><div className="login-preview-dot red pulse"/><span>api.staging.com</span><span className="login-preview-ms" style={{color:'#fca5a5'}}>Alert sent!</span><span className="login-preview-badge down">Down</span></div>
-                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>blog.example.com</span><span className="login-preview-ms">⚡ 512ms</span><span className="login-preview-badge up">Online</span></div>
+                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>7 Total Users</span><span className="login-preview-badge up">Active</span></div>
+                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>Payments</span><span className="login-preview-badge up">₹8 Revenue</span></div>
+                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>All Systems</span><span className="login-preview-badge up">Online</span></div>
                         </div>
                     </div>
                     <div className="login-left-footer">© 2026 UptimeForge</div>
