@@ -2367,7 +2367,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 /* Pricing */
 .lp-pricing { background:linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%); }
 .lp-plans {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:24px;
+  display:grid; grid-template-columns:repeat(4,minmax(240px,1fr)); gap:24px;
   align-items:stretch;
 }
 .lp-plan {
