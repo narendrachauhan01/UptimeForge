@@ -53,8 +53,8 @@ export default function AdminLogin() {
                             ))}
                         </div>
                         <div className="login-left-preview">
-                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>7 Total Users</span><span className="login-preview-badge up">Active</span></div>
-                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>Payments</span><span className="login-preview-badge up">₹8 Revenue</span></div>
+                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>User Management</span><span className="login-preview-badge up">Full Access</span></div>
+                            <div className="login-preview-row up"><div className="login-preview-dot green"/><span>Plan Settings</span><span className="login-preview-badge up">Full Access</span></div>
                             <div className="login-preview-row up"><div className="login-preview-dot green"/><span>All Systems</span><span className="login-preview-badge up">Online</span></div>
                         </div>
                     </div>
