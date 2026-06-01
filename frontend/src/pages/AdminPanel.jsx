@@ -1523,6 +1523,65 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 </div>
             )}
 
+            {/* Assign Plan Modal */}
+            {assignModal && (
+                <div style={{ position:'fixed', inset:0, background:'rgba(17,24,39,0.5)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', padding:20, zIndex:500 }}
+                    onClick={() => setAssignModal(null)}>
+                    <div style={{ background:'#fff', borderRadius:12, width:'100%', maxWidth:480, boxShadow:'0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'20px 24px 16px', borderBottom:`1px solid ${T.border}` }}>
+                            <div>
+                                <div style={{ fontSize:16, fontWeight:700, color:T.text }}>Assign Plan</div>
+                                <div style={{ fontSize:12, color:T.sub, marginTop:2 }}>{assignModal.user.name} · {assignModal.user.email}</div>
+                            </div>
+                            <button onClick={() => setAssignModal(null)} style={{ width:30, height:30, borderRadius:'50%', border:'none', background:'#F3F4F6', color:T.sub, fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                        </div>
+                        <div style={{ padding:'20px 24px 24px' }}>
+                            <div style={{ fontSize:11, fontWeight:700, color:T.sub, textTransform:'uppercase', letterSpacing:0.5, marginBottom:10 }}>SELECT PLAN</div>
+                            <div style={{ display:'flex', gap:10, marginBottom:20 }}>
+                                {['bronze','silver','gold'].map(p => (
+                                    <button key={p} onClick={() => setAssignForm(f => ({ ...f, plan: p }))} style={{ flex:1, padding:'10px', border:`2px solid ${assignForm.plan===p?PLAN_COLORS[p]:T.border}`, borderRadius:8, background:assignForm.plan===p?PLAN_COLORS[p]:'#fff', color:assignForm.plan===p?'#fff':PLAN_COLORS[p], fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
+                                        {PLAN_LABEL[p]}
+                                    </button>
+                                ))}
+                            </div>
+                            <div style={{ fontSize:11, fontWeight:700, color:T.sub, textTransform:'uppercase', letterSpacing:0.5, marginBottom:10 }}>DURATION</div>
+                            <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:16 }}>
+                                {[{val:'1m',label:'1 Month'},{val:'3m',label:'3 Months'},{val:'6m',label:'6 Months'},{val:'1y',label:'1 Year'},{val:'custom',label:'Custom Date'}].map(d => (
+                                    <button key={d.val} onClick={() => setAssignForm(f => ({ ...f, duration: d.val }))} style={{ padding:'7px 14px', border:`1px solid ${assignForm.duration===d.val?T.primary:T.border}`, borderRadius:9999, fontSize:12, fontWeight:600, background:assignForm.duration===d.val?T.primary:'#fff', color:assignForm.duration===d.val?'#fff':T.sub, cursor:'pointer', fontFamily:'inherit' }}>
+                                        {d.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {assignForm.duration === 'custom' && (
+                                <input type="date" style={{ ...inputSt, marginBottom:16 }} value={assignForm.customDate} onChange={e => setAssignForm(f => ({ ...f, customDate: e.target.value }))} />
+                            )}
+                            <div style={{ marginBottom:16 }}>
+                                <div style={{ fontSize:12, fontWeight:700, color:T.sub, marginBottom:8 }}>BILLING TYPE</div>
+                                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                                    {[['monthly','📅 Monthly','#3b82f6','#eff6ff','#1d4ed8'],['3m','📅 3 Months','#8b5cf6','#f3f0ff','#6d28d9'],['6m','📅 6 Months','#10b981','#f0fdf4','#065f46'],['annually','📆 Annual','#f59e0b','#fef3c7','#b45309']].map(([val,label,border,bg,color]) => (
+                                        <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing:val==='annually'?'annually':'monthly', planDuration:val==='annually'?'1y':val==='monthly'?'1m':val }))}
+                                            style={{ flex:1, minWidth:80, padding:'9px 0', border:`2px solid ${assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?border:T.border}`, borderRadius:8, fontWeight:700, fontSize:12, cursor:'pointer',
+                                                background:assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?bg:'#fff',
+                                                color:assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?color:T.sub }}>
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div style={{ background:'#F9FAFB', border:`1px solid ${T.border}`, borderRadius:8, padding:'12px 16px', fontSize:13, color:T.sub, marginBottom:20 }}>
+                                Plan: <strong style={{ color:PLAN_COLORS[assignForm.plan] }}>{PLAN_LABEL[assignForm.plan]}</strong> &nbsp;·&nbsp;
+                                Billing: <strong style={{ color:assignForm.billing==='annually'?'#b45309':'#1d4ed8' }}>{assignForm.billing==='annually'?'Annual':assignForm.planDuration==='3m'?'3 Months':assignForm.planDuration==='6m'?'6 Months':'Monthly'}</strong> &nbsp;·&nbsp;
+                                Expires: <strong style={{ color:T.text }}>{calcEndsAt()||'—'}</strong>
+                            </div>
+                            <div style={{ display:'flex', gap:10 }}>
+                                <button style={{ ...btnPrimary, flex:1 }} onClick={saveAssign}>Assign Plan</button>
+                                <button style={btnSecondary} onClick={() => setAssignModal(null)}>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
