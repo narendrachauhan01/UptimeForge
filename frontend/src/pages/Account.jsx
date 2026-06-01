@@ -202,7 +202,7 @@ export default function Account({ user, onUserUpdate }) {
                         <div style={{ ...S.section, border:'1px solid #FECDD3', background:'#FFF5F5' }}>
                             <div style={{ ...S.title, color:'#DC2626' }}>Delete account.</div>
                             <div style={{ ...S.desc, color:'#7f1d1d' }}>
-                                Once you delete your account, all your sites, monitoring data, alerts and settings will be <strong>permanently lost and cannot be recovered.</strong>
+                                UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
                             </div>
                             <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
                                 Delete account
@@ -317,7 +317,7 @@ export default function Account({ user, onUserUpdate }) {
                         <div style={{ ...S.section, border:'1px solid #FECDD3', background:'#FFF5F5' }}>
                             <div style={{ ...S.title, color:'#DC2626' }}>Danger zone.</div>
                             <div style={{ ...S.desc, color:'#7f1d1d' }}>
-                                Deleting your account is permanent. All data, sites and settings will be lost forever.
+                                UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
                             </div>
                             <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
                                 Delete account
