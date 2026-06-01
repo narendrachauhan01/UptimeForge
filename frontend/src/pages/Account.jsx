@@ -80,55 +80,103 @@ export default function Account({ user, onUserUpdate }) {
     const [deleteMsg, setDeleteMsg] = useState('');
 
     const downloadInvoice = (r) => {
-        const planName = r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`;
+        const planName  = r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`;
+        const period    = r.type === 'verification' ? '5-day trial period' : (r.billing === 'annually' ? '12 months' : '1 month');
+        const invNo     = 'UW-' + (r._id?.slice(-8).toUpperCase() || 'XXXXXXXX');
+        const dateStr   = new Date(r.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+        const note      = r.type === 'verification'
+            ? `This ₹${r.amount} verification fee is non-refundable and activates your 5-day free trial.`
+            : `This payment activates your ${planName} for ${period}.`;
+
         const html = `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Invoice - UptimeForge</title>
+<html><head><meta charset="utf-8"><title>Invoice #${invNo} - UptimeForge</title>
 <style>
-  body { font-family: Inter, Arial, sans-serif; background:#f8fafc; margin:0; padding:40px; color:#1e293b; }
-  .card { background:#fff; border-radius:16px; max-width:560px; margin:0 auto; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.1); }
-  .header { background:linear-gradient(135deg,#7c3aed,#6d28d9); padding:32px; text-align:center; color:#fff; }
-  .header h1 { margin:0 0 4px; font-size:22px; font-weight:800; }
-  .header p { margin:0; opacity:0.8; font-size:13px; }
-  .body { padding:32px; }
-  .logo { font-size:28px; margin-bottom:8px; }
-  table { width:100%; border-collapse:collapse; margin-bottom:24px; }
-  td { padding:10px 0; font-size:14px; border-bottom:1px solid #f1f5f9; }
-  td:first-child { color:#64748b; }
-  td:last-child { text-align:right; font-weight:700; }
-  .amount { color:#7c3aed; font-size:18px; }
-  .status { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:700; background:${r.status==='approved'?'#f0fdf4':'#fef2f2'}; color:${r.status==='approved'?'#16a34a':'#dc2626'}; }
-  .footer { padding:16px 32px; background:#f8fafc; text-align:center; color:#94a3b8; font-size:12px; }
-  @media print { body { padding:0; background:#fff; } }
-</style>
-</head>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,Arial,sans-serif;background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+  .card{background:#fff;border-radius:16px;width:100%;max-width:720px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.12)}
+  .hdr{background:linear-gradient(135deg,#7c3aed,#5b21b6);padding:28px 36px;display:flex;justify-content:space-between;align-items:flex-start}
+  .hdr-left h1{color:#fff;font-size:22px;font-weight:900;margin-bottom:4px}
+  .hdr-left p{color:rgba(255,255,255,0.75);font-size:12px;margin-bottom:2px}
+  .hdr-right{text-align:right}
+  .hdr-right .inv-label{color:#fff;font-size:28px;font-weight:900;letter-spacing:2px}
+  .hdr-right .inv-no{color:rgba(255,255,255,0.85);font-size:13px;margin-top:4px}
+  .hdr-right .inv-date{color:rgba(255,255,255,0.75);font-size:12px}
+  .body{padding:32px 36px}
+  .from-to{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:28px}
+  .from-to .label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .from-to h3{font-size:16px;font-weight:800;color:#1e293b;margin-bottom:6px}
+  .from-to p{font-size:13px;color:#64748b;line-height:1.7}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px}
+  thead tr{background:#f8fafc}
+  th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #e2e8f0}
+  td{padding:14px;font-size:13px;color:#374151;border-bottom:1px solid #f1f5f9}
+  .txn{font-family:monospace;font-size:12px;background:#f8fafc;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0}
+  .badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;background:${r.status==='approved'?'#dcfce7':'#fef2f2'};color:${r.status==='approved'?'#16a34a':'#dc2626'}}
+  .total-row{background:#f0fdf4;border-radius:10px;padding:16px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+  .total-row span{font-size:15px;font-weight:700;color:#374151}
+  .total-row strong{font-size:22px;font-weight:900;color:#16a34a}
+  .note{font-size:12px;color:#64748b;line-height:1.7;margin-bottom:8px}
+  .footer{padding:16px 36px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+  .footer span{font-size:12px;color:#94a3b8}
+  .footer strong{font-size:12px;font-weight:700;color:#7c3aed}
+  .print-btn{margin-top:24px;padding:14px 40px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+  @media print{body{background:#fff;padding:0}.card{box-shadow:none;border-radius:0}.print-btn{display:none}}
+</style></head>
 <body>
 <div class="card">
-  <div class="header">
-    <div class="logo">🧾</div>
-    <h1>Payment Invoice</h1>
-    <p>UptimeForge</p>
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>UptimeForge</h1>
+      <p>24/7 Uptime Monitoring</p>
+      <p>uptimeforge@gmail.com</p>
+    </div>
+    <div class="hdr-right">
+      <div class="inv-label">INVOICE</div>
+      <div class="inv-no"># ${invNo}</div>
+      <div class="inv-date">Date: ${dateStr}</div>
+    </div>
   </div>
   <div class="body">
+    <div class="from-to">
+      <div>
+        <div class="label">From</div>
+        <h3>UptimeForge</h3>
+        <p>Narendra Singh — DevOps Engineer<br>uptimeforge@gmail.com<br>India</p>
+      </div>
+      <div>
+        <div class="label">Billed To</div>
+        <h3>${user?.name || '—'}</h3>
+        <p>${user?.email || ''}<br>${user?.phone || ''}<br>${[user?.state, user?.country].filter(Boolean).join(', ') || 'India'}</p>
+      </div>
+    </div>
     <table>
-      <tr><td>Invoice No.</td><td>#INV-${r._id?.slice(-8).toUpperCase()}</td></tr>
-      <tr><td>Date</td><td>${new Date(r.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</td></tr>
-      <tr><td>Plan</td><td>${planName}</td></tr>
-      <tr><td>Account</td><td>${user?.email}</td></tr>
-      <tr><td>Account ID</td><td>${user?.accountId || '—'}</td></tr>
-      <tr><td>Payment ID</td><td style="font-family:monospace;font-size:12px">${r.utr || '—'}</td></tr>
-      <tr><td>Amount</td><td class="amount">₹${r.amount}</td></tr>
-      <tr><td>Status</td><td><span class="status">${r.status}</span></td></tr>
+      <thead><tr><th>Description</th><th>Plan Period</th><th>Transaction ID</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>${planName}</strong></td>
+          <td>${period}</td>
+          <td><span class="txn">${r.utr || '—'}</span></td>
+          <td><span class="badge">${r.status?.charAt(0).toUpperCase()+r.status?.slice(1)}</span></td>
+          <td style="text-align:right;font-weight:700">₹${r.amount}</td>
+        </tr>
+      </tbody>
     </table>
-    <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0">Secured by Razorpay · UPI · Cards · Netbanking</p>
+    <div class="total-row">
+      <span>Total Paid</span>
+      <strong>₹${r.amount}</strong>
+    </div>
+    <p class="note">Payment received via UPI / Card / Netbanking. This is a computer-generated invoice and does not require a signature. ${note}</p>
   </div>
-  <div class="footer">UptimeForge &mdash; © 2026 Narendra Singh</div>
+  <div class="footer">
+    <span>Thank you for using UptimeForge! For support: uptimeforge@gmail.com</span>
+    <strong>UptimeForge © 2026</strong>
+  </div>
 </div>
+<button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
 </body></html>`;
         const w = window.open('', '_blank');
         w.document.write(html);
         w.document.close();
-        w.print();
     };
 
     const deleteAccount = async () => {
