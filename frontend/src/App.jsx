@@ -591,7 +591,8 @@ function AppInner() {
     if (intendedPlan && ['bronze', 'silver', 'gold'].includes(intendedPlan)) {
       navigate(`/pay?plan=${intendedPlan}`);
     } else {
-      navigate('/pay?plan=verification');
+      // Show plan selection first so user can choose Free Trial or paid plan
+      navigate('/pay?plan=select');
     }
     return null;
   }
