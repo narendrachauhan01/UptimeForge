@@ -54,8 +54,13 @@ export default function StaffLogin() {
                         {loading ? 'Logging in...' : 'Login →'}
                     </button>
                 </form>
-                <div style={{ textAlign:'center', marginTop:20 }}>
-                    <a href="/login" style={{ fontSize:12, color:'#7c3aed', textDecoration:'none' }}>← Back to main login</a>
+                <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                    <a href="/" style={{ flex:1, display:'block', textAlign:'center', padding:'10px', border:'1px solid #E5E7EB', borderRadius:10, fontSize:13, fontWeight:600, color:'#374151', textDecoration:'none', background:'#F9FAFB' }}>
+                        ← Back
+                    </a>
+                    <a href="/login" style={{ flex:1, display:'block', textAlign:'center', padding:'10px', border:'1px solid #7c3aed', borderRadius:10, fontSize:13, fontWeight:600, color:'#7c3aed', textDecoration:'none', background:'#ede9fe' }}>
+                        Admin Login
+                    </a>
                 </div>
             </div>
         </div>
