@@ -1013,11 +1013,13 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                     </td>
                                                     <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent'}} onClick={e=>e.stopPropagation()}>
                                                         <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+                                                            {readOnly ? <span style={{fontSize:11,color:'#92400e',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:6,padding:'4px 10px',fontWeight:600}}>👁 Read Only</span> : <>
                                                             <button onClick={()=>openAssign(u)} style={{...btnPrimary,padding:'5px 10px',fontSize:11}}>Assign Plan</button>
                                                             <button onClick={()=>startEdit(u)} style={{...btnSecondary,padding:'5px 10px',fontSize:11}}>Edit</button>
                                                             <button onClick={()=>extendTrial(u._id,u.name)} style={{padding:'5px 10px',fontSize:11,background:'#EFF6FF',color:T.info,border:`1px solid #BFDBFE`,borderRadius:8,cursor:'pointer',fontWeight:600}}>+Trial</button>
                                                             <button onClick={()=>toggleBlock(u)} style={{padding:'5px 10px',fontSize:11,borderRadius:8,cursor:'pointer',fontWeight:600,border:`1px solid ${u.isBlocked?'#BBF7D0':'#FECDD3'}`,background:u.isBlocked?'#F0FDF4':'#FFF1F2',color:u.isBlocked?T.success:T.danger}}>{u.isBlocked?'Unblock':'Block'}</button>
                                                             <button onClick={()=>deleteUser(u)} style={{padding:'5px 10px',fontSize:11,background:'#FEF2F2',color:T.danger,border:`1px solid #FECDD3`,borderRadius:8,cursor:'pointer',fontWeight:600}}>Delete</button>
+                                                            </>}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -1177,7 +1179,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                     <button style={btnDanger}  onClick={() => rejectPayment(pr._id)}>Reject</button>
                                                 </>
                                             )}
-                                            {pr.status === 'approved' && (
+                                            {!readOnly && pr.status === 'approved' && (
                                                 <button onClick={() => refundPayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3' }}>
                                                     Refund
                                                 </button>
@@ -1185,11 +1187,11 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                             {pr.status === 'refunded' && (
                                                 <span style={pill('#FEE2E2','#B91C1C')}>Refunded</span>
                                             )}
-                                            <button onClick={() => deletePayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3', padding: '9px 12px' }}>
+                                            {!readOnly && <button onClick={() => deletePayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3', padding: '9px 12px' }}>
                                                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                     <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
                                                 </svg>
-                                            </button>
+                                            </button>}
                                         </div>
                                     </div>
                                 );
