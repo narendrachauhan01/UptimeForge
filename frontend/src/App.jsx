@@ -419,8 +419,14 @@ function AppInner() {
       navigate('/admin');
       showToast('Welcome back, Admin!');
     } else if (isNewUser) {
-      navigate('/complete-profile');
-      showToast('Welcome to UptimeForge! Complete your profile to get started.');
+      // New user — check if profile complete, then show plan selection
+      if (!userData?.state) {
+        navigate('/complete-profile');
+        showToast('Welcome to UptimeForge! Complete your profile to get started.');
+      } else {
+        navigate('/pay?plan=select');
+        showToast('Welcome! Choose a plan to get started.');
+      }
     } else {
       navigate('/monitoring');
       showToast('Login successful! Welcome back.');
@@ -435,7 +441,7 @@ function AppInner() {
       localStorage.setItem('sm_intended_plan', planKey);
       navigate(`/pay?plan=${planKey}`);
     } else {
-      navigate('/pay?plan=verification');
+      navigate('/pay?plan=select');
     }
   };
 
