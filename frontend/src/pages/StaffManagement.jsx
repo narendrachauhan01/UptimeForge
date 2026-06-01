@@ -11,9 +11,8 @@ const SECTIONS = [
     { key: 'redisCache',         label: 'Redis Cache',         group: 'SETTINGS' },
     { key: 'deletedUsers',       label: 'Deleted Users',       group: 'RECORDS' },
     { key: 'supportTickets',     label: 'Support Tickets',     group: 'SUPPORT' },
-    { key: 'planCanceling',      label: 'Plan Canceling',      group: 'OPERATIONS' },
 ];
-const GROUPS = ['MENU', 'MANAGEMENT', 'SETTINGS', 'RECORDS', 'SUPPORT', 'OPERATIONS'];
+const GROUPS = ['MENU', 'MANAGEMENT', 'SETTINGS', 'RECORDS', 'SUPPORT'];
 
 const inputStyle = { width:'100%', padding:'9px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, color:'#111827', background:'#fff', boxSizing:'border-box', outline:'none' };
 

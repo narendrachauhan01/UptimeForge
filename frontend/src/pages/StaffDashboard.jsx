@@ -48,12 +48,6 @@ const NAV_GROUPS = [
             { key: 'supportTickets', to: '/staff/support-tickets', label: 'Support Tickets', icon: '🎫' },
         ],
     },
-    {
-        label: 'OPERATIONS',
-        items: [
-            { key: 'planCanceling', to: '/staff/plan-canceling', label: 'Plan Canceling', icon: '❌' },
-        ],
-    },
 ];
 
 function hasAccess(permissions, key) {
