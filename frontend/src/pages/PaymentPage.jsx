@@ -100,69 +100,62 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                 </div>
             </div>
 
-            <div className="pss-cards">
+            {/* Plan cards — same as Landing page */}
+            <div className="lp-plans">
                 {PLAN_ORDER.map(p => {
                     const isVerif = p === 'verification';
-                    const monthlyPrice = isVerif
-                        ? (planData?.verificationFee ?? 2)
-                        : (planData?.plans?.[p]?.price ?? { bronze: 499, silver: 999, gold: 1499 }[p]);
+                    const cfg = planData?.plans?.[p] || {};
+                    const monthlyPrice = isVerif ? (planData?.verificationFee ?? 2) : (cfg.price ?? { bronze:499, silver:999, gold:1499 }[p]);
                     const price = (!isVerif && billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
+                    const sites = isVerif ? (planData?.freeTrialSiteLimit ?? 2) : (cfg.sites ?? { bronze:5, silver:15, gold:30 }[p]);
                     const features = isVerif
                         ? (planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures : PLAN_FEATURES_FALLBACK.verification)
-                        : (planData?.plans?.[p]?.features?.length ? planData.plans[p].features : PLAN_FEATURES_FALLBACK[p]);
-                    const badge = PLAN_BADGE[p];
-                    const accent = PLAN_ACCENT[p];
+                        : (cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p]);
+                    const EMOJI = { verification:'🆓', bronze:'🥉', silver:'🥈', gold:'🥇' };
                     const isPopular = p === 'silver';
+                    const note = isVerif ? '5-day trial · one-time verification' : `${sites} sites`;
 
                     return (
-                        <div key={p} className={`pss-card ${isPopular ? 'pss-card-popular' : ''}`}
-                            style={{ '--accent': accent }}>
-                            <div className="pss-card-top-bar" style={{ background: PLAN_GRADIENT[p] || `linear-gradient(135deg,${accent},${accent}99)` }} />
-                            {badge && (
-                                <div className="pss-badge" style={{ background: badge.color }}>
-                                    {badge.text}
+                        <div key={p} className={`lp-plan ${isPopular ? 'lp-plan-popular' : ''}`}>
+                            {isPopular && <div className="lp-plan-pop-badge">⭐ Most Popular</div>}
+                            {p === 'gold' && <div className="lp-plan-pop-badge" style={{ background:'#ca8a04' }}>🏆 Best Value</div>}
+                            {isVerif && <div className="lp-plan-pop-badge" style={{ background:'#7c3aed' }}>FREE</div>}
+                            <div className="lp-plan-top" style={{ background: PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)' }}>
+                                <div className="lp-plan-emoji">{EMOJI[p]}</div>
+                                <div className="lp-plan-name">{PLAN_LABEL[p]}</div>
+                                <div className="lp-plan-price-row">
+                                    <span className="lp-plan-price">₹{price}</span>
+                                    <span className="lp-plan-period">{isVerif ? '' : billing === 'annually' ? '/mo' : '/mo'}</span>
                                 </div>
-                            )}
-                            <div className="pss-card-icon">
-                                {isVerif ? (
-                                    <div className="pss-free-tag">₹{price}</div>
-                                ) : (
-                                    <div style={{ textAlign:'center' }}>
-                                        <div className="pss-price-big" style={{ color: accent }}>₹{price}</div>
-                                        {billing === 'annually' && (
-                                            <div style={{ textAlign:'center' }}>
-                                                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textDecoration:'line-through' }}>₹{monthlyPrice}/mo</div>
-                                                <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginTop:2 }}>₹{price * 12}/yr total</div>
-                                            </div>
-                                        )}
-                                    </div>
+                                {!isVerif && billing === 'annually' && (
+                                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)', textDecoration:'line-through', marginTop:2 }}>₹{monthlyPrice}/month</div>
                                 )}
+                                {!isVerif && billing === 'annually' && (
+                                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.75)', marginTop:4, fontWeight:600 }}>₹{price * 12} billed annually</div>
+                                )}
+                                <div className="lp-plan-sites">{note}</div>
                             </div>
-                            <div className="pss-plan-name">{PLAN_LABEL[p]}</div>
-                            {isVerif
-                                ? <div className="pss-period">one-time verification</div>
-                                : <div className="pss-period">{billing === 'annually' ? 'per month · billed annually' : 'per month'}</div>
-                            }
-                            {isVerif && <div className="pss-trial-note">5-day free trial · Non-refundable</div>}
-                            <ul className="pss-features">
-                                {features.map(f => {
-                                    const { type, label } = parseFeature(f);
-                                    return (
-                                        <li key={f} style={{ opacity: type === 'no' ? 0.4 : 1 }}>
-                                            {type === 'ok'      && <svg width="13" height="13" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}><polyline points="20 6 9 17 4 12"/></svg>}
-                                            {type === 'no'      && <svg width="13" height="13" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
-                                            {type === 'limited' && <span style={{flexShrink:0, fontSize:12}}>😐</span>}
-                                            {type === 'soon'    && <span style={{flexShrink:0, fontSize:11}}>🔜</span>}
-                                            <span>{label}</span>
-                                            {type === 'soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.5)', borderRadius:4, padding:'1px 5px', marginLeft:2, fontWeight:700 }}>Soon</span>}
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                            <button className="pss-btn" style={{ background: PLAN_GRADIENT[p] || `linear-gradient(135deg,${accent},${accent}cc)` }}
-                                onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}>
-                                {isVerif ? 'Start Free Trial' : `Get ${PLAN_LABEL[p]}`}
-                            </button>
+                            <div className="lp-plan-body">
+                                <ul className="lp-plan-list">
+                                    {features.map(f => {
+                                        const { type, label } = parseFeature(f);
+                                        return (
+                                            <li key={f} style={{ opacity: type === 'no' ? 0.4 : 1 }}>
+                                                {type === 'ok'      && <svg width="14" height="14" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><polyline points="20 6 9 17 4 12"/></svg>}
+                                                {type === 'no'      && <svg width="14" height="14" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                                                {type === 'limited' && <span style={{flexShrink:0, fontSize:13}}>😐</span>}
+                                                {type === 'soon'    && <span style={{flexShrink:0, fontSize:12}}>🔜</span>}
+                                                <span>{label}</span>
+                                                {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 6px', marginLeft:2, fontWeight:700, flexShrink:0 }}>Soon</span>}
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                                <button className="lp-plan-btn" style={{ background: PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)' }}
+                                    onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}>
+                                    {isVerif ? 'Start Free Trial' : billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price*12}/yr` : `Get ${PLAN_LABEL[p]}`}
+                                </button>
+                            </div>
                         </div>
                     );
                 })}
