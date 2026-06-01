@@ -77,7 +77,14 @@ export default function Account({ user, onUserUpdate }) {
         } catch(e) { setPwMsg({ type:'error', text: e.response?.data?.error || 'Failed' }); }
     };
 
-    const [deleteMsg, setDeleteMsg] = useState('');
+    const [deleteMsg,  setDeleteMsg]  = useState('');
+    const [refCopied,  setRefCopied]  = useState(false);
+    const referralLink = `https://servermonitor.narendrasingh.site/register?ref=${user?.accountId || ''}`;
+    const copyRef = () => {
+        navigator.clipboard.writeText(referralLink);
+        setRefCopied(true);
+        setTimeout(() => setRefCopied(false), 2500);
+    };
 
     const downloadInvoice = (r) => {
         const planName  = r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`;
@@ -197,6 +204,7 @@ export default function Account({ user, onUserUpdate }) {
         { id:'billing',  label:'Billing & subscription',  icon:'💳' },
         { id:'invoices', label:'Invoices',                 icon:'🧾' },
         { id:'security', label:'Security',                 icon:'🔒' },
+        { id:'referral', label:'Referral',                 icon:'🎁' },
     ];
 
     return (
@@ -434,6 +442,79 @@ export default function Account({ user, onUserUpdate }) {
                                 Delete account
                             </button>
                             {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? '#16a34a' : '#dc2626', fontWeight:600 }}>{deleteMsg}</p>}
+                        </div>
+                    </>
+                )}
+
+                {/* ── REFERRAL ── */}
+                {section === 'referral' && (
+                    <>
+                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Referral.</h1>
+
+                        {/* Hero */}
+                        <div style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', borderRadius:16, padding:'32px', marginBottom:20, color:'#fff' }}>
+                            <div style={{ fontSize:40, marginBottom:12 }}>🎁</div>
+                            <h2 style={{ fontSize:22, fontWeight:900, marginBottom:8 }}>Invite friends, earn rewards!</h2>
+                            <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:0 }}>
+                                Share your referral link with friends. When they sign up using your link, both of you get benefits.
+                            </p>
+                        </div>
+
+                        {/* Referral Link */}
+                        <div style={S.section}>
+                            <div style={S.title}>Your referral link.</div>
+                            <div style={S.desc}>Share this link with friends to invite them to UptimeForge.</div>
+                            <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+                                <input style={{ ...S.input, fontFamily:'monospace', fontSize:13, background:'#F9FAFB', color:'#374151', flex:1 }}
+                                    value={referralLink} readOnly />
+                                <button onClick={copyRef}
+                                    style={{ padding:'10px 20px', background: refCopied ? '#16a34a' : 'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:13, cursor:'pointer', whiteSpace:'nowrap', minWidth:100 }}>
+                                    {refCopied ? '✓ Copied!' : '📋 Copy Link'}
+                                </button>
+                            </div>
+                            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                                <a href={`https://wa.me/?text=Join UptimeForge - 24/7 website monitoring! Use my link: ${encodeURIComponent(referralLink)}`} target="_blank" rel="noreferrer"
+                                    style={{ padding:'8px 16px', background:'#25d366', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
+                                    💬 Share on WhatsApp
+                                </a>
+                                <a href={`mailto:?subject=Try UptimeForge&body=I'm using UptimeForge for website monitoring. Join using my link: ${referralLink}`}
+                                    style={{ padding:'8px 16px', background:'#EA4335', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
+                                    📧 Share via Email
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Referral Code */}
+                        <div style={S.section}>
+                            <div style={S.title}>Your referral code.</div>
+                            <div style={S.desc}>Friends can enter this code during registration.</div>
+                            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                <div style={{ background:'#ede9fe', borderRadius:10, padding:'14px 24px', fontFamily:'monospace', fontSize:20, fontWeight:900, color:'#7c3aed', letterSpacing:3, border:'2px dashed #c4b5fd' }}>
+                                    {user?.accountId || 'N/A'}
+                                </div>
+                                <button onClick={() => { navigator.clipboard.writeText(user?.accountId || ''); }}
+                                    style={{ padding:'10px 16px', border:'1px solid #E5E7EB', borderRadius:8, background:'#fff', cursor:'pointer', fontSize:13, fontWeight:600 }}>
+                                    📋 Copy Code
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* How it works */}
+                        <div style={S.section}>
+                            <div style={S.title}>How it works.</div>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16 }}>
+                                {[
+                                    { step:'1', icon:'🔗', title:'Share your link', desc:'Copy and share your unique referral link or code' },
+                                    { step:'2', icon:'👤', title:'Friend signs up', desc:'Your friend registers using your link or code' },
+                                    { step:'3', icon:'🎉', title:'Both benefit', desc:'You both get rewards when they activate a plan' },
+                                ].map(s => (
+                                    <div key={s.step} style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', borderRadius:10, padding:'20px', textAlign:'center' }}>
+                                        <div style={{ fontSize:32, marginBottom:8 }}>{s.icon}</div>
+                                        <div style={{ fontWeight:700, color:'#111827', fontSize:14, marginBottom:4 }}>{s.title}</div>
+                                        <div style={{ fontSize:12, color:'#9CA3AF', lineHeight:1.5 }}>{s.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </>
                 )}
