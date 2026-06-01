@@ -26,6 +26,7 @@ function PulseDot({ status, size = 12 }) {
 function TargetModal({ target, onClose, onSave }) {
     const [form,         setForm]         = useState(target || { name:'', host:'', port:'' });
     const [saving,       setSaving]       = useState(false);
+    const [saveError,    setSaveError]    = useState('');
     const [recipients,   setRecipients]   = useState([]);
     const [selected,     setSelected]     = useState([]);
     const [rSearch,      setRSearch]      = useState('');
@@ -58,18 +59,13 @@ function TargetModal({ target, onClose, onSave }) {
     const save = async () => {
         if (!form.name.trim() || !form.host.trim()) return;
         setSaving(true);
+        setSaveError('');
         try {
-            // Only send relevant fields — exclude history/status arrays
-            const payload = {
-                name: form.name,
-                host: form.host,
-                port: form.port || '',
-                notifyRecipients: selected,
-            };
+            const payload = { name: form.name, host: form.host, port: form.port || '', notifyRecipients: selected };
             await onSave(payload);
             onClose();
         } catch(e) {
-            alert('Save failed: ' + (e.response?.data?.error || e.message));
+            setSaveError(e.response?.data?.error || e.message || 'Save failed');
         }
         setSaving(false);
     };
@@ -218,6 +214,19 @@ function TargetModal({ target, onClose, onSave }) {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {saveError && (
+                    <div style={{ marginTop:12, background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:10, padding:'12px 16px' }}>
+                        <div style={{ color:'#f87171', fontSize:13, fontWeight:600, marginBottom: saveError.includes('limit') ? 8 : 0 }}>
+                            ⚠️ {saveError}
+                        </div>
+                        {saveError.includes('limit') && (
+                            <a href="/pay?plan=select" style={{ display:'inline-block', marginTop:4, padding:'6px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none' }}>
+                                ⬆️ Upgrade Plan
+                            </a>
+                        )}
                     </div>
                 )}
 
@@ -388,13 +397,29 @@ export default function PingMonitor() {
     const [addModal,    setAddModal]    = useState(false);
     const [editTarget,  setEditTarget]  = useState(null);
     const [pageLoading, setPageLoading] = useState(!_loaded_PingMonitor);
+    const [limitError,  setLimitError]  = useState('');
+    const [pingLimit,   setPingLimit]   = useState(null);
 
     const load = () =>
         axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true })
             .then(r=>{ setTargets(r.data); setPageLoading(false); _loaded_PingMonitor = true; })
             .catch(()=>setPageLoading(false));
 
-    useEffect(() => { load(); const t=setInterval(load,30000); return()=>clearInterval(t); }, []);
+    useEffect(() => {
+        load();
+        // Fetch user plan + ping limit
+        Promise.all([
+            axios.get(`${API_URL}/api/users/me`, { withCredentials: true }),
+            axios.get(`${API_URL}/api/payment/plans`, { withCredentials: true }),
+        ]).then(([meRes, plansRes]) => {
+            const plan = meRes.data?.plan;
+            const plans = plansRes.data;
+            if (plan === 'free_trial') setPingLimit(plans?.freeTrialPingLimit ?? 2);
+            else if (plan) setPingLimit(plans?.plans?.[plan]?.pingLimit ?? null);
+        }).catch(()=>{});
+        const t = setInterval(load, 30000);
+        return () => clearInterval(t);
+    }, []);
 
     const addTarget = async (form) => {
         await axios.post(`${API_URL}/api/ping-targets`, form, { withCredentials: true });
@@ -454,8 +479,31 @@ export default function PingMonitor() {
                         <h1 className="mon-title">Ping Monitor <span className="mon-dot">.</span></h1>
                         <p className="mon-sub">TCP connectivity — alerts on DOWN/UP</p>
                     </div>
-                    <button onClick={() => setAddModal(true)} className="mon-btn-check">+ Add Target</button>
+                    <button onClick={() => {
+                        if (pingLimit !== null && targets.length >= pingLimit) {
+                            setLimitError(`Ping target limit reached (${pingLimit}/${pingLimit}). Upgrade your plan to add more.`);
+                            return;
+                        }
+                        setLimitError('');
+                        setAddModal(true);
+                    }} className="mon-btn-check">+ Add Target</button>
                 </div>
+
+                {/* Limit error banner */}
+                {limitError && (
+                    <div style={{ background:'#FEF2F2', border:'1px solid #FECDD3', borderRadius:10, padding:'12px 18px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                            <span style={{ fontSize:18 }}>⚠️</span>
+                            <span style={{ fontSize:14, fontWeight:600, color:'#DC2626' }}>{limitError}</span>
+                        </div>
+                        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                            <a href="/pay?plan=select" style={{ padding:'7px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:13, fontWeight:700, textDecoration:'none' }}>
+                                ⬆️ Upgrade Plan
+                            </a>
+                            <button onClick={() => setLimitError('')} style={{ background:'none', border:'none', color:'#9CA3AF', cursor:'pointer', fontSize:18 }}>✕</button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Toolbar */}
                 <div className="mon-toolbar">
