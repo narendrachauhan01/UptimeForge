@@ -66,7 +66,9 @@ export default function StaffLogin() {
                 <div className="login-form-wrap">
                     <Link to="/" className="login-back">← Back to home</Link>
 
-                    <UWLogo size={44} />
+                    <div style={{ marginTop:24 }}>
+                        <UWLogo size={44} />
+                    </div>
                     <h1 className="login-title">Staff Login</h1>
                     <p className="login-sub">Sign in to your staff panel</p>
 
@@ -89,14 +91,11 @@ export default function StaffLogin() {
                         </button>
                     </form>
 
-                    <div style={{ display:'flex', gap:10, marginTop:16 }}>
-                        <Link to="/login" style={{ flex:1, textAlign:'center', padding:'10px', border:'1px solid #E5E7EB', borderRadius:10, fontSize:13, fontWeight:600, color:'#374151', textDecoration:'none', background:'#F9FAFB' }}>
-                            User Login
-                        </Link>
-                        <Link to="/admin-login" style={{ flex:1, textAlign:'center', padding:'10px', border:'1px solid #7c3aed', borderRadius:10, fontSize:13, fontWeight:600, color:'#7c3aed', textDecoration:'none', background:'#ede9fe' }}>
-                            Admin Login
-                        </Link>
-                    </div>
+                    <Link to="/admin-login" style={{ display:'block', textAlign:'center', marginTop:14, padding:'11px', border:'1.5px solid #7c3aed', borderRadius:10, fontSize:14, fontWeight:700, color:'#7c3aed', textDecoration:'none', background:'transparent', transition:'all 0.2s' }}
+                        onMouseEnter={e=>{ e.currentTarget.style.background='#7c3aed'; e.currentTarget.style.color='#fff'; }}
+                        onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#7c3aed'; }}>
+                        ⚡ Admin Login
+                    </Link>
                 </div>
             </div>
         </div>
