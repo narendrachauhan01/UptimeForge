@@ -169,7 +169,7 @@ export default function StaffDashboard() {
                 }>
                     <Routes>
                         <Route path="/" element={<Navigate to={firstPath} replace />} />
-                        {hasAccess(perms,'dashboard')          && <Route path="/dashboard"           element={<AdminPanel staffMode permissions={perms} />} />}
+                        {hasAccess(perms,'dashboard')          && <Route path="/dashboard"           element={<AdminPanel staffMode readOnly={!canWrite('dashboard')} permissions={perms} />} />}
                         {hasAccess(perms,'planSettings')       && <Route path="/plan-settings"       element={<PlanSettings       readOnly={!canWrite('planSettings')} />} />}
                         {hasAccess(perms,'annualPlans')        && <Route path="/annual-plans"        element={<AnnualPlans        readOnly={!canWrite('annualPlans')} />} />}
                         {hasAccess(perms,'featureAccess')      && <Route path="/feature-access"      element={<FeatureAccess      readOnly={!canWrite('featureAccess')} />} />}
