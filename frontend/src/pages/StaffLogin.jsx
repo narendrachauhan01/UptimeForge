@@ -72,6 +72,12 @@ export default function StaffLogin() {
                     <h1 className="login-right-h1">Staff Login</h1>
                     <p className="login-right-sub">Sign in to your staff panel</p>
 
+                    <Link to="/admin-login" style={{ display:'block', textAlign:'center', marginBottom:20, padding:'11px', border:'1.5px solid #7c3aed', borderRadius:10, fontSize:14, fontWeight:700, color:'#7c3aed', textDecoration:'none', background:'transparent', transition:'all 0.2s' }}
+                        onMouseEnter={e=>{ e.currentTarget.style.background='#7c3aed'; e.currentTarget.style.color='#fff'; }}
+                        onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#7c3aed'; }}>
+                        ⚡ Admin Login
+                    </Link>
+
                     {error && <div className="login-error-box">{error}</div>}
 
                     <form onSubmit={submit}>
@@ -91,11 +97,6 @@ export default function StaffLogin() {
                         </button>
                     </form>
 
-                    <Link to="/admin-login" style={{ display:'block', textAlign:'center', marginTop:14, padding:'11px', border:'1.5px solid #7c3aed', borderRadius:10, fontSize:14, fontWeight:700, color:'#7c3aed', textDecoration:'none', background:'transparent', transition:'all 0.2s' }}
-                        onMouseEnter={e=>{ e.currentTarget.style.background='#7c3aed'; e.currentTarget.style.color='#fff'; }}
-                        onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#7c3aed'; }}>
-                        ⚡ Admin Login
-                    </Link>
                 </div>
             </div>
         </div>
