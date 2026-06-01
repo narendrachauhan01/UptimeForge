@@ -23,17 +23,140 @@ const upload = multer({
     },
 });
 
+/**
+ * @swagger
+ * /api/users/config:
+ *   get:
+ *     tags: [User Auth]
+ *     summary: Get public config (Google Client ID, etc.)
+ *     responses:
+ *       200:
+ *         description: Config object
+ */
 router.get('/config',                ctrl.getConfig);
+
+/**
+ * @swagger
+ * /api/users/register/send-otp:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Send OTP to email for registration
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email: { type: string, example: user@example.com }
+ *               name:  { type: string, example: John Doe }
+ */
 router.post('/register/send-otp',    ctrl.sendOtp);
+
+/**
+ * @swagger
+ * /api/users/register/verify-otp:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Verify OTP and create account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:    { type: string }
+ *               otp:      { type: string }
+ *               password: { type: string }
+ */
 router.post('/register/verify-otp',  ctrl.verifyOtp);
+
+/**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: User login (sets httpOnly cookie)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:    { type: string, example: user@example.com }
+ *               password: { type: string, example: "mypassword" }
+ *     responses:
+ *       200:
+ *         description: Login successful, sm_token cookie set
+ *       401:
+ *         description: Invalid credentials
+ *       429:
+ *         description: Too many attempts
+ */
 router.post('/login',                loginLimiter, ctrl.login);
+
+/**
+ * @swagger
+ * /api/users/google-auth:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Google OAuth login/register
+ */
 router.post('/google-auth',          ctrl.googleAuth);
-router.put('/change-password',       auth, ctrl.changePassword);
+
+/**
+ * @swagger
+ * /api/users/forgot-password:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Send password reset email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email: { type: string }
+ */
 router.post('/forgot-password',      ctrl.forgotPassword);
+
+/**
+ * @swagger
+ * /api/users/reset-password:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Reset password with token
+ */
 router.post('/reset-password',       ctrl.resetPassword);
+
+/**
+ * @swagger
+ * /api/users/me:
+ *   get:
+ *     tags: [User Auth]
+ *     summary: Get current user profile
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: User object with plan, siteLimit etc.
+ */
+router.get('/me',                    auth, ctrl.getMe);
+
+router.put('/change-password',       auth, ctrl.changePassword);
 router.put('/profile',               auth, ctrl.updateProfile);
 router.delete('/me',                 auth, ctrl.deleteMe);
-router.get('/me',                    auth, ctrl.getMe);
+
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     tags: [User Auth]
+ *     summary: Logout (clears cookie)
+ */
 router.post('/logout',               ctrl.logout);
 router.post('/support',                           auth, upload.array('images', 5), ctrl.contactSupport);
 router.get('/support/my-tickets',                 auth, ctrl.myTickets);

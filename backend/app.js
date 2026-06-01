@@ -48,6 +48,15 @@ app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/integrations',  require('./routes/integrations'));
 app.use('/api/staff',         require('./routes/staff'));
 
+// ── Swagger Docs ─────────────────────────────────────────────────────────────
+const swaggerUi   = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'UptimeForge API Docs',
+    customCss: '.swagger-ui .topbar { background: #1e1b4b; } .swagger-ui .topbar-wrapper img { display:none; } .swagger-ui .topbar-wrapper::before { content:"UptimeForge API"; color:#a78bfa; font-size:20px; font-weight:800; }',
+    swaggerOptions: { persistAuthorization: true },
+}));
+
 const PORT = process.env.PORT || 5001;
 
 connectDB().then(() => {

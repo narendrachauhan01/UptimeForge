@@ -25,3 +25,62 @@ router.put('/:id',   auth, adminOnly, ctrl.update);
 router.delete('/:id',auth, adminOnly, ctrl.remove);
 
 module.exports = router;
+
+/**
+ * @swagger
+ * /api/staff/login:
+ *   post:
+ *     tags: [Staff]
+ *     summary: Staff login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:    { type: string }
+ *               password: { type: string }
+ *     responses:
+ *       200:
+ *         description: Login OK, sm_token cookie set
+ * /api/staff/me:
+ *   get:
+ *     tags: [Staff]
+ *     summary: Get current staff profile with permissions
+ *     security:
+ *       - cookieAuth: []
+ * /api/staff:
+ *   get:
+ *     tags: [Staff]
+ *     summary: List all staff users (admin only)
+ *     security:
+ *       - cookieAuth: []
+ *   post:
+ *     tags: [Staff]
+ *     summary: Create staff user (admin only)
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:        { type: string }
+ *               email:       { type: string }
+ *               password:    { type: string }
+ *               permissions: { type: array, items: { type: string }, example: ["users:read","payments:read"] }
+ * /api/staff/{id}:
+ *   put:
+ *     tags: [Staff]
+ *     summary: Update staff user permissions (admin only)
+ *     security:
+ *       - cookieAuth: []
+ *   delete:
+ *     tags: [Staff]
+ *     summary: Delete staff user (admin only)
+ *     security:
+ *       - cookieAuth: []
+ */
