@@ -312,15 +312,45 @@ exports.confirmDelete = async (req, res) => {
         if (!user.deleteToken || user.deleteToken !== token) return res.status(400).json({ error: 'Invalid or expired deletion link' });
         if (new Date() > new Date(user.deleteTokenExpires)) return res.status(400).json({ error: 'Deletion link expired. Please request again.' });
 
-        // Delete all user data
+        // Archive user data before deletion
         const uid2 = user._id;
-        const Server       = require('../models/Server');
-        const Recipient    = require('../models/Recipient');
-        const Alert        = require('../models/Alert');
-        const PingTarget   = require('../models/PingTarget');
-        const Notification = require('../models/Notification');
+        const Server         = require('../models/Server');
+        const Recipient      = require('../models/Recipient');
+        const Alert          = require('../models/Alert');
+        const PingTarget     = require('../models/PingTarget');
+        const Notification   = require('../models/Notification');
         const PaymentRequest = require('../models/PaymentRequest');
         const SupportTicket  = require('../models/SupportTicket');
+        const DeletedUser    = require('../models/DeletedUser');
+
+        const [sites, pings, payments] = await Promise.all([
+            Server.find({ userId: uid2 }).select('name url createdAt').lean(),
+            PingTarget.find({ userId: uid2 }).select('name host port').lean(),
+            PaymentRequest.find({ userId: uid2 }).select('amount type plan utr createdAt status').lean(),
+        ]);
+        const totalPaid = payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0);
+
+        await DeletedUser.create({
+            accountId:   user.accountId || null,
+            name:        user.name,
+            email:       user.email,
+            phone:       user.phone || null,
+            address:     user.address || null,
+            plan:        user.plan,
+            billing:     user.billing || 'monthly',
+            planEndsAt:  user.planEndsAt || null,
+            state:       user.state || null,
+            country:     user.country || null,
+            siteCount:   sites.length,
+            totalPaid,
+            sites:       sites.map(s => ({ name: s.name, url: s.url, createdAt: s.createdAt })),
+            pingTargets: pings.map(p => ({ name: p.name, host: p.host, port: p.port })),
+            payments:    payments.map(p => ({ amount: p.amount, type: p.type, plan: p.plan, date: p.createdAt, utr: p.utr, status: p.status })),
+            createdAt:   user.createdAt,
+            deletedBy:   'user',
+        }).catch(() => {}); // don't block deletion if archive fails
+
+        // Now delete all user data
         await Server.deleteMany({ userId: uid2 });
         await Recipient.deleteMany({ userId: uid2 });
         await Alert.deleteMany({ userId: uid2 });

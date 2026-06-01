@@ -76,7 +76,7 @@ export default function DeletedUsers() {
                         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
                             <thead>
                                 <tr style={{ background:'#F9FAFB', borderBottom:'1px solid #E5E7EB' }}>
-                                    {['Account ID','Name','Email','Phone','Plan','Sites','Joined','Deleted On'].map(h => (
+                                    {['Account ID','Name','Email','Phone','Plan','Sites','Joined','Deleted On','By'].map(h => (
                                         <th key={h} style={{ padding:'11px 16px', textAlign:'left', fontSize:11, fontWeight:700, color:'#6B7280', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
                                     ))}
                                 </tr>
@@ -106,6 +106,13 @@ export default function DeletedUsers() {
                                         <td style={{ padding:'13px 16px', whiteSpace:'nowrap' }}>
                                             <span style={{ fontSize:12, fontWeight:600, color:'#EF4444', background:'#FFF5F5', padding:'3px 10px', borderRadius:20, border:'1px solid #FECDD3' }}>
                                                 {fmt(u.deletedAt)}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding:'13px 16px' }}>
+                                            <span style={{ fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:20,
+                                                background: u.deletedBy==='user' ? '#fef3c7' : '#ede9fe',
+                                                color: u.deletedBy==='user' ? '#b45309' : '#7c3aed' }}>
+                                                {u.deletedBy === 'user' ? '👤 Self' : '🔧 Admin'}
                                             </span>
                                         </td>
                                     </tr>
