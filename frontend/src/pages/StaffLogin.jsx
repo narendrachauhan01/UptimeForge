@@ -72,11 +72,17 @@ export default function StaffLogin() {
                     <h1 className="login-right-h1">Staff Login</h1>
                     <p className="login-right-sub">Sign in to your staff panel</p>
 
-                    <Link to="/admin-login" style={{ display:'block', textAlign:'center', marginBottom:20, padding:'11px', border:'1.5px solid #7c3aed', borderRadius:10, fontSize:14, fontWeight:700, color:'#7c3aed', textDecoration:'none', background:'transparent', transition:'all 0.2s' }}
-                        onMouseEnter={e=>{ e.currentTarget.style.background='#7c3aed'; e.currentTarget.style.color='#fff'; }}
-                        onMouseLeave={e=>{ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#7c3aed'; }}>
-                        ⚡ Admin Login
-                    </Link>
+                    {/* Tab buttons */}
+                    <div style={{ display:'flex', gap:8, marginBottom:24, background:'rgba(255,255,255,0.06)', borderRadius:12, padding:5 }}>
+                        <span style={{ flex:1, textAlign:'center', padding:'10px', borderRadius:8, fontSize:14, fontWeight:700, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', cursor:'default' }}>
+                            👥 Staff
+                        </span>
+                        <Link to="/admin-login" style={{ flex:1, textAlign:'center', padding:'10px', borderRadius:8, fontSize:14, fontWeight:700, color:'rgba(255,255,255,0.6)', textDecoration:'none', background:'transparent', transition:'all 0.2s' }}
+                            onMouseEnter={e=>{ e.currentTarget.style.color='#fff'; e.currentTarget.style.background='rgba(255,255,255,0.08)'; }}
+                            onMouseLeave={e=>{ e.currentTarget.style.color='rgba(255,255,255,0.6)'; e.currentTarget.style.background='transparent'; }}>
+                            ⚡ Admin
+                        </Link>
+                    </div>
 
                     {error && <div className="login-error-box">{error}</div>}
 
