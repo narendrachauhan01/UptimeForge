@@ -49,12 +49,13 @@ export default function PlanSettings({ readOnly = false }) {
                 annualDiscount: d.annualDiscount ?? 20,
                 freeTrialInterval: d.freeTrialInterval ?? 300,
                 freeTrialPingInterval: d.freeTrialPingInterval ?? 180,
+                freeTrialPingLimit: d.freeTrialPingLimit ?? 2,
                 freeTrialRecipientLimit: d.freeTrialRecipientLimit ?? 2,
                 freeTrialFeatures: (d.freeTrialFeatures || []).join('\n'),
                 plans: {
-                    bronze: { price: d.plans.bronze.price, sites: d.plans.bronze.sites, interval: d.plans.bronze.interval ?? 120, pingInterval: d.plans.bronze.pingInterval ?? 120, recipientLimit: d.plans.bronze.recipientLimit ?? 10, features: (d.plans.bronze.features || []).join('\n') },
-                    silver: { price: d.plans.silver.price, sites: d.plans.silver.sites, interval: d.plans.silver.interval ?? 60,  pingInterval: d.plans.silver.pingInterval ?? 60,  recipientLimit: d.plans.silver.recipientLimit ?? 20, features: (d.plans.silver.features || []).join('\n') },
-                    gold:   { price: d.plans.gold.price,   sites: d.plans.gold.sites,   interval: d.plans.gold.interval   ?? 30,  pingInterval: d.plans.gold.pingInterval   ?? 30,  recipientLimit: d.plans.gold.recipientLimit   ?? 30, features: (d.plans.gold.features   || []).join('\n') },
+                    bronze: { price: d.plans.bronze.price, sites: d.plans.bronze.sites, interval: d.plans.bronze.interval ?? 120, pingInterval: d.plans.bronze.pingInterval ?? 120, pingLimit: d.plans.bronze.pingLimit ?? 5,  recipientLimit: d.plans.bronze.recipientLimit ?? 10, features: (d.plans.bronze.features || []).join('\n') },
+                    silver: { price: d.plans.silver.price, sites: d.plans.silver.sites, interval: d.plans.silver.interval ?? 60,  pingInterval: d.plans.silver.pingInterval ?? 60,  pingLimit: d.plans.silver.pingLimit ?? 15, recipientLimit: d.plans.silver.recipientLimit ?? 20, features: (d.plans.silver.features || []).join('\n') },
+                    gold:   { price: d.plans.gold.price,   sites: d.plans.gold.sites,   interval: d.plans.gold.interval   ?? 30,  pingInterval: d.plans.gold.pingInterval   ?? 30,  pingLimit: d.plans.gold.pingLimit   ?? 30, recipientLimit: d.plans.gold.recipientLimit   ?? 30, features: (d.plans.gold.features   || []).join('\n') },
                 },
             });
         }).catch(() => showToast('Failed to load settings'));
@@ -75,12 +76,13 @@ export default function PlanSettings({ readOnly = false }) {
                 annualDiscount: Number(form.annualDiscount),
                 freeTrialInterval: Number(form.freeTrialInterval),
                 freeTrialPingInterval: Number(form.freeTrialPingInterval),
+                freeTrialPingLimit: Number(form.freeTrialPingLimit),
                 freeTrialRecipientLimit: Number(form.freeTrialRecipientLimit),
                 freeTrialFeatures: form.freeTrialFeatures.split('\n').map(s => s.trim()).filter(Boolean),
                 plans: {
-                    bronze: { price: form.plans.bronze.price, sites: form.plans.bronze.sites, interval: Number(form.plans.bronze.interval), pingInterval: Number(form.plans.bronze.pingInterval), recipientLimit: Number(form.plans.bronze.recipientLimit), features: form.plans.bronze.features.split('\n').map(s => s.trim()).filter(Boolean) },
-                    silver: { price: form.plans.silver.price, sites: form.plans.silver.sites, interval: Number(form.plans.silver.interval), pingInterval: Number(form.plans.silver.pingInterval), recipientLimit: Number(form.plans.silver.recipientLimit), features: form.plans.silver.features.split('\n').map(s => s.trim()).filter(Boolean) },
-                    gold:   { price: form.plans.gold.price,   sites: form.plans.gold.sites,   interval: Number(form.plans.gold.interval),   pingInterval: Number(form.plans.gold.pingInterval),   recipientLimit: Number(form.plans.gold.recipientLimit),   features: form.plans.gold.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    bronze: { price: form.plans.bronze.price, sites: form.plans.bronze.sites, interval: Number(form.plans.bronze.interval), pingInterval: Number(form.plans.bronze.pingInterval), pingLimit: Number(form.plans.bronze.pingLimit), recipientLimit: Number(form.plans.bronze.recipientLimit), features: form.plans.bronze.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    silver: { price: form.plans.silver.price, sites: form.plans.silver.sites, interval: Number(form.plans.silver.interval), pingInterval: Number(form.plans.silver.pingInterval), pingLimit: Number(form.plans.silver.pingLimit), recipientLimit: Number(form.plans.silver.recipientLimit), features: form.plans.silver.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    gold:   { price: form.plans.gold.price,   sites: form.plans.gold.sites,   interval: Number(form.plans.gold.interval),   pingInterval: Number(form.plans.gold.pingInterval),   pingLimit: Number(form.plans.gold.pingLimit),   recipientLimit: Number(form.plans.gold.recipientLimit),   features: form.plans.gold.features.split('\n').map(s => s.trim()).filter(Boolean) },
                 },
             });
             showToast('✅ Settings saved!');
@@ -178,13 +180,15 @@ export default function PlanSettings({ readOnly = false }) {
                     </div>
                     <div>
                         <label style={labelStyle}>Ping Interval (sec)</label>
-                        <input
-                            type="number" min="30" step="30"
-                            value={form.freeTrialPingInterval}
-                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialPingInterval: Number(e.target.value) })}
-                            style={inputStyle}
-                        />
+                        <input type="number" min="30" step="30" value={form.freeTrialPingInterval}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialPingInterval: Number(e.target.value) })} style={inputStyle} />
                         <span style={hintStyle}>{Math.floor(form.freeTrialPingInterval / 60)} min per ping</span>
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Max Ping Targets</label>
+                        <input type="number" min="0" value={form.freeTrialPingLimit}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialPingLimit: Number(e.target.value) })} style={inputStyle} />
+                        <span style={hintStyle}>Free Trial ping target limit</span>
                     </div>
                     <div>
                         <label style={labelStyle}>Max Recipients</label>
@@ -292,13 +296,18 @@ export default function PlanSettings({ readOnly = false }) {
                                     </span>
                                 </div>
                                 <div>
+                                    <label style={labelStyle}>Max Ping Targets</label>
+                                    <input type="number" min="0"
+                                        value={form.plans[pk].pingLimit}
+                                        onChange={e => setPlanField(pk, 'pingLimit', e.target.value)}
+                                        style={inputStyle} />
+                                </div>
+                                <div>
                                     <label style={labelStyle}>Max Recipients</label>
-                                    <input
-                                        type="number" min="1"
+                                    <input type="number" min="1"
                                         value={form.plans[pk].recipientLimit}
                                         onChange={e => setPlanField(pk, 'recipientLimit', e.target.value)}
-                                        style={inputStyle}
-                                    />
+                                        style={inputStyle} />
                                 </div>
                             </div>
                             <div>

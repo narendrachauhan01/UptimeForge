@@ -55,6 +55,7 @@ const settingsSchema = new mongoose.Schema({
     freeTrialInterval:         { type: Number, default: 300 },
     freeTrialPingInterval:     { type: Number, default: 180 }, // 3 min
     freeTrialRecipientLimit:   { type: Number, default: 2 },
+    freeTrialPingLimit:        { type: Number, default: 2 },
     freeTrialFeatures:         { type: [String], default: () => DEFAULT_FEATURES.free_trial },
     freeTrialAccess: {
         domainSsl:   { type: Boolean, default: true },
@@ -96,6 +97,7 @@ const settingsSchema = new mongoose.Schema({
             sites:           { type: Number, default: 5 },
             interval:        { type: Number, default: 120 },
             pingInterval:    { type: Number, default: 120 }, // 2 min
+            pingLimit:       { type: Number, default: 5 },
             recipientLimit:  { type: Number, default: 10 },
             label:           { type: String, default: 'Bronze' },
             features:        { type: [String], default: () => DEFAULT_FEATURES.bronze },
@@ -104,6 +106,7 @@ const settingsSchema = new mongoose.Schema({
             price:           { type: Number, default: 999 },
             sites:           { type: Number, default: 15 },
             interval:        { type: Number, default: 60 },
+            pingLimit:       { type: Number, default: 15 },
             pingInterval:    { type: Number, default: 60 }, // 1 min
             recipientLimit:  { type: Number, default: 20 },
             label:           { type: String, default: 'Silver' },
@@ -114,6 +117,7 @@ const settingsSchema = new mongoose.Schema({
             sites:           { type: Number, default: 30 },
             interval:        { type: Number, default: 30 },
             pingInterval:    { type: Number, default: 30 }, // 30 sec
+            pingLimit:       { type: Number, default: 30 },
             recipientLimit:  { type: Number, default: 30 },
             label:           { type: String, default: 'Gold' },
             features:        { type: [String], default: () => DEFAULT_FEATURES.gold },
@@ -146,8 +150,10 @@ settingsSchema.statics.get = async function () {
     if (s.freeTrialAccess && s.freeTrialAccess.webhook    === undefined) { s.freeTrialAccess.webhook = true;    s.markModified('freeTrialAccess'); dirty = true; }
     if (s.freeTrialAccess && s.freeTrialAccess.rocketChat === undefined) { s.freeTrialAccess.rocketChat = true; s.markModified('freeTrialAccess'); dirty = true; }
     if (!s.bronzeAccess) { s.bronzeAccess = { whatsapp: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.freeTrialPingLimit === undefined) { s.freeTrialPingLimit = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
     const DEFAULT_REC_LIMITS  = { bronze: 10,  silver: 20,  gold: 30 };
+    const DEFAULT_PING_LIMITS = { bronze: 5,   silver: 15,  gold: 30 };
     for (const k of ['bronze', 'silver', 'gold']) {
         if (needsMigration(s.plans[k].features)) {
             s.plans[k].features = DEFAULT_FEATURES[k]; dirty = true;
@@ -155,6 +161,7 @@ settingsSchema.statics.get = async function () {
         if (!s.plans[k].interval)       { s.plans[k].interval = DEFAULT_INTERVALS[k];  dirty = true; }
         if (!s.plans[k].pingInterval)   { s.plans[k].pingInterval = DEFAULT_INTERVALS[k]; dirty = true; }
         if (!s.plans[k].recipientLimit) { s.plans[k].recipientLimit = DEFAULT_REC_LIMITS[k]; dirty = true; }
+        if (!s.plans[k].pingLimit)      { s.plans[k].pingLimit = DEFAULT_PING_LIMITS[k]; dirty = true; }
     }
     if (dirty) { s.markModified('plans'); await s.save(); }
     return s;
@@ -168,6 +175,7 @@ settingsSchema.statics.update = async function (data) {
     if (data.freeTrialInterval !== undefined)     s.freeTrialInterval = data.freeTrialInterval;
     if (data.freeTrialPingInterval !== undefined) s.freeTrialPingInterval = data.freeTrialPingInterval;
     if (data.freeTrialRecipientLimit !== undefined) s.freeTrialRecipientLimit = data.freeTrialRecipientLimit;
+    if (data.freeTrialPingLimit !== undefined)     s.freeTrialPingLimit = Math.max(0, Number(data.freeTrialPingLimit) || 0);
     if (data.freeTrialAccess !== undefined) {
         s.freeTrialAccess = { ...s.freeTrialAccess, ...data.freeTrialAccess };
         s.markModified('freeTrialAccess');
@@ -209,6 +217,7 @@ settingsSchema.statics.update = async function (data) {
                 if (data.plans[key].sites           !== undefined) s.plans[key].sites          = data.plans[key].sites;
                 if (data.plans[key].interval        !== undefined) s.plans[key].interval        = data.plans[key].interval;
                 if (data.plans[key].pingInterval    !== undefined) s.plans[key].pingInterval    = data.plans[key].pingInterval;
+                if (data.plans[key].pingLimit       !== undefined) s.plans[key].pingLimit       = data.plans[key].pingLimit;
                 if (data.plans[key].recipientLimit  !== undefined) s.plans[key].recipientLimit  = data.plans[key].recipientLimit;
                 if (data.plans[key].label           !== undefined) s.plans[key].label          = data.plans[key].label;
                 if (data.plans[key].features !== undefined) {
