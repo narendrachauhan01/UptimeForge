@@ -392,7 +392,7 @@ export default function Landing() {
               <span className="lp-brand-text" style={{ fontSize:16 }}>UptimeForge</span>
             </div>
             <p className="lp-footer-brand-desc">
-              24/7 uptime monitoring with instant WhatsApp & Email alerts. Know before your customers do.
+              24×7 uptime monitoring with instant WhatsApp &amp; Email alerts. Know before your customers do.
             </p>
             <div style={{ display:'flex', gap:8, marginTop:4 }}>
               {['SSL Monitoring','Ping Monitor','Alerts'].map(t => (
@@ -442,7 +442,6 @@ export default function Landing() {
             onMouseLeave={e=>{ e.currentTarget.style.color='rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.background='transparent'; }}>
             🔐 Staff Login
           </Link>
-        </div>
         </div>
       </footer>
 
