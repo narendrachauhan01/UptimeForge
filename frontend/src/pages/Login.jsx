@@ -192,17 +192,8 @@ export default function Login({ onLogin }) {
 
           {/* Tabs */}
           <div className="login-right-tabs">
-            <button
-              className={`login-right-tab ${tab === 'user' ? 'active' : ''}`}
-              onClick={() => { setTab('user'); setError(''); }}
-            >
+            <button className={`login-right-tab ${tab === 'user' ? 'active' : ''}`} onClick={() => { setTab('user'); setError(''); }}>
               User Login
-            </button>
-            <button
-              className={`login-right-tab ${tab === 'admin' ? 'active' : ''}`}
-              onClick={() => { setTab('admin'); setError(''); }}
-            >
-              Admin
             </button>
           </div>
 
@@ -283,43 +274,6 @@ export default function Login({ onLogin }) {
           )}
 
           {/* Admin Login Form */}
-          {tab === 'admin' && (
-            <form onSubmit={handleAdminLogin} className="login-right-form">
-              <div className="login-field">
-                <label className="login-label">Admin Username</label>
-                <input
-                  className="login-input"
-                  type="text"
-                  placeholder="Enter admin username"
-                  value={form.username}
-                  onChange={e => setForm({ ...form, username: e.target.value })}
-                  autoFocus
-                />
-              </div>
-              <div className="login-field">
-                <label className="login-label">Password</label>
-                <div className="login-pass-wrap">
-                  <input
-                    className="login-input"
-                    type={showPass ? 'text' : 'password'}
-                    placeholder="Enter admin password"
-                    value={form.password}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
-                    style={{paddingRight: 44}}
-                  />
-                  <button type="button" className="login-eye" onClick={() => setShowPass(!showPass)}>
-                    {showPass ? <EyeClosed /> : <EyeOpen />}
-                  </button>
-                </div>
-              </div>
-              {error && <div className="login-error-box">{error}</div>}
-              <button className="login-submit" type="submit" disabled={loading}>
-                {loading ? (
-                  <><span className="login-spinner" /> Signing in...</>
-                ) : 'Admin Sign In'}
-              </button>
-            </form>
-          )}
 
         </div>
       </div>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { staffLogin } from '../api';
+import { API_URL } from '../api';
+import axios from 'axios';
 import UWLogo from '../components/UWLogo';
 
-export default function StaffLogin() {
-    const [email,    setEmail]    = useState('');
+export default function AdminLogin() {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPw,   setShowPw]   = useState(false);
     const [error,    setError]    = useState('');
@@ -16,8 +17,8 @@ export default function StaffLogin() {
         setError('');
         setLoading(true);
         try {
-            await staffLogin({ email, password });
-            navigate('/staff');
+            await axios.post(`${API_URL}/api/auth/login`, { username, password }, { withCredentials: true });
+            navigate('/admin');
         } catch(err) {
             setError(err.response?.data?.error || 'Invalid credentials');
         }
@@ -67,15 +68,15 @@ export default function StaffLogin() {
                     <Link to="/" className="login-back">← Back to home</Link>
 
                     <UWLogo size={44} />
-                    <h1 className="login-title">Staff Login</h1>
-                    <p className="login-sub">Sign in to your staff panel</p>
+                    <h1 className="login-title">Admin Login</h1>
+                    <p className="login-sub">Sign in to the admin panel</p>
 
                     {error && <div className="login-error-box">{error}</div>}
 
                     <form onSubmit={submit}>
                         <div className="login-field">
-                            <label className="login-label">Email address</label>
-                            <input className="login-input" type="email" placeholder="staff@example.com" value={email} onChange={e=>setEmail(e.target.value)} required />
+                            <label className="login-label">Username</label>
+                            <input className="login-input" type="text" placeholder="Admin username" value={username} onChange={e=>setUsername(e.target.value)} required />
                         </div>
                         <div className="login-field" style={{ position:'relative' }}>
                             <label className="login-label">Password</label>
@@ -85,7 +86,7 @@ export default function StaffLogin() {
                             </button>
                         </div>
                         <button type="submit" className="login-btn-main" disabled={loading}>
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? 'Signing in...' : 'Sign In as Admin'}
                         </button>
                     </form>
 
@@ -93,8 +94,8 @@ export default function StaffLogin() {
                         <Link to="/login" style={{ flex:1, textAlign:'center', padding:'10px', border:'1px solid #E5E7EB', borderRadius:10, fontSize:13, fontWeight:600, color:'#374151', textDecoration:'none', background:'#F9FAFB' }}>
                             User Login
                         </Link>
-                        <Link to="/admin-login" style={{ flex:1, textAlign:'center', padding:'10px', border:'1px solid #7c3aed', borderRadius:10, fontSize:13, fontWeight:600, color:'#7c3aed', textDecoration:'none', background:'#ede9fe' }}>
-                            Admin Login
+                        <Link to="/staff-login" style={{ flex:1, textAlign:'center', padding:'10px', border:'1px solid #7c3aed', borderRadius:10, fontSize:13, fontWeight:600, color:'#7c3aed', textDecoration:'none', background:'#ede9fe' }}>
+                            Staff Login
                         </Link>
                     </div>
                 </div>
