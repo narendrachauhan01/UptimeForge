@@ -147,6 +147,7 @@ export default function Account({ user, onUserUpdate }) {
         <div class="label">Billed To</div>
         <h3>${user?.name || '—'}</h3>
         <p>${user?.email || ''}<br>${user?.phone || ''}<br>${[user?.state, user?.country].filter(Boolean).join(', ') || 'India'}</p>
+        <p style="margin-top:8px"><span style="font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px">Account ID: </span><strong style="font-family:monospace;font-size:13px;color:#7c3aed;letter-spacing:1px">${user?.accountId || 'N/A'}</strong></p>
       </div>
     </div>
     <table>
