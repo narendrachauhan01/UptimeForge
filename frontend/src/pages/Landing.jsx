@@ -76,6 +76,7 @@ export default function Landing() {
             <a href="#pricing">Pricing</a>
           </div>
           <div className="lp-nav-right">
+            <Link to="/staff-login" className="lp-nav-login" style={{ fontSize:13 }}>Staff Login</Link>
             <Link to="/login" className="lp-nav-login">Login</Link>
             <Link to="/register" className="lp-nav-cta">Get Started Free</Link>
           </div>
