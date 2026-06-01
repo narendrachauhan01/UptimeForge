@@ -100,9 +100,20 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                 </div>
             </div>
 
+            {/* noFreeTrial banner */}
+            {user?.noFreeTrial && (
+                <div style={{ background:'#fef3c7', border:'1px solid #fde68a', borderRadius:10, padding:'12px 18px', marginBottom:20, display:'flex', alignItems:'center', gap:10 }}>
+                    <span style={{ fontSize:20 }}>⚠️</span>
+                    <div>
+                        <div style={{ fontWeight:700, fontSize:14, color:'#92400e' }}>Free Trial not available</div>
+                        <div style={{ fontSize:12, color:'#78350f' }}>You previously had a UptimeForge account. Please choose a paid plan to continue.</div>
+                    </div>
+                </div>
+            )}
+
             {/* Plan cards — same as Landing page */}
             <div className="lp-plans">
-                {PLAN_ORDER.map(p => {
+                {PLAN_ORDER.filter(p => !(p === 'verification' && user?.noFreeTrial)).map(p => {
                     const isVerif = p === 'verification';
                     const cfg = planData?.plans?.[p] || {};
                     const monthlyPrice = isVerif ? (planData?.verificationFee ?? 2) : (cfg.price ?? { bronze:499, silver:999, gold:1499 }[p]);

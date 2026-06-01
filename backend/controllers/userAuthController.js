@@ -43,6 +43,7 @@ function userPayload(u) {
         billing: u.billing || 'monthly',
         referredBy: u.referredBy || null,
         referralBonusUsed: u.referralBonusUsed || false,
+        noFreeTrial: u.noFreeTrial || false,
     };
 }
 
@@ -111,11 +112,16 @@ exports.verifyOtp = async (req, res) => {
             if (referrer) referredBy = refCode;
         }
 
+        // Check if email was previously deleted — no free trial
+        const DeletedUser = require('../models/DeletedUser');
+        const wasPreviouslyDeleted = !!(await DeletedUser.findOne({ email: pending.email }));
+
         const user = await User.create({
             name: pending.name, email: pending.email, phone: pending.phone,
             address: pending.address, city: pending.city, state: pending.state,
             country: pending.country, password: pending.password, trialEndsAt,
             referredBy,
+            noFreeTrial: wasPreviouslyDeleted,
         });
 
         await PendingRegistration.deleteOne({ email: email.toLowerCase() });

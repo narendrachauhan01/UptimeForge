@@ -22,8 +22,9 @@ const userSchema = new mongoose.Schema({
     isBlocked: { type: Boolean, default: false },
     trialVerified: { type: Boolean, default: false },
     accountId: { type: String, unique: true, sparse: true },
-    referredBy:         { type: String, default: null }, // accountId of referrer
-    referralBonusUsed:  { type: Boolean, default: false }, // bonus already applied
+    referredBy:         { type: String, default: null },
+    referralBonusUsed:  { type: Boolean, default: false },
+    noFreeTrial:        { type: Boolean, default: false }, // previously deleted — no free trial
     deleteToken:        { type: String, select: false },
     deleteTokenExpires: { type: Date,   select: false },
 }, { timestamps: true });
