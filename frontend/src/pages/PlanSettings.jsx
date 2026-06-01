@@ -153,7 +153,7 @@ export default function PlanSettings({ readOnly = false }) {
                         <input
                             type="number" min="1"
                             value={form.trialDays}
-                            onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })}
+                            disabled={readOnly} onChange={e => setForm({ ...form, trialDays: Number(e.target.value) })}
                             style={inputStyle}
                         />
                     </div>
@@ -162,7 +162,7 @@ export default function PlanSettings({ readOnly = false }) {
                         <input
                             type="number" min="0"
                             value={form.verificationFee}
-                            onChange={e => setForm({ ...form, verificationFee: Number(e.target.value) })}
+                            disabled={readOnly} onChange={e => setForm({ ...form, verificationFee: Number(e.target.value) })}
                             style={inputStyle}
                         />
                     </div>
@@ -171,7 +171,7 @@ export default function PlanSettings({ readOnly = false }) {
                         <input
                             type="number" min="60" step="30"
                             value={form.freeTrialInterval}
-                            onChange={e => setForm({ ...form, freeTrialInterval: Number(e.target.value) })}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialInterval: Number(e.target.value) })}
                             style={inputStyle}
                         />
                         <span style={hintStyle}>{Math.floor(form.freeTrialInterval / 60)} min per check</span>
@@ -181,7 +181,7 @@ export default function PlanSettings({ readOnly = false }) {
                         <input
                             type="number" min="30" step="30"
                             value={form.freeTrialPingInterval}
-                            onChange={e => setForm({ ...form, freeTrialPingInterval: Number(e.target.value) })}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialPingInterval: Number(e.target.value) })}
                             style={inputStyle}
                         />
                         <span style={hintStyle}>{Math.floor(form.freeTrialPingInterval / 60)} min per ping</span>
@@ -191,7 +191,7 @@ export default function PlanSettings({ readOnly = false }) {
                         <input
                             type="number" min="1"
                             value={form.freeTrialRecipientLimit}
-                            onChange={e => setForm({ ...form, freeTrialRecipientLimit: Number(e.target.value) })}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialRecipientLimit: Number(e.target.value) })}
                             style={inputStyle}
                         />
                     </div>
@@ -202,7 +202,7 @@ export default function PlanSettings({ readOnly = false }) {
                     </label>
                     <textarea
                         value={form.freeTrialFeatures}
-                        onChange={e => setForm({ ...form, freeTrialFeatures: e.target.value })}
+                        disabled={readOnly} onChange={e => setForm({ ...form, freeTrialFeatures: e.target.value })}
                         style={{
                             width: '100%',
                             minHeight: 120,
@@ -330,22 +330,9 @@ export default function PlanSettings({ readOnly = false }) {
 
             {/* Save footer */}
             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                    onClick={save}
-                    disabled={saving}
-                    style={{
-                        background: saving ? '#9CA3AF' : '#4F46E5',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '9px 24px',
-                        fontWeight: 600,
-                        fontSize: 14,
-                        cursor: saving ? 'not-allowed' : 'pointer',
-                    }}
-                >
+                {!readOnly && <button onClick={save} disabled={saving} style={{ background: saving?'#9CA3AF':'#4F46E5', color:'#fff', border:'none', borderRadius:8, padding:'9px 24px', fontWeight:600, fontSize:14, cursor: saving?'not-allowed':'pointer' }}>
                     {saving ? 'Saving...' : 'Save All Changes'}
-                </button>
+                </button>}
             </div>
         </div>
     );
