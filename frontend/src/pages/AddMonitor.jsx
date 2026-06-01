@@ -221,7 +221,7 @@ export default function AddMonitor() {
                                                         </button>
                                                         <button type="button" title="Delete recipient"
                                                             onClick={async()=>{
-                                                                confirm(\`Delete \${r.name}?\`, {title:'Delete Recipient',confirmText:'Delete',danger:true}).then(ok=>{ if(!ok) return;
+                                                                const _ok = await confirm(`Delete ${r.name}?`, {title:'Delete Recipient',confirmText:'Delete',danger:true}); if(!_ok) return;
                                                                 await axios.delete(`${API_URL}/api/recipients/${r._id}`, { withCredentials: true });
                                                                 setRecipients(prev=>prev.filter(x=>x._id!==r._id));
                                                                 setSelectedRecipients(prev=>prev.filter(x=>x!==r._id));
@@ -370,7 +370,7 @@ export default function AddMonitor() {
                                                     🌐 {siteSel.length===0?'All':siteSel.length} {isExpanded?'▲':'▼'}
                                                 </button>
                                                 <button type="button" onClick={async()=>{
-                                                    if(!confirm(`Remove ${intg.type}?`)) return;
+                                                    const _ok2 = await confirm(`Remove ${intg.type}?`, {title:'Remove Integration',confirmText:'Remove',danger:true}); if(!_ok2) return;
                                                     await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
                                                     setSavedIntegrations(p=>p.filter(x=>x._id!==intg._id));
                                                 }} style={{ padding:'4px 8px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:6, color:'#dc2626', cursor:'pointer', fontSize:12 }}>🗑</button>
