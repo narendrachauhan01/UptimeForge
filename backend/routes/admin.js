@@ -17,31 +17,42 @@ function adminOnly(req, res, next) {
     next();
 }
 
+// Check if staff has any of the given sections (read or write)
+function hasAny(perms, ...sections) {
+    return sections.some(s =>
+        perms.includes(s) ||
+        perms.includes(`${s}:read`) ||
+        perms.includes(`${s}:write`)
+    );
+}
+
 // Allow admin OR staff with specific permission (read or write)
-// Supports both old format ('dashboard') and new format ('dashboard:read', 'dashboard:write')
-function allow(section, access = 'read') {
+function allow(section, access = 'read', ...alsoAllow) {
     return (req, res, next) => {
         if (req.isAdmin) return next();
         if (req.isStaff) {
             const perms = req.permissions || [];
-            const hasOld   = perms.includes(section);                  // old format
+            // Check specific section
+            const hasOld   = perms.includes(section);
             const hasWrite = perms.includes(`${section}:write`);
             const hasRead  = perms.includes(`${section}:read`);
             if (access === 'write' && (hasWrite || hasOld)) return next();
             if (access === 'read'  && (hasRead || hasWrite || hasOld)) return next();
+            // Check additional fallback sections (e.g. dashboard can read users for overview)
+            if (alsoAllow.length && hasAny(perms, ...alsoAllow)) return next();
         }
         return res.status(403).json({ error: 'Access denied' });
     };
 }
 
-router.get('/users',                auth, allow('users','read'),        ctrl.getUsers);
-router.put('/users/:id',            auth, allow('users','write'),       ctrl.updateUser);
-router.delete('/users/:id',         auth, adminOnly,                    ctrl.deleteUser);
-router.get('/deleted-users',        auth, allow('deletedUsers','read'), ctrl.getDeletedUsers);
-router.get('/servers',              auth, allow('dashboard','read'),    ctrl.getServers);
-router.get('/settings',             auth, allow('planSettings','read'), ctrl.getSettings);
-router.put('/settings',             auth, allow('planSettings','write'),ctrl.updateSettings);
-router.get('/payments',             auth, allow('payments','read'),     ctrl.getPayments);
+router.get('/users',                auth, allow('users','read','dashboard'),        ctrl.getUsers);
+router.put('/users/:id',            auth, allow('users','write'),                   ctrl.updateUser);
+router.delete('/users/:id',         auth, adminOnly,                                ctrl.deleteUser);
+router.get('/deleted-users',        auth, allow('deletedUsers','read','dashboard'), ctrl.getDeletedUsers);
+router.get('/servers',              auth, allow('dashboard','read'),                ctrl.getServers);
+router.get('/settings',             auth, allow('planSettings','read','dashboard'), ctrl.getSettings);
+router.put('/settings',             auth, allow('planSettings','write'),            ctrl.updateSettings);
+router.get('/payments',             auth, allow('payments','read','dashboard'),     ctrl.getPayments);
 router.delete('/payments/:id',      auth, adminOnly,                    ctrl.deletePayment);
 router.put('/payments/:id/approve', auth, allow('payments','write'),    ctrl.approvePayment);
 router.put('/payments/:id/reject',  auth, allow('payments','write'),    ctrl.rejectPayment);

@@ -149,14 +149,15 @@ export default function StaffDashboard() {
             </aside>
 
             {/* Main content */}
-            <main style={{ flex:1, marginLeft:220, overflowY:'auto', minHeight:'100vh', maxWidth:'100vw' }}>
-                <style>{`@media(max-width:640px){main{margin-left:0!important}}`}</style>
+            <main style={{ marginLeft:220, overflowY:'auto', minHeight:'100vh', background:'#F3F4F6' }}>
+                <style>{`
+                    @media(max-width:768px){ .staff-main{ margin-left:0!important; } }
+                    .staff-page-inner{ padding: 24px; }
+                `}</style>
                 {/* Topbar */}
-                <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
-                    <div>
-                        <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'3px 12px', borderRadius:20 }}>Staff Panel</span>
-                    </div>
-                    <div style={{ fontSize:13, color:'#6B7280' }}>Welcome, <strong style={{ color:'#111827' }}>{staff?.name}</strong></div>
+                <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'14px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'4px 14px', borderRadius:20 }}>🔐 Staff Panel</span>
+                    <div style={{ fontSize:13, color:'#6B7280', fontWeight:500 }}>Welcome, <strong style={{ color:'#111827' }}>{staff?.name}</strong></div>
                 </div>
                 <Suspense fallback={
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:300 }}>
