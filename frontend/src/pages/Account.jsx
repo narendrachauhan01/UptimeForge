@@ -460,9 +460,25 @@ export default function Account({ user, onUserUpdate }) {
                         <div style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', borderRadius:16, padding:'32px', marginBottom:20, color:'#fff' }}>
                             <div style={{ fontSize:40, marginBottom:12 }}>🎁</div>
                             <h2 style={{ fontSize:22, fontWeight:900, marginBottom:8 }}>Invite friends, earn rewards!</h2>
-                            <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:0 }}>
-                                Share your referral link with friends. When they sign up using your link, both of you get benefits.
+                            <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:16 }}>
+                                Share your referral link. When a friend purchases any paid plan using your code, <strong>both of you get 10 extra days free!</strong>
                             </p>
+                            <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+                                <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:10, padding:'12px 18px', display:'flex', alignItems:'center', gap:8 }}>
+                                    <span style={{ fontSize:20 }}>👤</span>
+                                    <div>
+                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOUR FRIEND GETS</div>
+                                        <div style={{ fontSize:14, fontWeight:800 }}>10 days free on any paid plan</div>
+                                    </div>
+                                </div>
+                                <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:10, padding:'12px 18px', display:'flex', alignItems:'center', gap:8 }}>
+                                    <span style={{ fontSize:20 }}>🤩</span>
+                                    <div>
+                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOU GET</div>
+                                        <div style={{ fontSize:14, fontWeight:800 }}>10 days added to your plan</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* My referral status — if I used someone's code */}

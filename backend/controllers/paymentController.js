@@ -185,15 +185,41 @@ exports.verifyPayment = async (req, res) => {
             user.planDuration = isAnnual ? '1y' : '1m';
 
             // Referral bonus: 10 extra days on 1-month paid plan (first purchase only)
+            let referrerRewarded = false;
             if (!isAnnual && user.referredBy && !user.referralBonusUsed) {
                 newEnd.setDate(newEnd.getDate() + 10);
                 user.referralBonusUsed = true;
+                referrerRewarded = true;
                 console.log(`[Referral] 10 bonus days applied for ${user.email} (referred by ${user.referredBy})`);
             }
 
             user.planEndsAt   = newEnd;
             user.trialVerified = true;
             planEndsAt = newEnd;
+
+            // Reward referrer: add 10 days to their plan too
+            if (referrerRewarded && user.referredBy) {
+                try {
+                    const referrer = await User.findOne({ accountId: user.referredBy });
+                    if (referrer) {
+                        const rNow = new Date();
+                        let rEnd;
+                        if (referrer.plan === 'free_trial') {
+                            // Extend trial
+                            rEnd = referrer.trialEndsAt && referrer.trialEndsAt > rNow ? new Date(referrer.trialEndsAt) : new Date(rNow);
+                            rEnd.setDate(rEnd.getDate() + 10);
+                            referrer.trialEndsAt = rEnd;
+                        } else {
+                            // Extend paid plan
+                            rEnd = referrer.planEndsAt && referrer.planEndsAt > rNow ? new Date(referrer.planEndsAt) : new Date(rNow);
+                            rEnd.setDate(rEnd.getDate() + 10);
+                            referrer.planEndsAt = rEnd;
+                        }
+                        await referrer.save();
+                        console.log(`[Referral] 10 bonus days added to referrer ${referrer.email}`);
+                    }
+                } catch(e) { console.error('[Referral] Failed to reward referrer:', e.message); }
+            }
         } else {
             return res.status(400).json({ error: 'Invalid plan' });
         }
