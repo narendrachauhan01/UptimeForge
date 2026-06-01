@@ -221,6 +221,14 @@ export default function Register({ onRegister }) {
                 <div ref={googleBtnRef} className="g-btn-overlay" />
               </div>
 
+              <div style={{ display:'flex', alignItems:'center', gap:10, margin:'4px 0 8px' }}>
+                <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,0.12)' }} />
+                <span style={{ fontSize:11, color:'rgba(255,255,255,0.4)', fontWeight:600, letterSpacing:'0.5px', whiteSpace:'nowrap' }}>
+                  OR CONTINUE WITH EMAIL
+                </span>
+                <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,0.12)' }} />
+              </div>
+
               <form onSubmit={sendOtp} className="reg-form">
 
                 {/* Referral banner */}
