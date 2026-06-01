@@ -2563,7 +2563,13 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 }
 @media (max-width:768px) {
   .lp-nav-center, .lp-nav-right { display:none; }
-  .lp-burger { display:flex; }
+  .lp-nav-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  .lp-burger { display:flex; margin-left: auto; }
   .lp-hero-wrap { grid-template-columns:1fr; padding-bottom:40px; }
   .lp-hero-h1 { font-size:36px; }
   .lp-hero-right { order:-1; }
