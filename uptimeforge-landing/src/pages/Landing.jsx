@@ -72,10 +72,10 @@ export default function Landing() {
       {/* ── NAVBAR ── */}
       <nav className="lp-nav">
         <div className="lp-nav-wrap">
-          <Link to="/" className="lp-brand">
+          <a href="/" className="lp-brand">
             <UWLogo size={34} />
             <span className="lp-brand-text">UptimeForge</span>
-          </Link>
+          </a>
           <div className="lp-nav-center">
             <a href="#">Home</a>
             <a href="#features">Features</a>
