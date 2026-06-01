@@ -317,10 +317,8 @@ async function checkOne(server, settings, recipients) {
             setFields.downAlertSent = true;
             alertType = 'down';
             alertDetail = result.error || `HTTP ${result.code}`;
-        } else {
-            // still down — log only, no repeat alert
-            saveAlertOnly(server, 'down', result.error || `HTTP ${result.code}`).catch(() => {});
         }
+        // site still down — do NOT save duplicate alert, just log
     } else {
         if (prevStatus === 'down') {
             setFields.lastUpAt      = new Date();
@@ -362,18 +360,6 @@ async function checkAll() {
     } catch (err) {
         console.error('[Monitor] checkAll error:', err.message);
     }
-}
-
-// Save alert to DB only — no email/WhatsApp (used while site stays down)
-async function saveAlertOnly(server, type, detail) {
-    await Alert.create({
-        server:     server._id,
-        serverName: server.name,
-        serverUrl:  server.url,
-        type,
-        message:    detail,
-        sentTo:     [],
-    });
 }
 
 // Send email + WhatsApp AND save to DB
