@@ -18,13 +18,19 @@ function updateEnv(key, value) {
 }
 
 // GET /api/email-config/status
-exports.getStatus = (req, res) => {
-    const configured = !!(process.env.MAIL_USER && process.env.MAIL_PASS);
-    res.json({
-        configured,
-        mailUser: process.env.MAIL_USER || '',
-        mailFrom: process.env.MAIL_FROM || '',
-    });
+exports.getStatus = async (req, res) => {
+    const hasCredentials = !!(process.env.MAIL_USER && process.env.MAIL_PASS);
+    if (!hasCredentials) return res.json({ configured: false, mailUser: '', mailFrom: '' });
+
+    // Quick SMTP verify
+    const nodemailer = require('nodemailer');
+    try {
+        const t = nodemailer.createTransport({ service:'gmail', auth:{ user: process.env.MAIL_USER, pass: process.env.MAIL_PASS }});
+        await t.verify();
+        res.json({ configured: true, mailUser: process.env.MAIL_USER, mailFrom: process.env.MAIL_FROM || '' });
+    } catch {
+        res.json({ configured: false, mailUser: process.env.MAIL_USER, mailFrom: process.env.MAIL_FROM || '', error: 'SMTP authentication failed — check App Password' });
+    }
 };
 
 // PUT /api/email-config/update
