@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema({
     isBlocked: { type: Boolean, default: false },
     trialVerified: { type: Boolean, default: false },
     accountId: { type: String, unique: true, sparse: true },
+    deleteToken:        { type: String, select: false },
+    deleteTokenExpires: { type: Date,   select: false },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

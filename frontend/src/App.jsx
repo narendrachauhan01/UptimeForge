@@ -40,6 +40,7 @@ const StaffLogin        = lazy(() => import('./pages/StaffLogin'));
 const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
 const AdminLogin        = lazy(() => import('./pages/AdminLogin'));
 const AccountSuspended  = lazy(() => import('./pages/AccountSuspended'));
+const ConfirmDelete     = lazy(() => import('./pages/ConfirmDelete'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -702,6 +703,7 @@ export default function App() {
         <Routes>
           <Route path="/staff-login" element={<StaffLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/confirm-delete" element={<ConfirmDelete />} />
           <Route path="/staff/*" element={<StaffDashboard />} />
           <Route path="/*" element={<><AppInner /><CookieConsent /></>} />
         </Routes>

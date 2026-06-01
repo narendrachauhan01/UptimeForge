@@ -254,6 +254,86 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// POST /api/users/request-delete — send verification email
+exports.requestDelete = async (req, res) => {
+    try {
+        if (req.isAdmin) return res.status(400).json({ error: 'Admin account cannot be deleted here' });
+        const user = req.user;
+        const crypto = require('crypto');
+        const { sendEmail } = require('../services/email');
+        const FRONTEND_URL = process.env.FRONTEND_URL || 'https://servermonitor.narendrasingh.site';
+
+        // Generate token valid for 1 hour
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+        // Save token on user
+        await User.findByIdAndUpdate(user._id, {
+            deleteToken: token,
+            deleteTokenExpires: expires,
+        });
+
+        const link = `${FRONTEND_URL}/confirm-delete?token=${token}&uid=${user._id}`;
+        const html = `
+        <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)">
+          <div style="background:linear-gradient(135deg,#dc2626,#b91c1c);padding:28px 32px;text-align:center">
+            <div style="font-size:42px;margin-bottom:8px">⚠️</div>
+            <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800">Account Deletion Request</h1>
+          </div>
+          <div style="padding:28px 32px">
+            <p style="color:#374151;font-size:14px;line-height:1.7">Hi <strong>${user.name}</strong>,</p>
+            <p style="color:#374151;font-size:14px;line-height:1.7">We received a request to permanently delete your UptimeForge account (<strong>${user.email}</strong>).</p>
+            <p style="color:#374151;font-size:14px;line-height:1.7">Once confirmed, all account information at UptimeForge — including the account, monitors, logs and settings — will be <strong style="color:#dc2626">lost and can not be recovered</strong>.</p>
+            <div style="text-align:center;margin:28px 0">
+              <a href="${link}" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none">
+                Confirm Account Deletion
+              </a>
+            </div>
+            <p style="color:#94a3b8;font-size:13px;text-align:center">This link expires in <strong>1 hour</strong>. If you did not request this, ignore this email — your account is safe.</p>
+          </div>
+          <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
+            UptimeForge &mdash; &copy; 2026 Narendra Singh
+          </div>
+        </div>`;
+
+        await sendEmail(user.email, 'UptimeForge — Confirm Account Deletion', html);
+        res.json({ success: true, message: 'Deletion verification email sent. Check your inbox.' });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+};
+
+// GET /api/users/confirm-delete?token=&uid= — verify and delete
+exports.confirmDelete = async (req, res) => {
+    try {
+        const { token, uid } = req.query;
+        if (!token || !uid) return res.status(400).json({ error: 'Invalid link' });
+
+        const user = await User.findById(uid).select('+deleteToken +deleteTokenExpires');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user.deleteToken || user.deleteToken !== token) return res.status(400).json({ error: 'Invalid or expired deletion link' });
+        if (new Date() > new Date(user.deleteTokenExpires)) return res.status(400).json({ error: 'Deletion link expired. Please request again.' });
+
+        // Delete all user data
+        const uid2 = user._id;
+        const Server       = require('../models/Server');
+        const Recipient    = require('../models/Recipient');
+        const Alert        = require('../models/Alert');
+        const PingTarget   = require('../models/PingTarget');
+        const Notification = require('../models/Notification');
+        const PaymentRequest = require('../models/PaymentRequest');
+        const SupportTicket  = require('../models/SupportTicket');
+        await Server.deleteMany({ userId: uid2 });
+        await Recipient.deleteMany({ userId: uid2 });
+        await Alert.deleteMany({ userId: uid2 });
+        await PingTarget.deleteMany({ userId: uid2 });
+        await Notification.deleteMany({ userId: uid2 });
+        await PaymentRequest.deleteMany({ userId: uid2 });
+        await SupportTicket.deleteMany({ userId: uid2 });
+        await User.findByIdAndDelete(uid2);
+
+        res.json({ success: true, message: 'Account permanently deleted.' });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+};
+
 // DELETE /api/users/me
 exports.deleteMe = async (req, res) => {
     try {

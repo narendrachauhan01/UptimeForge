@@ -148,6 +148,8 @@ router.get('/me',                    auth, ctrl.getMe);
 
 router.put('/change-password',       auth, ctrl.changePassword);
 router.put('/profile',               auth, ctrl.updateProfile);
+router.post('/request-delete',       auth, ctrl.requestDelete);
+router.get('/confirm-delete',              ctrl.confirmDelete);
 router.delete('/me',                 auth, ctrl.deleteMe);
 
 /**

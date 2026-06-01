@@ -77,13 +77,18 @@ export default function Account({ user, onUserUpdate }) {
         } catch(e) { setPwMsg({ type:'error', text: e.response?.data?.error || 'Failed' }); }
     };
 
+    const [deleteMsg, setDeleteMsg] = useState('');
+
     const deleteAccount = async () => {
-        const ok = await confirm('Delete your account? All sites, data and monitoring will be permanently lost.', { title:'Delete Account', confirmText:'Delete My Account', danger:true });
+        const ok = await confirm(
+            'A verification email will be sent to your account email. Click the link to confirm permanent deletion.',
+            { title:'Delete Account', confirmText:'Send Verification Email', danger:true }
+        );
         if (!ok) return;
         try {
-            await axios.delete(`${API_URL}/api/users/me`, { withCredentials: true });
-            navigate('/login');
-        } catch(e) { alert(e.response?.data?.error || 'Failed'); }
+            await axios.post(`${API_URL}/api/users/request-delete`, {}, { withCredentials: true });
+            setDeleteMsg('✅ Verification email sent! Check your inbox and click the link to confirm deletion.');
+        } catch(e) { setDeleteMsg('❌ ' + (e.response?.data?.error || 'Failed to send email')); }
     };
 
     const NAV = [
@@ -207,6 +212,7 @@ export default function Account({ user, onUserUpdate }) {
                             <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
                                 Delete account
                             </button>
+                            {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? '#16a34a' : '#dc2626', fontWeight:600 }}>{deleteMsg}</p>}
                         </div>
                     </>
                 )}
@@ -322,6 +328,7 @@ export default function Account({ user, onUserUpdate }) {
                             <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
                                 Delete account
                             </button>
+                            {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? '#16a34a' : '#dc2626', fontWeight:600 }}>{deleteMsg}</p>}
                         </div>
                     </>
                 )}
