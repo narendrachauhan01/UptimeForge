@@ -111,10 +111,10 @@ export default function Login({ onLogin }) {
         <div className="login-left-orb login-orb-1" />
         <div className="login-left-orb login-orb-2" />
         <div className="login-left-content">
-          <Link to="/" className="login-left-brand">
+          <a href={LANDING_URL} className="login-left-brand">
             <UWLogo size={42} />
             <span>UptimeForge</span>
-          </Link>
+          </a>
 
           <div className="login-left-body">
             <h2 className="login-left-h2">Monitor your sites.<br />Sleep peacefully.</h2>

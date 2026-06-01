@@ -2238,3 +2238,9 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 }
 
 
+
+/* Register Google button */
+.reg-google-wrap { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+.reg-google-wrap > div { width: 100% !important; }
+.reg-google-wrap > div > div { width: 100% !important; }
+.reg-google-wrap iframe { width: 100% !important; border-radius: 12px; }
