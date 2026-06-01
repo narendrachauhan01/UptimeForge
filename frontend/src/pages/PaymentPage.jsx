@@ -179,9 +179,23 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
     const isSelect       = plan === 'select';
     const isVerification = plan === 'verification';
-    const amount = isVerification
+
+    // Calculate amount based on billing type
+    const monthlyAmt = isVerification
         ? (planData?.verificationFee ?? 2)
         : (planData?.plans?.[plan]?.price ?? 0);
+
+    const getAnnualMonthlyPrice = (key, monthly) => {
+        const ap = planData?.annualPlans;
+        const custom = ap?.[key]?.price;
+        if (custom && custom > 0) return custom;
+        return Math.round(monthly * (1 - (planData?.annualDiscount ?? 20) / 100));
+    };
+
+    const perMonthAmt = (!isVerification && billing === 'annually')
+        ? getAnnualMonthlyPrice(plan, monthlyAmt)
+        : monthlyAmt;
+    const amount = billing === 'annually' && !isVerification ? perMonthAmt * 12 : perMonthAmt;
 
     const planFeatures = isVerification
         ? (planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures : PLAN_FEATURES_FALLBACK.verification)
@@ -311,9 +325,15 @@ export default function PaymentPage({ user, onUserUpdate }) {
                     <div className="pay-header-logo"><UWLogo size={32} /></div>
                     <div className="pay-header-plan">{PLAN_LABEL[plan] || plan}</div>
                     <div className="pay-header-amount">
-                        ₹{amount}
-                        <span>{isVerification ? ' one-time' : '/month'}</span>
+                        {billing === 'annually' && !isVerification ? (
+                            <>₹{perMonthAmt}<span>/mo</span></>
+                        ) : (
+                            <>₹{amount}<span>{isVerification ? ' one-time' : '/month'}</span></>
+                        )}
                     </div>
+                    {billing === 'annually' && !isVerification && (
+                        <div className="pay-header-note">₹{amount} billed annually · {Math.round(100*(1-perMonthAmt/monthlyAmt))}% off</div>
+                    )}
                     {isVerification && (
                         <div className="pay-header-note">Non-refundable · Activates 5-day free trial</div>
                     )}
@@ -359,8 +379,18 @@ export default function PaymentPage({ user, onUserUpdate }) {
                             </div>
                             <div className="rzp-summary-row">
                                 <span>Amount</span>
-                                <strong className="rzp-amount">₹{amount}{isVerification ? '' : '/month'}</strong>
+                                <strong className="rzp-amount">
+                                    {billing === 'annually' && !isVerification
+                                        ? `₹${amount}/year (₹${perMonthAmt}/mo)`
+                                        : `₹${amount}${isVerification ? '' : '/month'}`}
+                                </strong>
                             </div>
+                            {billing === 'annually' && !isVerification && (
+                                <div className="rzp-summary-row">
+                                    <span>Billing</span>
+                                    <strong style={{ color:'#7c3aed' }}>Annual · Save {Math.round(100*(1-perMonthAmt/monthlyAmt))}%</strong>
+                                </div>
+                            )}
                             <div className="rzp-summary-row">
                                 <span>Pay via</span>
                                 <strong>UPI · Cards · Netbanking</strong>
@@ -375,14 +405,19 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
                         {planFeatures.length > 0 && (
                             <ul className="rzp-features">
-                                {planFeatures.map(f => (
-                                    <li key={f}>
-                                        <svg width="15" height="15" fill="none" stroke="#7c3aed" strokeWidth="2.5" viewBox="0 0 24 24">
-                                            <polyline points="20 6 9 17 4 12"/>
-                                        </svg>
-                                        {f}
+                                {planFeatures.map(f => {
+                                    const { type, label } = parseFeature(f);
+                                    return (
+                                    <li key={f} style={{ opacity: type === 'no' ? 0.4 : 1, display:'flex', alignItems:'center', gap:6 }}>
+                                        {type === 'ok'      && <svg width="13" height="13" fill="none" stroke="#7c3aed" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}><polyline points="20 6 9 17 4 12"/></svg>}
+                                        {type === 'no'      && <svg width="13" height="13" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                                        {type === 'limited' && <span style={{flexShrink:0}}>😐</span>}
+                                        {type === 'soon'    && <span style={{flexShrink:0}}>🔜</span>}
+                                        {label}
+                                        {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 5px', marginLeft:2, fontWeight:700 }}>Soon</span>}
                                     </li>
-                                ))}
+                                    );
+                                })}
                             </ul>
                         )}
 
