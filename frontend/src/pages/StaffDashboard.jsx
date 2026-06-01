@@ -151,6 +151,13 @@ export default function StaffDashboard() {
             {/* Main content */}
             <main style={{ flex:1, marginLeft:220, overflowY:'auto', minHeight:'100vh', maxWidth:'100vw' }}>
                 <style>{`@media(max-width:640px){main{margin-left:0!important}}`}</style>
+                {/* Topbar */}
+                <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
+                    <div>
+                        <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'3px 12px', borderRadius:20 }}>Staff Panel</span>
+                    </div>
+                    <div style={{ fontSize:13, color:'#6B7280' }}>Welcome, <strong style={{ color:'#111827' }}>{staff?.name}</strong></div>
+                </div>
                 <Suspense fallback={
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:300 }}>
                         <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid #e2e8f0', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
