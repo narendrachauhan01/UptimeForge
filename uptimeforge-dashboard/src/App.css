@@ -4267,3 +4267,22 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
     font-size: 13px;
   }
 }
+
+/* ══════════════════════════════════════
+   ADMIN PANEL — MOBILE RESPONSIVE
+══════════════════════════════════════ */
+.admin-pg { overflow-x: hidden; }
+
+@media (max-width: 768px) {
+  /* 2-col grids collapse to 1 col */
+  .admin-grid-2 { grid-template-columns: 1fr !important; }
+
+  /* Tables scroll horizontally inside their wrapper */
+  .admin-pg table { min-width: 580px; }
+
+  /* Prevent any non-table child from blowing width */
+  .admin-pg > * { max-width: 100%; }
+  .admin-pg input,
+  .admin-pg select,
+  .admin-pg button { max-width: 100%; }
+}

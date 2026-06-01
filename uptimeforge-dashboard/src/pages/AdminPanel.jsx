@@ -547,7 +547,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
     // ─────────────────────────────────────────────────────────────────────────
     return (
-        <div className="pg-wrap" style={{ background: T.pageBg, minHeight: '100vh' }}>
+        <div className="pg-wrap admin-pg" style={{ background: T.pageBg, minHeight: '100vh', overflowX: 'hidden' }}>
 
             {/* ── Toast ────────────────────────────────────────────────────── */}
             {toast && (
@@ -718,7 +718,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     )}
 
                     {/* Plans Expiring + Trials Expiring */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="admin-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                         {/* Plans expiring in 7 days */}
                         <div style={{ ...cardStyle, borderLeft: expiringPlans.length > 0 ? `4px solid ${T.warning}` : `4px solid ${T.border}`, padding: '20px 20px' }}>
                             <SectionTitle title={`Plans Expiring in 7 Days (${expiringPlans.length})`} />
