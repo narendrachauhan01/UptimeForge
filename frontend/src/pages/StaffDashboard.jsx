@@ -159,6 +159,7 @@ export default function StaffDashboard() {
                     <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'4px 14px', borderRadius:20 }}>🔐 Staff Panel</span>
                     <div style={{ fontSize:13, color:'#6B7280', fontWeight:500 }}>Welcome, <strong style={{ color:'#111827' }}>{staff?.name}</strong></div>
                 </div>
+                <div style={{ padding:'24px 28px' }}>
                 <Suspense fallback={
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:300 }}>
                         <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid #e2e8f0', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
@@ -179,6 +180,7 @@ export default function StaffDashboard() {
                         <Route path="*" element={<Navigate to={firstPath} replace />} />
                     </Routes>
                 </Suspense>
+                </div>
             </main>
         </div>
     );
