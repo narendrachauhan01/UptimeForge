@@ -187,7 +187,8 @@ export default function StaffManagement() {
     useEffect(() => { load(); }, []);
 
     const del = async (s) => {
-        if (!confirm(`Delete ${s.name}?`)) return;
+        const ok = await confirm(`Delete "${s.name}"?`, { title: 'Delete Staff', confirmText: 'Delete', danger: true });
+        if (!ok) return;
         setDeleting(s._id);
         await staffDelete(s._id).catch(() => {});
         load();
