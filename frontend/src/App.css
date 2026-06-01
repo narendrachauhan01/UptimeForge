@@ -1177,7 +1177,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   width: 100%; padding: 13px; background: linear-gradient(135deg,#7c3aed,#6d28d9);
   color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
   cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center;
-  justify-content: center; gap: 8px;
+  justify-content: center; gap: 8px; margin-top: 12px;
 }
 .login-submit:hover { opacity: 0.92; }
 .login-submit:disabled { opacity: 0.6; cursor: not-allowed; }
