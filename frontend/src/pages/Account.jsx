@@ -79,6 +79,58 @@ export default function Account({ user, onUserUpdate }) {
 
     const [deleteMsg, setDeleteMsg] = useState('');
 
+    const downloadInvoice = (r) => {
+        const planName = r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`;
+        const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Invoice - UptimeForge</title>
+<style>
+  body { font-family: Inter, Arial, sans-serif; background:#f8fafc; margin:0; padding:40px; color:#1e293b; }
+  .card { background:#fff; border-radius:16px; max-width:560px; margin:0 auto; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.1); }
+  .header { background:linear-gradient(135deg,#7c3aed,#6d28d9); padding:32px; text-align:center; color:#fff; }
+  .header h1 { margin:0 0 4px; font-size:22px; font-weight:800; }
+  .header p { margin:0; opacity:0.8; font-size:13px; }
+  .body { padding:32px; }
+  .logo { font-size:28px; margin-bottom:8px; }
+  table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+  td { padding:10px 0; font-size:14px; border-bottom:1px solid #f1f5f9; }
+  td:first-child { color:#64748b; }
+  td:last-child { text-align:right; font-weight:700; }
+  .amount { color:#7c3aed; font-size:18px; }
+  .status { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:700; background:${r.status==='approved'?'#f0fdf4':'#fef2f2'}; color:${r.status==='approved'?'#16a34a':'#dc2626'}; }
+  .footer { padding:16px 32px; background:#f8fafc; text-align:center; color:#94a3b8; font-size:12px; }
+  @media print { body { padding:0; background:#fff; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="logo">🧾</div>
+    <h1>Payment Invoice</h1>
+    <p>UptimeForge</p>
+  </div>
+  <div class="body">
+    <table>
+      <tr><td>Invoice No.</td><td>#INV-${r._id?.slice(-8).toUpperCase()}</td></tr>
+      <tr><td>Date</td><td>${new Date(r.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</td></tr>
+      <tr><td>Plan</td><td>${planName}</td></tr>
+      <tr><td>Account</td><td>${user?.email}</td></tr>
+      <tr><td>Account ID</td><td>${user?.accountId || '—'}</td></tr>
+      <tr><td>Payment ID</td><td style="font-family:monospace;font-size:12px">${r.utr || '—'}</td></tr>
+      <tr><td>Amount</td><td class="amount">₹${r.amount}</td></tr>
+      <tr><td>Status</td><td><span class="status">${r.status}</span></td></tr>
+    </table>
+    <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0">Secured by Razorpay · UPI · Cards · Netbanking</p>
+  </div>
+  <div class="footer">UptimeForge &mdash; © 2026 Narendra Singh</div>
+</div>
+</body></html>`;
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
+        w.print();
+    };
+
     const deleteAccount = async () => {
         const ok = await confirm(
             'A verification email will be sent to your account email. Click the link to confirm permanent deletion.',
@@ -258,8 +310,8 @@ export default function Account({ user, onUserUpdate }) {
                             ) : (
                                 <div>
                                     {myRequests.map(r => (
-                                        <div key={r._id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 0', borderBottom:'1px solid #F3F4F6', gap:12 }}>
-                                            <div style={{ flex:1 }}>
+                                        <div key={r._id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 0', borderBottom:'1px solid #F3F4F6', gap:12, flexWrap:'wrap' }}>
+                                            <div style={{ flex:1, minWidth:180 }}>
                                                 <div style={{ fontWeight:700, color:'#111827', fontSize:14 }}>
                                                     {r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`}
                                                 </div>
@@ -271,6 +323,10 @@ export default function Account({ user, onUserUpdate }) {
                                                 color: r.status==='approved'?'#16a34a':r.status==='refunded'?'#dc2626':'#6B7280' }}>
                                                 {r.status}
                                             </span>
+                                            <button onClick={() => downloadInvoice(r)}
+                                                style={{ padding:'6px 14px', border:'1px solid #E5E7EB', borderRadius:8, background:'#fff', color:'#374151', fontSize:12, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:5, whiteSpace:'nowrap' }}>
+                                                📄 Download
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
