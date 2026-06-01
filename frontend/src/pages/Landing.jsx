@@ -78,7 +78,6 @@ export default function Landing() {
           <div className="lp-nav-right">
             <Link to="/login" className="lp-nav-login">Login</Link>
             <Link to="/register" className="lp-nav-cta">Get Started Free</Link>
-            <Link to="/staff-login" className="lp-nav-login" style={{ fontSize:13 }}>Staff Login</Link>
           </div>
           <button className={`lp-burger ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(!menuOpen)}>
             <span /><span /><span />
@@ -397,7 +396,7 @@ export default function Landing() {
             <Link to="/register">Register</Link>
             <Link to="/terms">Terms</Link>
           </div>
-          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong>Narendra Singh</strong></div>
+          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong>Narendra Singh</strong> · <Link to="/staff-login" style={{ color:'rgba(255,255,255,0.3)', textDecoration:'none', fontSize:12 }} onMouseEnter={e=>e.currentTarget.style.color='rgba(255,255,255,0.6)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.3)'}>Staff Login</Link></div>
         </div>
       </footer>
 
