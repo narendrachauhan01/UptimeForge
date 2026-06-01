@@ -52,6 +52,7 @@ const DEFAULT_FEATURES = {
 const settingsSchema = new mongoose.Schema({
     trialDays:         { type: Number, default: 5 },
     verificationFee:   { type: Number, default: 2 },
+    freeTrialSiteLimit:        { type: Number, default: 2 },
     freeTrialInterval:         { type: Number, default: 300 },
     freeTrialPingInterval:     { type: Number, default: 180 }, // 3 min
     freeTrialRecipientLimit:   { type: Number, default: 2 },
@@ -150,7 +151,8 @@ settingsSchema.statics.get = async function () {
     if (s.freeTrialAccess && s.freeTrialAccess.webhook    === undefined) { s.freeTrialAccess.webhook = true;    s.markModified('freeTrialAccess'); dirty = true; }
     if (s.freeTrialAccess && s.freeTrialAccess.rocketChat === undefined) { s.freeTrialAccess.rocketChat = true; s.markModified('freeTrialAccess'); dirty = true; }
     if (!s.bronzeAccess) { s.bronzeAccess = { whatsapp: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
-    if (s.freeTrialPingLimit === undefined) { s.freeTrialPingLimit = 2; dirty = true; }
+    if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
+    if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
     const DEFAULT_REC_LIMITS  = { bronze: 10,  silver: 20,  gold: 30 };
     const DEFAULT_PING_LIMITS = { bronze: 5,   silver: 15,  gold: 30 };
@@ -175,7 +177,8 @@ settingsSchema.statics.update = async function (data) {
     if (data.freeTrialInterval !== undefined)     s.freeTrialInterval = data.freeTrialInterval;
     if (data.freeTrialPingInterval !== undefined) s.freeTrialPingInterval = data.freeTrialPingInterval;
     if (data.freeTrialRecipientLimit !== undefined) s.freeTrialRecipientLimit = data.freeTrialRecipientLimit;
-    if (data.freeTrialPingLimit !== undefined)     s.freeTrialPingLimit = Math.max(0, Number(data.freeTrialPingLimit) || 0);
+    if (data.freeTrialPingLimit  !== undefined) s.freeTrialPingLimit  = Math.max(0, Number(data.freeTrialPingLimit)  || 0);
+    if (data.freeTrialSiteLimit  !== undefined) s.freeTrialSiteLimit  = Math.max(0, Number(data.freeTrialSiteLimit)  || 0);
     if (data.freeTrialAccess !== undefined) {
         s.freeTrialAccess = { ...s.freeTrialAccess, ...data.freeTrialAccess };
         s.markModified('freeTrialAccess');

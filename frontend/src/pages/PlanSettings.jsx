@@ -47,6 +47,7 @@ export default function PlanSettings({ readOnly = false }) {
                 trialDays: d.trialDays,
                 verificationFee: d.verificationFee ?? 2,
                 annualDiscount: d.annualDiscount ?? 20,
+                freeTrialSiteLimit: d.freeTrialSiteLimit ?? 2,
                 freeTrialInterval: d.freeTrialInterval ?? 300,
                 freeTrialPingInterval: d.freeTrialPingInterval ?? 180,
                 freeTrialPingLimit: d.freeTrialPingLimit ?? 2,
@@ -75,6 +76,7 @@ export default function PlanSettings({ readOnly = false }) {
                 verificationFee: form.verificationFee,
                 annualDiscount: Number(form.annualDiscount),
                 freeTrialInterval: Number(form.freeTrialInterval),
+                freeTrialSiteLimit: Number(form.freeTrialSiteLimit),
                 freeTrialPingInterval: Number(form.freeTrialPingInterval),
                 freeTrialPingLimit: Number(form.freeTrialPingLimit),
                 freeTrialRecipientLimit: Number(form.freeTrialRecipientLimit),
@@ -167,6 +169,14 @@ export default function PlanSettings({ readOnly = false }) {
                             disabled={readOnly} onChange={e => setForm({ ...form, verificationFee: Number(e.target.value) })}
                             style={inputStyle}
                         />
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Max Sites</label>
+                        <input type="number" min="1"
+                            value={form.freeTrialSiteLimit}
+                            disabled={readOnly} onChange={e => setForm({ ...form, freeTrialSiteLimit: Number(e.target.value) })}
+                            style={inputStyle} />
+                        <span style={hintStyle}>Max sites Free Trial user can add</span>
                     </div>
                     <div>
                         <label style={labelStyle}>Site Check Interval (sec)</label>

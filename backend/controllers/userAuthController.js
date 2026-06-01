@@ -284,8 +284,12 @@ exports.getMe = async (req, res) => {
     if (req.isAdmin) return res.json({ isAdmin: true, name: 'Admin', plan: 'admin', siteLimit: 9999, isActive: true });
     const settings = await Settings.get();
     const u = req.user;
-    const planConfig = settings.plans?.[u.plan];
-    const dynamicLimit = planConfig ? planConfig.sites : 2;
+    let dynamicLimit;
+    if (u.plan === 'free_trial') {
+        dynamicLimit = settings.freeTrialSiteLimit ?? 2;
+    } else {
+        dynamicLimit = settings.plans?.[u.plan]?.sites ?? 2;
+    }
     res.json({ ...userPayload(u), siteLimit: dynamicLimit });
 };
 
