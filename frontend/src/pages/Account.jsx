@@ -465,6 +465,28 @@ export default function Account({ user, onUserUpdate }) {
                             </p>
                         </div>
 
+                        {/* My referral status — if I used someone's code */}
+                        {user?.referredBy && (
+                            <div style={{ background: user.referralBonusUsed ? '#f0fdf4' : 'linear-gradient(135deg,#ede9fe,#ddd6fe)', border:`1px solid ${user.referralBonusUsed ? '#bbf7d0' : '#c4b5fd'}`, borderRadius:12, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
+                                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                    <span style={{ fontSize:28 }}>{user.referralBonusUsed ? '✅' : '🎁'}</span>
+                                    <div>
+                                        <div style={{ fontWeight:800, fontSize:15, color: user.referralBonusUsed ? '#16a34a' : '#7c3aed' }}>
+                                            Referral code applied! 10 extra days FREE
+                                        </div>
+                                        <div style={{ fontSize:12, color:'#6B7280', marginTop:3 }}>
+                                            {user.referralBonusUsed
+                                                ? '🎉 Bonus already applied to your plan — 10 extra days added!'
+                                                : '⏳ Purchase any paid plan (Bronze/Silver/Gold) to get 10 bonus days automatically.'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span style={{ fontSize:11, fontWeight:700, padding:'4px 12px', borderRadius:20, background: user.referralBonusUsed ? '#dcfce7' : '#ede9fe', color: user.referralBonusUsed ? '#16a34a' : '#7c3aed' }}>
+                                    {user.referralBonusUsed ? 'Used ✓' : 'Pending'}
+                                </span>
+                            </div>
+                        )}
+
                         {/* Stats */}
                         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, marginBottom:20 }}>
                             {[

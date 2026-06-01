@@ -41,6 +41,8 @@ function userPayload(u) {
         trialVerified: u.trialVerified ?? true,
         accountStatus: u.accountStatus || 'active',
         billing: u.billing || 'monthly',
+        referredBy: u.referredBy || null,
+        referralBonusUsed: u.referralBonusUsed || false,
     };
 }
 
