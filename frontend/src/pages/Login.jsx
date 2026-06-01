@@ -101,21 +101,6 @@ export default function Login({ onLogin }) {
     setLoading(false);
   };
 
-  const handleAdminLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    if (!form.username || !form.password) { setError('Username and password required'); return; }
-    setLoading(true);
-    try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, { username: form.username, password: form.password }, { withCredentials: true });
-      // token now in httpOnly cookie;
-      localStorage.removeItem('sm_user');
-      onLogin(null);
-    } catch (e) {
-      setError(e.response?.data?.error || 'Login failed');
-    }
-    setLoading(false);
-  };
 
   return (
     <div className="login-split">

@@ -1,6 +1,14 @@
-const router = require('express').Router();
-const auth = require('../middleware/auth');
-const ctrl = require('../controllers/userAuthController');
+const router    = require('express').Router();
+const auth      = require('../middleware/auth');
+const ctrl      = require('../controllers/userAuthController');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Too many login attempts. Try again after 15 minutes.' },
+    standardHeaders: true, legacyHeaders: false,
+});
 const multer = require('multer');
 const path   = require('path');
 const upload = multer({
@@ -18,7 +26,7 @@ const upload = multer({
 router.get('/config',                ctrl.getConfig);
 router.post('/register/send-otp',    ctrl.sendOtp);
 router.post('/register/verify-otp',  ctrl.verifyOtp);
-router.post('/login',                ctrl.login);
+router.post('/login',                loginLimiter, ctrl.login);
 router.post('/google-auth',          ctrl.googleAuth);
 router.put('/change-password',       auth, ctrl.changePassword);
 router.post('/forgot-password',      ctrl.forgotPassword);
