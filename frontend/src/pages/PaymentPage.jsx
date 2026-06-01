@@ -128,15 +128,20 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                                     <div className="pss-free-tag">₹{price}</div>
                                 ) : (
                                     <div style={{ textAlign:'center' }}>
-                                        <div className="pss-price-big" style={{ color: accent }}>₹{billing === 'annually' ? price * 12 : price}</div>
-                                        {billing === 'annually' && <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textDecoration:'line-through' }}>₹{monthlyPrice * 12}/yr</div>}
+                                        <div className="pss-price-big" style={{ color: accent }}>₹{price}</div>
+                                        {billing === 'annually' && (
+                                            <div style={{ textAlign:'center' }}>
+                                                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textDecoration:'line-through' }}>₹{monthlyPrice}/mo</div>
+                                                <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginTop:2 }}>₹{price * 12}/yr total</div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
                             <div className="pss-plan-name">{PLAN_LABEL[p]}</div>
                             {isVerif
                                 ? <div className="pss-period">one-time verification</div>
-                                : <div className="pss-period">{billing === 'annually' ? 'per year' : 'per month'}</div>
+                                : <div className="pss-period">{billing === 'annually' ? 'per month · billed annually' : 'per month'}</div>
                             }
                             {isVerif && <div className="pss-trial-note">5-day free trial · Non-refundable</div>}
                             <ul className="pss-features">
