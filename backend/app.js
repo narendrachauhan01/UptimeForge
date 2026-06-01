@@ -48,7 +48,7 @@ app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/integrations',  require('./routes/integrations'));
 app.use('/api/staff',         require('./routes/staff'));
 
-// ── Swagger Docs ─────────────────────────────────────────────────────────────
+// Swagger Docs
 const swaggerUi   = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -62,5 +62,5 @@ const PORT = process.env.PORT || 5001;
 connectDB().then(() => {
     wa.init();
     monitor.start();
-    httpServer.listen(PORT, () => console.log(`[Server] Running on port ${PORT}`));
+    httpServer.listen(PORT, () => console.log(`http://localhost:${PORT}/api-docs`));
 });
