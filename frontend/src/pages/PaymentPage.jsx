@@ -364,6 +364,12 @@ export default function PaymentPage({ user, onUserUpdate }) {
                         <p style={{ fontSize: 13, color: '#94a3b8' }}>
                             Receipt sent to <strong>{user?.email}</strong>
                         </p>
+                        {user?.accountId && (
+                            <div style={{ background:'#ede9fe', borderRadius:10, padding:'8px 18px', display:'inline-block', marginBottom:8 }}>
+                                <span style={{ fontSize:12, color:'#7c3aed', fontWeight:600 }}>Account ID: </span>
+                                <span style={{ fontSize:14, fontWeight:800, color:'#6d28d9', fontFamily:'monospace', letterSpacing:1 }}>{user.accountId}</span>
+                            </div>
+                        )}
                         <div className="pay-success-redirect">Redirecting to dashboard in 2s...</div>
                         <button onClick={() => navigate('/monitoring')} style={{ marginTop:16, padding:'10px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>
                             Go to Dashboard →

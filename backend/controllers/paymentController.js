@@ -55,6 +55,7 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Payment ID</td><td style="padding:6px 0;font-weight:700;color:#1e293b;text-align:right;font-family:monospace;font-size:12px">${paymentId}</td></tr>
             ${!isVerification ? `<tr><td style="padding:6px 0;color:#64748b;font-size:13px">Valid Until</td><td style="padding:6px 0;font-weight:700;color:#1e293b;text-align:right">${expiryStr}</td></tr>` : ''}
             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Account</td><td style="padding:6px 0;font-weight:700;color:#1e293b;text-align:right">${user.email}</td></tr>
+            ${user.accountId ? `<tr><td style="padding:6px 0;color:#64748b;font-size:13px">Account ID</td><td style="padding:6px 0;font-weight:800;color:${accent};text-align:right;font-family:monospace;letter-spacing:1px">${user.accountId}</td></tr>` : ''}
           </table>
         </div>
         <p style="color:#94a3b8;font-size:13px;margin:0;text-align:center">Keep this email as your payment receipt · Powered by Razorpay</p>
