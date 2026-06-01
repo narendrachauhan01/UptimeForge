@@ -8,11 +8,13 @@ exports.getAlerts = async (req, res) => {
         if (!req.isAdmin) {
             const userServers = await Server.find({ userId: req.userId }, '_id');
             const serverIds = userServers.map(s => s._id);
-            filter = { server: { $in: serverIds } };
+            // Include both site alerts (by server) and ping alerts (by userId)
+            filter = { $or: [
+                { server: { $in: serverIds } },
+                { userId: req.userId, source: 'ping' },
+            ]};
         }
-        if (req.query.server) {
-            filter.server = req.query.server;
-        }
+        if (req.query.server) filter.server = req.query.server;
         const limit = req.query.limit ? parseInt(req.query.limit) : 100;
         const alerts = await Alert.find(filter).sort('-createdAt').limit(limit);
         res.json(alerts);

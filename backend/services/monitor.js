@@ -556,11 +556,23 @@ async function checkPingTargets() {
                 if (prevStatus !== 'down') setFields.lastDownAt = new Date();
                 if (prevStatus !== 'down' && !wasAlertSent) {
                     const eligible = getPingEligible();
+                    const sentTo = [];
                     const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
                         if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
+                    // Save to Incidents
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  `${target.host}${target.port ? ':' + target.port : ''}`,
+                        type:       'down',
+                        message:    `Ping target unreachable`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
                     setFields.downAlertSent = true;
                 }
             } else {
@@ -568,11 +580,23 @@ async function checkPingTargets() {
                     setFields.lastUpAt = new Date();
                     setFields.downAlertSent = false;
                     const eligible = getPingEligible();
+                    const sentTo = [];
                     const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
                         if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
+                    // Save to Incidents
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  `${target.host}${target.port ? ':' + target.port : ''}`,
+                        type:       'recovered',
+                        message:    `Ping target back online`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
                 }
             }
 

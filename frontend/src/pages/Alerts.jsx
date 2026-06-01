@@ -129,6 +129,11 @@ export default function Alerts() {
                         border: `1px solid ${isDown?'#FECDD3':'#BBF7D0'}` }}>
                         {isDown ? '↓ Down' : '↑ Recovered'}
                       </span>
+                      {a.source === 'ping' && (
+                        <span style={{ padding:'2px 8px', borderRadius:20, fontSize:10, fontWeight:700, background:'#EFF6FF', color:'#2563EB', border:'1px solid #BFDBFE' }}>
+                          📡 Ping
+                        </span>
+                      )}
                     </div>
                     <div style={{ fontSize:12, color:'#9CA3AF', marginBottom: a.sentTo?.length?6:0 }}>{a.serverUrl}</div>
                     {a.sentTo?.length > 0 && (
