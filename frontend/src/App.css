@@ -1190,7 +1190,8 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   display: flex; align-items: center; justify-content: center; gap: 6px;
   font-size: 13px; color: rgba(255,255,255,0.45);
 }
-.login-switch-row a, .login-switch-row button { color: #a78bfa; font-weight: 600; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 13px; }
+.login-switch-row a, .login-switch-row button { color: #a78bfa; font-weight: 700; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(167,139,250,0.3); transition: all 0.2s; }
+.login-switch-row a:hover, .login-switch-row button:hover { background: rgba(167,139,250,0.15); border-color: #a78bfa; }
 .login-forgot { color: rgba(255,255,255,0.4) !important; font-size: 13px !important; background:none; border:none; cursor:pointer; }
 .login-forgot:hover { color: #a78bfa !important; }
 .login-forgot-form { display:flex; flex-direction:column; gap:8px; padding:14px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.2); border-radius:12px; }
