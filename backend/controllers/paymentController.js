@@ -183,6 +183,14 @@ exports.verifyPayment = async (req, res) => {
             user.plan         = plan;
             user.billing      = billing;
             user.planDuration = isAnnual ? '1y' : '1m';
+
+            // Referral bonus: 10 extra days on 1-month paid plan (first purchase only)
+            if (!isAnnual && user.referredBy && !user.referralBonusUsed) {
+                newEnd.setDate(newEnd.getDate() + 10);
+                user.referralBonusUsed = true;
+                console.log(`[Referral] 10 bonus days applied for ${user.email} (referred by ${user.referredBy})`);
+            }
+
             user.planEndsAt   = newEnd;
             user.trialVerified = true;
             planEndsAt = newEnd;

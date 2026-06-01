@@ -55,7 +55,7 @@ exports.getConfig = (req, res) => {
 // POST /api/users/register/send-otp
 exports.sendOtp = async (req, res) => {
     try {
-        const { name, email, password, phone, address, city, state, country } = req.body;
+        const { name, email, password, phone, address, city, state, country, referredBy } = req.body;
         if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password required' });
         if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
@@ -73,6 +73,7 @@ exports.sendOtp = async (req, res) => {
                 city: city || null, state: state || null,
                 country: country || null, password,
                 otp, otpExpiry, createdAt: new Date(),
+                referredBy: referredBy || null,
             },
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
@@ -100,10 +101,19 @@ exports.verifyOtp = async (req, res) => {
 
         const settings = await Settings.get();
         const trialEndsAt = new Date(Date.now() + settings.trialDays * 24 * 60 * 60 * 1000);
+        // Check referral code
+        const refCode = pending.referredBy || null;
+        let referredBy = null;
+        if (refCode) {
+            const referrer = await User.findOne({ accountId: refCode }).select('_id accountId');
+            if (referrer) referredBy = refCode;
+        }
+
         const user = await User.create({
             name: pending.name, email: pending.email, phone: pending.phone,
             address: pending.address, city: pending.city, state: pending.state,
             country: pending.country, password: pending.password, trialEndsAt,
+            referredBy,
         });
 
         await PendingRegistration.deleteOne({ email: email.toLowerCase() });
@@ -252,6 +262,17 @@ exports.updateProfile = async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
+};
+
+// GET /api/users/referral-stats
+exports.referralStats = async (req, res) => {
+    try {
+        const accountId = req.user?.accountId;
+        if (!accountId) return res.json({ total: 0, paid: 0 });
+        const total = await User.countDocuments({ referredBy: accountId });
+        const paid  = await User.countDocuments({ referredBy: accountId, plan: { $ne: 'free_trial' } });
+        res.json({ total, paid });
+    } catch(e) { res.status(500).json({ error: e.message }); }
 };
 
 // POST /api/users/request-delete — send verification email

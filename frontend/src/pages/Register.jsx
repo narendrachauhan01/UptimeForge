@@ -52,6 +52,9 @@ function Countdown({ seconds, onDone }) {
 
 export default function Register({ onRegister }) {
   const location = useLocation();
+  // Capture referral code from URL ?ref=UF-2026-XXXXX
+  const refCode = new URLSearchParams(location.search).get('ref') || localStorage.getItem('uf_ref') || '';
+  if (refCode) localStorage.setItem('uf_ref', refCode);
   const storedPlan = localStorage.getItem('sm_intended_plan');
   const defaultPlan = location.state?.intendedPlan || storedPlan || 'free_trial';
 
@@ -101,7 +104,7 @@ export default function Register({ onRegister }) {
     setLoading(true);
     try {
       const phoneFormatted = '91' + form.phone.replace(/\D/g,'').slice(-10);
-      await sendRegisterOtp({ ...form, phone: phoneFormatted });
+      await sendRegisterOtp({ ...form, phone: phoneFormatted, referredBy: refCode || undefined });
       setStep(2); setCanResend(false);
     } catch (err) { setError(err.response?.data?.error || 'Failed to send OTP'); }
     setLoading(false);
@@ -122,6 +125,7 @@ export default function Register({ onRegister }) {
       const res = await verifyRegisterOtp({ email: form.email, otp: otp.trim() });
       // token now in httpOnly cookie;
       localStorage.setItem('sm_user', JSON.stringify(res.data.user));
+      localStorage.removeItem('uf_ref'); // clear referral after use
       onRegister(res.data.user, selectedPlan);
     } catch (err) { setError(err.response?.data?.error || 'Verification failed'); }
     setLoading(false);
@@ -218,6 +222,17 @@ export default function Register({ onRegister }) {
               <div className="login-divider"><span>or sign up with email</span></div>
 
               <form onSubmit={sendOtp} className="reg-form">
+
+                {/* Referral banner */}
+                {refCode && (
+                  <div style={{ background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1px solid #bbf7d0', borderRadius:10, padding:'10px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ fontSize:18 }}>🎁</span>
+                    <div>
+                      <div style={{ fontSize:12, fontWeight:700, color:'#16a34a' }}>Referral code applied!</div>
+                      <div style={{ fontSize:11, color:'#166534' }}>Get <strong>10 extra days FREE</strong> when you purchase any paid plan.</div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Full Name */}
                 <div className="reg-field">

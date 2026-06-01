@@ -79,12 +79,17 @@ export default function Account({ user, onUserUpdate }) {
 
     const [deleteMsg,  setDeleteMsg]  = useState('');
     const [refCopied,  setRefCopied]  = useState(false);
+    const [refStats,   setRefStats]   = useState({ total: 0, paid: 0 });
     const referralLink = `https://servermonitor.narendrasingh.site/register?ref=${user?.accountId || ''}`;
     const copyRef = () => {
         navigator.clipboard.writeText(referralLink);
         setRefCopied(true);
         setTimeout(() => setRefCopied(false), 2500);
     };
+    useEffect(() => {
+        axios.get(`${API_URL}/api/users/referral-stats`, { withCredentials: true })
+            .then(r => setRefStats(r.data)).catch(() => {});
+    }, []);
 
     const downloadInvoice = (r) => {
         const planName  = r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`;
@@ -458,6 +463,21 @@ export default function Account({ user, onUserUpdate }) {
                             <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:0 }}>
                                 Share your referral link with friends. When they sign up using your link, both of you get benefits.
                             </p>
+                        </div>
+
+                        {/* Stats */}
+                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, marginBottom:20 }}>
+                            {[
+                                { label:'Friends Joined', value: refStats.total, icon:'👥', color:'#7c3aed', bg:'#ede9fe' },
+                                { label:'Paid Plans', value: refStats.paid, icon:'💳', color:'#16a34a', bg:'#f0fdf4' },
+                                { label:'Bonus Days Earned', value: refStats.paid * 10, icon:'⏱️', color:'#f59e0b', bg:'#fef3c7' },
+                            ].map(s => (
+                                <div key={s.label} style={{ background: s.bg, borderRadius:12, padding:'20px', textAlign:'center', border:`1px solid ${s.color}20` }}>
+                                    <div style={{ fontSize:28, marginBottom:6 }}>{s.icon}</div>
+                                    <div style={{ fontSize:26, fontWeight:900, color: s.color }}>{s.value}</div>
+                                    <div style={{ fontSize:12, color:'#6B7280', fontWeight:600 }}>{s.label}</div>
+                                </div>
+                            ))}
                         </div>
 
                         {/* Referral Link */}
