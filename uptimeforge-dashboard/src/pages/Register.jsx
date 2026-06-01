@@ -283,7 +283,7 @@ export default function Register({ onRegister }) {
                 </button>
 
                 <p className="reg-signin-row">
-                  Already have an account? <Link to="/login">Sign in</a>
+                  Already have an account? <Link to="/login">Sign in</Link>
                 </p>
               </form>
             </>
