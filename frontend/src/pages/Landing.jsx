@@ -384,26 +384,65 @@ export default function Landing() {
 
       <footer className="lp-footer">
         <div className="lp-footer-wrap">
+
+          {/* Brand */}
           <div className="lp-footer-brand">
-            <UWLogo size={26} />
-            <span className="lp-brand-text" style={{ fontSize: 14 }}>UptimeForge</span>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <UWLogo size={32} />
+              <span className="lp-brand-text" style={{ fontSize:16 }}>UptimeForge</span>
+            </div>
+            <p className="lp-footer-brand-desc">
+              24/7 uptime monitoring with instant WhatsApp & Email alerts. Know before your customers do.
+            </p>
+            <div style={{ display:'flex', gap:8, marginTop:4 }}>
+              {['SSL Monitoring','Ping Monitor','Alerts'].map(t => (
+                <span key={t} style={{ fontSize:11, color:'#7c3aed', background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.2)', borderRadius:20, padding:'2px 10px', fontWeight:600 }}>{t}</span>
+              ))}
+            </div>
           </div>
-          <div className="lp-footer-links">
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#how">How it works</a>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-            <Link to="/terms">Terms</Link>
+
+          {/* Product */}
+          <div>
+            <div className="lp-footer-col-title">Product</div>
+            <div className="lp-footer-links">
+              <a href="#features">Features</a>
+              <a href="#how">How it works</a>
+              <a href="#pricing">Pricing</a>
+              <Link to="/register">Get Started Free</Link>
+            </div>
           </div>
-          <div className="lp-footer-copy" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
-            <span>© 2026 UptimeForge · Built by <strong>Narendra Singh</strong></span>
-            <Link to="/staff-login" style={{ color:'rgba(255,255,255,0.45)', textDecoration:'none', fontSize:11, fontWeight:600, padding:'4px 12px', border:'1px solid rgba(255,255,255,0.12)', borderRadius:20, letterSpacing:0.3, transition:'all 0.2s' }}
-              onMouseEnter={e=>{ e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,0.35)'; e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}
-              onMouseLeave={e=>{ e.currentTarget.style.color='rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.12)'; e.currentTarget.style.background='transparent'; }}>
-              🔐 Staff Login
-            </Link>
+
+          {/* Account */}
+          <div>
+            <div className="lp-footer-col-title">Account</div>
+            <div className="lp-footer-links">
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+              <Link to="/pricing">Plans</Link>
+              <Link to="/support">Support</Link>
+            </div>
           </div>
+
+          {/* Legal */}
+          <div>
+            <div className="lp-footer-col-title">Legal</div>
+            <div className="lp-footer-links">
+              <Link to="/terms">Terms of Service</Link>
+              <Link to="/terms">Privacy Policy</Link>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom bar */}
+        <div className="lp-footer-bottom">
+          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong style={{ color:'#94a3b8' }}>Narendra Singh</strong></div>
+          <Link to="/staff-login" style={{ color:'rgba(255,255,255,0.35)', textDecoration:'none', fontSize:11, fontWeight:600, padding:'4px 12px', border:'1px solid rgba(255,255,255,0.1)', borderRadius:20, transition:'all 0.2s' }}
+            onMouseEnter={e=>{ e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,0.3)'; e.currentTarget.style.background='rgba(255,255,255,0.05)'; }}
+            onMouseLeave={e=>{ e.currentTarget.style.color='rgba(255,255,255,0.35)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'; e.currentTarget.style.background='transparent'; }}>
+            🔐 Staff Login
+          </Link>
+        </div>
         </div>
       </footer>
 
