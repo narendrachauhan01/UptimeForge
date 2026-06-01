@@ -365,7 +365,6 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
     // Stats for overview
     const totalSites   = users.reduce((a, u) => a + (u.serverCount || 0), 0);
-    const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
