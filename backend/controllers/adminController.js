@@ -64,29 +64,45 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // Save user details to archive before deleting
-        const DeletedUser = require('../models/DeletedUser');
-        const siteCount = await Server.countDocuments({ userId: req.params.id });
+        // Archive full user data before deleting
+        const DeletedUser   = require('../models/DeletedUser');
+        const PingTarget    = require('../models/PingTarget');
+        const PaymentRequest= require('../models/PaymentRequest');
+        const uid = req.params.id;
+
+        const [sites, pings, payments] = await Promise.all([
+            Server.find({ userId: uid }).select('name url createdAt').lean(),
+            PingTarget.find({ userId: uid }).select('name host port').lean(),
+            PaymentRequest.find({ userId: uid }).select('amount type plan utr createdAt status').lean(),
+        ]);
+        const totalPaid = payments.filter(p => p.status === 'approved').reduce((s, p) => s + (p.amount || 0), 0);
+
         await DeletedUser.create({
-            accountId: user.accountId || null,
-            name:      user.name,
-            email:     user.email,
-            phone:     user.phone || null,
-            plan:      user.plan,
-            state:     user.state || null,
-            country:   user.country || null,
-            siteCount,
-            createdAt: user.createdAt,
+            accountId:  user.accountId || null,
+            name:       user.name,
+            email:      user.email,
+            phone:      user.phone || null,
+            address:    user.address || null,
+            plan:       user.plan,
+            billing:    user.billing || 'monthly',
+            planEndsAt: user.planEndsAt || null,
+            state:      user.state || null,
+            country:    user.country || null,
+            siteCount:  sites.length,
+            totalPaid,
+            sites:      sites.map(s => ({ name: s.name, url: s.url, createdAt: s.createdAt })),
+            pingTargets:pings.map(p => ({ name: p.name, host: p.host, port: p.port })),
+            payments:   payments.map(p => ({ amount: p.amount, type: p.type, plan: p.plan, date: p.createdAt, utr: p.utr, status: p.status })),
+            createdAt:  user.createdAt,
         });
 
         // Delete ALL user data
-        const uid = req.params.id;
         await Server.deleteMany({ userId: uid });
         await require('../models/Recipient').deleteMany({ userId: uid });
         await require('../models/Alert').deleteMany({ userId: uid });
-        await require('../models/PingTarget').deleteMany({ userId: uid });
+        await PingTarget.deleteMany({ userId: uid });
         await require('../models/Notification').deleteMany({ userId: uid });
-        await require('../models/PaymentRequest').deleteMany({ userId: uid });
+        await PaymentRequest.deleteMany({ userId: uid });
         await require('../models/SupportTicket').deleteMany({ userId: uid });
         await User.findByIdAndDelete(uid);
         res.json({ success: true });
