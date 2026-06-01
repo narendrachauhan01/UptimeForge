@@ -232,7 +232,7 @@ export default function Account({ user, onUserUpdate }) {
       <>
         <div className="pg-wrap">
             {/* Profile Hero Card */}
-            <div style={{ background:'linear-gradient(135deg,#1e1b4b,#312e81)', borderRadius:16, padding:'28px 32px', marginBottom:24, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:20, boxShadow:'0 4px 24px rgba(124,58,237,0.2)' }}>
+            <div style={{ background:'linear-gradient(135deg,#3730a3,#4f46e5)', borderRadius:16, padding:'28px 32px', marginBottom:24, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:20, boxShadow:'0 4px 24px rgba(79,70,229,0.25)' }}>
                 {/* Left: Avatar + Info */}
                 <div style={{ display:'flex', alignItems:'center', gap:18 }}>
                     <div style={{ width:60, height:60, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:800, color:'#fff', flexShrink:0, boxShadow:'0 0 0 3px rgba(167,139,250,0.3)' }}>
@@ -276,13 +276,13 @@ export default function Account({ user, onUserUpdate }) {
                     </div>
                     {/* Account ID */}
                     {user?.accountId && (
-                        <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.08)', borderRadius:10, padding:'8px 14px', border:'1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.2)', borderRadius:10, padding:'10px 16px', border:'1px solid rgba(255,255,255,0.15)' }}>
                             <div>
-                                <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', fontWeight:700, textTransform:'uppercase', letterSpacing:0.8 }}>Account ID</div>
-                                <div style={{ fontSize:15, fontWeight:800, color:'#a78bfa', fontFamily:'monospace', letterSpacing:1 }}>{user.accountId}</div>
+                                <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:3 }}>Account ID</div>
+                                <div style={{ fontSize:16, fontWeight:800, color:'#fff', fontFamily:'monospace', letterSpacing:2 }}>{user.accountId}</div>
                             </div>
-                            <button onClick={()=>navigator.clipboard.writeText(user.accountId).then(()=>{})}
-                                style={{ background:'rgba(124,58,237,0.3)', border:'1px solid rgba(124,58,237,0.4)', borderRadius:7, padding:'4px 10px', color:'#c4b5fd', fontSize:11, cursor:'pointer', fontWeight:600 }}>
+                            <button onClick={()=>navigator.clipboard.writeText(user.accountId)}
+                                style={{ background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.2)', borderRadius:7, padding:'5px 12px', color:'#fff', fontSize:11, cursor:'pointer', fontWeight:600, whiteSpace:'nowrap' }}>
                                 📋 Copy
                             </button>
                         </div>
