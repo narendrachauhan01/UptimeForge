@@ -43,7 +43,7 @@ export default function StaffLogin() {
                                 ['👥','Manage users & plan assignments'],
                                 ['🎫','Handle support tickets & replies'],
                                 ['📊','View payments & revenue reports'],
-                                ['🔒','Access only what you're allowed'],
+                                ['🔒','Access only what you are allowed'],
                             ].map(([icon,text]) => (
                                 <div key={text} className="login-left-feat">
                                     <div className="login-left-feat-icon">{icon}</div>

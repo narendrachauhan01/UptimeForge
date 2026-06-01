@@ -44,7 +44,7 @@ export default function AdminLogin() {
                                 ['⚡','Full access to all platform sections'],
                                 ['👥','Manage users, plans & billing'],
                                 ['💳','Approve payments & handle refunds'],
-                                ['🛠️','Configure integrations & settings'],
+                                ['⚙️','Configure integrations & settings'],
                             ].map(([icon,text]) => (
                                 <div key={text} className="login-left-feat">
                                     <div className="login-left-feat-icon">{icon}</div>
