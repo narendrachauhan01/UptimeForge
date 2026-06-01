@@ -350,7 +350,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const filtered = users.filter(u => {
         const q = search.toLowerCase();
         const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q);
-        const matchPlan = planFilter === 'all' || u.plan === planFilter;
+        const matchPlan = planFilter === 'all' || planFilter === '__paid__' ? (planFilter === '__paid__' ? u.plan !== 'free_trial' : true) : u.plan === planFilter;
         const matchDuration = durationFilter === 'all'
             || (durationFilter === 'free_trial' && u.plan === 'free_trial')
             || (durationFilter === '1m'  && u.plan !== 'free_trial' && (u.planDuration === '1m' || (!u.planDuration && u.billing !== 'annually')))
@@ -372,11 +372,13 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     // Navigate to Users tab with filter
     const goToUsersFilter = (filterType) => {
         setTab('users');
-        if (filterType === 'paid') setDurationFilter('1m');
+        setDurationFilter('all');
+        setPlanFilter('all');
+        setSearch('');
+        if (filterType === 'paid')       { setPlanFilter('__paid__'); }   // custom: all non-free_trial
         else if (filterType === 'free_trial') setDurationFilter('free_trial');
-        else if (filterType === 'annual') setDurationFilter('1y');
-        else if (filterType === 'blocked') { setDurationFilter('all'); setSearch(''); }
-        else { setDurationFilter('all'); }
+        else if (filterType === 'annual')     setDurationFilter('1y');
+        else if (filterType === 'blocked')    {} // search blank shows all, blocked in sections
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
