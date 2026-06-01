@@ -235,7 +235,7 @@ export default function Landing() {
       <section className="lp-pricing" id="pricing">
         <div className="lp-section-wrap">
           <div className="lp-section-eyebrow">Pricing</div>
-          <h2 className="lp-section-h2">Simple, honest pricing</h2>
+          <h2 className="lp-section-h2">Choose the perfect plan for your journey</h2>
           <p className="lp-section-sub">Start free for 5 days. Pay just ₹2 to verify. Upgrade anytime — plans activate instantly via UPI, Card or Netbanking.</p>
 
           {/* Interval comparison */}
