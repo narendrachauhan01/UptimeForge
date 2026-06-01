@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt   = require('bcryptjs');
 
-const PERMISSIONS = [
+// Permissions stored as "key:access" e.g. "users:read", "users:write"
+const SECTIONS = [
     'dashboard', 'users', 'payments', 'planCanceling',
     'planSettings', 'annualPlans', 'featureAccess', 'infra',
     'integrationBackend', 'redisCache', 'deletedUsers', 'supportTickets',
@@ -11,7 +12,7 @@ const staffSchema = new mongoose.Schema({
     name:        { type: String, required: true, trim: true },
     email:       { type: String, required: true, unique: true, lowercase: true, trim: true },
     password:    { type: String, required: true },
-    permissions: { type: [String], enum: PERMISSIONS, default: [] },
+    permissions: { type: [String], default: [] }, // format: "section:read" or "section:write"
     isActive:    { type: Boolean, default: true },
 }, { timestamps: true });
 
@@ -25,6 +26,12 @@ staffSchema.methods.checkPassword = function (plain) {
     return bcrypt.compare(plain, this.password);
 };
 
-staffSchema.statics.PERMISSIONS = PERMISSIONS;
+// Helper: check if has read or write access to a section
+staffSchema.methods.can = function (section, access = 'read') {
+    return this.permissions.includes(`${section}:${access}`) ||
+           (access === 'read' && this.permissions.includes(`${section}:write`));
+};
+
+staffSchema.statics.SECTIONS = SECTIONS;
 
 module.exports = mongoose.model('StaffUser', staffSchema);
