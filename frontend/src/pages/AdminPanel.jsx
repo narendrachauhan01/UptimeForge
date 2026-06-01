@@ -302,7 +302,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         }));
 
     const startEdit = (u) => {
-        setEditId(u._id);
+        setEditId(u._id?.toString());
         setEditForm({
             plan: u.plan,
             isBlocked: u.isBlocked,
@@ -941,7 +941,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                 )}
 
                                                 {/* Edit panel row */}
-                                                {editId === u._id && (
+                                                {editId?.toString() === u._id?.toString() && (
                                                     <tr>
                                                         <td colSpan={6} style={{ padding: 0, background: '#F5F3FF', borderBottom: `1px solid #DDD6FE` }}>
                                                             <div style={{ padding: '16px 20px' }}>
@@ -1052,7 +1052,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                         </div>
                                                     </td></tr>
                                                 )}
-                                                {editId===u._id&&(
+                                                {editId?.toString()===u._id?.toString()&&(
                                                     <tr><td colSpan={6} style={{padding:0,background:'#F5F3FF',borderBottom:`1px solid #DDD6FE`}}>
                                                         <div style={{padding:'16px 20px'}}>
                                                             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:12,marginBottom:14}}>
