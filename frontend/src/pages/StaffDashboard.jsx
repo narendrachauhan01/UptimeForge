@@ -149,7 +149,7 @@ export default function StaffDashboard() {
             </aside>
 
             {/* Main content */}
-            <main style={{ marginLeft:220, overflowY:'auto', minHeight:'100vh', background:'#F3F4F6' }}>
+            <main style={{ marginLeft:220, width:'calc(100vw - 220px)', overflowY:'auto', minHeight:'100vh', background:'#F3F4F6', boxSizing:'border-box' }}>
                 <style>{`
                     @media(max-width:768px){ .staff-main{ margin-left:0!important; } }
                     .staff-page-inner{ padding: 24px; }
