@@ -396,7 +396,14 @@ export default function Landing() {
             <Link to="/register">Register</Link>
             <Link to="/terms">Terms</Link>
           </div>
-          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong>Narendra Singh</strong> · <Link to="/staff-login" style={{ color:'rgba(255,255,255,0.3)', textDecoration:'none', fontSize:12 }} onMouseEnter={e=>e.currentTarget.style.color='rgba(255,255,255,0.6)'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.3)'}>Staff Login</Link></div>
+          <div className="lp-footer-copy" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
+            <span>© 2026 UptimeForge · Built by <strong>Narendra Singh</strong></span>
+            <Link to="/staff-login" style={{ color:'rgba(255,255,255,0.45)', textDecoration:'none', fontSize:11, fontWeight:600, padding:'4px 12px', border:'1px solid rgba(255,255,255,0.12)', borderRadius:20, letterSpacing:0.3, transition:'all 0.2s' }}
+              onMouseEnter={e=>{ e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,0.35)'; e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}
+              onMouseLeave={e=>{ e.currentTarget.style.color='rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.12)'; e.currentTarget.style.background='transparent'; }}>
+              🔐 Staff Login
+            </Link>
+          </div>
         </div>
       </footer>
 
