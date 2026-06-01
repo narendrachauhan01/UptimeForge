@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt       = require('jsonwebtoken');
+const User      = require('../models/User');
+const StaffUser = require('../models/StaffUser');
 
 module.exports = async function authMiddleware(req, res, next) {
     const token = req.cookies?.sm_token || req.headers.authorization?.split(' ')[1];
@@ -11,6 +12,16 @@ module.exports = async function authMiddleware(req, res, next) {
         if (decoded.username) {
             // Admin token (existing system)
             req.isAdmin = true;
+            return next();
+        }
+
+        if (decoded.staffId) {
+            const staff = await StaffUser.findById(decoded.staffId);
+            if (!staff || !staff.isActive) return res.status(401).json({ error: 'Staff account not found or deactivated' });
+            req.isStaff     = true;
+            req.staffId     = staff._id;
+            req.staffUser   = staff;
+            req.permissions = staff.permissions;
             return next();
         }
 

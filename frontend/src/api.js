@@ -71,3 +71,13 @@ export const adminRejectPayment  = (id, note) => api.put(`/admin/payments/${id}/
 export const adminRefundPayment  = (id)       => api.post(`/payment/${id}/refund`);
 export const adminRefundStatus   = (id)       => api.get(`/payment/${id}/refund-status`);
 export const clearNotifications = () => api.delete('/notifications/clear');
+
+// Staff management (admin)
+export const staffList         = ()         => api.get('/staff');
+export const staffCreate       = (data)     => api.post('/staff', data);
+export const staffUpdate       = (id, data) => api.put(`/staff/${id}`, data);
+export const staffDelete       = (id)       => api.delete(`/staff/${id}`);
+// Staff auth
+export const staffLogin        = (data)     => api.post('/staff/login', data);
+export const staffLogout       = ()         => api.post('/staff/logout');
+export const staffMe           = ()         => api.get('/staff/me');

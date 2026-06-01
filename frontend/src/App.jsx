@@ -35,6 +35,9 @@ const ContactSupport    = lazy(() => import('./pages/ContactSupport'));
 const SupportTickets    = lazy(() => import('./pages/SupportTickets'));
 const Servers           = lazy(() => import('./pages/Servers'));
 const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
+const StaffManagement   = lazy(() => import('./pages/StaffManagement'));
+const StaffLogin        = lazy(() => import('./pages/StaffLogin'));
+const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -115,6 +118,12 @@ const ADMIN_NAV_GROUPS = [
     label: 'SUPPORT',
     items: [
       { to: '/support-tickets', label: 'Support Tickets', icon: <IcoHeadset /> },
+    ],
+  },
+  {
+    label: 'TEAM',
+    items: [
+      { to: '/staff-management', label: 'Staff Management', icon: <IcoUsers /> },
     ],
   },
 ];
@@ -635,6 +644,7 @@ function AppInner() {
               {isAdmin && <Route path="/plan-canceling" element={<PlanCanceling />} />}
               {isAdmin && <Route path="/support-tickets" element={<SupportTickets />} />}
               {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
+              {isAdmin && <Route path="/staff-management" element={<StaffManagement />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
               <Route path="/add-monitor" element={<AddMonitor />} />
               <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} />} />
@@ -661,8 +671,13 @@ function AppInner() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppInner />
-      <CookieConsent />
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/staff-login" element={<StaffLogin />} />
+          <Route path="/staff/*" element={<StaffDashboard />} />
+          <Route path="/*" element={<><AppInner /><CookieConsent /></>} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
