@@ -1,6 +1,12 @@
 # UptimeForge
 
-A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp & Email alerts, SSL/Domain expiry tracking, Razorpay payments, and a powerful Admin Panel.
+A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp & Email alerts, SSL/Domain expiry tracking, Ping Monitor, Razorpay payments, Staff RBAC, Referral system, and a powerful Admin Panel.
+
+**Live URLs:**
+- 🌐 Landing: [uptimeforge.narendrasingh.site](https://uptimeforge.narendrasingh.site)
+- 📊 Dashboard: [servermonitor.narendrasingh.site](https://servermonitor.narendrasingh.site)
+- 🔧 API: [uptimeapi.narendrasingh.site](https://uptimeapi.narendrasingh.site)
+- 📖 API Docs: [uptimeapi.narendrasingh.site/api-docs](https://uptimeapi.narendrasingh.site/api-docs)
 
 ---
 
@@ -8,14 +14,19 @@ A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp 
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 (Vite), Recharts, React Router v6 |
+| Landing | React 18 (Vite), Inline CSS |
+| Dashboard | React 18 (Vite), Recharts, React Router v6 |
 | Backend | Node.js, Express.js |
 | Database | MongoDB Atlas (Mongoose) |
-| Auth | JWT, bcryptjs, Google OAuth (GSI) |
-| Payments | Razorpay (UPI/manual UTR verification) |
-| WhatsApp | whatsapp-web.js (Puppeteer + Chrome) |
-| Email | Nodemailer (Gmail SMTP) |
+| Cache | Redis (SSL/Domain 30min TTL) |
+| Auth | JWT (httpOnly cookies), bcryptjs, Google OAuth |
+| Payments | Razorpay (UPI / Cards / Netbanking) |
+| WhatsApp | Green API / Twilio / AiSensy |
+| Email | Nodemailer (Gmail SMTP App Password) |
+| Rate Limiting | express-rate-limit |
 | Process Manager | PM2 |
+| Web Server | Nginx (reverse proxy + static serve) |
+| SSL | Let's Encrypt (Certbot) |
 
 ---
 
@@ -23,61 +34,103 @@ A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp 
 
 ```
 server-monitor/
-├── backend/
+├── backend/                        ← Node.js API server
+│   ├── config/
+│   │   ├── db.js                   # MongoDB connection
+│   │   └── swagger.js              # Swagger/OpenAPI spec
 │   ├── middleware/
-│   │   └── auth.js                 # JWT auth middleware (admin + user)
+│   │   ├── auth.js                 # JWT auth (admin + user + staff)
+│   │   └── staffAuth.js            # Staff permission middleware
 │   ├── models/
-│   │   ├── User.js                 # User schema (plan, trial, google/facebook ID)
+│   │   ├── User.js                 # User schema (plan, billing, referral, accountStatus)
+│   │   ├── StaffUser.js            # Staff users with role-based permissions
 │   │   ├── Server.js               # Monitored site schema
+│   │   ├── PingTarget.js           # Ping/TCP monitor schema
 │   │   ├── Recipient.js            # Alert recipient schema
-│   │   ├── Notification.js         # In-app notification schema
-│   │   ├── PaymentRequest.js       # Payment/UTR request schema
+│   │   ├── Alert.js                # Incident alerts (site + ping)
+│   │   ├── Notification.js         # In-app notifications
+│   │   ├── PaymentRequest.js       # Payment records
 │   │   ├── PendingRegistration.js  # OTP-pending registrations
-│   │   └── Settings.js             # Global settings (plans, trial days)
+│   │   ├── Settings.js             # Global settings (plans, limits, annual plans)
+│   │   ├── SupportTicket.js        # Support ticket schema
+│   │   ├── DeletedUser.js          # Deleted user archive
+│   │   └── TeamMember.js           # Team member invitations
 │   ├── routes/
-│   │   ├── auth.js                 # Admin login, forgot/reset password, profile
-│   │   ├── userAuth.js             # User register (OTP), login, Google OAuth
-│   │   ├── admin.js                # Admin: users, payments approve/reject
+│   │   ├── auth.js                 # Admin login, rate limiting
+│   │   ├── userAuth.js             # User register (OTP), login, Google OAuth, referral
+│   │   ├── admin.js                # Admin APIs with RBAC
+│   │   ├── staff.js                # Staff management + auth
 │   │   ├── servers.js              # Sites CRUD + check-now
-│   │   ├── recipients.js           # Recipients CRUD
-│   │   ├── alerts.js               # Alert history
+│   │   ├── pingTargets.js          # Ping targets CRUD (with plan limits)
+│   │   ├── recipients.js           # Alert recipients
+│   │   ├── alerts.js               # Incidents (site + ping)
 │   │   ├── notifications.js        # In-app notifications
-│   │   ├── payment.js              # Razorpay orders + UTR submission
-│   │   └── whatsapp.js             # WhatsApp status
+│   │   ├── payment.js              # Razorpay orders + verify + annual billing
+│   │   ├── integrations.js         # Webhook, Slack, Rocket.Chat
+│   │   ├── whatsapp.js             # WhatsApp config
+│   │   ├── emailConfig.js          # SMTP configuration
+│   │   ├── expiry.js               # SSL/Domain expiry check
+│   │   ├── metrics.js              # Server resource metrics
+│   │   ├── ping.js                 # Live ping test
+│   │   └── team.js                 # Team member invitations
 │   ├── services/
-│   │   ├── monitor.js              # Core monitoring loop (every 60s)
-│   │   ├── whatsapp.js             # WhatsApp bot (LocalAuth)
-│   │   └── email.js                # SMTP email service
-│   ├── server.js                   # Express entry point
+│   │   ├── monitor.js              # Core monitoring loop (site + ping + expiry)
+│   │   ├── whatsapp.js             # WhatsApp service (Green API / Twilio / AiSensy)
+│   │   └── email.js                # SMTP email + HTML templates
+│   ├── app.js                      # Express entry point
 │   └── .env                        # Environment variables (not committed)
 │
-├── frontend/
-│   ├── index.html                  # Vite entry, Google GSI script
+├── uptimeforge-dashboard/          ← React dashboard app
+│   ├── index.html
 │   ├── vite.config.js
 │   └── src/
 │       ├── pages/
-│       │   ├── Landing.jsx         # Public landing page
-│       │   ├── Login.jsx           # User + Admin login, Google Sign-In
-│       │   ├── Register.jsx        # Multi-step registration with OTP
-│       │   ├── Dashboard.jsx       # Site cards (grid/list view toggle)
-│       │   ├── Charts.jsx          # Performance analytics
+│       │   ├── Landing.jsx         # (kept for fallback routing)
+│       │   ├── Login.jsx           # User login (Google OAuth)
+│       │   ├── AdminLogin.jsx      # Dedicated admin login
+│       │   ├── StaffLogin.jsx      # Staff login with Staff/Admin tabs
+│       │   ├── Register.jsx        # OTP registration with referral support
+│       │   ├── Dashboard.jsx       # Site monitoring grid
 │       │   ├── Servers.jsx         # Add/edit/delete monitored sites
-│       │   ├── Recipients.jsx      # Alert recipients management
-│       │   ├── Alerts.jsx          # Alert history
-│       │   ├── DomainSSL.jsx       # SSL & domain expiry tracking
-│       │   ├── Account.jsx         # Plan info, change password
-│       │   ├── AdminPanel.jsx      # Full admin panel (users, payments, settings)
-│       │   ├── PaymentPage.jsx     # Razorpay payment + UTR submission
-│       │   ├── Pricing.jsx         # Public pricing page
-│       │   ├── TermsOfService.jsx  # Terms of service
-│       │   └── VerifyAccount.jsx   # Account verification
+│       │   ├── PingMonitor.jsx     # TCP/Ping monitoring
+│       │   ├── Alerts.jsx          # Incidents page (site + ping)
+│       │   ├── Charts.jsx          # Performance analytics
+│       │   ├── DomainSSL.jsx       # SSL & domain expiry
+│       │   ├── Account.jsx         # Account details, billing, invoices, referral
+│       │   ├── AccountSuspended.jsx # Suspended account page
+│       │   ├── ConfirmDelete.jsx   # Account deletion confirmation
+│       │   ├── AdminPanel.jsx      # Full admin panel
+│       │   ├── AdminLogin.jsx      # Admin login page
+│       │   ├── StaffDashboard.jsx  # Staff panel with RBAC
+│       │   ├── StaffManagement.jsx # Create/manage staff users
+│       │   ├── PaymentPage.jsx     # Plan selection + Razorpay payment
+│       │   ├── PlanSettings.jsx    # Admin: configure plans
+│       │   ├── AnnualPlans.jsx     # Admin: annual pricing
+│       │   ├── FeatureAccess.jsx   # Admin: feature access control
+│       │   ├── IntegrationBackend.jsx # Admin: WhatsApp/Email config
+│       │   ├── Integrations.jsx    # User: integrations (Webhook, Rocket.Chat)
+│       │   ├── RedisCache.jsx      # Admin: clear SSL cache
+│       │   ├── DeletedUsers.jsx    # Admin: deleted user archive
+│       │   ├── SupportTickets.jsx  # Admin: support tickets
+│       │   ├── ContactSupport.jsx  # User: submit support ticket
+│       │   └── ...more pages
 │       ├── components/
-│       │   ├── UWLogo.jsx          # Brand logo
-│       │   ├── Toast.jsx           # Toast notifications
-│       │   └── NotificationPanel.jsx # Bell notification drawer
-│       ├── App.jsx                 # Router, sidebar, auth flow
+│       │   ├── UWLogo.jsx
+│       │   ├── Toast.jsx
+│       │   ├── ConfirmDialog.jsx   # Custom confirm modal (no browser confirm)
+│       │   └── NotificationPanel.jsx
+│       ├── App.jsx                 # Router, auth flow, 3-state account status
 │       ├── api.js                  # Axios API calls
 │       └── App.css                 # Global styles
+│
+├── uptimeforge-landing/            ← Separate landing/marketing site
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── .env                        # VITE_API_URL, VITE_DASHBOARD_URL
+│   └── src/
+│       ├── App.jsx                 # Full landing page (inline CSS, no deps)
+│       └── components/
+│           └── UWLogo.jsx
 │
 └── README.md
 ```
@@ -87,52 +140,81 @@ server-monitor/
 ## Features
 
 ### User Features
-- **Registration** — OTP email verification, Google Sign-In, plan selection at signup
-- **Dashboard** — Grid & List view toggle, site status (Online/Offline), response time, SSL/Domain days
-- **Site Monitoring** — HTTP check every 60 seconds; 200/301/302 = UP
-- **WhatsApp Alerts** — Instant DOWN & RECOVERED alerts via WhatsApp
-- **Email Alerts** — HTML email alerts for DOWN, RECOVERED, SSL/Domain expiry
-- **SSL Expiry** — Auto-checked via TLS; alerts at 30 / 15 / 7 days
-- **Domain Expiry** — Auto-checked via WHOIS API; alerts at 30 / 15 / 7 days
-- **Performance Charts** — Response time graphs, uptime %, alert history
-- **Notifications** — In-app bell icon with unread count
-- **Account Page** — Plan status, trial days left, change password
+- **Registration** — OTP email verification, Google Sign-In, referral code support
+- **Dashboard** — Site status (UP/DOWN), response time, uptime %, SSL/Domain days
+- **Site Monitoring** — HTTP checks every 30s–5min based on plan
+- **Ping Monitor** — TCP connectivity monitoring with plan-based limits
+- **Incidents** — Unified alert history (sites + ping targets) with 📡 badge
+- **WhatsApp Alerts** — Instant DOWN & RECOVERED via WhatsApp (Green API/Twilio/AiSensy)
+- **Email Alerts** — HTML email for DOWN, RECOVERED, SSL/Domain expiry, ping alerts
+- **SSL & Domain Expiry** — Alerts at 30/15/7 days before expiry
+- **Performance Charts** — Response time graphs, uptime history
+- **Integrations** — Webhook, Rocket.Chat (with Read/Write access control)
+- **Account Page** — Billing, invoices with PDF download, security, referral program
+- **Referral System** — Share code → friend gets 10 bonus days → you get 10 bonus days
+- **Account Deletion** — Email verification flow, data archived before delete
+- **3-State Account Status** — Active → Grace Period (read-only) → Suspended
 
 ### Plans
-| Plan | Sites | Price |
-|------|-------|-------|
-| Free Trial | 2 sites | ₹2 one-time verification |
-| Bronze | 5 sites | ₹499/month |
-| Silver | 15 sites | ₹999/month |
-| Gold | 30 sites | ₹1499/month |
+| Plan | Sites | Ping Targets | Check Interval | Price |
+|------|-------|-------------|----------------|-------|
+| Free Trial | 2 | 2 | 5 min | ₹2 one-time |
+| Bronze | 5 | 5 | 2 min | ₹499/mo |
+| Silver | 15 | 15 | 1 min | ₹999/mo |
+| Gold | 30 | 30 | 30 sec | ₹1499/mo |
+
+- Annual billing with configurable discount (default 20%)
+- Custom 3-month and 6-month plans via admin
+- Re-registered (previously deleted) accounts: no free trial
 
 ### Admin Features
-- **Admin Panel** — Full dashboard with tabbed interface
-- **Overview** — User stats, revenue summary, pending payments, expiring plans/trials
-- **Users Tab** — Search, filter by plan, edit plan/block, extend trial, assign plan, export CSV
-- **Payments Tab** — Approve/reject UTR payment requests, status badges
-- **Plan Settings** — Configure trial days, plan prices, site limits, feature bullets
-- **My Profile** — Update admin username, email, password
-- **Infra** — Server resource monitoring (CPU, RAM, disk)
+- **Overview** — Clickable stat cards (filter Users tab instantly)
+- **Users** — Free Trial / Monthly / Annual sections, duration filter dropdown
+- **Payments** — Approve/reject, refund via Razorpay, invoice generation
+- **Plan Settings** — Prices, limits, ping limits, site limits, ping intervals
+- **Annual Plans** — Custom per-plan annual pricing, global discount %
+- **Feature Access** — Control Free Trial & Bronze feature access per integration
+- **Staff Management** — Create staff with Read/Write permissions per section
+- **Deleted Users** — Archive with sites, payments, ping targets history
+- **Support Tickets** — View, reply, status management
 
-### Auth & Security
-- JWT tokens (30-day expiry for users, 7-day for admin)
-- 15-minute session auto-logout on inactivity
+### Staff Panel (RBAC)
+- Separate login at `/staff-login`
+- Role-based access: Read or Write per section
+- Sections: Dashboard, Users, Payments, Plan Settings, Annual Plans, Feature Access, Integration Backend, Redis Cache, Deleted Users, Support Tickets
+- Read-only mode: hides Save/Edit/Delete buttons automatically
+- Sidebar matches admin panel structure
+
+### Security
+- JWT in httpOnly cookies (no localStorage tokens)
+- Rate limiting: Admin/Staff login 10 req/15min, User login 30 req/15min
+- `trust proxy` enabled for accurate rate limiting behind Nginx
 - OTP-based email verification on registration
-- Google OAuth Sign-In (one-click account creation + login)
-- bcrypt password hashing
+- Google OAuth Sign-In
+- Account deletion requires email verification link (1-hour expiry)
+- CORS: only `DASHBOARD_URL` and `LANDING_URL` allowed
+- No free trial for re-registered (previously deleted) accounts
+
+---
+
+## Architecture
+
+```
+uptimeforge.narendrasingh.site    → Landing site (uptimeforge-landing/dist)
+servermonitor.narendrasingh.site  → Dashboard app (uptimeforge-dashboard/dist)
+uptimeapi.narendrasingh.site      → Backend API (Node.js port 5001 via PM2)
+```
 
 ---
 
 ## Setup
 
 ### Prerequisites
-
 - Node.js v18+
-- Google Chrome (`/usr/bin/google-chrome`) — for WhatsApp
 - PM2 (`npm install -g pm2`)
 - MongoDB Atlas account
-- Razorpay account (for payments)
+- Razorpay account
+- Gmail account with App Password
 
 ### Install Dependencies
 
@@ -140,146 +222,128 @@ server-monitor/
 # Backend
 cd backend && npm install
 
-# Frontend
-cd frontend && npm install
+# Dashboard
+cd uptimeforge-dashboard && npm install
+
+# Landing
+cd uptimeforge-landing && npm install
 ```
 
 ### Backend `.env`
 
-Create `backend/.env` (see `.env.example`):
-
 ```env
 PORT=5001
-FRONTEND_URL=https://yourdomain.com
+DASHBOARD_URL=https://servermonitor.narendrasingh.site
+LANDING_URL=https://uptimeforge.narendrasingh.site
 
-# Admin credentials
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=YourSecurePassword
 ADMIN_EMAIL=your@email.com
 JWT_SECRET=your_strong_jwt_secret
 
-# MongoDB
-MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxx.mongodb.net/monitor_server_prd
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxx.mongodb.net/dbname
 
-# Razorpay
 RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxx
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 
-# SMTP Email (Gmail)
 MAIL_USER=your@gmail.com
-MAIL_PASS=your_app_password
+MAIL_PASS=your_16digit_app_password
 MAIL_FROM=UptimeForge <your@gmail.com>
 
-# Google OAuth
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_client_secret
 
-# Agent API Key (infra monitoring)
+GREEN_API_INSTANCE=your_instance_id
+GREEN_API_TOKEN=your_token
+
 AGENT_API_KEY=your_secure_agent_key
 ```
 
-### Frontend `.env`
-
-Create `frontend/.env`:
+### Dashboard `.env`
 
 ```env
-VITE_API_URL=https://yourdomain.com
+VITE_API_URL=https://uptimeapi.narendrasingh.site
 VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 ```
 
-### Gmail App Password
+### Landing `.env`
 
-1. Google Account → **Security** → Enable 2-Step Verification
-2. **App Passwords** → Select app: `Mail` → Device: `Other` → `UptimeForge`
-3. Copy the 16-digit password → paste in `MAIL_PASS`
+```env
+VITE_API_URL=https://uptimeapi.narendrasingh.site
+VITE_DASHBOARD_URL=https://servermonitor.narendrasingh.site
+```
 
-### Google OAuth Setup
-
-1. [console.cloud.google.com](https://console.cloud.google.com) → New Project
-2. **APIs & Services → Credentials → Create OAuth 2.0 Client ID**
-3. Application type: **Web application**
-4. Authorized JavaScript origins: `https://yourdomain.com`
-5. Copy Client ID → paste in both `.env` files
-
----
-
-## Run with PM2
+### Build & Deploy
 
 ```bash
-# Build frontend
-cd frontend && npm run build
+# Build dashboard
+cd uptimeforge-dashboard
+VITE_API_URL=https://uptimeapi.narendrasingh.site npm run build
 
-# Start backend
+# Build landing
+cd uptimeforge-landing
+npm run build
+
+# Start backend with PM2
 cd backend
-pm2 start server.js --name "uptimewatch-backend"
+pm2 start app.js --name uptimeforge
+pm2 save && pm2 startup
+```
 
-# Serve frontend (or use Nginx)
-pm2 start "npx serve dist -p 3001" --name "uptimewatch-frontend"
+### Nginx Setup
 
-# Save & enable autostart
-pm2 save
-pm2 startup
+```nginx
+# Landing page
+server {
+    server_name uptimeforge.narendrasingh.site;
+    root /home/ubuntu/UptimeForge/uptimeforge-landing/dist;
+    location / { try_files $uri /index.html; }
+}
+
+# Dashboard
+server {
+    server_name servermonitor.narendrasingh.site;
+    root /home/ubuntu/UptimeForge/uptimeforge-dashboard/dist;
+    location ~* \.(js|css|woff2)$ { expires 1y; }
+    location / { try_files $uri /index.html; }
+}
+
+# API
+server {
+    server_name uptimeapi.narendrasingh.site;
+    location / { proxy_pass http://localhost:5001; }
+}
 ```
 
 ---
 
-## WhatsApp Setup
+## Key URLs
 
-1. Open `https://yourdomain.com/whatsapp` (admin only)
-2. Scan the QR code with WhatsApp → Linked Devices → Link a Device
-3. Session saves automatically — no re-scan after restart
+| Page | URL |
+|------|-----|
+| Landing | `uptimeforge.narendrasingh.site` |
+| Login | `servermonitor.narendrasingh.site/login` |
+| Register | `servermonitor.narendrasingh.site/register` |
+| Dashboard | `servermonitor.narendrasingh.site/monitoring` |
+| Admin Panel | `servermonitor.narendrasingh.site/admin` |
+| Admin Login | `servermonitor.narendrasingh.site/admin-login` |
+| Staff Login | `servermonitor.narendrasingh.site/staff-login` |
+| API Docs | `uptimeapi.narendrasingh.site/api-docs` |
 
 ---
 
 ## PM2 Commands
 
 ```bash
-pm2 list                              # View all processes
-pm2 logs uptimewatch-backend          # Backend logs
-pm2 restart uptimewatch-backend       # Restart backend
-pm2 restart uptimewatch-frontend      # Restart frontend
-pm2 monit                             # Live monitor
-```
-
----
-
-## URLs
-
-| Page | URL |
-|------|-----|
-| Landing | `/` |
-| Login | `/login` |
-| Register | `/register` |
-| Dashboard | `/dashboard` |
-| Admin Panel | `/admin` |
-| Pricing | `/pricing` |
-| Terms | `/terms` |
-| Backend API | `:5001/api` |
-
----
-
-## Alert Examples
-
-**Site Down (WhatsApp):**
-```
-🚨 Site Down Alert!
-Site: myshop.com
-URL: https://myshop.com
-Time: 26/5/2026, 6:30:00 pm
-Site is currently DOWN ❌
-Please check immediately!
-```
-
-**SSL Expiry Warning:**
-```
-⚠️ SSL Certificate Alert!
-Site: myshop.com
-Expires: Wed Aug 04 2026
-Days Left: 15 days
-Please renew before it expires!
+pm2 list                        # View processes
+pm2 logs uptimeforge            # Backend logs
+pm2 restart uptimeforge         # Restart backend
+pm2 monit                       # Live monitor
 ```
 
 ---
 
 ## Built & Managed by
 
-**Narendra Singh** — DevOps Engineer
+**Narendra Singh** — DevOps Engineer  
+[chauhan.narendrasingh.01@gmail.com](mailto:chauhan.narendrasingh.01@gmail.com)
