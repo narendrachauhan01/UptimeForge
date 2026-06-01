@@ -2142,3 +2142,99 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
 
 /* Navbar */
+.reg-page { display: flex; min-height: 100vh; height: 100vh; overflow: hidden; }
+
+/* Left Panel */
+.reg-left { width: 420px; flex-shrink: 0; background: linear-gradient(160deg,#4c1d95 0%,#6d28d9 50%,#7c3aed 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.reg-left-orb { position: absolute; border-radius: 50%; opacity: 0.15; }
+.reg-orb-1 { width: 320px; height: 320px; background: #a78bfa; top: -80px; left: -80px; }
+.reg-orb-2 { width: 220px; height: 220px; background: #c4b5fd; bottom: 40px; right: -60px; }
+.reg-left-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; padding: 28px 32px; }
+.reg-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 20px; flex-shrink: 0; }
+.reg-left-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; overflow: hidden; }
+.reg-left-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; width: fit-content; }
+.reg-left-h2 { font-size: 26px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 8px; }
+.reg-left-p { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 20px; }
+.reg-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.reg-feat-row { display: flex; align-items: center; gap: 10px; }
+.reg-feat-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.reg-feat-row span { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; }
+.reg-plan-preview { display: flex; gap: 8px; }
+.reg-pp-card { flex: 1; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 8px; text-align: center; position: relative; }
+.reg-pp-card.reg-pp-hot { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
+.reg-pp-badge { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #fbbf24; color: #78350f; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.reg-pp-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 2px; }
+.reg-pp-price { font-size: 15px; font-weight: 800; color: #fff; }
+.reg-pp-price span { font-size: 10px; font-weight: 500; opacity: 0.7; }
+.reg-pp-sites { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.reg-left-footer { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; flex-shrink: 0; padding-top: 12px; }
+
+/* Right Panel */
+.reg-right { flex: 1; overflow-y: auto; background: #1a1035; display: flex; justify-content: center; align-items: flex-start; }
+.reg-form-wrap { width: 100%; max-width: 560px; padding: 28px 36px; }
+
+/* Steps */
+.reg-steps { display: flex; align-items: center; gap: 0; margin: 16px 0 20px; }
+.reg-step { display: flex; align-items: center; gap: 8px; }
+.reg-step-dot { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.reg-step.reg-step-done .reg-step-dot { background: #7c3aed; color: #fff; }
+.reg-step span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); }
+.reg-step.reg-step-done span { color: #a78bfa; }
+.reg-step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.1); margin: 0 10px; min-width: 40px; }
+
+/* Title */
+.reg-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 18px; }
+
+/* Plan Cards */
+.reg-plan-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.reg-plan-card-new { position: relative; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 6px 10px; background: rgba(255,255,255,0.05); cursor: pointer; text-align: center; transition: all 0.18s; }
+.reg-plan-card-new:hover { border-color: #a78bfa; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.2); }
+.reg-plan-card-active { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,58,237,0.25); }
+.reg-pc-icon { font-size: 20px; margin-bottom: 4px; }
+.reg-pc-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); margin-bottom: 2px; }
+.reg-pc-price { font-size: 14px; font-weight: 800; color: #fff; }
+.reg-pc-note { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.reg-pc-check { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* Form */
+.reg-form { display: flex; flex-direction: column; gap: 14px; }
+.reg-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.reg-field { display: flex; flex-direction: column; gap: 5px; }
+.reg-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+.reg-req { color: #f87171; }
+.reg-input { border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #fff; outline: none; font-family: inherit; background: rgba(255,255,255,0.1); transition: border-color 0.18s, box-shadow 0.18s; width: 100%; box-sizing: border-box; }
+.reg-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+.reg-select { cursor: pointer; color-scheme: dark; }
+.reg-select option { background: #1a1035; color: #fff; }
+.reg-pass-wrap { position: relative; }
+.reg-pass-wrap .login-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.reg-submit { width: 100%; padding: 13px; background: linear-gradient(135deg,#7c3aed,#6d28d9); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
+.reg-submit:hover:not(:disabled) { background: linear-gradient(135deg,#6d28d9,#5b21b6); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+.reg-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.reg-signin-row { text-align: center; font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+.reg-signin-row a { color: #a78bfa; font-weight: 600; text-decoration: none; }
+.reg-signin-row a:hover { text-decoration: underline; }
+
+/* OTP step */
+.reg-otp-icon { font-size: 48px; text-align: center; margin-bottom: 8px; }
+.reg-otp-sub { text-align: center; font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
+.reg-otp-email { text-align: center; font-size: 14px; font-weight: 700; color: #a78bfa; background: rgba(124,58,237,0.15); padding: 8px 20px; border-radius: 20px; display: inline-block; width: fit-content; margin: 0 auto 4px; display: flex; justify-content: center; }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .reg-page { flex-direction: column; height: auto; overflow: auto; }
+  .reg-left { width: 100%; min-height: auto; padding: 24px 20px; }
+  .reg-left-body { padding: 16px 0; }
+  .reg-left-h2 { font-size: 20px; }
+  .reg-features { gap: 8px; }
+  .reg-right { padding: 0; }
+  .reg-form-wrap { padding: 24px 20px; max-width: 100%; }
+  .reg-plan-cards { grid-template-columns: repeat(2, 1fr); }
+  .reg-row-2 { grid-template-columns: 1fr; }
+  .reg-plan-preview { display: none; }
+}
+@media (max-width: 480px) {
+  .reg-plan-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+
