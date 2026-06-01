@@ -39,6 +39,7 @@ const StaffManagement   = lazy(() => import('./pages/StaffManagement'));
 const StaffLogin        = lazy(() => import('./pages/StaffLogin'));
 const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
 const AdminLogin        = lazy(() => import('./pages/AdminLogin'));
+const AccountSuspended  = lazy(() => import('./pages/AccountSuspended'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -298,23 +299,31 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
 }
 
 function TrialBanner({ user }) {
-  if (!user || user.plan !== 'free_trial') return null;
-  const days = user.trialDaysLeft ?? 0;
-  if (!user.isActive && user.trialVerified) {
+  if (!user) return null;
+  const status = user.accountStatus || 'active';
+  const days   = user.trialDaysLeft ?? 0;
+
+  // Grace period banner (all plan types)
+  if (status === 'grace') {
     return (
-      <div style={{ background:'linear-gradient(135deg,#dc2626,#b91c1c)', color:'#fff', padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+      <div style={{ background:'linear-gradient(135deg,#d97706,#b45309)', color:'#fff', padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <span style={{ fontSize:18 }}>🔒</span>
+          <span style={{ fontSize:18 }}>⚠️</span>
           <div>
-            <div style={{ fontWeight:800, fontSize:14 }}>Plan Expired — View Only Mode</div>
-            <div style={{ fontSize:12, opacity:0.85 }}>You can view your data but cannot add, edit or delete. Upgrade to restore access.</div>
+            <div style={{ fontWeight:800, fontSize:14 }}>Plan Expired — Grace Period (Read-Only)</div>
+            <div style={{ fontSize:12, opacity:0.85 }}>You can view your data but cannot add, edit or delete resources. Upgrade before suspension.</div>
           </div>
         </div>
-        <Link to="/pay?plan=select" style={{ padding:'8px 20px', background:'#fff', color:'#dc2626', borderRadius:8, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap' }}>
-          🚀 Upgrade Plan
+        <Link to="/pay?plan=select" style={{ padding:'8px 20px', background:'#fff', color:'#d97706', borderRadius:8, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap' }}>
+          ⬆️ Upgrade Now
         </Link>
       </div>
     );
+  }
+
+  if (!user || user.plan !== 'free_trial') return null;
+  if (!user.isActive && user.trialVerified) {
+    return null; // handled by grace/suspended above
   }
   if (days <= 3) {
     return (
@@ -562,8 +571,18 @@ function AppInner() {
     );
   }
 
-  // ── Expired plan — read-only mode (view only, no writes) ──
-  const planExpired = authed && !isAdmin && user && user.isActive === false && user.trialVerified === true;
+  // ── Account status based on 3-state model ──
+  const accountStatus = user?.accountStatus || 'active'; // 'active' | 'grace' | 'suspended'
+  const planExpired   = authed && !isAdmin && user && accountStatus !== 'active';
+
+  // ── Suspended: show full suspension page ──
+  if (authed && !isAdmin && user && accountStatus === 'suspended') {
+    return (
+      <Suspense fallback={null}>
+        <AccountSuspended user={user} onLogout={async () => { await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true }); window.location.href = '/login'; }} />
+      </Suspense>
+    );
+  }
 
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;

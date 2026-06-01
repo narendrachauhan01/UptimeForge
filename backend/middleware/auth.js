@@ -28,21 +28,22 @@ module.exports = async function authMiddleware(req, res, next) {
         if (decoded.userId) {
             const user = await User.findById(decoded.userId);
             if (!user) return res.status(401).json({ error: 'User not found' });
-            if (user.isBlocked) return res.status(403).json({ error: 'Account blocked. Contact support.' });
+            if (user.isBlocked) return res.status(403).json({ error: 'Account blocked. Contact support.', accountStatus: 'suspended' });
             req.user   = user;
             req.userId = user._id;
 
-            // Block write operations if plan expired
-            if (['POST','PUT','DELETE','PATCH'].includes(req.method)) {
-                const expired =
-                    (user.plan === 'free_trial' && user.trialVerified && user.trialEndsAt && new Date() > new Date(user.trialEndsAt)) ||
-                    (user.plan !== 'free_trial' && user.planEndsAt && new Date() > new Date(user.planEndsAt));
-                // Allow payment routes always
-                const allowedPaths = ['/api/payment', '/api/users/logout', '/api/users/profile', '/api/users/support'];
-                const isAllowed = allowedPaths.some(p => req.path.startsWith(p));
-                if (expired && !isAllowed) {
-                    return res.status(403).json({ error: 'Plan expired. Upgrade to continue.', planExpired: true });
-                }
+            const status = user.accountStatus; // 'active' | 'grace' | 'suspended'
+            const allowedPaths = ['/api/payment', '/api/users/logout', '/api/users/me', '/api/users/support'];
+            const isAllowed = allowedPaths.some(p => req.path.startsWith(p));
+
+            // Suspended: block ALL operations except payment/logout/me
+            if (status === 'suspended' && !isAllowed) {
+                return res.status(403).json({ error: 'Account suspended. Your plan expired more than 30 days ago. Please upgrade.', accountStatus: 'suspended' });
+            }
+
+            // Grace: block write operations only
+            if (status === 'grace' && ['POST','PUT','DELETE','PATCH'].includes(req.method) && !isAllowed) {
+                return res.status(403).json({ error: 'Plan expired. Upgrade to continue creating resources.', accountStatus: 'grace', planExpired: true });
             }
 
             return next();

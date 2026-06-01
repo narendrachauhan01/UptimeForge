@@ -39,6 +39,8 @@ function userPayload(u) {
         trialDaysLeft: u.trialDaysLeft,
         isBlocked: u.isBlocked,
         trialVerified: u.trialVerified ?? true,
+        accountStatus: u.accountStatus || 'active',
+        billing: u.billing || 'monthly',
     };
 }
 

@@ -63,6 +63,24 @@ userSchema.virtual('trialDaysLeft').get(function () {
     return Math.max(0, Math.ceil((new Date(this.trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)));
 });
 
+// accountStatus: 'active' | 'grace' | 'suspended'
+// grace = expired but < 30 days ago, suspended = expired > 30 days ago
+userSchema.virtual('accountStatus').get(function () {
+    if (this.isBlocked) return 'suspended';
+    const GRACE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+    const now = Date.now();
+    let expiryDate = null;
+    if (this.plan === 'free_trial') {
+        expiryDate = this.trialEndsAt ? new Date(this.trialEndsAt) : null;
+    } else {
+        expiryDate = this.planEndsAt ? new Date(this.planEndsAt) : null;
+    }
+    if (!expiryDate) return 'active';
+    if (now < expiryDate.getTime()) return 'active';
+    if (now - expiryDate.getTime() < GRACE_MS) return 'grace';
+    return 'suspended';
+});
+
 userSchema.set('toJSON', { virtuals: true });
 userSchema.set('toObject', { virtuals: true });
 
