@@ -70,8 +70,8 @@ export default function AdminLogin() {
                     <div style={{ marginTop:24 }}>
                         <UWLogo size={44} />
                     </div>
-                    <h1 className="login-title">Admin Login</h1>
-                    <p className="login-sub">Sign in to the admin panel</p>
+                    <h1 className="login-right-h1">Admin Login</h1>
+                    <p className="login-right-sub">Sign in to the admin panel</p>
 
                     {error && <div className="login-error-box">{error}</div>}
 
@@ -87,7 +87,7 @@ export default function AdminLogin() {
                                 {showPw ? '🙈' : '👁'}
                             </button>
                         </div>
-                        <button type="submit" className="login-btn-main" disabled={loading}>
+                        <button type="submit" className="login-submit" disabled={loading}>
                             {loading ? 'Signing in...' : 'Sign In as Admin'}
                         </button>
                     </form>

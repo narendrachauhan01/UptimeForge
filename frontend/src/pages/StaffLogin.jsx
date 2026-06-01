@@ -69,8 +69,8 @@ export default function StaffLogin() {
                     <div style={{ marginTop:24 }}>
                         <UWLogo size={44} />
                     </div>
-                    <h1 className="login-title">Staff Login</h1>
-                    <p className="login-sub">Sign in to your staff panel</p>
+                    <h1 className="login-right-h1">Staff Login</h1>
+                    <p className="login-right-sub">Sign in to your staff panel</p>
 
                     {error && <div className="login-error-box">{error}</div>}
 
@@ -86,7 +86,7 @@ export default function StaffLogin() {
                                 {showPw ? '🙈' : '👁'}
                             </button>
                         </div>
-                        <button type="submit" className="login-btn-main" disabled={loading}>
+                        <button type="submit" className="login-submit" disabled={loading}>
                             {loading ? 'Signing in...' : 'Sign In'}
                         </button>
                     </form>
