@@ -13,7 +13,7 @@ const inputStyle = {
 };
 const labelStyle = { fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 };
 
-export default function AnnualPlans() {
+export default function AnnualPlans({ readOnly = false }) {
     const [form, setForm] = useState(null);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -86,10 +86,12 @@ export default function AnnualPlans() {
                     <h1 style={{ fontSize:22, fontWeight:800, color:'#111827', margin:'0 0 4px' }}>Annual Plans</h1>
                     <p style={{ fontSize:14, color:'#6B7280', margin:0 }}>Set annual pricing for each plan shown on the Landing page</p>
                 </div>
-                <button onClick={save} disabled={saving}
-                    style={{ background: saved ? '#10b981' : 'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, padding:'10px 28px', fontWeight:700, fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
-                    {saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}
-                </button>
+                {readOnly
+                    ? <span style={{ fontSize:12, fontWeight:700, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:8, padding:'7px 14px' }}>👁 Read Only</span>
+                    : <button onClick={save} disabled={saving} style={{ background: saved?'#10b981':'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, padding:'10px 28px', fontWeight:700, fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
+                        {saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}
+                      </button>
+                }
             </div>
 
             {/* Toggle */}

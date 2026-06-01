@@ -33,7 +33,7 @@ const hintStyle = {
     display: 'block',
 };
 
-export default function PlanSettings() {
+export default function PlanSettings({ readOnly = false }) {
     const [form, setForm] = useState(null);
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState('');
@@ -108,22 +108,12 @@ export default function PlanSettings() {
                         Configure pricing, limits and features for each plan
                     </p>
                 </div>
-                <button
-                    onClick={save}
-                    disabled={saving}
-                    style={{
-                        background: saving ? '#9CA3AF' : '#4F46E5',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '9px 18px',
-                        fontWeight: 600,
-                        fontSize: 14,
-                        cursor: saving ? 'not-allowed' : 'pointer',
-                    }}
-                >
-                    {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                {readOnly
+                    ? <span style={{ fontSize:12, fontWeight:700, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:8, padding:'7px 14px' }}>👁 Read Only</span>
+                    : <button onClick={save} disabled={saving} style={{ background: saving?'#9CA3AF':'#4F46E5', color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', fontWeight:600, fontSize:14, cursor: saving?'not-allowed':'pointer' }}>
+                        {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                }
             </div>
 
             {/* Toast */}

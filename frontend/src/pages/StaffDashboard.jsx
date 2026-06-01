@@ -79,6 +79,7 @@ export default function StaffDashboard() {
     );
 
     const perms = staff?.permissions || [];
+    const canWrite = (key) => perms.some(p => p === key || p === `${key}:write`);
     const allItems = NAV_GROUPS.flatMap(g => g.items);
     const firstItem = allItems.find(i => hasAccess(perms, i.key));
     const firstPath = firstItem?.to || '/staff-login';
@@ -169,13 +170,13 @@ export default function StaffDashboard() {
                     <Routes>
                         <Route path="/" element={<Navigate to={firstPath} replace />} />
                         {hasAccess(perms,'dashboard')          && <Route path="/dashboard"           element={<AdminPanel staffMode permissions={perms} />} />}
-                        {hasAccess(perms,'planSettings')       && <Route path="/plan-settings"       element={<PlanSettings />} />}
-                        {hasAccess(perms,'annualPlans')        && <Route path="/annual-plans"        element={<AnnualPlans />} />}
-                        {hasAccess(perms,'featureAccess')      && <Route path="/feature-access"      element={<FeatureAccess />} />}
-                        {hasAccess(perms,'integrationBackend') && <Route path="/integration-backend" element={<IntegrationBackend />} />}
-                        {hasAccess(perms,'redisCache')         && <Route path="/redis-cache"         element={<RedisCache />} />}
-                        {hasAccess(perms,'deletedUsers')       && <Route path="/deleted-users"       element={<DeletedUsers />} />}
-                        {hasAccess(perms,'supportTickets')     && <Route path="/support-tickets"     element={<SupportTickets />} />}
+                        {hasAccess(perms,'planSettings')       && <Route path="/plan-settings"       element={<PlanSettings       readOnly={!canWrite('planSettings')} />} />}
+                        {hasAccess(perms,'annualPlans')        && <Route path="/annual-plans"        element={<AnnualPlans        readOnly={!canWrite('annualPlans')} />} />}
+                        {hasAccess(perms,'featureAccess')      && <Route path="/feature-access"      element={<FeatureAccess      readOnly={!canWrite('featureAccess')} />} />}
+                        {hasAccess(perms,'integrationBackend') && <Route path="/integration-backend" element={<IntegrationBackend readOnly={!canWrite('integrationBackend')} />} />}
+                        {hasAccess(perms,'redisCache')         && <Route path="/redis-cache"         element={<RedisCache         readOnly={!canWrite('redisCache')} />} />}
+                        {hasAccess(perms,'deletedUsers')       && <Route path="/deleted-users"       element={<DeletedUsers       readOnly={!canWrite('deletedUsers')} />} />}
+                        {hasAccess(perms,'supportTickets')     && <Route path="/support-tickets"     element={<SupportTickets     readOnly={!canWrite('supportTickets')} />} />}
                         {hasAccess(perms,'planCanceling')      && <Route path="/plan-canceling"      element={<PlanCanceling />} />}
                         <Route path="*" element={<Navigate to={firstPath} replace />} />
                     </Routes>
