@@ -342,8 +342,9 @@ async function checkOne(server, settings, recipients) {
         const eligible = getEligibleRecipients(recipients, server._id, server.userId);
         const userId   = server.userId?._id || server.userId;
         const intType  = alertType === 'recovered' ? 'up' : 'down';
-        console.log(`[Monitor] ${server.name} → ${alertType.toUpperCase()} alert to ${eligible.length} recipients`);
-        sendAlerts(server, eligible, alertType === 'recovered' ? 'recovered' : 'down', alertDetail).catch(() => {});
+        console.log(`[Monitor] ${server.name} → ${alertType.toUpperCase()} alert | recipients: ${eligible.length} | emails: ${eligible.filter(r=>r.email).map(r=>r.email).join(',')||'none'}`);
+        sendAlerts(server, eligible, alertType === 'recovered' ? 'recovered' : 'down', alertDetail)
+            .catch(e => console.error(`[Monitor] sendAlerts FAILED for ${server.name}:`, e.message));
         fireIntegrations(server, intType, userId).catch(() => {});
     }
 }
