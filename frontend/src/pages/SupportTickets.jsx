@@ -55,7 +55,7 @@ function AdminImageUpload({ sendReply, reply, sending }) {
     );
 }
 
-export default function SupportTickets() {
+export default function SupportTickets({ readOnly = false }) {
     const [tickets,  setTickets]   = useState([]);
     const [loading,  setLoading]   = useState(true);
     const [filter,   setFilter]    = useState('all');
@@ -224,7 +224,11 @@ export default function SupportTickets() {
                         </div>
 
                         {/* Reply textarea */}
-                        {selected.status!=='closed' ? (
+                        {readOnly ? (
+                            <div style={{ padding:'12px 20px', borderTop:'1px solid #E5E7EB', background:'#fffbeb' }}>
+                                <span style={{ fontSize:12, fontWeight:700, color:'#92400e' }}>👁 Read Only — cannot reply</span>
+                            </div>
+                        ) : selected.status!=='closed' ? (
                             <div style={{ borderTop:'1px solid #E5E7EB' }}>
                                 <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={4}
                                     placeholder="Type your reply here..."
@@ -242,7 +246,7 @@ export default function SupportTickets() {
                     </div>
 
                     {/* Status row — outside card like TailAdmin */}
-                    {selected.status!=='closed' && (
+                    {!readOnly && selected.status!=='closed' && (
                         <div style={{ display:'flex', alignItems:'center', gap:24, marginTop:16, padding:'14px 20px', background:'#fff', borderRadius:10, border:'1px solid #E5E7EB' }}>
                             <span style={{ fontSize:13, fontWeight:600, color:'#374151' }}>Status:</span>
                             {[['in_progress','In-Progress','#4F46E5'],['resolved','Solved','#10B981'],['closed','Closed','#6B7280']].map(([v,l,c])=>(

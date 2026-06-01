@@ -239,7 +239,7 @@ function WhatsAppModal({ onClose }) {
 }
 
 // ── Main Cards Page ───────────────────────────────────────────────────────────
-export default function IntegrationBackend() {
+export default function IntegrationBackend({ readOnly = false }) {
     const [emailOpen,  setEmailOpen]  = useState(false);
     const [waOpen,     setWaOpen]     = useState(false);
     const [emailOk,    setEmailOk]    = useState(null);
@@ -345,11 +345,11 @@ export default function IntegrationBackend() {
                             </div>
                         )}
                     </div>
-                    <div style={{ padding:'14px 22px', background:'#fafafa', display:'flex', gap:8 }}>
+                    {!readOnly && <div style={{ padding:'14px 22px', background:'#fafafa', display:'flex', gap:8 }}>
                         <button onClick={() => setEmailOpen(true)} style={{ flex:1, padding:'8px', background:'#4f46e5', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
                             {emailOk ? '⚙️ Edit Config' : '+ Setup Email'}
                         </button>
-                    </div>
+                    </div>}
                 </div>
 
                 {/* WhatsApp */}
@@ -376,7 +376,7 @@ export default function IntegrationBackend() {
                             </div>
                         )}
                     </div>
-                    <div style={{ padding:'14px 22px', background:'#fafafa', display:'flex', gap:8 }}>
+                    {!readOnly && <div style={{ padding:'14px 22px', background:'#fafafa', display:'flex', gap:8 }}>
                         <button onClick={() => setWaOpen(true)} style={{ flex:1, padding:'8px', background:'#16a34a', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
                             {waOk ? '⚙️ Edit Config' : '+ Setup WhatsApp'}
                         </button>
@@ -385,7 +385,7 @@ export default function IntegrationBackend() {
                                 Delete
                             </button>
                         )}
-                    </div>
+                    </div>}
                 </div>
             </div>
 

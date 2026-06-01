@@ -3,7 +3,7 @@ import axios from 'axios';
 import { API_URL } from '../api';
 
 
-export default function RedisCache() {
+export default function RedisCache({ readOnly = false }) {
     const [msg,     setMsg]     = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -99,26 +99,12 @@ export default function RedisCache() {
                     Fresh data will be fetched from WHOIS API on next check (every 6 hours or manual "Check" click).<br />
                     <strong style={{ color: '#374151' }}>When to clear:</strong> After renewing SSL, after renewing domain, or if wrong data is showing.
                 </div>
-                <button
-                    onClick={clearAll}
-                    disabled={loading}
-                    style={{
-                        padding: '9px 18px',
-                        background: loading ? '#9CA3AF' : '#EF4444',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontWeight: 600,
-                        fontSize: 14,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        transition: 'background 0.15s',
-                    }}
-                >
-                    {loading ? 'Clearing...' : 'Clear All Cache'}
-                </button>
+                {readOnly
+                    ? <span style={{ fontSize:12, fontWeight:700, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:8, padding:'7px 14px' }}>👁 Read Only</span>
+                    : <button onClick={clearAll} disabled={loading} style={{ padding:'9px 18px', background: loading?'#9CA3AF':'#EF4444', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor: loading?'not-allowed':'pointer', display:'inline-flex', alignItems:'center', gap:8 }}>
+                        {loading ? 'Clearing...' : 'Clear All Cache'}
+                      </button>
+                }
             </div>
 
             {/* How it works */}
