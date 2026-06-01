@@ -1201,6 +1201,13 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .login-google-hint p { font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:0; line-height:1.5; }
 .login-google-hint strong { color:#a78bfa; }
 
+/* Google Sign-in button */
+.g-btn-wrap { position:relative; width:100%; }
+.g-btn-custom { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 20px; background:#fff; border:none; border-radius:12px; font-size:15px; font-weight:600; color:#1e293b; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 4px rgba(0,0,0,0.15); }
+.g-btn-custom:hover { box-shadow:0 4px 16px rgba(66,133,244,0.3); transform:translateY(-1px); }
+.g-btn-overlay { position:absolute; inset:0; opacity:0; overflow:hidden; border-radius:12px; }
+.g-btn-overlay > div { width:100% !important; }
+
 /* Reset Password Page */
 .reset-page { min-height:100vh; background:linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%); display:flex; align-items:center; justify-content:center; padding:40px 24px; }
 .reset-wrap { width:100%; max-width:420px; }

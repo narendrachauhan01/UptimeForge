@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 import axios from 'axios';
 import { API_URL, loginUser, googleAuth, forgotPassword } from '../api';
 import { getGoogleClientId } from '../googleConfig';
@@ -166,10 +167,10 @@ export default function Login({ onLogin }) {
         <div className="login-form-wrap">
 
           {/* Back to home */}
-          <Link to="/" className="login-back">
+          <a href={LANDING_URL} className="login-back">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Back to home
-          </Link>
+          </a>
 
           <div className="login-right-logo"><UWLogo size={48} /></div>
           <h1 className="login-right-h1">Welcome back</h1>

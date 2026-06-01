@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 import { sendRegisterOtp, verifyRegisterOtp, googleAuth } from '../api';
 import { getGoogleClientId } from '../googleConfig';
 import UWLogo from '../components/UWLogo';
@@ -139,10 +140,10 @@ export default function Register({ onRegister }) {
         <div className="reg-left-orb reg-orb-1" />
         <div className="reg-left-orb reg-orb-2" />
         <div className="reg-left-inner">
-          <Link to="/" className="reg-brand">
+          <a href={LANDING_URL} className="reg-brand">
             <UWLogo size={38} />
             <span>UptimeForge</span>
-          </Link>
+          </a>
 
           <div className="reg-left-body">
             <div className="reg-left-badge">Free 5-day trial</div>
@@ -188,10 +189,10 @@ export default function Register({ onRegister }) {
       <div className="reg-right">
         <div className="reg-form-wrap">
 
-          <Link to="/" className="login-back">
+          <a href={LANDING_URL} className="login-back">
             <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Back to home
-          </Link>
+          </a>
 
           {/* Step indicator */}
           <div className="reg-steps">
@@ -282,7 +283,7 @@ export default function Register({ onRegister }) {
                 </button>
 
                 <p className="reg-signin-row">
-                  Already have an account? <Link to="/login">Sign in</Link>
+                  Already have an account? <Link to="/login">Sign in</a>
                 </p>
               </form>
             </>
