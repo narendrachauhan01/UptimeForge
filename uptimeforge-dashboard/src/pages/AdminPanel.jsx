@@ -215,6 +215,23 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const [profileMsg, setProfileMsg] = useState({ text: '', type: '' });
     const [refundStatuses, setRefundStatuses] = useState({});
 
+    const saveProfile = async () => {
+        if (!profileForm.currentPassword) { setProfileMsg({ type: 'error', text: 'Current password is required' }); return; }
+        if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) { setProfileMsg({ type: 'error', text: 'New passwords do not match' }); return; }
+        setProfileSaving(true);
+        try {
+            await axios.put(`${API_URL}/api/auth/profile`, {
+                username: profileForm.username,
+                email: profileForm.email,
+                currentPassword: profileForm.currentPassword,
+                newPassword: profileForm.newPassword,
+            }, { withCredentials: true });
+            setProfileMsg({ type: 'ok', text: '✅ Profile updated! Changes apply on next login.' });
+            setProfileForm(f => ({ ...f, currentPassword: '', newPassword: '', confirmPassword: '' }));
+        } catch(e) { setProfileMsg({ type: 'error', text: e.response?.data?.error || 'Update failed' }); }
+        setProfileSaving(false);
+    };
+
     const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
     const load = async () => {
@@ -542,6 +559,59 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
                     zIndex: 9999,
                 }}>{toast}</div>
+            )}
+
+            {tab === 'profile' && (
+                <div style={{ maxWidth: 560 }}>
+                    <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, marginBottom: 24 }}>My Profile</h1>
+                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Username</label>
+                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                                placeholder="New username (leave blank to keep current)"
+                                value={profileForm.username}
+                                onChange={e => setProfileForm(f => ({ ...f, username: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Email</label>
+                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                                type="email" placeholder="New email (leave blank to keep current)"
+                                value={profileForm.email}
+                                onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
+                        </div>
+                        <hr style={{ border: 'none', borderTop: '1px solid #F3F4F6', margin: '4px 0' }} />
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#EF4444' }}>*</span></label>
+                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                                type="password" placeholder="Required to save changes"
+                                value={profileForm.currentPassword}
+                                onChange={e => setProfileForm(f => ({ ...f, currentPassword: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>New Password</label>
+                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                                type="password" placeholder="Leave blank to keep current password"
+                                value={profileForm.newPassword}
+                                onChange={e => setProfileForm(f => ({ ...f, newPassword: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
+                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                                type="password" placeholder="Confirm new password"
+                                value={profileForm.confirmPassword}
+                                onChange={e => setProfileForm(f => ({ ...f, confirmPassword: e.target.value }))} />
+                        </div>
+                        {profileMsg.text && (
+                            <div style={{ padding: '10px 14px', borderRadius: 8, background: profileMsg.type === 'ok' ? '#F0FDF4' : '#FFF5F5', color: profileMsg.type === 'ok' ? '#16A34A' : '#DC2626', fontSize: 13, fontWeight: 600 }}>
+                                {profileMsg.text}
+                            </div>
+                        )}
+                        <button onClick={saveProfile} disabled={profileSaving}
+                            style={{ padding: '11px 24px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: profileSaving ? 'not-allowed' : 'pointer', opacity: profileSaving ? 0.7 : 1, alignSelf: 'flex-start' }}>
+                            {profileSaving ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </div>
             )}
 
             {tab !== 'profile' && (
