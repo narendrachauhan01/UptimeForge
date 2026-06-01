@@ -22,7 +22,8 @@ async function testConnection(provider) {
         if (provider === 'greenapi') {
             const id = process.env.GREEN_API_INSTANCE;
             const token = process.env.GREEN_API_TOKEN;
-            if (!id || !token) return { connected: false, reason: 'Not configured' };
+            if (!id || !token || id === '1234567890' || token === 'your_token_here')
+                return { connected: false, reason: 'Not configured — set real credentials' };
             const state = await wa.getInstanceState();
             const connected = state?.stateInstance === 'authorized';
             return { connected, reason: connected ? 'Authorized' : (state?.stateInstance || 'Not authorized') };
@@ -50,7 +51,17 @@ async function testConnection(provider) {
         } else if (provider === 'aisensy') {
             const key = process.env.AISENSY_API_KEY;
             if (!key) return { connected: false, reason: 'Not configured' };
-            return { connected: true, reason: 'API Key set' };
+            const result = await new Promise((resolve) => {
+                const req = https.get(
+                    `https://backend.aisensy.com/campaign/t1/api/v2/auth/verify`,
+                    { headers: { Authorization: `Bearer ${key}` } },
+                    (res) => resolve({ status: res.statusCode })
+                );
+                req.on('error', () => resolve({ status: 500 }));
+                req.setTimeout(5000, () => { req.destroy(); resolve({ status: 408 }); });
+            });
+            const connected = result.status === 200;
+            return { connected, reason: connected ? 'API Key verified' : 'Invalid API Key' };
         }
     } catch (e) {
         return { connected: false, reason: e.message };
