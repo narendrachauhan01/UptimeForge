@@ -19,7 +19,6 @@ const Login             = lazy(() => import('./pages/Login'));
 const ResetPassword     = lazy(() => import('./pages/ResetPassword'));
 const Register          = lazy(() => import('./pages/Register'));
 const Pricing           = lazy(() => import('./pages/Pricing'));
-const Landing           = lazy(() => import('./pages/Landing'));
 const Account           = lazy(() => import('./pages/Account'));
 const AdminPanel        = lazy(() => import('./pages/AdminPanel'));
 const VerifyAccount     = lazy(() => import('./pages/VerifyAccount'));
@@ -494,7 +493,7 @@ function AppInner() {
       <>
         <Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing />} />
@@ -518,12 +517,8 @@ function AppInner() {
   }
 
   if (authed && location.pathname === '/') {
-    return (
-      <>
-        <Landing />
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </>
-    );
+    navigate('/monitoring', { replace: true });
+    return null;
   }
 
   if (!authed) {
@@ -531,7 +526,7 @@ function AppInner() {
       <>
         <Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing />} />
