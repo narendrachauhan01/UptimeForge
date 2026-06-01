@@ -898,7 +898,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                                 {u.isBlocked ? 'Unblock' : 'Block'}
                                                             </button>
                                                             <button title="Delete user permanently" onClick={() => deleteUser(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#FEF2F2', color: T.danger, border: `1px solid #FECDD3`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
-                                                            </>
+                                                            </>}
                                                         </div>
                                                     </td>
                                                 </tr>
