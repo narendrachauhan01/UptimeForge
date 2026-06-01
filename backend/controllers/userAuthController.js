@@ -256,7 +256,23 @@ exports.updateProfile = async (req, res) => {
 exports.deleteMe = async (req, res) => {
     try {
         if (req.isAdmin) return res.status(400).json({ error: 'Admin account cannot be deleted here' });
-        await User.deleteOne({ _id: req.userId });
+        const uid = req.userId;
+        const Server      = require('../models/Server');
+        const Recipient   = require('../models/Recipient');
+        const Alert       = require('../models/Alert');
+        const PingTarget  = require('../models/PingTarget');
+        const Notification= require('../models/Notification');
+        const PaymentRequest = require('../models/PaymentRequest');
+        const SupportTicket  = require('../models/SupportTicket');
+        await Server.deleteMany({ userId: uid });
+        await Recipient.deleteMany({ userId: uid });
+        await Alert.deleteMany({ userId: uid });
+        await PingTarget.deleteMany({ userId: uid });
+        await Notification.deleteMany({ userId: uid });
+        await PaymentRequest.deleteMany({ userId: uid });
+        await SupportTicket.deleteMany({ userId: uid });
+        await User.deleteOne({ _id: uid });
+        res.clearCookie('sm_token');
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

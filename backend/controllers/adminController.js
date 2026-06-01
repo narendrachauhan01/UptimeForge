@@ -79,9 +79,16 @@ exports.deleteUser = async (req, res) => {
             createdAt: user.createdAt,
         });
 
-        // Delete all user data
-        await Server.deleteMany({ userId: req.params.id });
-        await User.findByIdAndDelete(req.params.id);
+        // Delete ALL user data
+        const uid = req.params.id;
+        await Server.deleteMany({ userId: uid });
+        await require('../models/Recipient').deleteMany({ userId: uid });
+        await require('../models/Alert').deleteMany({ userId: uid });
+        await require('../models/PingTarget').deleteMany({ userId: uid });
+        await require('../models/Notification').deleteMany({ userId: uid });
+        await require('../models/PaymentRequest').deleteMany({ userId: uid });
+        await require('../models/SupportTicket').deleteMany({ userId: uid });
+        await User.findByIdAndDelete(uid);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
