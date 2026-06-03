@@ -529,6 +529,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
+    const expiredUsers = users.filter(u => !u.isActive && !u.isBlocked);
 
     // Navigate to Users tab with filter
     const goToUsersFilter = (filterType) => {
@@ -667,6 +668,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const TABS = [
         { id: 'overview',     label: 'Overview' },
         { id: 'users',        label: `Users (${users.length})` },
+        { id: 'expired',      label: `Expired Plans (${expiredUsers.length})` },
         { id: 'payments',     label: `Payments (${payments.length})` },
         { id: 'transactions', label: `Payments & Refund (${payments.length})` },
         { id: 'canceling',   label: `Plan Canceling (${refundedPayments.length})` },
@@ -1369,6 +1371,65 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     </div>}
                     </>
                     )}
+                </div>
+            )}
+
+            {/* ================================================================
+                EXPIRED PLANS TAB
+            ================================================================ */}
+            {tab === 'expired' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: `1px solid ${T.border}` }}>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 16, color: T.text }}>Expired Plan Users</div>
+                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>Users whose plan has expired and need renewal</div>
+                            </div>
+                            <span style={{ ...pill('#FEF3C7', '#D97706'), fontSize: 13 }}>{expiredUsers.length} expired</span>
+                        </div>
+                        {expiredUsers.length === 0 ? (
+                            <div style={{ padding: '40px 20px', textAlign: 'center', color: T.muted }}>
+                                <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
+                                <div style={{ fontWeight: 600 }}>No expired plans</div>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg }}>
+                                            {['User', 'Email', 'Plan', 'Expired On', 'Sites Used', 'Action'].map(h => (
+                                                <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}` }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {expiredUsers.map(u => (
+                                            <tr key={u._id} style={{ borderBottom: `1px solid ${T.border}` }}
+                                                onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                <td style={{ padding: '14px 16px', fontWeight: 700, color: T.text }}>
+                                                    <div>{u.name}</div>
+                                                    <div style={{ fontSize: 11, color: T.muted, fontFamily: 'monospace' }}>{u.accountId}</div>
+                                                </td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.email}</td>
+                                                <td style={{ padding: '14px 16px' }}><PlanBadge plan={u.plan} /></td>
+                                                <td style={{ padding: '14px 16px', color: T.danger, fontWeight: 600 }}>{fmt(u.planEndsAt || u.trialEndsAt)}</td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.serverCount || 0} / {u.siteLimit || 2}</td>
+                                                <td style={{ padding: '14px 16px' }}>
+                                                    {!readOnly && (
+                                                        <button style={{ ...btnPrimary, fontSize: 12, padding: '6px 14px' }}
+                                                            onClick={() => { setAssignModal({ user: u }); setAssignForm({ plan: 'bronze', billing: 'monthly', planDuration: '1m', duration: '1m' }); }}>
+                                                            Assign Plan
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
