@@ -233,7 +233,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const handleCancel = async () => {
         if (!isNewUnverified || paymentDone.current) return;
         try { await deleteMyAccount(); } catch (_) {}
-        localStorage.removeItem('sm_intended_plan');
+        sessionStorage.removeItem('sm_intended_plan');
         window.location.href = '/register';
     };
 
@@ -284,7 +284,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
                     try {
                         const { getMe } = await import('../api');
                         const meRes = await getMe();
-                        localStorage.removeItem('sm_intended_plan');
+                        sessionStorage.removeItem('sm_intended_plan');
                         onUserUpdate?.(meRes.data);
                     } catch {
                         if (res.data.user) {

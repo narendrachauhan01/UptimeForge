@@ -428,7 +428,7 @@ function AppInner() {
     setIsAdmin(false);
     setAuthed(true);
     if (planKey && ['bronze', 'silver', 'gold'].includes(planKey)) {
-      localStorage.setItem('sm_intended_plan', planKey);
+      sessionStorage.setItem('sm_intended_plan', planKey);
       navigate(`/pay?plan=${planKey}`);
     } else {
       navigate('/pay?plan=select');
@@ -484,7 +484,7 @@ function AppInner() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
-            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/support" element={<ContactSupport user={user} />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -517,7 +517,7 @@ function AppInner() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
-            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/support" element={<ContactSupport user={user} />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -577,7 +577,7 @@ function AppInner() {
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;
   if (needsVerification && location.pathname !== '/pay') {
-    const intendedPlan = localStorage.getItem('sm_intended_plan');
+    const intendedPlan = sessionStorage.getItem('sm_intended_plan');
     if (intendedPlan && ['bronze', 'silver', 'gold'].includes(intendedPlan)) {
       navigate(`/pay?plan=${intendedPlan}`);
     } else {
@@ -656,7 +656,7 @@ function AppInner() {
               {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
               {isAdmin && <Route path="/staff-management" element={<StaffManagement />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
-              <Route path="/add-monitor" element={<AddMonitor />} />
+              <Route path="/add-monitor" element={<AddMonitor user={user} />} />
               <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} />} />
               <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
               <Route path="/terms" element={<TermsOfService />} />

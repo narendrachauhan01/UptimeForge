@@ -26,9 +26,8 @@ export default function CookieConsent() {
 
   const reject = () => {
     localStorage.setItem('uf_cookie_consent', 'rejected');
-    // Clear non-essential storage on reject
-    localStorage.removeItem('sm_user');
-    localStorage.removeItem('sm_intended_plan');
+    sessionStorage.removeItem('sm_intended_plan');
+    sessionStorage.removeItem('uf_ref');
     setVisible(false);
     window.location.href = '/';
   };

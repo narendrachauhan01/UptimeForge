@@ -54,9 +54,9 @@ function Countdown({ seconds, onDone }) {
 export default function Register({ onRegister }) {
   const location = useLocation();
   // Capture referral code from URL ?ref=UF-2026-XXXXX
-  const refCode = new URLSearchParams(location.search).get('ref') || localStorage.getItem('uf_ref') || '';
-  if (refCode) localStorage.setItem('uf_ref', refCode);
-  const storedPlan = localStorage.getItem('sm_intended_plan');
+  const refCode = new URLSearchParams(location.search).get('ref') || sessionStorage.getItem('uf_ref') || '';
+  if (refCode) sessionStorage.setItem('uf_ref', refCode);
+  const storedPlan = sessionStorage.getItem('sm_intended_plan');
   const defaultPlan = location.state?.intendedPlan || storedPlan || 'free_trial';
 
   const [step, setStep] = useState(1);
@@ -123,7 +123,7 @@ export default function Register({ onRegister }) {
     setError(''); setLoading(true);
     try {
       const res = await verifyRegisterOtp({ email: form.email, otp: otp.trim() });
-      localStorage.removeItem('uf_ref');
+      sessionStorage.removeItem('uf_ref');
       onRegister(res.data.user, selectedPlan);
     } catch (err) { setError(err.response?.data?.error || 'Verification failed'); }
     setLoading(false);
@@ -184,6 +184,10 @@ export default function Register({ onRegister }) {
 
       {/* ── RIGHT PANEL ── */}
       <div className="reg-right">
+        <div className="reg-bg-decor">
+          <div className="reg-left-orb reg-orb-1" style={{ top: '10%', right: '-10%', left: 'auto', background: '#7c3aed', opacity: 0.15 }} />
+          <div className="reg-left-orb reg-orb-2" style={{ bottom: '10%', left: '-10%', right: 'auto', background: '#06b6d4', opacity: 0.12 }} />
+        </div>
         <div className="reg-form-wrap">
 
           <a href={LANDING_URL} className="login-back">

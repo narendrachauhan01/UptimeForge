@@ -32,7 +32,7 @@ const PLAN_META = {
     },
 };
 
-export default function Pricing() {
+export default function Pricing({ user, authed }) {
     const navigate = useNavigate();
     const [planData, setPlanData] = useState(null);
 
@@ -68,11 +68,10 @@ export default function Pricing() {
     ];
 
     const handleCta = (plan) => {
-        const isLoggedIn = !!localStorage.getItem('sm_user');
-        if (plan.key !== 'free_trial') localStorage.setItem('sm_intended_plan', plan.key);
-        else localStorage.removeItem('sm_intended_plan');
+        if (plan.key !== 'free_trial') sessionStorage.setItem('sm_intended_plan', plan.key);
+        else sessionStorage.removeItem('sm_intended_plan');
 
-        if (isLoggedIn) {
+        if (authed) {
             navigate(plan.key === 'free_trial' ? '/pay?plan=verification' : `/pay?plan=${plan.key}`);
         } else {
             navigate('/register');

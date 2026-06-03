@@ -5,7 +5,7 @@ import axios from 'axios';
 import { addServer, getPlans, getRecipients, getServers, API_URL } from '../api';
 
 
-export default function AddMonitor() {
+export default function AddMonitor({ user }) {
     const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,7 +42,6 @@ export default function AddMonitor() {
     const [recipSiteMap, setRecipSiteMap] = useState({}); // {recipId: [siteIds]}
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('sm_user') || '{}');
         const p = user?.plan || 'free_trial';
         setPlan(p);
         getPlans().then(r => {
