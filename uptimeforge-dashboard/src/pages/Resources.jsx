@@ -97,18 +97,19 @@ export default function Resources() {
   const [loading, setLoading] = useState(true);
   const [secondsAgo, setSecondsAgo] = useState(0);
   const tickRef = useRef(null);
+  const selectedRef = useRef(null);
+  selectedRef.current = selected;
 
   const loadLatest = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/metrics/latest`, { withCredentials: true });
-      // filter out test/empty entries
       const real = res.data.filter(s => s.ramTotal > 0);
       setServers(real);
       setSecondsAgo(0);
-      if (real.length > 0 && !selected) setSelected(real[0]);
+      if (real.length > 0 && !selectedRef.current) setSelected(real[0]);
     } catch (e) { console.error(e.message); }
     setLoading(false);
-  }, [selected]);
+  }, []);
 
   const loadHistory = useCallback(async (serverId) => {
     try {
