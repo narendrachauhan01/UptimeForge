@@ -4,72 +4,184 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { adminGetUsers, adminUpdateUser, adminDeleteUser, adminGetSettings, adminUpdateSettings, adminGetPayments, adminDeletePayment, adminApprovePayment, adminRejectPayment, adminRefundPayment, adminRefundStatus, getAdminProfile, updateAdminProfile, adminClearCache, API_URL } from '../api';
 
+const ADMIN_STYLES = `
+    .perf-page-container {
+      --primary: #7c3aed;
+      --primary-hover: #6d28d9;
+      --primary-rgb: 124, 58, 237;
+      --success: #10b981;
+      --success-rgb: 16, 185, 129;
+      --danger: #ef4444;
+      --danger-rgb: 239, 68, 68;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --info: #3b82f6;
+      
+      transition: background-color 0.3s ease;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Light Theme Scope */
+    .perf-page-container.light {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-input: #f1f5f9;
+      --border-color: rgba(226, 232, 240, 0.8);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+      --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
+      --input-focus-shadow: rgba(124, 58, 237, 0.08);
+      --hover-row-bg: #f8fafc;
+    }
+
+    /* Dark Theme Scope */
+    .perf-page-container.dark {
+      --bg-primary: #0b0f19;
+      --bg-card: #131a26;
+      --bg-input: #1b2535;
+      --border-color: rgba(255, 255, 255, 0.07);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
+      --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
+      --input-focus-shadow: rgba(139, 92, 246, 0.15);
+      --hover-row-bg: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Body background overrides */
+    body.charts-dark-theme {
+      background-color: #0b0f19 !important;
+    }
+    body.charts-dark-theme .app-main,
+    body.charts-dark-theme .content {
+      background-color: #0b0f19 !important;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Font Family defaults */
+    .perf-page-container {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+    }
+    .perf-page-container h1, 
+    .perf-page-container h2, 
+    .perf-page-container h3 {
+      font-family: 'Outfit', sans-serif !important;
+    }
+
+    /* Clean cards, tables, elements */
+    .perf-page-container .admin-pg {
+      background: transparent !important;
+    }
+
+    /* Table custom tr hovers */
+    .perf-page-container .admin-tr {
+      border-bottom: 1px solid var(--border-color) !important;
+      background: var(--bg-card) !important;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .perf-page-container .admin-tr td {
+      background: transparent !important;
+      transition: background-color 0.15s ease;
+    }
+    .perf-page-container .admin-tr:hover td {
+      background: var(--hover-row-bg) !important;
+    }
+    .perf-page-container .admin-tr.blocked {
+      background: rgba(239, 68, 68, 0.04) !important;
+    }
+    .perf-page-container .admin-tr.blocked td {
+      background: rgba(239, 68, 68, 0.04) !important;
+    }
+    .perf-page-container .admin-tr.blocked:hover td {
+      background: rgba(239, 68, 68, 0.08) !important;
+    }
+
+    /* Integration cards */
+    .perf-page-container .ap-card {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+`;
+
 const PLAN_OPTIONS = ['free_trial', 'bronze', 'silver', 'gold'];
-const PLAN_COLORS  = { free_trial: '#64748b', bronze: '#b45309', silver: '#475569', gold: '#ca8a04' };
-const PLAN_BG     = { free_trial: '#f1f5f9', bronze: '#fef3c7', silver: '#f8fafc', gold: '#fefce8' };
+const PLAN_COLORS  = { free_trial: 'var(--text-muted)', bronze: '#f59e0b', silver: '#94a3b8', gold: '#ca8a04' };
+const PLAN_BG     = { free_trial: 'var(--bg-input)', bronze: 'rgba(245, 158, 11, 0.08)', silver: 'rgba(148, 163, 184, 0.08)', gold: 'rgba(202, 138, 4, 0.08)' };
 const PLAN_LABEL  = { free_trial: 'Free Trial', bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
 
-// ── Design tokens (TailAdmin palette) ────────────────────────────────────────
+// ── Design tokens (Theme Aware) ────────────────────────────────────────
 const T = {
-    primary:  '#4F46E5',
+    primary:  '#7c3aed',
     success:  '#10B981',
     danger:   '#EF4444',
     warning:  '#F59E0B',
     info:     '#3B82F6',
-    border:   '#E5E7EB',
-    pageBg:   '#F1F5F9',
-    card:     '#ffffff',
-    headerBg: '#F9FAFB',
-    text:     '#111827',
-    sub:      '#6B7280',
-    muted:    '#9CA3AF',
-    rowHover: '#F9FAFB',
+    border:   'var(--border-color)',
+    pageBg:   'transparent',
+    card:     'var(--bg-card)',
+    headerBg: 'var(--bg-input)',
+    text:     'var(--text-main)',
+    sub:      'var(--text-muted)',
+    muted:    'var(--text-muted)',
+    rowHover: 'var(--hover-row-bg)',
 };
 
 // ── Reusable style helpers ────────────────────────────────────────────────────
 const cardStyle = {
-    background: T.card,
-    border: `1px solid ${T.border}`,
-    borderRadius: 10,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+    background: 'var(--bg-card)',
+    border: `1px solid var(--border-color)`,
+    borderRadius: 12,
+    boxShadow: 'var(--card-shadow)',
 };
 
 const pill = (bg, color) => ({
     display: 'inline-flex', alignItems: 'center',
     padding: '2px 10px', borderRadius: 9999,
-    fontSize: 11, fontWeight: 600, letterSpacing: 0.2,
+    fontSize: 11, fontWeight: 700, letterSpacing: 0.2,
     background: bg, color,
     whiteSpace: 'nowrap',
 });
 
 const inputSt = {
     width: '100%', padding: '9px 12px',
-    border: `1px solid ${T.border}`, borderRadius: 8,
-    fontSize: 13, outline: 'none', background: '#fff',
-    color: T.text, fontFamily: 'inherit',
+    border: `1px solid var(--border-color)`, borderRadius: 8,
+    fontSize: 13, outline: 'none', background: 'var(--bg-input)',
+    color: 'var(--text-main)', fontFamily: 'inherit',
     boxSizing: 'border-box',
 };
 
 const btnPrimary = {
-    padding: '9px 18px', background: T.primary, color: '#fff',
-    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    padding: '9px 18px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff',
+    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
     cursor: 'pointer', fontFamily: 'inherit',
+    boxShadow: '0 2px 6px rgba(124, 58, 237, 0.15)',
 };
 const btnDanger = {
     padding: '9px 18px', background: T.danger, color: '#fff',
-    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
     cursor: 'pointer', fontFamily: 'inherit',
 };
 const btnSuccess = {
     padding: '9px 18px', background: T.success, color: '#fff',
-    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
     cursor: 'pointer', fontFamily: 'inherit',
 };
 const btnSecondary = {
-    padding: '9px 18px', background: '#fff',
-    border: `1px solid ${T.border}`, borderRadius: 8,
-    fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-    color: T.sub,
+    padding: '9px 18px', background: 'var(--bg-card)',
+    border: `1px solid var(--border-color)`, borderRadius: 8,
+    fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+    color: 'var(--text-main)',
 };
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
@@ -166,16 +278,16 @@ function RevTile({ label, value, sub, color }) {
 // ── Table TH ─────────────────────────────────────────────────────────────────
 const thStyle = {
     padding: '11px 16px', textAlign: 'left',
-    fontSize: 11, fontWeight: 700, color: T.sub,
+    fontSize: 11, fontWeight: 700, color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: 0.6,
-    background: T.headerBg, borderBottom: `1px solid ${T.border}`,
+    background: 'var(--bg-input)', borderBottom: `1px solid var(--border-color)`,
     whiteSpace: 'nowrap',
 };
 
 // ── Table TD ─────────────────────────────────────────────────────────────────
 const tdStyle = {
-    padding: '13px 16px', fontSize: 13, color: T.text,
-    borderBottom: `1px solid #F3F4F6`, verticalAlign: 'middle',
+    padding: '13px 16px', fontSize: 13, color: 'var(--text-main)',
+    borderBottom: `1px solid var(--border-color)`, verticalAlign: 'middle',
 };
 
 // ── Section Title ─────────────────────────────────────────────────────────────
@@ -214,6 +326,38 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const [profileSaving, setProfileSaving] = useState(false);
     const [profileMsg, setProfileMsg] = useState({ text: '', type: '' });
     const [refundStatuses, setRefundStatuses] = useState({});
+
+    const [localTheme, setLocalTheme] = useState(() => {
+        const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+        if (match) return match[1];
+        return 'dark';
+    });
+
+    const isDark = localTheme === 'dark';
+
+    useEffect(() => {
+        const checkThemeCookie = () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const current = match ? match[1] : 'dark';
+            if (current !== localTheme) {
+                setLocalTheme(current);
+            }
+        };
+        checkThemeCookie();
+        const interval = setInterval(checkThemeCookie, 1000);
+        return () => clearInterval(interval);
+    }, [localTheme]);
+
+    useEffect(() => {
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            document.body.classList.remove('charts-dark-theme');
+        };
+    }, [localTheme]);
 
     const saveProfile = async () => {
         if (!profileForm.currentPassword) { setProfileMsg({ type: 'error', text: 'Current password is required' }); return; }
@@ -545,26 +689,70 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         </svg>
     );
 
+    const ThemeToggle = () => (
+        <button
+            onClick={() => {
+                const next = localTheme === 'dark' ? 'light' : 'dark';
+                document.cookie = `charts_theme=${next}; path=/; max-age=31536000`;
+                setLocalTheme(next);
+            }}
+            style={{
+                padding: '9px 12px',
+                background: 'var(--bg-card)',
+                border: '1.5px solid var(--border-color)',
+                borderRadius: 8,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-main)',
+                transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--bg-input)';
+            }}
+            onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--bg-card)';
+            }}
+            title={`Switch to ${localTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+            {localTheme === 'dark' ? (
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+            ) : (
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            )}
+        </button>
+    );
+
     // ─────────────────────────────────────────────────────────────────────────
     return (
-        <div className="pg-wrap admin-pg" style={{ background: T.pageBg, minHeight: '100vh', overflowX: 'hidden' }}>
+        <div className={`perf-page-container ${localTheme}`}>
+            <style>{ADMIN_STYLES}</style>
+            <div className="pg-wrap admin-pg" style={{ background: T.pageBg, minHeight: '100vh', overflowX: 'hidden' }}>
 
-            {/* ── Toast ────────────────────────────────────────────────────── */}
-            {toast && (
-                <div style={{
-                    position: 'fixed', bottom: 28, right: 28,
-                    background: '#1E293B', color: '#fff',
-                    padding: '12px 20px', borderRadius: 10,
-                    fontSize: 13, fontWeight: 600,
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
-                    zIndex: 9999,
-                }}>{toast}</div>
-            )}
+                {/* ── Toast ────────────────────────────────────────────────────── */}
+                {toast && (
+                    <div style={{
+                        position: 'fixed', bottom: 28, right: 28,
+                        background: '#1E293B', color: '#fff',
+                        padding: '12px 20px', borderRadius: 10,
+                        fontSize: 13, fontWeight: 600,
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+                        zIndex: 9999,
+                    }}>{toast}</div>
+                )}
 
-            {tab === 'profile' && (
-                <div style={{ maxWidth: 560 }}>
-                    <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, marginBottom: 24 }}>My Profile</h1>
-                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                {tab === 'profile' && (
+                    <div style={{ maxWidth: 560 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                            <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0 }}>My Profile</h1>
+                            <ThemeToggle />
+                        </div>
+                        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
                         <div>
                             <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Username</label>
                             <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
@@ -625,16 +813,19 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0 }}>Admin Panel</h1>
                             <p style={{ fontSize: 13, color: T.sub, margin: '4px 0 0' }}>Manage users, plans, and payments</p>
                         </div>
-                        <button
-                            onClick={() => window.location.reload()}
-                            style={{ padding:'9px 18px', background:'#fff', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'#374151' }}
-                            onMouseEnter={e=>{ e.currentTarget.style.background='#F9FAFB'; e.currentTarget.style.borderColor='#D1D5DB'; }}
-                            onMouseLeave={e=>{ e.currentTarget.style.background='#fff'; e.currentTarget.style.borderColor='#E5E7EB'; }}>
-                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                            </svg>
-                            Refresh
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <ThemeToggle />
+                            <button
+                                onClick={() => window.location.reload()}
+                                style={{ padding:'9px 18px', background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'var(--text-main)' }}
+                                onMouseEnter={e=>{ e.currentTarget.style.background='var(--bg-input)'; e.currentTarget.style.borderColor='var(--border-color)'; }}
+                                onMouseLeave={e=>{ e.currentTarget.style.background='var(--bg-card)'; e.currentTarget.style.borderColor='var(--border-color)'; }}>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
                     </div>
 
                     {/* ── Pill Tabs ─────────────────────────────────────────── */}
@@ -649,7 +840,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 borderRadius: 9999, fontSize: 13, fontWeight: 600,
                                 cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                                 transition: 'all 0.15s',
-                                background: tab === t.id ? T.primary : '#fff',
+                                background: tab === t.id ? T.primary : 'var(--bg-card)',
                                 color: tab === t.id ? '#fff' : T.sub,
                                 boxShadow: tab === t.id ? '0 2px 8px rgba(79,70,229,0.25)' : 'none',
                             }}>{t.label}</button>
@@ -832,7 +1023,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
                     {/* Toolbar */}
-                    <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap', background:'#fff', border:`1px solid ${T.border}`, borderRadius:10, padding:'10px 14px' }}>
+                    <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap', background:'var(--bg-card)', border:`1px solid ${T.border}`, borderRadius:10, padding:'10px 14px' }}>
                         {/* Search */}
                         <div style={{ flex:1, minWidth:200, display:'flex', alignItems:'center', gap:8 }}>
                             <SearchIcon />
@@ -890,11 +1081,9 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     <tbody>
                                         {freeTrialFiltered.map(u => (
                                             <React.Fragment key={u._id}>
-                                                <tr style={{ borderBottom: `1px solid #F3F4F6`, cursor: 'pointer', transition: 'background 0.1s' }}
-                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
-                                                    onMouseLeave={e => e.currentTarget.style.background = u.isBlocked ? '#FFF5F5' : '#fff'}
+                                                <tr className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}
                                                     onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}>
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }}>
+                                                    <td style={tdStyle}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                             <Avatar name={u.name} size={36} />
                                                             <div>
@@ -948,13 +1137,11 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                         {monthlyFiltered.map(u => (
                                             <React.Fragment key={u._id}>
                                                 <tr
-                                                    style={{ borderBottom: `1px solid #F3F4F6`, cursor: 'pointer', transition: 'background 0.1s' }}
-                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
-                                                    onMouseLeave={e => e.currentTarget.style.background = u.isBlocked ? '#FFF5F5' : '#fff'}
+                                                    className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}
                                                     onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}
                                                 >
                                                     {/* User cell */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }}>
+                                                    <td style={tdStyle}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                             <Avatar name={u.name} size={36} />
                                                             <div>
@@ -968,23 +1155,23 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                         </div>
                                                     </td>
                                                     {/* Plan */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }}>
+                                                    <td style={tdStyle}>
                                                         <PlanBadge plan={u.plan} />
                                                     </td>
                                                     {/* Sites */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent', fontWeight: 700 }}>
+                                                    <td style={{ ...tdStyle, fontWeight: 700 }}>
                                                         {u.serverCount || 0}
                                                     </td>
                                                     {/* Status */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }}>
+                                                    <td style={tdStyle}>
                                                         <StatusBadge u={u} />
                                                     </td>
                                                     {/* Expiry */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent', fontSize: 12, color: T.sub }}>
+                                                    <td style={{ ...tdStyle, fontSize: 12, color: T.sub }}>
                                                         {u.plan !== 'free_trial' && u.planEndsAt ? fmt(u.planEndsAt) : u.trialEndsAt ? fmt(u.trialEndsAt) : '—'}
                                                     </td>
                                                     {/* Actions */}
-                                                    <td style={{ ...tdStyle, background: u.isBlocked ? '#FFF5F5' : 'transparent' }} onClick={e => e.stopPropagation()}>
+                                                    <td style={tdStyle} onClick={e => e.stopPropagation()}>
                                                         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                                                             {readOnly ? <span style={{ fontSize:11, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:6, padding:'4px 10px', fontWeight:600 }}>👁 Read Only</span> : <>
                                                             <button title="Assign Plan" onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Assign Plan</button>
@@ -1085,11 +1272,9 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     <tbody>
                                         {annualFiltered.map(u => (
                                             <React.Fragment key={u._id}>
-                                                <tr style={{ borderBottom:`1px solid #F3F4F6`, cursor:'pointer', transition:'background 0.1s' }}
-                                                    onMouseEnter={e=>e.currentTarget.style.background=T.rowHover}
-                                                    onMouseLeave={e=>e.currentTarget.style.background=u.isBlocked?'#FFF5F5':'#fff'}
+                                                <tr className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}
                                                     onClick={()=>setExpandedId(expandedId===u._id?null:u._id)}>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent'}}>
+                                                    <td style={tdStyle}>
                                                         <div style={{display:'flex',alignItems:'center',gap:12}}>
                                                             <Avatar name={u.name} size={36}/>
                                                             <div>
@@ -1102,13 +1287,13 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent'}}><PlanBadge plan={u.plan}/></td>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent',fontWeight:700}}>{u.serverCount||0}</td>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent'}}><StatusBadge u={u}/></td>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent',fontSize:12,color:T.sub}}>
+                                                    <td style={tdStyle}><PlanBadge plan={u.plan}/></td>
+                                                    <td style={{...tdStyle,fontWeight:700}}>{u.serverCount||0}</td>
+                                                    <td style={tdStyle}><StatusBadge u={u}/></td>
+                                                    <td style={{...tdStyle,fontSize:12,color:T.sub}}>
                                                         {u.plan!=='free_trial'&&u.planEndsAt?fmt(u.planEndsAt):u.trialEndsAt?fmt(u.trialEndsAt):'—'}
                                                     </td>
-                                                    <td style={{...tdStyle,background:u.isBlocked?'#FFF5F5':'transparent'}} onClick={e=>e.stopPropagation()}>
+                                                    <td style={tdStyle} onClick={e=>e.stopPropagation()}>
                                                         <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
                                                             {readOnly ? <span style={{fontSize:11,color:'#92400e',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:6,padding:'4px 10px',fontWeight:600}}>👁 Read Only</span> : <>
                                                             <button onClick={()=>openAssign(u)} style={{...btnPrimary,padding:'5px 10px',fontSize:11}}>Assign Plan</button>
@@ -1195,7 +1380,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 display: 'inline-flex', alignItems: 'center', gap: 7,
                                 padding: '7px 16px', borderRadius: 9999,
                                 border: `1px solid ${payStatusFilter === s.key ? s.activeBg : T.border}`,
-                                background: payStatusFilter === s.key ? s.activeBg : '#fff',
+                                background: payStatusFilter === s.key ? s.activeBg : 'var(--bg-card)',
                                 color: payStatusFilter === s.key ? s.activeColor : T.sub,
                                 fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
                             }}>
@@ -1211,7 +1396,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         {/* Search */}
                         <div style={{
                             flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 10,
-                            background: '#fff', border: `1px solid ${T.border}`, borderRadius: 8,
+                            background: 'var(--bg-card)', border: `1px solid ${T.border}`, borderRadius: 8,
                             padding: '9px 12px',
                         }}>
                             <SearchIcon />
@@ -1340,9 +1525,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     const sc = statusMap[p.status] || { bg:'#F3F4F6', color:'#6B7280' };
                                     return (
                                         <tr key={p._id}
-                                            style={{ background: isRefunded ? '#FFF5F5' : '#fff', transition: 'background 0.1s' }}
-                                            onMouseEnter={e => !isRefunded && (e.currentTarget.style.background = T.rowHover)}
-                                            onMouseLeave={e => (e.currentTarget.style.background = isRefunded ? '#FFF5F5' : '#fff')}
+                                            className={`admin-tr ${isRefunded ? 'blocked' : ''}`}
                                         >
                                             <td style={{ ...tdStyle, color: T.muted, fontWeight: 600 }}>{i + 1}</td>
                                             <td style={{ ...tdStyle, whiteSpace: 'nowrap', color: T.sub }}>
@@ -1412,7 +1595,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             { label: 'Total Refunded',    value: `₹${totalRefunded}`,       accent:'#F59E0B', bg:'#FFFBEB' },
                             { label: 'Revenue Lost',      value: `₹${refundedPayments.filter(p=>p.type!=='verification').reduce((s,p)=>s+(p.amount||0),0)}`, accent:'#6B7280', bg:'#F9FAFB' },
                         ].map(c => (
-                            <div key={c.label} style={{ background:'#fff', borderRadius:10, border:`1px solid #E5E7EB`, borderTop:`3px solid ${c.accent}`, padding:'20px 24px', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
+                            <div key={c.label} style={{ background:'var(--bg-card)', borderRadius:10, border:`1px solid var(--border-color)`, borderTop:`3px solid ${c.accent}`, padding:'20px 24px', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
                                 <div style={{ fontSize:28, fontWeight:800, color:c.accent, lineHeight:1, marginBottom:6 }}>{c.value}</div>
                                 <div style={{ fontSize:12, color:'#6B7280', fontWeight:600, textTransform:'uppercase', letterSpacing:0.6 }}>{c.label}</div>
                             </div>
@@ -1420,7 +1603,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     </div>
 
                     {/* Table */}
-                    <div style={{ background:'#fff', borderRadius:10, border:'1px solid #E5E7EB', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', overflow:'hidden' }}>
+                    <div style={{ background:'var(--bg-card)', borderRadius:10, border:'1px solid var(--border-color)', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', overflow:'hidden' }}>
                         <div style={{ padding:'16px 20px', borderBottom:'1px solid #F3F4F6', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAFAFA' }}>
                             <div style={{ fontWeight:700, color:'#111827', fontSize:14 }}>Cancelled & Refunded Plans <span style={{ color:'#6B7280', fontWeight:500 }}>({refundedPayments.length})</span></div>
                             {refundedPayments.length > 0 && (
@@ -1438,7 +1621,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <div style={{ overflowX:'auto' }}>
                                 <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
                                     <thead>
-                                        <tr style={{ background:'#F9FAFB', borderBottom:'1px solid #E5E7EB' }}>
+                                        <tr style={{ background:'var(--bg-input)' }}>
                                             {['#','Date','User','Plan','Refunded','Payment ID'].map(h => (
                                                 <th key={h} style={{ padding:'11px 16px', textAlign:'left', fontSize:11, fontWeight:700, color:'#6B7280', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
                                             ))}
@@ -1446,9 +1629,9 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     </thead>
                                     <tbody>
                                         {refundedPayments.map((p, i) => (
-                                            <tr key={p._id} style={{ borderBottom:'1px solid #F3F4F6' }}
-                                                onMouseEnter={e=>e.currentTarget.style.background='#FFF5F5'}
-                                                onMouseLeave={e=>e.currentTarget.style.background='#fff'}>
+                                            <tr key={p._id} className="admin-tr blocked"
+                                                
+                                                >
                                                 <td style={{ padding:'13px 16px', color:'#9CA3AF', fontSize:12 }}>{i+1}</td>
                                                 <td style={{ padding:'13px 16px', color:'#6B7280', whiteSpace:'nowrap', fontSize:12 }}>{fmt(p.reviewedAt||p.createdAt)}</td>
                                                 <td style={{ padding:'13px 16px' }}>
@@ -1503,7 +1686,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     )}
 
                     {tickets.length === 0 ? (
-                        <div style={{ background:'#fff', borderRadius:16, border:'1.5px solid #e2e8f0', padding:60, textAlign:'center' }}>
+                        <div style={{ background:'var(--bg-card)', borderRadius:16, border:'1.5px solid var(--border-color)', padding:60, textAlign:'center' }}>
                             <div style={{ fontSize:48, marginBottom:12 }}>🎧</div>
                             <div style={{ fontWeight:700, color:'#1e1b4b', fontSize:16 }}>No support tickets yet</div>
                             <div style={{ fontSize:13, color:'#94a3b8', marginTop:6 }}>Tickets from users will appear here</div>
@@ -1515,7 +1698,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         const prioColor = t.priority==='high'?'#ef4444':t.priority==='medium'?'#f59e0b':'#22c55e';
                         const prioBg    = t.priority==='high'?'#fef2f2':t.priority==='medium'?'#fffbeb':'#f0fdf4';
                         return (
-                        <div key={t._id} style={{ background:'#fff', borderRadius:16, border:`1.5px solid ${t.status==='open'?'#bfdbfe':t.status==='replied'?'#bbf7d0':'#e2e8f0'}`, padding:22, marginBottom:12, borderLeft:`4px solid ${prioColor}` }}>
+                        <div key={t._id} style={{ background:'var(--bg-card)', borderRadius:16, border:`1.5px solid ${t.status==='open'?(isDark?'rgba(59,130,246,0.3)':'#bfdbfe'):t.status==='replied'?(isDark?'rgba(16,185,129,0.3)':'#bbf7d0'):'var(--border-color)'}`, padding:22, marginBottom:12, borderLeft:`4px solid ${prioColor}` }}>
                             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
                                 <div style={{ flex:1 }}>
                                     <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:6 }}>
@@ -1544,7 +1727,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
                                 <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                                     <select value={t.status} onChange={e=>updateTicket(t._id,{status:e.target.value})}
-                                        style={{ padding:'5px 10px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer', background:'#fff' }}>
+                                        style={{ padding:'5px 10px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer', background:'var(--bg-card)', color:'var(--text-main)', border:'1.5px solid var(--border-color)' }}>
                                         <option value="open">Open</option>
                                         <option value="replied">Replied</option>
                                         <option value="closed">Closed</option>
@@ -1627,7 +1810,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
             {assignModal && (
                 <div style={{ position:'fixed', inset:0, background:'rgba(17,24,39,0.5)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', padding:20, zIndex:500 }}
                     onClick={() => setAssignModal(null)}>
-                    <div style={{ background:'#fff', borderRadius:12, width:'100%', maxWidth:480, boxShadow:'0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:12, width:'100%', maxWidth:480, boxShadow:'var(--card-hover-shadow)' }} onClick={e => e.stopPropagation()}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'20px 24px 16px', borderBottom:`1px solid ${T.border}` }}>
                             <div>
                                 <div style={{ fontSize:16, fontWeight:700, color:T.text }}>Assign Plan</div>
@@ -1639,7 +1822,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <div style={{ fontSize:11, fontWeight:700, color:T.sub, textTransform:'uppercase', letterSpacing:0.5, marginBottom:10 }}>SELECT PLAN</div>
                             <div style={{ display:'flex', gap:10, marginBottom:20 }}>
                                 {['bronze','silver','gold'].map(p => (
-                                    <button key={p} onClick={() => setAssignForm(f => ({ ...f, plan: p }))} style={{ flex:1, padding:'10px', border:`2px solid ${assignForm.plan===p?PLAN_COLORS[p]:T.border}`, borderRadius:8, background:assignForm.plan===p?PLAN_COLORS[p]:'#fff', color:assignForm.plan===p?'#fff':PLAN_COLORS[p], fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
+                                    <button key={p} onClick={() => setAssignForm(f => ({ ...f, plan: p }))} style={{ flex:1, padding:'10px', border:`2px solid ${assignForm.plan===p?PLAN_COLORS[p]:T.border}`, borderRadius:8, background:assignForm.plan===p?PLAN_COLORS[p]:'transparent', color:assignForm.plan===p?'#fff':PLAN_COLORS[p], fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
                                         {PLAN_LABEL[p]}
                                     </button>
                                 ))}
@@ -1647,7 +1830,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <div style={{ fontSize:11, fontWeight:700, color:T.sub, textTransform:'uppercase', letterSpacing:0.5, marginBottom:10 }}>DURATION</div>
                             <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:16 }}>
                                 {[{val:'1m',label:'1 Month'},{val:'3m',label:'3 Months'},{val:'6m',label:'6 Months'},{val:'1y',label:'1 Year'},{val:'custom',label:'Custom Date'}].map(d => (
-                                    <button key={d.val} onClick={() => setAssignForm(f => ({ ...f, duration: d.val }))} style={{ padding:'7px 14px', border:`1px solid ${assignForm.duration===d.val?T.primary:T.border}`, borderRadius:9999, fontSize:12, fontWeight:600, background:assignForm.duration===d.val?T.primary:'#fff', color:assignForm.duration===d.val?'#fff':T.sub, cursor:'pointer', fontFamily:'inherit' }}>
+                                    <button key={d.val} onClick={() => setAssignForm(f => ({ ...f, duration: d.val }))} style={{ padding:'7px 14px', border:`1px solid ${assignForm.duration===d.val?T.primary:T.border}`, borderRadius:9999, fontSize:12, fontWeight:600, background:assignForm.duration===d.val?T.primary:'transparent', color:assignForm.duration===d.val?'#fff':T.sub, cursor:'pointer', fontFamily:'inherit' }}>
                                         {d.label}
                                     </button>
                                 ))}
@@ -1661,7 +1844,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     {[['monthly','📅 Monthly','#3b82f6','#eff6ff','#1d4ed8'],['3m','📅 3 Months','#8b5cf6','#f3f0ff','#6d28d9'],['6m','📅 6 Months','#10b981','#f0fdf4','#065f46'],['annually','📆 Annual','#f59e0b','#fef3c7','#b45309']].map(([val,label,border,bg,color]) => (
                                         <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing:val==='annually'?'annually':'monthly', planDuration:val==='annually'?'1y':val==='monthly'?'1m':val }))}
                                             style={{ flex:1, minWidth:80, padding:'9px 0', border:`2px solid ${assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?border:T.border}`, borderRadius:8, fontWeight:700, fontSize:12, cursor:'pointer',
-                                                background:assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?bg:'#fff',
+                                                background:assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?(isDark?'rgba(255,255,255,0.03)':bg):'transparent',
                                                 color:assignForm.billing===(val==='annually'?'annually':'monthly')&&assignForm.planDuration===(val==='annually'?'1y':val)?color:T.sub }}>
                                             {label}
                                         </button>
@@ -1682,6 +1865,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 </div>
             )}
 
+            </div>
         </div>
     );
 }
