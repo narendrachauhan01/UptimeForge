@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell,
   ReferenceLine,
 } from 'recharts';
-import { getServers, getAlerts, API_URL } from '../api';
+import { getServers, getAlerts, getPlans, API_URL } from '../api';
 import axios from 'axios';
 
 export default function Charts({ theme = 'light' }) {
@@ -42,7 +42,15 @@ export default function Charts({ theme = 'light' }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [uptimeSearch, setUptimeSearch] = useState('');
   const [pageLoading, setPageLoading]   = useState(false);
-  const [statsFilter, setStatsFilter]   = useState('all'); // 'all' | 'up' | 'down' | 'incidents'
+  const [statsFilter, setStatsFilter]   = useState('all');
+  const [checkInterval, setCheckInterval] = useState(null);
+
+  const intervalLabel = (secs) => {
+    if (!secs) return '...';
+    if (secs < 60) return `${secs}s`;
+    if (secs === 60) return '1/min';
+    return `every ${secs/60}min`;
+  };
 
   useEffect(() => {
     setPageLoading(true);
@@ -52,6 +60,18 @@ export default function Charts({ theme = 'light' }) {
       setPageLoading(false); _loaded_Charts = true;
     }).catch(()=>setPageLoading(false));
     getAlerts().then(r => setAlerts(r.data));
+    // Fetch actual plan interval
+    getPlans().then(r => {
+      const s = r.data;
+      // Get interval from the first server's plan, or fall back to plans config
+      getServers().then(sr => {
+        const userPlan = sr.data[0]?.plan || 'free_trial';
+        const iv = userPlan === 'free_trial'
+          ? (s.freeTrialInterval || 300)
+          : (s.plans?.[userPlan]?.interval || 60);
+        setCheckInterval(iv);
+      }).catch(() => setCheckInterval(60));
+    }).catch(() => setCheckInterval(60));
   }, []);
 
   useEffect(() => {
@@ -1028,7 +1048,7 @@ export default function Charts({ theme = 'light' }) {
               <span>Response time & uptime history</span>
               <span className="perf-badge-pulse">
                 <span className="perf-pulse-dot" />
-                Checks running: 1/min
+                Checks running: {intervalLabel(checkInterval)}
               </span>
             </div>
           </div>
@@ -1275,7 +1295,7 @@ export default function Charts({ theme = 'light' }) {
                 Detailed Performance & Uptime
               </h2>
               <div className="chart-card-sub">
-                Last 24 hours · Checked 1/min · Showing {filteredUptimeData.length} of {uptimeData.length} sites
+                Last 24 hours · {intervalLabel(checkInterval)} · Showing {filteredUptimeData.length} of {uptimeData.length} sites
               </div>
             </div>
 
