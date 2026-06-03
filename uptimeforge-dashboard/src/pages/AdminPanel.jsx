@@ -1591,23 +1591,23 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     {/* Summary — 3 clean stat tiles */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
                         {[
-                            { label: 'Total Cancelled',   value: refundedPayments.length,  accent:'#EF4444', bg:'#FFF5F5' },
-                            { label: 'Total Refunded',    value: `₹${totalRefunded}`,       accent:'#F59E0B', bg:'#FFFBEB' },
-                            { label: 'Revenue Lost',      value: `₹${refundedPayments.filter(p=>p.type!=='verification').reduce((s,p)=>s+(p.amount||0),0)}`, accent:'#6B7280', bg:'#F9FAFB' },
+                            { label: 'Total Cancelled',   value: refundedPayments.length,  accent:'#EF4444' },
+                            { label: 'Total Refunded',    value: `₹${totalRefunded}`,       accent:'#F59E0B' },
+                            { label: 'Revenue Lost',      value: `₹${refundedPayments.filter(p=>p.type!=='verification').reduce((s,p)=>s+(p.amount||0),0)}`, accent:'#7C3AED' },
                         ].map(c => (
                             <div key={c.label} style={{ background:'var(--bg-card)', borderRadius:10, border:`1px solid var(--border-color)`, borderTop:`3px solid ${c.accent}`, padding:'20px 24px', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
                                 <div style={{ fontSize:28, fontWeight:800, color:c.accent, lineHeight:1, marginBottom:6 }}>{c.value}</div>
-                                <div style={{ fontSize:12, color:'#6B7280', fontWeight:600, textTransform:'uppercase', letterSpacing:0.6 }}>{c.label}</div>
+                                <div style={{ fontSize:12, color:'var(--text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:0.6 }}>{c.label}</div>
                             </div>
                         ))}
                     </div>
 
                     {/* Table */}
                     <div style={{ background:'var(--bg-card)', borderRadius:10, border:'1px solid var(--border-color)', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', overflow:'hidden' }}>
-                        <div style={{ padding:'16px 20px', borderBottom:'1px solid #F3F4F6', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAFAFA' }}>
-                            <div style={{ fontWeight:700, color:'#111827', fontSize:14 }}>Cancelled & Refunded Plans <span style={{ color:'#6B7280', fontWeight:500 }}>({refundedPayments.length})</span></div>
+                        <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border-color)', display:'flex', justifyContent:'space-between', alignItems:'center', background:'var(--bg-input)' }}>
+                            <div style={{ fontWeight:700, color:'var(--text-main)', fontSize:14 }}>Cancelled & Refunded Plans <span style={{ color:'var(--text-muted)', fontWeight:500 }}>({refundedPayments.length})</span></div>
                             {refundedPayments.length > 0 && (
-                                <span style={{ fontSize:12, fontWeight:700, color:'#EF4444', background:'#FFF5F5', border:'1px solid #FECDD3', padding:'3px 12px', borderRadius:20 }}>Total Lost: ₹{totalRefunded}</span>
+                                <span style={{ fontSize:12, fontWeight:700, color:'#EF4444', background:'rgba(239, 68, 68, 0.08)', border:'1px solid rgba(239, 68, 68, 0.25)', padding:'3px 12px', borderRadius:20 }}>Total Lost: ₹{totalRefunded}</span>
                             )}
                         </div>
 
@@ -1615,7 +1615,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <div style={{ padding:60, textAlign:'center' }}>
                                 <div style={{ fontSize:40, marginBottom:12 }}>✅</div>
                                 <div style={{ fontWeight:700, fontSize:16, color:'#10B981' }}>No Cancelled Plans</div>
-                                <div style={{ fontSize:13, color:'#9CA3AF', marginTop:6 }}>All plans are active</div>
+                                <div style={{ fontSize:13, color:'var(--text-muted)', marginTop:6 }}>All plans are active</div>
                             </div>
                         ) : (
                             <div style={{ overflowX:'auto' }}>
@@ -1623,34 +1623,32 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     <thead>
                                         <tr style={{ background:'var(--bg-input)' }}>
                                             {['#','Date','User','Plan','Refunded','Payment ID'].map(h => (
-                                                <th key={h} style={{ padding:'11px 16px', textAlign:'left', fontSize:11, fontWeight:700, color:'#6B7280', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
+                                                <th key={h} style={{ padding:'11px 16px', textAlign:'left', fontSize:11, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {refundedPayments.map((p, i) => (
-                                            <tr key={p._id} className="admin-tr blocked"
-                                                
-                                                >
-                                                <td style={{ padding:'13px 16px', color:'#9CA3AF', fontSize:12 }}>{i+1}</td>
-                                                <td style={{ padding:'13px 16px', color:'#6B7280', whiteSpace:'nowrap', fontSize:12 }}>{fmt(p.reviewedAt||p.createdAt)}</td>
+                                            <tr key={p._id} className="admin-tr blocked">
+                                                <td style={{ padding:'13px 16px', color:'var(--text-muted)', fontSize:12 }}>{i+1}</td>
+                                                <td style={{ padding:'13px 16px', color:'var(--text-muted)', whiteSpace:'nowrap', fontSize:12 }}>{fmt(p.reviewedAt||p.createdAt)}</td>
                                                 <td style={{ padding:'13px 16px' }}>
-                                                    <div style={{ fontWeight:600, color:'#111827' }}>{p.userName||'—'}</div>
-                                                    <div style={{ fontSize:11, color:'#9CA3AF', marginTop:2 }}>{p.userEmail||''}</div>
+                                                    <div style={{ fontWeight:600, color:'var(--text-main)' }}>{p.userName||'—'}</div>
+                                                    <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>{p.userEmail||''}</div>
                                                 </td>
                                                 <td style={{ padding:'13px 16px' }}><PlanBadge plan={p.plan||'free_trial'} /></td>
                                                 <td style={{ padding:'13px 16px' }}>
                                                     <span style={{ fontWeight:700, color:'#EF4444', textDecoration:'line-through', fontSize:14 }}>₹{p.amount}</span>
                                                 </td>
-                                                <td style={{ padding:'13px 16px', fontFamily:'monospace', fontSize:11, color:'#9CA3AF' }}>
+                                                <td style={{ padding:'13px 16px', fontFamily:'monospace', fontSize:11, color:'var(--text-muted)' }}>
                                                     {(p.razorpay_payment_id||p.utr||'—').slice(0,18)}
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
-                                        <tr style={{ background:'#F9FAFB', borderTop:'2px solid #E5E7EB' }}>
-                                            <td colSpan={4} style={{ padding:'12px 16px', fontWeight:700, color:'#374151', fontSize:13 }}>Total Refunded</td>
+                                        <tr style={{ background:'var(--bg-input)', borderTop:'2px solid var(--border-color)' }}>
+                                            <td colSpan={4} style={{ padding:'12px 16px', fontWeight:700, color:'var(--text-main)', fontSize:13 }}>Total Refunded</td>
                                             <td style={{ padding:'12px 16px', fontWeight:800, color:'#EF4444', fontSize:15 }}>₹{totalRefunded}</td>
                                             <td/>
                                         </tr>
