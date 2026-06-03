@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import UWLogo from '../components/UWLogo';
 import { getPlans } from '../api';
+import { setCookie, removeCookie } from '../utils/cookies';
 
 const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 
@@ -68,8 +69,8 @@ export default function Pricing({ user, authed }) {
     ];
 
     const handleCta = (plan) => {
-        if (plan.key !== 'free_trial') sessionStorage.setItem('sm_intended_plan', plan.key);
-        else sessionStorage.removeItem('sm_intended_plan');
+        if (plan.key !== 'free_trial') setCookie('sm_intended_plan', plan.key, 1);
+        else removeCookie('sm_intended_plan');
 
         if (authed) {
             navigate(plan.key === 'free_trial' ? '/pay?plan=verification' : `/pay?plan=${plan.key}`);

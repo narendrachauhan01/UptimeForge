@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getPlans, createOrder, verifyPayment, deleteMyAccount } from '../api';
 import UWLogo from '../components/UWLogo';
+import { removeCookie } from '../utils/cookies';
 
 function parseFeature(f) {
     const idx = f.indexOf(':');
@@ -233,7 +234,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const handleCancel = async () => {
         if (!isNewUnverified || paymentDone.current) return;
         try { await deleteMyAccount(); } catch (_) {}
-        sessionStorage.removeItem('sm_intended_plan');
+        removeCookie('sm_intended_plan');
         window.location.href = '/register';
     };
 
@@ -284,7 +285,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
                     try {
                         const { getMe } = await import('../api');
                         const meRes = await getMe();
-                        sessionStorage.removeItem('sm_intended_plan');
+                        removeCookie('sm_intended_plan');
                         onUserUpdate?.(meRes.data);
                     } catch {
                         if (res.data.user) {

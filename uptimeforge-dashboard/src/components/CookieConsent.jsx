@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { setCookie, getCookie, removeCookie } from '../utils/cookies';
 
 const CookieIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="cookie-svg">
@@ -10,15 +11,6 @@ const CookieIcon = () => (
     <circle cx="7" cy="14" r="1" fill="currentColor" />
   </svg>
 );
-
-const setCookie = (name, value, days) => {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
-};
-const getCookie = (name) => {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
-};
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -34,7 +26,8 @@ export default function CookieConsent() {
 
   const reject = () => {
     setCookie('uf_consent', 'rejected', 365);
-    sessionStorage.clear();
+    removeCookie('sm_intended_plan');
+    removeCookie('uf_ref');
     setVisible(false);
     window.location.href = '/';
   };

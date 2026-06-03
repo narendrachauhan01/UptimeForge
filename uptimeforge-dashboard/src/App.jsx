@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, NavLink, Link, useLocation, useNavigate, 
 import axios from 'axios';
 import UWLogo from './components/UWLogo';
 import CookieConsent from './components/CookieConsent';
+import { setCookie, getCookie, removeCookie } from './utils/cookies';
 const Dashboard         = lazy(() => import('./pages/Dashboard'));
 const WhatsAppPage      = lazy(() => import('./pages/WhatsApp'));
 const Alerts            = lazy(() => import('./pages/Alerts'));
@@ -428,7 +429,7 @@ function AppInner() {
     setIsAdmin(false);
     setAuthed(true);
     if (planKey && ['bronze', 'silver', 'gold'].includes(planKey)) {
-      sessionStorage.setItem('sm_intended_plan', planKey);
+      setCookie('sm_intended_plan', planKey, 1);
       navigate(`/pay?plan=${planKey}`);
     } else {
       navigate('/pay?plan=select');
@@ -577,7 +578,7 @@ function AppInner() {
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;
   if (needsVerification && location.pathname !== '/pay') {
-    const intendedPlan = sessionStorage.getItem('sm_intended_plan');
+    const intendedPlan = getCookie('sm_intended_plan');
     if (intendedPlan && ['bronze', 'silver', 'gold'].includes(intendedPlan)) {
       navigate(`/pay?plan=${intendedPlan}`);
     } else {
