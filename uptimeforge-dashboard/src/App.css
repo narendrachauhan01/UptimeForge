@@ -1255,8 +1255,8 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .login-left { display: none !important; }
 }
 @media (max-width: 768px) {
-  .login-split { flex-direction: column; min-height: auto; }
-  .login-right { padding: 32px 20px; background: radial-gradient(circle at 50% 30%, #0f0a2d 0%, #05020c 100%); }
+  .login-split { flex-direction: column; min-height: 100vh; }
+  .login-right { padding: 32px 20px; background: radial-gradient(circle at 50% 30%, #120c3b 0%, #05020c 100%); min-height: 100vh; box-sizing: border-box; }
   .login-form-wrap { padding: 28px 24px; border-radius: 16px; max-width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
   .login-right-h1 { font-size: 24px; }
   .login-back { margin-bottom: 16px; }
@@ -3495,19 +3495,17 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-  .reg-page { flex-direction: column; height: auto; overflow: auto; }
-  .reg-left { width: 100%; min-height: auto; padding: 24px 20px; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
-  .reg-left-body { padding: 16px 0; }
-  .reg-left-h2 { font-size: 22px; }
-  .reg-features { gap: 8px; }
-  .reg-right { padding: 24px 16px; background: radial-gradient(circle at 50% 30%, #0f0a2d 0%, #05020c 100%); }
-  .reg-form-wrap { padding: 28px 20px; max-width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-  .reg-plan-cards { grid-template-columns: repeat(2, 1fr); }
+  .reg-page { flex-direction: column; min-height: 100vh; height: auto; overflow: auto; }
+  .reg-left { width: 100%; min-height: auto; padding: 14px 20px; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+  .reg-left-inner { padding: 0; }
+  .reg-left-body { display: none !important; }
+  .reg-left-footer { display: none !important; }
+  .reg-right { padding: 32px 16px; background: radial-gradient(circle at 50% 30%, #120c3b 0%, #05020c 100%); min-height: calc(100vh - 66px); display: flex; align-items: center; box-sizing: border-box; }
+  .reg-form-wrap { padding: 28px 24px; max-width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
   .reg-row-2 { grid-template-columns: 1fr; }
-  .reg-plan-preview { display: none; }
 }
 @media (max-width: 480px) {
-  .reg-right { padding: 16px 12px; }
+  .reg-right { padding: 20px 12px; }
   .reg-form-wrap { padding: 24px 16px; border-radius: 12px; }
   .reg-title { font-size: 20px; }
   .reg-input { padding: 10px 12px; font-size: 13px; }
