@@ -228,6 +228,16 @@ export default function Dashboard({ readOnly = false }) {
           --input-focus-shadow: rgba(139, 92, 246, 0.15);
         }
 
+        /* Outer layout background overrides for charts view */
+        body.charts-dark-theme {
+          background-color: #0b0f19 !important;
+        }
+        body.charts-dark-theme .app-main,
+        body.charts-dark-theme .content {
+          background-color: #0b0f19 !important;
+          transition: background-color 0.3s ease;
+        }
+
         /* Decorative Glows */
         .perf-bg-glow-1 {
           position: absolute;
