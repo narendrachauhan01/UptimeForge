@@ -37,10 +37,9 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
     };
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
-            onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:460, padding:28, boxShadow:'0 24px 80px rgba(0,0,0,0.4)', position:'relative' }}>
-                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
+        <div className="modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
+            <div className="modal-card">
+                <button onClick={onClose} className="modal-close">✕</button>
 
                 <div style={{ textAlign:'center', marginBottom:22 }}>
                     <div style={{ marginBottom:10 }}>
@@ -48,65 +47,61 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
                         </svg>
                     </div>
-                    <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add <span style={{color:'#25d366'}}>WhatsApp</span> Recipient</h2>
-                    <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>You will receive WhatsApp alerts when your sites go down</p>
+                    <h2 className="modal-title">Add <span style={{color:'#25d366'}}>WhatsApp</span> Recipient</h2>
+                    <p className="modal-subtitle">You will receive WhatsApp alerts when your sites go down</p>
                 </div>
 
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     {/* Name */}
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Full Name *</label>
-                        <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name"
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                        <label className="modal-label">Full Name *</label>
+                        <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" className="modal-input" />
                     </div>
 
                     {/* Phone */}
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>WhatsApp Number *</label>
-                        <div style={{ display:'flex', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, overflow:'hidden', background:'#2d2466' }}>
-                            <span style={{ padding:'0 12px', color:'rgba(255,255,255,0.5)', fontSize:13, display:'flex', alignItems:'center', borderRight:'1px solid rgba(255,255,255,0.1)' }}>🇮🇳 +91</span>
-                            <input value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,'').slice(0,10))} placeholder="98765 43210" maxLength={10}
-                                style={{ flex:1, padding:'10px 12px', border:'none', background:'transparent', color:'#e2e8f0', fontSize:14, outline:'none' }} />
+                        <label className="modal-label">WhatsApp Number *</label>
+                        <div className="modal-phone-wrap">
+                            <span className="modal-phone-country">🇮🇳 +91</span>
+                            <input value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,'').slice(0,10))} placeholder="98765 43210" maxLength={10} className="modal-phone-input" />
                         </div>
                     </div>
 
                     {/* Sites */}
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
-                        <label style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, cursor:'pointer' }}>
-                            <input type="checkbox" checked={allSites} onChange={e=>{setAllSites(e.target.checked);setSelected([]);}}
-                                style={{ width:16, height:16, accentColor:'#7c3aed' }} />
-                            <span style={{ color:'#e2e8f0', fontSize:13, fontWeight:600 }}>All sites (current + future)</span>
+                        <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                        <label className="modal-checkbox-row">
+                            <input type="checkbox" checked={allSites} onChange={e=>{setAllSites(e.target.checked);setSelected([]);}} className="modal-checkbox" />
+                            <span className="modal-checkbox-label">All sites (current + future)</span>
                         </label>
                         {!allSites && (
                             <div>
-                            {/* Search */}
-                            <div style={{ position:'relative', marginBottom:8 }}>
-                                <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                                <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..."
-                                    style={{ width:'100%', padding:'8px 10px 8px 30px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:8, fontSize:13, background:'rgba(255,255,255,0.07)', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
-                            </div>
-                            <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:160, overflowY:'auto' }}>
-                                {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
-                                    <label key={s._id} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.05)' }}>
-                                        <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>toggle(s._id)}
-                                            style={{ width:15, height:15, accentColor:'#7c3aed' }} />
-                                        <span style={{ width:8, height:8, borderRadius:'50%', background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b', flexShrink:0 }} />
-                                        <span style={{ color:'#e2e8f0', fontSize:13 }}>{s.name}</span>
-                                    </label>
-                                ))}
-                            </div>
+                                {/* Search */}
+                                <div style={{ position:'relative', marginBottom:8 }}>
+                                    <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..." className="modal-input" style={{ paddingLeft:30 }} />
+                                </div>
+                                <div className="modal-site-selector-card">
+                                    <div className="modal-site-list">
+                                        {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
+                                            <div key={s._id} onClick={()=>toggle(s._id)} className="modal-site-row">
+                                                <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                <span className="modal-site-dot" style={{ background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }} />
+                                                <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {error && <div style={{ background:'#fef2f2', color:'#dc2626', borderRadius:8, padding:'8px 12px', fontSize:13, fontWeight:600, marginTop:12 }}>⚠️ {error}</div>}
+                {error && <div className="modal-error">⚠️ {error}</div>}
 
                 <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                    <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
-                    <button onClick={save} disabled={saving}
-                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+                    <button onClick={onClose} className="modal-btn-cancel">Cancel</button>
+                    <button onClick={save} disabled={saving} className="modal-btn-save">
                         {saving ? 'Saving...' : '✓ Save Recipient'}
                     </button>
                 </div>
@@ -140,10 +135,9 @@ function EmailModal({ servers, onClose, onSaved }) {
     };
 
     return (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
-            onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:460, padding:28, boxShadow:'0 24px 80px rgba(0,0,0,0.4)', position:'relative' }}>
-                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
+        <div className="modal-overlay" onClick={e => e.target===e.currentTarget && onClose()}>
+            <div className="modal-card">
+                <button onClick={onClose} className="modal-close">✕</button>
 
                 <div style={{ textAlign:'center', marginBottom:22 }}>
                     <div style={{ marginBottom:10 }}>
@@ -151,54 +145,52 @@ function EmailModal({ servers, onClose, onSaved }) {
                             <path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
                         </svg>
                     </div>
-                    <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add <span style={{color:'#EA4335'}}>Email</span> Recipient</h2>
-                    <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>You will receive email alerts when your sites go down</p>
+                    <h2 className="modal-title">Add <span style={{color:'#EA4335'}}>Email</span> Recipient</h2>
+                    <p className="modal-subtitle">You will receive email alerts when your sites go down</p>
                 </div>
 
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Full Name *</label>
-                        <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name"
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                        <label className="modal-label">Full Name *</label>
+                        <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" className="modal-input" />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Email Address *</label>
-                        <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com"
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                        <label className="modal-label">Email Address *</label>
+                        <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" className="modal-input" />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
-                        <label style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, cursor:'pointer' }}>
-                            <input type="checkbox" checked={allSites} onChange={e=>{setAllSites(e.target.checked);setSelected([]);}} style={{ width:16, height:16, accentColor:'#7c3aed' }} />
-                            <span style={{ color:'#e2e8f0', fontSize:13, fontWeight:600 }}>All sites (current + future)</span>
+                        <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                        <label className="modal-checkbox-row">
+                            <input type="checkbox" checked={allSites} onChange={e=>{setAllSites(e.target.checked);setSelected([]);}} className="modal-checkbox" />
+                            <span className="modal-checkbox-label">All sites (current + future)</span>
                         </label>
                         {!allSites && (
                             <div>
                                 <div style={{ position:'relative', marginBottom:8 }}>
-                                    <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                                    <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..."
-                                        style={{ width:'100%', padding:'8px 10px 8px 30px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:8, fontSize:13, background:'rgba(255,255,255,0.07)', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                                    <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..." className="modal-input" style={{ paddingLeft:30 }} />
                                 </div>
-                                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:160, overflowY:'auto' }}>
-                                    {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
-                                        <label key={s._id} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.05)' }}>
-                                            <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>toggle(s._id)} style={{ width:15, height:15, accentColor:'#7c3aed' }} />
-                                            <span style={{ width:8, height:8, borderRadius:'50%', background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b', flexShrink:0 }} />
-                                            <span style={{ color:'#e2e8f0', fontSize:13 }}>{s.name}</span>
-                                        </label>
-                                    ))}
+                                <div className="modal-site-selector-card">
+                                    <div className="modal-site-list">
+                                        {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
+                                            <div key={s._id} onClick={()=>toggle(s._id)} className="modal-site-row">
+                                                <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                <span className="modal-site-dot" style={{ background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }} />
+                                                <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {error && <div style={{ background:'#fef2f2', color:'#dc2626', borderRadius:8, padding:'8px 12px', fontSize:13, fontWeight:600, marginTop:12 }}>⚠️ {error}</div>}
+                {error && <div className="modal-error">⚠️ {error}</div>}
 
                 <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                    <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
-                    <button onClick={save} disabled={saving}
-                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+                    <button onClick={onClose} className="modal-btn-cancel">Cancel</button>
+                    <button onClick={save} disabled={saving} className="modal-btn-save">
                         {saving ? 'Saving...' : '✓ Save Recipient'}
                     </button>
                 </div>
@@ -216,6 +208,7 @@ const IcoTelegram = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill=
 const IcoDiscord  = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>);
 const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xmlns="http://www.w3.org/2000/svg"><g fillRule="nonzero" fill="none"><path d="M302.326 118.304l.005.007-.002-.003-.003-.004zM103.893 13.408c10.625 5.903 20.67 13.37 29.247 21.67 13.827-2.504 28.084-3.767 42.547-3.767 43.298 0 84.348 11.36 115.58 31.981 16.175 10.684 29.031 23.36 38.207 37.68 10.22 15.957 15.4 33.116 15.4 51.503 0 17.892-5.18 35.058-15.4 51.011-9.176 14.327-22.032 27-38.206 37.684-31.233 20.62-72.28 31.974-115.58 31.974-14.464 0-28.718-1.263-42.548-3.765-8.581 8.297-18.622 15.769-29.247 21.67-56.773 28.438-103.854.67-103.854.67s43.773-37.168 36.655-69.75c-19.586-20.077-30.197-44.291-30.197-69.982 0-25.207 10.615-49.42 30.197-69.5C43.811 49.913.054 12.752.039 12.74c.014-.009 47.09-27.768 103.854.668z" fill="#DB2323"/><path d="M69.964 208.766c-19.484-15.38-31.18-35.061-31.18-56.512 0-49.223 61.582-89.126 137.547-89.126s137.547 39.903 137.547 89.126c0 49.223-61.582 89.126-137.547 89.126-18.722 0-36.57-2.424-52.839-6.814l-11.894 11.49c-6.462 6.242-14.037 11.892-21.932 16.343-10.466 5.148-20.8 7.957-31.024 8.814.576-1.05 1.107-2.114 1.678-3.166 11.917-21.989 15.132-41.75 9.644-59.281z" fill="#FFF"/><path d="M110.528 172.151c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.194 0-20.267-9.043-20.267-20.2 0-11.155 9.073-20.199 20.267-20.199 11.193 0 20.267 9.044 20.267 20.2 0 11.156-9.074 20.2-20.267 20.2v-.001z" fill="#DB2323"/></g></svg>);
 
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} }) {
     const { confirm, Dialog: ConfirmDialog } = useConfirm();
@@ -226,6 +219,40 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     const blocked  = (key) =>
         (isFree   && freeAccess[key]   === false) ||
         (isBronze && bronzeAccess[key] === false);
+
+    const [localTheme, setLocalTheme] = useState(() => {
+        const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+        if (match) return match[1];
+        return 'dark'; // Keep dark mode ON by default
+    });
+
+    const isDark = localTheme === 'dark';
+
+    // Synchronize theme cookie shifts
+    useEffect(() => {
+        const checkThemeCookie = () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const current = match ? match[1] : 'dark';
+            if (current !== localTheme) {
+                setLocalTheme(current);
+            }
+        };
+        checkThemeCookie();
+        const interval = setInterval(checkThemeCookie, 1000);
+        return () => clearInterval(interval);
+    }, [localTheme]);
+
+    useEffect(() => {
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            document.body.classList.remove('charts-dark-theme');
+        };
+    }, [localTheme]);
+
     const UpgradeBtn = () => (
         <button onClick={() => navigate('/pay?plan=select')}
             style={{ padding:'8px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
@@ -256,12 +283,6 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
             .then(r => setEmailActive(r.data?.configured===true)).catch(()=>{});
     }, []);
 
-    const handleWebhookSave = async (form) => {
-        await axios.post(`${API_URL}/api/integrations/webhook`, { config: form, events: form.events||'all' }, { withCredentials: true });
-        setSaved(p=>({...p, webhook:true}));
-        showToast('✅ Webhook saved!');
-    };
-
     const [webhookModal,      setWebhookModal]      = useState(false);
     const [webhookForm,       setWebhookForm]       = useState({ url:'', secret:'', events:'all' });
     const [webhookSaving,     setWebhookSaving]     = useState(false);
@@ -284,9 +305,6 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
         const blocked = ['docs.google.com','drive.google.com','google.com','youtube.com','facebook.com','instagram.com','twitter.com','linkedin.com'];
         const host = new URL(url).hostname;
         if (blocked.some(d => host.includes(d))) return `❌ "${host}" is not a webhook URL. Use a Rocket.Chat / Slack / Discord webhook URL.`;
-        if (!url.includes('/hook') && !url.includes('/webhook') && !url.includes('/trigger') && !url.includes('/integrations')) {
-            // Warn but don't block — custom APIs may have any path
-        }
         return null;
     };
 
@@ -381,241 +399,734 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     };
 
     return (
-        <div className="pg-wrap">
-      <ConfirmDialog />
-            <div className="pg-header">
-                <div>
-                    <h1 className="pg-title">Integrations <span style={{color:'#7c3aed'}}>.</span></h1>
-                    <p className="pg-sub">Connect UptimeForge with your tools to get alerts everywhere</p>
+        <div className={`perf-page-container ${localTheme}`}>
+            <style>{`
+                /* Global CSS Variables for scope */
+                .perf-page-container {
+                  --primary: #7c3aed;
+                  --primary-hover: #6d28d9;
+                  --primary-rgb: 124, 58, 237;
+                  --success: #10b981;
+                  --success-rgb: 16, 185, 129;
+                  --danger: #f43f5e;
+                  --danger-rgb: 244, 63, 94;
+                  --warning: #f59e0b;
+                  --warning-rgb: 245, 158, 11;
+                  --info: #06b6d4;
+                  
+                  transition: background-color 0.3s ease;
+                  min-height: 100vh;
+                  position: relative;
+                  z-index: 1;
+                }
+
+                /* Light Theme Scope */
+                .perf-page-container.light {
+                  --bg-primary: #f8fafc;
+                  --bg-card: #ffffff;
+                  --bg-input: #f1f5f9;
+                  --border-color: rgba(226, 232, 240, 0.8);
+                  --text-main: #0f172a;
+                  --text-muted: #64748b;
+                  --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+                  --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
+                  --input-focus-shadow: rgba(124, 58, 237, 0.08);
+                  --modal-bg: #ffffff;
+                  --coming-soon-bg: #f8fafc;
+                  --coming-soon-border: #f1f5f9;
+                  --coming-soon-tag-bg: #f1f5f9;
+                  --coming-soon-tag-color: #94a3b8;
+                }
+
+                /* Dark Theme Scope */
+                .perf-page-container.dark {
+                  --bg-primary: #0b0f19;
+                  --bg-card: #131a26;
+                  --bg-input: #1b2535;
+                  --border-color: rgba(255, 255, 255, 0.07);
+                  --text-main: #f8fafc;
+                  --text-muted: #94a3b8;
+                  --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
+                  --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
+                  --input-focus-shadow: rgba(139, 92, 246, 0.15);
+                  --modal-bg: #131a26;
+                  --coming-soon-bg: #0e131d;
+                  --coming-soon-border: rgba(255, 255, 255, 0.03);
+                  --coming-soon-tag-bg: #1b2535;
+                  --coming-soon-tag-color: #cbd5e1;
+                }
+
+                /* Body background overrides */
+                body.charts-dark-theme {
+                  background-color: #0b0f19 !important;
+                }
+                body.charts-dark-theme .app-main,
+                body.charts-dark-theme .content {
+                  background-color: #0b0f19 !important;
+                  transition: background-color 0.3s ease;
+                }
+
+                /* Decorative Glows */
+                .perf-bg-glow-1 {
+                  position: absolute;
+                  top: -200px;
+                  right: 10%;
+                  width: 600px;
+                  height: 600px;
+                  background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, rgba(124, 58, 237, 0) 70%);
+                  pointer-events: none;
+                  z-index: 0;
+                }
+                .perf-page-container.dark .perf-bg-glow-1 {
+                  background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, rgba(139, 92, 246, 0) 70%);
+                }
+
+                /* Page wrapper */
+                .perf-page-container .pg-wrap {
+                  background: transparent !important;
+                  min-height: auto;
+                  position: relative;
+                  z-index: 10;
+                  padding: 0 4px;
+                }
+                .perf-page-container .pg-header {
+                  margin-bottom: 28px;
+                }
+                .perf-page-container .pg-title {
+                  font-family: 'Outfit', sans-serif;
+                  font-size: 28px;
+                  font-weight: 800;
+                  color: var(--text-main) !important;
+                  letter-spacing: -0.8px;
+                  margin: 0;
+                }
+                .perf-page-container .pg-sub {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 13px;
+                  color: var(--text-muted);
+                  margin-top: 6px;
+                }
+
+                /* Section Titles */
+                .perf-page-container .section-title {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  letter-spacing: 0.6px;
+                  margin-bottom: 10px;
+                }
+
+                /* Cards styling */
+                .perf-page-container .integration-card {
+                  background: var(--bg-card) !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 16px;
+                  padding: 16px 20px;
+                  margin-bottom: 10px;
+                  display: flex;
+                  align-items: center;
+                  gap: 14px;
+                  box-shadow: var(--card-shadow);
+                  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .perf-page-container .integration-card:hover {
+                  transform: translateY(-1px);
+                  box-shadow: var(--card-hover-shadow);
+                  border-color: rgba(var(--primary-rgb), 0.15) !important;
+                }
+
+                .perf-page-container .integration-icon {
+                  width: 46px;
+                  height: 46px;
+                  border-radius: 12px;
+                  background: var(--bg-input) !important;
+                  border: 1px solid var(--border-color) !important;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-shrink: 0;
+                }
+                
+                .perf-page-container .integration-name {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-weight: 700;
+                  font-size: 15px;
+                  color: var(--text-main) !important;
+                  margin-bottom: 2px;
+                }
+                .perf-page-container .integration-desc {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 13px;
+                  color: var(--text-muted);
+                }
+
+                .perf-page-container .coming-soon-card {
+                  background: var(--coming-soon-bg) !important;
+                  border: 1.5px solid var(--coming-soon-border) !important;
+                  border-radius: 16px;
+                  padding: 16px 20px;
+                  margin-bottom: 10px;
+                  display: flex;
+                  align-items: center;
+                  gap: 14px;
+                  opacity: 0.7;
+                }
+                .perf-page-container .coming-soon-icon {
+                  width: 46px;
+                  height: 46px;
+                  border-radius: 12px;
+                  background: var(--coming-soon-tag-bg) !important;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-shrink: 0;
+                }
+                .perf-page-container .coming-soon-tag {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 11px;
+                  font-weight: 700;
+                  background: var(--coming-soon-tag-bg) !important;
+                  color: var(--coming-soon-tag-color) !important;
+                  padding: 3px 10px;
+                  border-radius: 20px;
+                  white-space: nowrap;
+                }
+
+                /* Buttons & Badges */
+                .perf-page-container .badge-active {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 11px;
+                  font-weight: 700;
+                  background: rgba(16, 185, 129, 0.08) !important;
+                  color: var(--success) !important;
+                  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+                  padding: 3px 10px;
+                  border-radius: 20px;
+                }
+                
+                .perf-page-container .btn-delete {
+                  padding: 8px 12px !important;
+                  background: rgba(244, 63, 94, 0.08) !important;
+                  color: var(--danger) !important;
+                  border: 1.5px solid rgba(244, 63, 94, 0.25) !important;
+                  border-radius: 9px !important;
+                  font-size: 13px !important;
+                  font-weight: 700 !important;
+                  cursor: pointer !important;
+                  transition: all 0.2s !important;
+                }
+                .perf-page-container .btn-delete:hover {
+                  background: var(--danger) !important;
+                  color: #fff !important;
+                  border-color: transparent !important;
+                }
+
+                .perf-page-container .btn-add {
+                  padding: 8px 18px !important;
+                  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+                  color: #fff !important;
+                  border: none !important;
+                  border-radius: 9px !important;
+                  font-size: 13px !important;
+                  font-weight: 700 !important;
+                  cursor: pointer !important;
+                  transition: all 0.2s !important;
+                  box-shadow: 0 4px 12px rgba(124,58,237,0.2) !important;
+                }
+                .perf-page-container .btn-add:hover {
+                  transform: translateY(-1px) !important;
+                  box-shadow: 0 6px 18px rgba(124,58,237,0.3) !important;
+                }
+
+                /* Toast styling */
+                .perf-page-container .toast-msg {
+                  background: rgba(16, 185, 129, 0.08) !important;
+                  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+                  color: var(--success) !important;
+                  border-radius: 12px;
+                  padding: 10px 16px;
+                  margin-bottom: 16px;
+                  font-weight: 600;
+                  font-size: 14px;
+                }
+
+                /* Modal styling */
+                .modal-overlay {
+                  position: fixed;
+                  inset: 0;
+                  background: rgba(0, 0, 0, 0.6) !important;
+                  backdrop-filter: blur(4px);
+                  z-index: 9999;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 16px;
+                }
+                .modal-card {
+                  background: var(--modal-bg) !important;
+                  border: 1px solid var(--border-color) !important;
+                  border-radius: 20px;
+                  width: 100%;
+                  max-width: 460px;
+                  padding: 28px;
+                  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+                  position: relative;
+                }
+                .modal-close {
+                  position: absolute;
+                  top: 14px;
+                  right: 14px;
+                  background: var(--bg-input) !important;
+                  border: 1px solid var(--border-color) !important;
+                  color: var(--text-main) !important;
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 7px;
+                  cursor: pointer;
+                  font-size: 14px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  transition: all 0.2s;
+                }
+                .modal-close:hover {
+                  background: var(--danger) !important;
+                  color: #fff !important;
+                  border-color: transparent !important;
+                }
+                
+                .modal-title {
+                  color: var(--text-main) !important;
+                  margin: 0;
+                  font-size: 18px;
+                  font-weight: 800;
+                  font-family: 'Outfit', sans-serif;
+                }
+                .modal-subtitle {
+                  color: var(--text-muted) !important;
+                  font-size: 12px;
+                  margin: 6px 0 0;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+                
+                .modal-form-group {
+                  margin-bottom: 14px;
+                }
+                .modal-label {
+                  font-size: 12px;
+                  font-weight: 700;
+                  color: var(--text-main) !important;
+                  display: block;
+                  margin-bottom: 6px;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+                
+                .modal-input {
+                  width: 100%;
+                  padding: 10px 14px;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 9px;
+                  font-size: 14px;
+                  background: var(--bg-input) !important;
+                  color: var(--text-main) !important;
+                  outline: none;
+                  box-sizing: border-box;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  transition: all 0.2s;
+                }
+                .modal-input:focus {
+                  border-color: var(--primary) !important;
+                  box-shadow: 0 0 0 3px var(--input-focus-shadow);
+                }
+                
+                .modal-select {
+                  width: 100%;
+                  padding: 10px 14px;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 9px;
+                  font-size: 14px;
+                  background: var(--bg-input) !important;
+                  color: var(--text-main) !important;
+                  outline: none;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+                
+                .modal-phone-wrap {
+                  display: flex;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 9px;
+                  overflow: hidden;
+                  background: var(--bg-input) !important;
+                }
+                .modal-phone-country {
+                  padding: 0 12px;
+                  color: var(--text-muted);
+                  font-size: 13px;
+                  display: flex;
+                  align-items: center;
+                  border-right: 1px solid var(--border-color);
+                }
+                .modal-phone-input {
+                  flex: 1;
+                  padding: 10px 12px;
+                  border: none;
+                  background: transparent;
+                  color: var(--text-main) !important;
+                  font-size: 14px;
+                  outline: none;
+                }
+
+                .modal-checkbox-row {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  margin-bottom: 10px;
+                  cursor: pointer;
+                }
+                .modal-checkbox {
+                  width: 16px;
+                  height: 16px;
+                  accent-color: var(--primary);
+                }
+                .modal-checkbox-label {
+                  color: var(--text-main);
+                  font-size: 13px;
+                  font-weight: 600;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+
+                /* Site Selector Inside Modal */
+                .modal-site-selector-card {
+                  background: var(--bg-input) !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 10px;
+                  overflow: hidden;
+                }
+                .modal-site-selector-search {
+                  padding: 8px 12px;
+                  border-bottom: 1px solid var(--border-color);
+                }
+                .modal-site-selector-input {
+                  width: 100%;
+                  background: transparent;
+                  border: none;
+                  outline: none;
+                  color: var(--text-main);
+                  font-size: 13px;
+                }
+                .modal-site-list {
+                  max-height: 160px;
+                  overflow-y: auto;
+                }
+                .modal-site-row {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 9px 14px;
+                  cursor: pointer;
+                  border-bottom: 1px solid var(--border-color);
+                  background: transparent;
+                  transition: background-color 0.15s;
+                }
+                .modal-site-row:hover {
+                  background: var(--bg-card);
+                }
+                .modal-site-row:last-child {
+                  border-bottom: none;
+                }
+                .modal-site-dot {
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  flex-shrink: 0;
+                }
+
+                .modal-error {
+                  background: rgba(244, 63, 94, 0.08) !important;
+                  border: 1px solid rgba(244, 63, 94, 0.25) !important;
+                  color: var(--danger) !important;
+                  border-radius: 8px;
+                  padding: 8px 12px;
+                  font-size: 13px;
+                  font-weight: 600;
+                  margin-top: 12px;
+                }
+
+                .modal-btn-cancel {
+                  padding: 11px;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 10px;
+                  background: transparent !important;
+                  color: var(--text-muted) !important;
+                  font-size: 14px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                }
+                .modal-btn-cancel:hover {
+                  background: var(--bg-input) !important;
+                  color: var(--text-main) !important;
+                }
+                .modal-btn-test {
+                  padding: 11px;
+                  border: 1.5px solid rgba(16, 185, 129, 0.25) !important;
+                  border-radius: 10px;
+                  background: rgba(16, 185, 129, 0.08) !important;
+                  color: var(--success) !important;
+                  font-size: 13px;
+                  font-weight: 700;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                }
+                .modal-btn-test:hover:not(:disabled) {
+                  background: var(--success) !important;
+                  color: #fff !important;
+                  border-color: transparent !important;
+                }
+                .modal-btn-test:disabled {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                }
+                .modal-btn-save {
+                  padding: 11px;
+                  border: none !important;
+                  border-radius: 10px;
+                  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+                  color: #fff !important;
+                  font-size: 14px;
+                  font-weight: 700;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  box-shadow: 0 4px 12px rgba(124,58,237,0.2);
+                }
+                .modal-btn-save:hover:not(:disabled) {
+                  transform: translateY(-1px);
+                  box-shadow: 0 6px 18px rgba(124,58,237,0.3);
+                }
+                .modal-btn-save:disabled {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                }
+            `}</style>
+
+            <ConfirmDialog />
+            <div className="perf-bg-glow-1" />
+
+            <div className="pg-wrap">
+                <div className="pg-header">
+                    <div>
+                        <h1 className="pg-title">Integrations <span style={{color:'#7c3aed'}}>.</span></h1>
+                        <p className="pg-sub">Connect UptimeForge with your tools to get alerts everywhere</p>
+                    </div>
                 </div>
-            </div>
 
-            {toast && <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', color:'#16a34a', borderRadius:10, padding:'10px 16px', marginBottom:16, fontWeight:600, fontSize:14 }}>{toast}</div>}
+                {toast && <div className="toast-msg">{toast}</div>}
 
-            {/* Platform Alerts */}
-            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, marginBottom:10 }}>Platform Alerts</div>
+                {/* Platform Alerts */}
+                <div className="section-title">Platform Alerts</div>
 
-            {[
-                { iconEl:<IcoWhatsApp/>, name:'WhatsApp', desc:'Receive WhatsApp alerts when your site goes down or recovers.', onAdd: blocked('whatsapp') ? null : ()=>setWaModal(true), badge: null, isBlocked: blocked('whatsapp') },
-                { iconEl:<IcoGmail/>,    name:'Email',    desc:'Receive email alerts when your site goes down or recovers.', onAdd:()=>setEmailModal(true), badge: null },
-            ].map(intg => (
-                <div key={intg.name} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
-                    <div style={{ width:46, height:46, borderRadius:12, background:'#f8fafc', border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        {intg.iconEl}
+                {[
+                    { iconEl:<IcoWhatsApp/>, name:'WhatsApp', desc:'Receive WhatsApp alerts when your site goes down or recovers.', onAdd: blocked('whatsapp') ? null : ()=>setWaModal(true), badge: null, isBlocked: blocked('whatsapp') },
+                    { iconEl:<IcoGmail/>,    name:'Email',    desc:'Receive email alerts when your site goes down or recovers.', onAdd:()=>setEmailModal(true), badge: null },
+                ].map(intg => (
+                    <div key={intg.name} className="integration-card">
+                        <div className="integration-icon">
+                            {intg.iconEl}
+                        </div>
+                        <div style={{ flex:1 }}>
+                            <div className="integration-name">{intg.name}</div>
+                            <div className="integration-desc">{intg.desc}</div>
+                        </div>
+                        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                            {intg.badge && <span className="badge-active">{intg.badge.label}</span>}
+                            {intg.isBlocked
+                                ? <UpgradeBtn />
+                                : intg.onAdd && <button onClick={intg.onAdd} className="btn-add">+ Add</button>}
+                        </div>
+                    </div>
+                ))}
+
+                {/* Webhook */}
+                <div className="section-title" style={{ marginTop:20 }}>Custom Webhook</div>
+                <div className="integration-card">
+                    <div className="integration-icon">
+                        <IcoWebhook/>
                     </div>
                     <div style={{ flex:1 }}>
-                        <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>{intg.name}</div>
-                        <div style={{ fontSize:13, color:'#64748b' }}>{intg.desc}</div>
+                        <div className="integration-name">Webhook</div>
+                        <div className="integration-desc">POST to any URL when a monitor status changes.</div>
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                        {intg.badge && <span style={{ fontSize:11, fontWeight:700, background:intg.badge.bg, color:intg.badge.color, padding:'3px 10px', borderRadius:20 }}>{intg.badge.label}</span>}
-                        {intg.isBlocked
+                        {saved.webhook && <span className="badge-active">✓ Active</span>}
+                        {saved.webhook && <button onClick={()=>deleteIntegration('webhook')} className="btn-delete">🗑</button>}
+                        {blocked('webhook')
                             ? <UpgradeBtn />
-                            : intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
+                            : <button onClick={openWebhookModal} className="btn-add" style={{ background: saved.webhook ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>{saved.webhook ? '✏️ Edit' : '+ Add'}</button>
+                        }
                     </div>
                 </div>
-            ))}
 
-            {/* Webhook */}
-            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, margin:'20px 0 10px' }}>Custom Webhook</div>
-            <div style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
-                <div style={{ width:46, height:46, borderRadius:12, background:'#f8fafc', border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <IcoWebhook/>
-                </div>
-                <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>Webhook</div>
-                    <div style={{ fontSize:13, color:'#64748b' }}>POST to any URL when a monitor status changes.</div>
-                </div>
-                <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    {saved.webhook && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
-                    {saved.webhook && <button onClick={()=>deleteIntegration('webhook')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
-                    {blocked('webhook')
-                        ? <UpgradeBtn />
-                        : <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.webhook ? '✏️ Edit' : '+ Add'}</button>
-                    }
-                </div>
-            </div>
-
-            {/* Rocket.Chat */}
-            <div style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
-                <div style={{ width:46, height:46, borderRadius:12, background:'#fff0f1', border:'1px solid #fecdd3', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <IcoRocket/>
-                </div>
-                <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>Rocket.Chat</div>
-                    <div style={{ fontSize:13, color:'#64748b' }}>Send alerts to your Rocket.Chat workspace via incoming webhook.</div>
-                </div>
-                <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    {saved.rocketchat && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
-                    {saved.rocketchat && <button onClick={()=>deleteIntegration('rocketchat')} style={{ padding:'8px 12px', background:'#fff0f1', color:'#e11d48', border:'1.5px solid #fecdd3', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>🗑</button>}
-                    {blocked('rocketChat')
-                        ? <UpgradeBtn />
-                        : <button onClick={openRcModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>{saved.rocketchat ? '✏️ Edit' : '+ Add'}</button>
-                    }
-                </div>
-            </div>
-
-            {/* Coming Soon */}
-            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, margin:'20px 0 10px' }}>Coming Soon</div>
-            {[
-                { iconEl:<IcoSlack/>,    name:'Slack',    desc:'Send alerts to your Slack channel via incoming webhook.' },
-                { iconEl:<IcoTelegram/>, name:'Telegram', desc:'Get instant alerts via Telegram bot messages.' },
-                { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
-            ].map(intg => (
-                <div key={intg.name} style={{ background:'#f8fafc', border:'1.5px solid #f1f5f9', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14, opacity:0.7 }}>
-                    <div style={{ width:46, height:46, borderRadius:12, background:'#f1f5f9', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{intg.iconEl}</div>
+                {/* Rocket.Chat */}
+                <div className="integration-card">
+                    <div className="integration-icon" style={{ background:isDark ? 'rgba(244, 63, 94, 0.08)' : '#fff0f1', borderColor: isDark ? 'rgba(244, 63, 94, 0.25)' : '#fecdd3' }}>
+                        <IcoRocket/>
+                    </div>
                     <div style={{ flex:1 }}>
-                        <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:2 }}>{intg.name}</div>
-                        <div style={{ fontSize:13, color:'#64748b' }}>{intg.desc}</div>
+                        <div className="integration-name">Rocket.Chat</div>
+                        <div className="integration-desc">Send alerts to your Rocket.Chat workspace via incoming webhook.</div>
                     </div>
-                    <span style={{ fontSize:11, fontWeight:700, background:'#f1f5f9', color:'#94a3b8', padding:'3px 10px', borderRadius:20, whiteSpace:'nowrap' }}>Coming Soon</span>
+                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                        {saved.rocketchat && <span className="badge-active">✓ Active</span>}
+                        {saved.rocketchat && <button onClick={()=>deleteIntegration('rocketchat')} className="btn-delete">🗑</button>}
+                        {blocked('rocketChat')
+                            ? <UpgradeBtn />
+                            : <button onClick={openRcModal} className="btn-add" style={{ background: saved.rocketchat ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>{saved.rocketchat ? '✏️ Edit' : '+ Add'}</button>
+                        }
+                    </div>
                 </div>
-            ))}
 
-            {/* WhatsApp Modal */}
-            {waModal    && <WhatsAppModal servers={servers} onClose={()=>setWaModal(false)}    onSaved={()=>showToast('✅ WhatsApp recipient added!')} />}
-            {emailModal && <EmailModal    servers={servers} onClose={()=>setEmailModal(false)} onSaved={()=>showToast('✅ Email recipient added!')} />}
-
-            {/* Rocket.Chat Modal */}
-            {rcModal && (
-                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
-                    onClick={e=>e.target===e.currentTarget&&setRcModal(false)}>
-                    <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:440, padding:28, position:'relative' }}>
-                        <button onClick={()=>setRcModal(false)} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer' }}>✕</button>
-                        <div style={{ textAlign:'center', marginBottom:20 }}>
-                            <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoRocket/></div>
-                            <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add <span style={{color:'#f5455c'}}>Rocket.Chat</span> Webhook</h2>
-                            <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>Admin → Integrations → Incoming WebHook → copy URL</p>
+                {/* Coming Soon */}
+                <div className="section-title" style={{ marginTop:20 }}>Coming Soon</div>
+                {[
+                    { iconEl:<IcoSlack/>,    name:'Slack',    desc:'Send alerts to your Slack channel via incoming webhook.' },
+                    { iconEl:<IcoTelegram/>, name:'Telegram', desc:'Get instant alerts via Telegram bot messages.' },
+                    { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
+                ].map(intg => (
+                    <div key={intg.name} className="coming-soon-card">
+                        <div className="coming-soon-icon">{intg.iconEl}</div>
+                        <div style={{ flex:1 }}>
+                            <div className="integration-name">{intg.name}</div>
+                            <div className="integration-desc">{intg.desc}</div>
                         </div>
-                        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Webhook URL *</label>
-                                <input value={rcForm.url} onChange={e=>setRcForm({...rcForm,url:e.target.value})} placeholder="https://chat.yourserver.com/hooks/..."
-                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                        <span className="coming-soon-tag">Coming Soon</span>
+                    </div>
+                ))}
+
+                {/* WhatsApp Modal */}
+                {waModal    && <WhatsAppModal servers={servers} onClose={()=>setWaModal(false)}    onSaved={()=>showToast('✅ WhatsApp recipient added!')} />}
+                {emailModal && <EmailModal    servers={servers} onClose={()=>setEmailModal(false)} onSaved={()=>showToast('✅ Email recipient added!')} />}
+
+                {/* Rocket.Chat Modal */}
+                {rcModal && (
+                    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setRcModal(false)}>
+                        <div className="modal-card">
+                            <button onClick={()=>setRcModal(false)} className="modal-close">✕</button>
+                            <div style={{ textAlign:'center', marginBottom:20 }}>
+                                <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoRocket/></div>
+                                <h2 className="modal-title">Add <span style={{color:'#f5455c'}}>Rocket.Chat</span> Webhook</h2>
+                                <p className="modal-subtitle">Admin → Integrations → Incoming WebHook → copy URL</p>
                             </div>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Events</label>
-                                <select value={rcForm.events} onChange={e=>setRcForm({...rcForm,events:e.target.value})}
-                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none' }}>
-                                    <option value="all">All events (Down, Up, SSL, Domain)</option>
-                                    <option value="down">Down events only</option>
-                                </select>
-                            </div>
-                            {/* Site selector */}
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
-                                <div onClick={()=>setRcAllSites(p=>!p)} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:10 }}>
-                                    <div style={{ width:18, height:18, borderRadius:4, border:'2px solid rgba(255,255,255,0.3)', background: rcAllSites?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                        {rcAllSites && <span style={{ color:'#fff', fontSize:11, fontWeight:900 }}>✓</span>}
-                                    </div>
-                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>All sites (current + future)</span>
+                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                <div>
+                                    <label className="modal-label">Webhook URL *</label>
+                                    <input value={rcForm.url} onChange={e=>setRcForm({...rcForm,url:e.target.value})} placeholder="https://chat.yourserver.com/hooks/..." className="modal-input" />
                                 </div>
-                                {!rcAllSites && (
-                                    <div style={{ background:'#2d2466', borderRadius:10, border:'1.5px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
-                                        <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                                            <input value={rcSearch} onChange={e=>setRcSearch(e.target.value)} placeholder="Search sites..."
-                                                style={{ width:'100%', background:'transparent', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }} />
-                                        </div>
-                                        <div style={{ maxHeight:160, overflowY:'auto' }}>
-                                            {servers.filter(s=>s.name.toLowerCase().includes(rcSearch.toLowerCase())).map(s => (
-                                                <div key={s._id} onClick={()=>setRcSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])}
-                                                    style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', cursor:'pointer', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
-                                                    <div style={{ width:16, height:16, borderRadius:4, border:'2px solid rgba(255,255,255,0.25)', background:rcSelected.includes(s._id)?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                                        {rcSelected.includes(s._id) && <span style={{ color:'#fff', fontSize:10, fontWeight:900 }}>✓</span>}
-                                                    </div>
-                                                    <span style={{ width:8, height:8, borderRadius:'50%', background: s.status==='up'?'#22c55e':'#ef4444', flexShrink:0 }}/>
-                                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>{s.name}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                            <button onClick={()=>setRcModal(false)} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
-                            <button onClick={testRc} disabled={rcTesting||!rcForm.url}
-                                style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.2)', borderRadius:10, background:'rgba(245,69,92,0.15)', color:'#f5455c', fontSize:13, fontWeight:700, cursor:'pointer', opacity:(!rcForm.url||rcTesting)?0.6:1 }}>
-                                {rcTesting ? '...' : '📨 Test'}
-                            </button>
-                            <button onClick={saveRc} disabled={rcSaving||!rcForm.url}
-                                style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!rcForm.url||rcSaving)?0.6:1 }}>
-                                {rcSaving ? 'Saving...' : '💾 Save'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Webhook Modal */}
-            {webhookModal && (
-                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
-                    onClick={e=>e.target===e.currentTarget&&setWebhookModal(false)}>
-                    <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:440, padding:28, position:'relative' }}>
-                        <button onClick={()=>setWebhookModal(false)} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer' }}>✕</button>
-                        <div style={{ textAlign:'center', marginBottom:20 }}>
-                            <div style={{ fontSize:36, marginBottom:8 }}>🔗</div>
-                            <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add Webhook</h2>
-                        </div>
-                        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Webhook URL *</label>
-                                <input value={webhookForm.url} onChange={e=>setWebhookForm({...webhookForm,url:e.target.value})} placeholder="https://your-server.com/webhook"
-                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
-                            </div>
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Events</label>
-                                <select value={webhookForm.events} onChange={e=>setWebhookForm({...webhookForm,events:e.target.value})}
-                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none' }}>
-                                    <option value="all">All events (Down, Up, SSL, Domain)</option>
-                                    <option value="down">Down events only</option>
-                                </select>
-                            </div>
-                            {/* Site selector */}
-                            <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
-                                <div onClick={()=>setWebhookAllSites(p=>!p)} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', marginBottom:10 }}>
-                                    <div style={{ width:18, height:18, borderRadius:4, border:'2px solid rgba(255,255,255,0.3)', background: webhookAllSites?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                        {webhookAllSites && <span style={{ color:'#fff', fontSize:11, fontWeight:900 }}>✓</span>}
-                                    </div>
-                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>All sites (current + future)</span>
+                                <div>
+                                    <label className="modal-label">Events</label>
+                                    <select value={rcForm.events} onChange={e=>setRcForm({...rcForm,events:e.target.value})} className="modal-select">
+                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                        <option value="down">Down events only</option>
+                                    </select>
                                 </div>
-                                {!webhookAllSites && (
-                                    <div style={{ background:'#2d2466', borderRadius:10, border:'1.5px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
-                                        <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                                            <input value={webhookSearch} onChange={e=>setWebhookSearch(e.target.value)} placeholder="Search sites..."
-                                                style={{ width:'100%', background:'transparent', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }} />
-                                        </div>
-                                        <div style={{ maxHeight:160, overflowY:'auto' }}>
-                                            {servers.filter(s=>s.name.toLowerCase().includes(webhookSearch.toLowerCase())).map(s => (
-                                                <div key={s._id} onClick={()=>setWebhookSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])}
-                                                    style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', cursor:'pointer', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
-                                                    <div style={{ width:16, height:16, borderRadius:4, border:'2px solid rgba(255,255,255,0.25)', background:webhookSelected.includes(s._id)?'#f5455c':'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                                        {webhookSelected.includes(s._id) && <span style={{ color:'#fff', fontSize:10, fontWeight:900 }}>✓</span>}
-                                                    </div>
-                                                    <span style={{ width:8, height:8, borderRadius:'50%', background: s.status==='up'?'#22c55e':'#ef4444', flexShrink:0 }}/>
-                                                    <span style={{ fontSize:13, color:'#e2e8f0' }}>{s.name}</span>
-                                                </div>
-                                            ))}
-                                        </div>
+                                {/* Site selector */}
+                                <div>
+                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                    <div onClick={()=>setRcAllSites(p=>!p)} className="modal-checkbox-row">
+                                        <input type="checkbox" checked={rcAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                        <span className="modal-checkbox-label">All sites (current + future)</span>
                                     </div>
-                                )}
+                                    {!rcAllSites && (
+                                        <div className="modal-site-selector-card">
+                                            <div className="modal-site-selector-search">
+                                                <input value={rcSearch} onChange={e=>setRcSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                            </div>
+                                            <div className="modal-site-list">
+                                                {servers.filter(s=>s.name.toLowerCase().includes(rcSearch.toLowerCase())).map(s => (
+                                                    <div key={s._id} onClick={()=>setRcSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                        <input type="checkbox" checked={rcSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                                <button onClick={()=>setRcModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
+                                <button onClick={testRc} disabled={rcTesting||!rcForm.url} className="modal-btn-test" style={{ flex: 1 }}>
+                                    {rcTesting ? '...' : '📨 Test'}
+                                </button>
+                                <button onClick={saveRc} disabled={rcSaving||!rcForm.url} className="modal-btn-save" style={{ flex: 2 }}>
+                                    {rcSaving ? 'Saving...' : '💾 Save'}
+                                </button>
                             </div>
                         </div>
-                        <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                            <button onClick={()=>setWebhookModal(false)} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
-                            <button onClick={testWebhook} disabled={webhookTesting||!webhookForm.url}
-                                style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.2)', borderRadius:10, background:'rgba(16,185,129,0.15)', color:'#34d399', fontSize:13, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookTesting)?0.6:1 }}>
-                                {webhookTesting ? '...' : '📨 Test'}
-                            </button>
-                            <button onClick={saveWebhook} disabled={webhookSaving||!webhookForm.url}
-                                style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookSaving)?0.6:1 }}>
-                                {webhookSaving ? 'Saving...' : '💾 Save'}
-                            </button>
+                    </div>
+                )}
+
+                {/* Webhook Modal */}
+                {webhookModal && (
+                    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setWebhookModal(false)}>
+                        <div className="modal-card">
+                            <button onClick={()=>setWebhookModal(false)} className="modal-close">✕</button>
+                            <div style={{ textAlign:'center', marginBottom:20 }}>
+                                <div style={{ fontSize:36, marginBottom:8 }}>🔗</div>
+                                <h2 className="modal-title">Add Webhook</h2>
+                            </div>
+                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                <div>
+                                    <label className="modal-label">Webhook URL *</label>
+                                    <input value={webhookForm.url} onChange={e=>setWebhookForm({...webhookForm,url:e.target.value})} placeholder="https://your-server.com/webhook" className="modal-input" />
+                                </div>
+                                <div>
+                                    <label className="modal-label">Events</label>
+                                    <select value={webhookForm.events} onChange={e=>setWebhookForm({...webhookForm,events:e.target.value})} className="modal-select">
+                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                        <option value="down">Down events only</option>
+                                    </select>
+                                </div>
+                                {/* Site selector */}
+                                <div>
+                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                    <div onClick={()=>setWebhookAllSites(p=>!p)} className="modal-checkbox-row">
+                                        <input type="checkbox" checked={webhookAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                        <span className="modal-checkbox-label">All sites (current + future)</span>
+                                    </div>
+                                    {!webhookAllSites && (
+                                        <div className="modal-site-selector-card">
+                                            <div className="modal-site-selector-search">
+                                                <input value={webhookSearch} onChange={e=>setWebhookSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                            </div>
+                                            <div className="modal-site-list">
+                                                {servers.filter(s=>s.name.toLowerCase().includes(webhookSearch.toLowerCase())).map(s => (
+                                                    <div key={s._id} onClick={()=>setWebhookSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                        <input type="checkbox" checked={webhookSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                                <button onClick={()=>setWebhookModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
+                                <button onClick={testWebhook} disabled={webhookTesting||!webhookForm.url} className="modal-btn-test" style={{ flex: 1 }}>
+                                    {webhookTesting ? '...' : '📨 Test'}
+                                </button>
+                                <button onClick={saveWebhook} disabled={webhookSaving||!webhookForm.url} className="modal-btn-save" style={{ flex: 2 }}>
+                                    {webhookSaving ? 'Saving...' : '💾 Save'}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
