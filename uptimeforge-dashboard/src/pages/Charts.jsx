@@ -1294,7 +1294,7 @@ export default function Charts({ theme = 'light', user }) {
             <div>
               <h2 className="chart-card-title">
                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--info)' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-                Detailed Performance & Uptime
+                Performance & Uptime
               </h2>
               <div className="chart-card-sub">
                 Last 24 hours · {intervalLabel(checkInterval)} · Showing {filteredUptimeData.length} of {uptimeData.length} sites
