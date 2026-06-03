@@ -233,8 +233,6 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const handleCancel = async () => {
         if (!isNewUnverified || paymentDone.current) return;
         try { await deleteMyAccount(); } catch (_) {}
-        // token cleared via logout API;
-        localStorage.removeItem('sm_user');
         localStorage.removeItem('sm_intended_plan');
         window.location.href = '/register';
     };
@@ -286,12 +284,10 @@ export default function PaymentPage({ user, onUserUpdate }) {
                     try {
                         const { getMe } = await import('../api');
                         const meRes = await getMe();
-                        localStorage.setItem('sm_user', JSON.stringify(meRes.data));
                         localStorage.removeItem('sm_intended_plan');
                         onUserUpdate?.(meRes.data);
                     } catch {
                         if (res.data.user) {
-                            localStorage.setItem('sm_user', JSON.stringify(res.data.user));
                             onUserUpdate?.(res.data.user);
                         }
                     }

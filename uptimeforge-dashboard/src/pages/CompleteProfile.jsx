@@ -38,7 +38,6 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     try {
       const res = await updateProfile(form);
       const updated = { ...user, ...res.data.user };
-      localStorage.setItem('sm_user', JSON.stringify(updated));
       onUserUpdate(updated);
       // Already active user → dashboard; new unverified user → plan selection
       const isActive = updated.trialVerified || updated.plan !== 'free_trial';

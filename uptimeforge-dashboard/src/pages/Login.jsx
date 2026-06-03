@@ -38,8 +38,6 @@ export default function Login({ onLogin }) {
     setError('');
     try {
       const res = await googleAuth({ credential: response.credential });
-      // token now in httpOnly cookie;
-      localStorage.setItem('sm_user', JSON.stringify(res.data.user));
       onLogin(res.data.user, res.data.isNewUser);
     } catch (e) {
       setError(e.response?.data?.error || 'Google Sign-In failed');
@@ -93,8 +91,6 @@ export default function Login({ onLogin }) {
     setLoading(true);
     try {
       const res = await loginUser({ email: form.email, password: form.password });
-      // token now in httpOnly cookie;
-      localStorage.setItem('sm_user', JSON.stringify(res.data.user));
       onLogin(res.data.user);
     } catch (e) {
       setError(e.response?.data?.error || 'Login failed');

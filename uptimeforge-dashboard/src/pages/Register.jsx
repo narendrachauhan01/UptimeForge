@@ -76,8 +76,6 @@ export default function Register({ onRegister }) {
     setError('');
     try {
       const res = await googleAuth({ credential: response.credential });
-      // token now in httpOnly cookie;
-      localStorage.setItem('sm_user', JSON.stringify(res.data.user));
       onRegister(res.data.user, selectedPlanRef.current);
     } catch (e) { setError(e.response?.data?.error || 'Google Sign-In failed'); }
   };
@@ -125,9 +123,7 @@ export default function Register({ onRegister }) {
     setError(''); setLoading(true);
     try {
       const res = await verifyRegisterOtp({ email: form.email, otp: otp.trim() });
-      // token now in httpOnly cookie;
-      localStorage.setItem('sm_user', JSON.stringify(res.data.user));
-      localStorage.removeItem('uf_ref'); // clear referral after use
+      localStorage.removeItem('uf_ref');
       onRegister(res.data.user, selectedPlan);
     } catch (err) { setError(err.response?.data?.error || 'Verification failed'); }
     setLoading(false);

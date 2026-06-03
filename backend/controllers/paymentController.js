@@ -388,14 +388,13 @@ exports.refundStatus = async (req, res) => {
 // POST /api/payment/webhook  — Razorpay refund webhook
 exports.razorpayWebhook = async (req, res) => {
     try {
-        // Verify webhook signature
+        // Verify webhook signature (mandatory)
         const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-        if (secret) {
-            const sig = req.headers['x-razorpay-signature'];
-            const body = JSON.stringify(req.body);
-            const expected = crypto.createHmac('sha256', secret).update(body).digest('hex');
-            if (sig !== expected) return res.status(400).json({ error: 'Invalid signature' });
-        }
+        if (!secret) return res.status(500).json({ error: 'Webhook secret not configured' });
+        const sig = req.headers['x-razorpay-signature'];
+        const body = JSON.stringify(req.body);
+        const expected = crypto.createHmac('sha256', secret).update(body).digest('hex');
+        if (sig !== expected) return res.status(400).json({ error: 'Invalid signature' });
 
         const event = req.body?.event;
         console.log(`[Razorpay Webhook] Event: ${event}`);
