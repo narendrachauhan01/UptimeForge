@@ -389,25 +389,15 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('sm_user');
-    if (savedUser) {
-      try {
-        JSON.parse(savedUser);
-        axios.get(`${API_URL}/api/users/me`, { withCredentials: true })
-          .then(r => {
-            setUser(r.data);
-            localStorage.setItem('sm_user', JSON.stringify(r.data));
-            setIsAdmin(false);
-            setAuthed(true);
-          })
-          .catch(() => { localStorage.removeItem('sm_user'); setAuthed(false); });
-        return;
-      } catch (_) {}
-    }
-
+    // Check admin cookie first
     axios.get(`${API_URL}/api/auth/verify`, { withCredentials: true })
       .then(() => { setIsAdmin(true); setAuthed(true); })
-      .catch(() => { setAuthed(false); });
+      .catch(() => {
+        // Not admin — check user cookie
+        axios.get(`${API_URL}/api/users/me`, { withCredentials: true })
+          .then(r => { setUser(r.data); setIsAdmin(false); setAuthed(true); })
+          .catch(() => { setAuthed(false); });
+      });
   }, []);
 
   const handleLogin = (userData, isNewUser = false) => {
@@ -447,7 +437,6 @@ function AppInner() {
 
   const handleUserUpdate = (userData) => {
     setUser(userData);
-    localStorage.setItem('sm_user', JSON.stringify(userData));
   };
 
   const handleLogout = async () => {
@@ -455,7 +444,6 @@ function AppInner() {
       if (isAdmin) await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
       else await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
     } catch (_) {}
-    localStorage.removeItem('sm_user');
     setAuthed(false); setUser(null); setIsAdmin(false);
     showToast('Logged out successfully.');
     navigate('/');
