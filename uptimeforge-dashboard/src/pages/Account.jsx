@@ -19,17 +19,6 @@ function fmt(d) {
     return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 }
 
-const S = {
-    section: { background:'#fff', borderRadius:12, border:'1px solid #e5e7eb', padding:'28px 32px', marginBottom:20 },
-    title: { fontSize:20, fontWeight:800, color:'#111827', marginBottom:6, display:'flex', alignItems:'center', gap:6 },
-    desc: { fontSize:13, color:'#6B7280', marginBottom:20, lineHeight:1.5 },
-    label: { fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 },
-    sublabel: { fontSize:12, color:'#9CA3AF', marginBottom:8, display:'block' },
-    input: { width:'100%', padding:'10px 14px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:14, color:'#111827', background:'#fff', outline:'none', boxSizing:'border-box' },
-    saveBtn: { padding:'9px 20px', background:'#4f46e5', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' },
-    grid2: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 },
-};
-
 export default function Account({ user, onUserUpdate }) {
     const navigate  = useNavigate();
     const { confirm, Dialog: ConfirmDialog } = useConfirm();
@@ -37,6 +26,39 @@ export default function Account({ user, onUserUpdate }) {
     const [planData, setPlanData]     = useState(null);
     const [myRequests, setMyRequests] = useState([]);
     const [serverCount, setServerCount] = useState(0);
+
+    const [localTheme, setLocalTheme] = useState(() => {
+        const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+        if (match) return match[1];
+        return 'dark'; // Keep dark mode ON by default
+    });
+
+    const isDark = localTheme === 'dark';
+
+    // Synchronize theme cookie shifts
+    useEffect(() => {
+        const checkThemeCookie = () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const current = match ? match[1] : 'dark';
+            if (current !== localTheme) {
+                setLocalTheme(current);
+            }
+        };
+        checkThemeCookie();
+        const interval = setInterval(checkThemeCookie, 1000);
+        return () => clearInterval(interval);
+    }, [localTheme]);
+
+    useEffect(() => {
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            document.body.classList.remove('charts-dark-theme');
+        };
+    }, [localTheme]);
 
     // Form states
     const [nameForm,  setNameForm]  = useState({ name: user?.name || '' });
@@ -213,371 +235,791 @@ export default function Account({ user, onUserUpdate }) {
     ];
 
     return (
-        <div style={{ display:'flex', minHeight:'calc(100vh - 64px)', background:'#F9FAFB' }}>
+        <div className={`perf-page-container ${localTheme}`}>
+            <style>{`
+                /* Global CSS Variables for scope */
+                .perf-page-container {
+                  --primary: #7c3aed;
+                  --primary-hover: #6d28d9;
+                  --primary-rgb: 124, 58, 237;
+                  --success: #10b981;
+                  --success-rgb: 16, 185, 129;
+                  --danger: #f43f5e;
+                  --danger-rgb: 244, 63, 94;
+                  --warning: #f59e0b;
+                  --warning-rgb: 245, 158, 11;
+                  --info: #06b6d4;
+                  
+                  transition: background-color 0.3s ease;
+                  min-height: 100vh;
+                  position: relative;
+                  z-index: 1;
+                }
+
+                /* Light Theme Scope */
+                .perf-page-container.light {
+                  --bg-primary: #f8fafc;
+                  --bg-card: #ffffff;
+                  --bg-input: #f1f5f9;
+                  --bg-sidebar: #ffffff;
+                  --border-color: rgba(226, 232, 240, 0.8);
+                  --text-main: #0f172a;
+                  --text-muted: #64748b;
+                  --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+                  --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
+                  --input-focus-shadow: rgba(124, 58, 237, 0.08);
+                  
+                  --sidebar-btn-active-bg: #ede9fe;
+                  --sidebar-btn-active-color: #7c3aed;
+                  --danger-bg-zone: #FFF5F5;
+                  --danger-border-zone: #FECDD3;
+                  --danger-text-zone: #7f1d1d;
+                  
+                  --badge-total-bg: #eef2ff;
+                  --badge-total-border: #ddd6fe;
+                  --hover-row-bg: #f8fafc;
+                }
+
+                /* Dark Theme Scope */
+                .perf-page-container.dark {
+                  --bg-primary: #0b0f19;
+                  --bg-card: #131a26;
+                  --bg-input: #1b2535;
+                  --bg-sidebar: #101622;
+                  --border-color: rgba(255, 255, 255, 0.07);
+                  --text-main: #f8fafc;
+                  --text-muted: #94a3b8;
+                  --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
+                  --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
+                  --input-focus-shadow: rgba(139, 92, 246, 0.15);
+                  
+                  --sidebar-btn-active-bg: rgba(124, 58, 237, 0.15);
+                  --sidebar-btn-active-color: #a78bfa;
+                  --danger-bg-zone: rgba(244, 63, 94, 0.05);
+                  --danger-border-zone: rgba(244, 63, 94, 0.25);
+                  --danger-text-zone: #f43f5e;
+                  
+                  --badge-total-bg: rgba(124, 58, 237, 0.08);
+                  --badge-total-border: rgba(124, 58, 237, 0.25);
+                  --hover-row-bg: rgba(255, 255, 255, 0.02);
+                }
+
+                /* Body background overrides */
+                body.charts-dark-theme {
+                  background-color: #0b0f19 !important;
+                }
+                body.charts-dark-theme .app-main,
+                body.charts-dark-theme .content {
+                  background-color: #0b0f19 !important;
+                  transition: background-color 0.3s ease;
+                }
+
+                /* Sidebar Styling */
+                .perf-page-container .ac-sidebar {
+                  width: 220px;
+                  background: var(--bg-sidebar) !important;
+                  border-right: 1px solid var(--border-color) !important;
+                  padding: 24px 0;
+                  flex-shrink: 0;
+                }
+                .perf-page-container .sidebar-user-section {
+                  padding: 0 20px 20px;
+                  border-bottom: 1px solid var(--border-color) !important;
+                  margin-bottom: 8px;
+                }
+                
+                .perf-page-container .sidebar-btn {
+                  width: 100%;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  padding: 10px 12px;
+                  border-radius: 8px;
+                  border: none !important;
+                  cursor: pointer;
+                  text-align: left;
+                  font-size: 13px;
+                  font-weight: 600;
+                  margin-bottom: 2px;
+                  transition: all 0.15s;
+                  background: transparent !important;
+                  color: var(--text-muted) !important;
+                  font-family: 'Plus Jakarta Sans', sans-serif !important;
+                }
+                .perf-page-container .sidebar-btn:hover {
+                  color: var(--text-main) !important;
+                  background: var(--bg-input) !important;
+                }
+                .perf-page-container .sidebar-btn.active {
+                  background: var(--sidebar-btn-active-bg) !important;
+                  color: var(--sidebar-btn-active-color) !important;
+                }
+
+                /* Page wrapper */
+                .perf-page-container .ac-layout {
+                  display: flex;
+                  min-height: calc(100vh - 64px);
+                  background: var(--bg-primary) !important;
+                }
+                .perf-page-container .ac-main {
+                  flex: 1;
+                  padding: 32px 40px;
+                  overflow-y: auto;
+                  max-width: 900px;
+                }
+
+                /* Section Cards */
+                .perf-page-container .ac-section {
+                  background: var(--bg-card) !important;
+                  border: 1px solid var(--border-color) !important;
+                  border-radius: 20px;
+                  padding: 28px 32px;
+                  margin-bottom: 20px;
+                  box-shadow: var(--card-shadow);
+                }
+                
+                .perf-page-container .ac-section-title {
+                  font-family: 'Outfit', sans-serif;
+                  font-size: 20px;
+                  font-weight: 800;
+                  color: var(--text-main) !important;
+                  margin-bottom: 6px;
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                }
+                
+                .perf-page-container .ac-section-desc {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 13px;
+                  color: var(--text-muted);
+                  margin-bottom: 20px;
+                  line-height: 1.5;
+                }
+                
+                .perf-page-container .ac-label {
+                  font-size: 12px;
+                  font-weight: 700;
+                  color: var(--text-main) !important;
+                  display: block;
+                  margin-bottom: 6px;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+                
+                .perf-page-container .ac-input {
+                  width: 100%;
+                  padding: 10px 14px;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 9px;
+                  font-size: 14px;
+                  color: var(--text-main) !important;
+                  background: var(--bg-input) !important;
+                  outline: none;
+                  box-sizing: border-box;
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  transition: all 0.2s;
+                }
+                .perf-page-container .ac-input:focus {
+                  border-color: var(--primary) !important;
+                  box-shadow: 0 0 0 3px var(--input-focus-shadow);
+                }
+                .perf-page-container .ac-input:read-only {
+                  opacity: 0.65;
+                  cursor: not-allowed;
+                }
+                
+                .perf-page-container .btn-primary {
+                  padding: 10px 20px !important;
+                  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+                  color: #fff !important;
+                  border: none !important;
+                  border-radius: 9px !important;
+                  font-weight: 700 !important;
+                  font-size: 14px !important;
+                  cursor: pointer !important;
+                  transition: all 0.2s !important;
+                  box-shadow: 0 4px 12px rgba(124,58,237,0.2);
+                }
+                .perf-page-container .btn-primary:hover {
+                  transform: translateY(-1px) !important;
+                  box-shadow: 0 6px 18px rgba(124,58,237,0.3) !important;
+                }
+
+                .perf-page-container .btn-outline {
+                  padding: 10px 14px !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 9px !important;
+                  background: var(--bg-card) !important;
+                  color: var(--text-main) !important;
+                  cursor: pointer !important;
+                  font-size: 13px !important;
+                  font-weight: 700 !important;
+                  transition: all 0.2s !important;
+                }
+                .perf-page-container .btn-outline:hover {
+                  background: var(--bg-input) !important;
+                }
+
+                /* Danger Zone Card */
+                .perf-page-container .ac-danger-zone {
+                  background: var(--danger-bg-zone) !important;
+                  border: 1.5px solid var(--danger-border-zone) !important;
+                  border-radius: 20px;
+                  padding: 28px 32px;
+                  margin-bottom: 20px;
+                  box-shadow: var(--card-shadow);
+                }
+                .perf-page-container .ac-danger-title {
+                  font-family: 'Outfit', sans-serif;
+                  font-size: 20px;
+                  font-weight: 800;
+                  color: var(--danger) !important;
+                  margin-bottom: 6px;
+                }
+                .perf-page-container .ac-danger-desc {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 13px;
+                  color: var(--danger-text-zone) !important;
+                  margin-bottom: 20px;
+                  line-height: 1.5;
+                  opacity: 0.85;
+                }
+                .perf-page-container .btn-danger {
+                  padding: 10px 20px !important;
+                  background: var(--danger) !important;
+                  color: #fff !important;
+                  border: none !important;
+                  border-radius: 9px !important;
+                  font-weight: 700 !important;
+                  font-size: 14px !important;
+                  cursor: pointer !important;
+                  transition: all 0.2s !important;
+                  box-shadow: 0 4px 12px rgba(244,63,94,0.2);
+                }
+                .perf-page-container .btn-danger:hover {
+                  transform: translateY(-1px) !important;
+                  box-shadow: 0 6px 18px rgba(244,63,94,0.3) !important;
+                }
+
+                /* Stat Grid / Row items */
+                .perf-page-container .info-card-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                  gap: 16px;
+                  margin-bottom: 20px;
+                }
+                .perf-page-container .info-card {
+                  background: var(--bg-input) !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 12px;
+                  padding: 16px;
+                }
+                .perf-page-container .info-card-label {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  margin-bottom: 6px;
+                }
+                .perf-page-container .info-card-value {
+                  font-family: 'Outfit', sans-serif;
+                  font-size: 17px;
+                  font-weight: 800;
+                }
+
+                /* Invoices List Row */
+                .perf-page-container .invoice-row {
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  padding: 14px 0;
+                  border-bottom: 1px solid var(--border-color) !important;
+                  gap: 12px;
+                  flex-wrap: wrap;
+                }
+                .perf-page-container .invoice-row:last-child {
+                  border-bottom: none !important;
+                }
+                .perf-page-container .invoice-title {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-weight: 700;
+                  color: var(--text-main);
+                  font-size: 14px;
+                }
+                .perf-page-container .invoice-meta {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 2px;
+                }
+                .perf-page-container .invoice-amount {
+                  font-family: 'Outfit', sans-serif;
+                  font-weight: 800;
+                  font-size: 15px;
+                  color: var(--primary);
+                }
+                .perf-page-container .invoice-badge {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 11px;
+                  font-weight: 700;
+                  padding: 3px 10px;
+                  border-radius: 20px;
+                }
+
+                /* Plan display row */
+                .perf-page-container .plan-display-card {
+                  display: flex;
+                  align-items: center;
+                  gap: 16px;
+                  padding: 20px;
+                  background: var(--bg-input) !important;
+                  border-radius: 14px;
+                  border: 1.5px solid var(--border-color) !important;
+                  margin-bottom: 20px;
+                }
+                
+                /* Referral Hero Section */
+                .perf-page-container .referral-hero {
+                  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+                  border-radius: 16px;
+                  padding: 32px;
+                  margin-bottom: 20px;
+                  color: #fff;
+                  box-shadow: 0 4px 20px rgba(124,58,237,0.25);
+                }
+                .perf-page-container .referral-badge-item {
+                  background: rgba(255,255,255,0.12);
+                  border-radius: 10px;
+                  padding: 12px 18px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                }
+                .perf-page-container .ref-status-applied {
+                  background: var(--bg-input) !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 14px;
+                  padding: 16px 20px;
+                  margin-bottom: 20px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  flex-wrap: wrap;
+                  gap: 12px;
+                }
+
+                .perf-page-container .ref-stat-card {
+                  border-radius: 12px;
+                  padding: 20px;
+                  text-align: center;
+                  border: 1.5px solid var(--border-color) !important;
+                  background: var(--bg-card) !important;
+                  box-shadow: var(--card-shadow);
+                }
+
+                .perf-page-container .ref-code-box {
+                  background: var(--bg-input) !important;
+                  border-radius: 10px;
+                  padding: 14px 24px;
+                  font-family: monospace;
+                  font-size: 20px;
+                  font-weight: 900;
+                  color: var(--primary);
+                  letter-spacing: 3px;
+                  border: 2.5px dashed var(--border-color) !important;
+                }
+
+                /* How it works Referral */
+                .perf-page-container .ref-step-card {
+                  background: var(--bg-input) !important;
+                  border: 1.5px solid var(--border-color) !important;
+                  border-radius: 12px;
+                  padding: 20px;
+                  text-align: center;
+                }
+                .perf-page-container .ref-step-title {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-weight: 700;
+                  color: var(--text-main);
+                  font-size: 14px;
+                  margin-bottom: 4px;
+                }
+                .perf-page-container .ref-step-desc {
+                  font-family: 'Plus Jakarta Sans', sans-serif;
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  line-height: 1.5;
+                }
+            `}</style>
+
             <ConfirmDialog />
 
-            {/* Left Sidebar */}
-            <aside style={{ width:220, background:'#fff', borderRight:'1px solid #E5E7EB', padding:'24px 0', flexShrink:0 }}>
-                {/* User info */}
-                <div style={{ padding:'0 20px 20px', borderBottom:'1px solid #E5E7EB', marginBottom:8 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                        <div style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16, flexShrink:0 }}>
-                            {user?.name?.charAt(0)?.toUpperCase()}
+            <div className="ac-layout">
+                {/* Left Sidebar */}
+                <aside className="ac-sidebar">
+                    {/* User info */}
+                    <div className="sidebar-user-section">
+                        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                            <div style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16, flexShrink:0 }}>
+                                {user?.name?.charAt(0)?.toUpperCase()}
+                            </div>
+                            <div style={{ minWidth:0 }}>
+                                <div style={{ fontWeight:700, fontSize:13, color:'var(--text-main)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user?.name}</div>
+                                <span style={{ fontSize:11, fontWeight:600, padding:'1px 8px', borderRadius:20, background: planColor, color:'#fff' }}>
+                                    {PLAN_LABEL[plan]}
+                                </span>
+                            </div>
                         </div>
-                        <div style={{ minWidth:0 }}>
-                            <div style={{ fontWeight:700, fontSize:13, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user?.name}</div>
-                            <span style={{ fontSize:11, fontWeight:600, padding:'1px 8px', borderRadius:20, background: planColor, color:'#fff' }}>
-                                {PLAN_LABEL[plan]}
-                            </span>
-                        </div>
+                        {user?.accountId && (
+                            <div style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'monospace', textAlign:'center', background:'var(--bg-input)', borderRadius:6, padding:'4px 8px' }}>
+                                {user.accountId}
+                            </div>
+                        )}
                     </div>
-                    {user?.accountId && (
-                        <div style={{ fontSize:11, color:'#9CA3AF', fontFamily:'monospace', textAlign:'center', background:'#F9FAFB', borderRadius:6, padding:'4px 8px' }}>
-                            {user.accountId}
-                        </div>
-                    )}
-                </div>
 
-                {/* Nav */}
-                <nav style={{ padding:'0 8px' }}>
-                    {NAV.map(n => (
-                        <button key={n.id} onClick={() => setSection(n.id)}
-                            style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:8, border:'none', cursor:'pointer', textAlign:'left', fontSize:13, fontWeight:600, marginBottom:2, transition:'all 0.15s',
-                                background: section === n.id ? '#ede9fe' : 'transparent',
-                                color: section === n.id ? '#7c3aed' : '#374151' }}>
-                            <span>{n.icon}</span>
-                            <span>{n.label}</span>
-                        </button>
-                    ))}
-                </nav>
-            </aside>
-
-            {/* Main Content */}
-            <main style={{ flex:1, padding:'32px 40px', overflowY:'auto', maxWidth:900 }}>
-
-                {/* ── ACCOUNT DETAILS ── */}
-                {section === 'account' && (
-                    <>
-                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Account details.</h1>
-
-                        {/* Account Info */}
-                        <div style={S.section}>
-                            <div style={S.title}>Account info.</div>
-                            <div style={S.desc}>Used to display in your dashboard and all communications with you.</div>
-                            <div style={S.grid2}>
-                                <div>
-                                    <label style={S.label}>Full name</label>
-                                    <input style={S.input} value={nameForm.name} onChange={e => setNameForm({ name: e.target.value })} placeholder="Your name" />
-                                </div>
-                                <div>
-                                    <label style={S.label}>Account ID</label>
-                                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                                        <input style={{ ...S.input, fontFamily:'monospace', background:'#F9FAFB', color:'#7c3aed', fontWeight:700 }} value={user?.accountId || '—'} readOnly />
-                                        <button onClick={() => navigator.clipboard.writeText(user?.accountId || '')}
-                                            style={{ padding:'10px 14px', border:'1px solid #E5E7EB', borderRadius:8, background:'#fff', cursor:'pointer', fontSize:13, whiteSpace:'nowrap' }}>📋</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={S.grid2}>
-                                <div>
-                                    <label style={S.label}>Email address</label>
-                                    <input style={{ ...S.input, background:'#F9FAFB', color:'#6B7280' }} value={user?.email || ''} readOnly />
-                                </div>
-                                <div>
-                                    <label style={S.label}>Phone</label>
-                                    <input style={{ ...S.input, background:'#F9FAFB', color:'#6B7280' }} value={user?.phone || '—'} readOnly />
-                                </div>
-                            </div>
-                            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                                <button style={S.saveBtn} onClick={saveName}>Save changes</button>
-                                {nameMsg && <span style={{ fontSize:13, color: nameMsg.startsWith('✅') ? '#16a34a' : '#dc2626' }}>{nameMsg}</span>}
-                            </div>
-                        </div>
-
-                        {/* Plan Status */}
-                        <div style={S.section}>
-                            <div style={S.title}>Plan status.</div>
-                            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:16, marginBottom:20 }}>
-                                {[
-                                    { label:'Current Plan', value: PLAN_LABEL[plan], color: planColor },
-                                    { label:'Sites Used', value: `${serverCount} / ${siteLimit}`, color:'#7c3aed' },
-                                    { label:'Status', value: !isActive ? 'Expired' : accountStatus === 'grace' ? 'Grace Period' : 'Active', color: !isActive ? '#dc2626' : '#16a34a' },
-                                    plan === 'free_trial'
-                                        ? { label:'Trial Days Left', value: isActive ? `${trialLeft} days` : 'Expired', color: trialLeft <= 2 ? '#dc2626' : '#16a34a' }
-                                        : { label:'Renews', value: fmt(user?.planEndsAt), color:'#374151' },
-                                ].map(s => (
-                                    <div key={s.label} style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', borderRadius:10, padding:'16px' }}>
-                                        <div style={{ fontSize:11, fontWeight:700, color:'#9CA3AF', textTransform:'uppercase', marginBottom:6 }}>{s.label}</div>
-                                        <div style={{ fontSize:17, fontWeight:800, color: s.color }}>{s.value}</div>
-                                    </div>
-                                ))}
-                            </div>
-                            <Link to="/pay?plan=select" style={{ display:'inline-block', padding:'9px 20px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontWeight:600, fontSize:14, textDecoration:'none' }}>
-                                ⬆️ Upgrade Plan
-                            </Link>
-                        </div>
-
-                        {/* Delete Account */}
-                        <div style={{ ...S.section, border:'1px solid #FECDD3', background:'#FFF5F5' }}>
-                            <div style={{ ...S.title, color:'#DC2626' }}>Delete account.</div>
-                            <div style={{ ...S.desc, color:'#7f1d1d' }}>
-                                UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
-                            </div>
-                            <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
-                                Delete account
+                    {/* Nav */}
+                    <nav style={{ padding:'0 8px' }}>
+                        {NAV.map(n => (
+                            <button key={n.id} onClick={() => setSection(n.id)}
+                                className={`sidebar-btn ${section === n.id ? 'active' : ''}`}>
+                                <span>{n.icon}</span>
+                                <span>{n.label}</span>
                             </button>
-                            {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? '#16a34a' : '#dc2626', fontWeight:600 }}>{deleteMsg}</p>}
-                        </div>
-                    </>
-                )}
+                        ))}
+                    </nav>
+                </aside>
 
-                {/* ── BILLING ── */}
-                {section === 'billing' && (
-                    <>
-                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Billing & subscription.</h1>
-                        <div style={S.section}>
-                            <div style={S.title}>Current plan.</div>
-                            <div style={{ display:'flex', alignItems:'center', gap:16, padding:'20px', background:'#F9FAFB', borderRadius:10, border:'1px solid #E5E7EB', marginBottom:20 }}>
-                                <div style={{ width:48, height:48, borderRadius:12, background: PLAN_GRADIENTS[plan], display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>
-                                    {plan === 'free_trial' ? '🆓' : plan === 'bronze' ? '🥉' : plan === 'silver' ? '🥈' : '🥇'}
-                                </div>
-                                <div style={{ flex:1 }}>
-                                    <div style={{ fontWeight:800, fontSize:16, color:'#111827' }}>{PLAN_LABEL[plan]} Plan</div>
-                                    <div style={{ fontSize:13, color:'#6B7280', marginTop:2 }}>
-                                        {plan === 'free_trial' ? `Trial ${isActive ? `· ${trialLeft} days left` : '· Expired'}` : `${siteLimit} sites · Renews ${fmt(user?.planEndsAt)}`}
+                {/* Main Content */}
+                <main className="ac-main">
+
+                    {/* ── ACCOUNT DETAILS ── */}
+                    {section === 'account' && (
+                        <>
+                            <h1 style={{ fontSize:26, fontWeight:900, color:'var(--text-main)', marginBottom:28, fontFamily:'Outfit, sans-serif' }}>Account details.</h1>
+
+                            {/* Account Info */}
+                            <div className="ac-section">
+                                <div className="ac-section-title">Account info.</div>
+                                <div className="ac-section-desc">Used to display in your dashboard and all communications with you.</div>
+                                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+                                    <div>
+                                        <label className="ac-label">Full name</label>
+                                        <input className="ac-input" value={nameForm.name} onChange={e => setNameForm({ name: e.target.value })} placeholder="Your name" />
+                                    </div>
+                                    <div>
+                                        <label className="ac-label">Account ID</label>
+                                        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                                            <input className="ac-input" style={{ fontFamily:'monospace', color:'var(--primary)', fontWeight:700 }} value={user?.accountId || '—'} readOnly />
+                                            <button className="btn-outline" onClick={() => navigator.clipboard.writeText(user?.accountId || '')}>📋</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <Link to="/pay?plan=select" style={{ padding:'9px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none' }}>
-                                    Change Plan
-                                </Link>
-                            </div>
-                            <div style={{ fontSize:13, color:'#6B7280' }}>
-                                💳 Payments secured by <strong>Razorpay</strong> · UPI · Cards · Netbanking
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {/* ── INVOICES ── */}
-                {section === 'invoices' && (
-                    <>
-                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Invoices.</h1>
-                        <div style={S.section}>
-                            <div style={S.title}>Payment history.</div>
-                            {myRequests.length === 0 ? (
-                                <div style={{ textAlign:'center', padding:'40px 0', color:'#9CA3AF' }}>
-                                    <div style={{ fontSize:40, marginBottom:12 }}>🧾</div>
-                                    <div style={{ fontWeight:600 }}>No payments yet</div>
+                                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+                                    <div>
+                                        <label className="ac-label">Email address</label>
+                                        <input className="ac-input" value={user?.email || ''} readOnly />
+                                    </div>
+                                    <div>
+                                        <label className="ac-label">Phone</label>
+                                        <input className="ac-input" value={user?.phone || '—'} readOnly />
+                                    </div>
                                 </div>
-                            ) : (
-                                <div>
-                                    {myRequests.map(r => (
-                                        <div key={r._id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 0', borderBottom:'1px solid #F3F4F6', gap:12, flexWrap:'wrap' }}>
-                                            <div style={{ flex:1, minWidth:180 }}>
-                                                <div style={{ fontWeight:700, color:'#111827', fontSize:14 }}>
-                                                    {r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`}
-                                                </div>
-                                                <div style={{ fontSize:12, color:'#9CA3AF', marginTop:2 }}>{r.utr} · {fmt(r.createdAt)}</div>
-                                            </div>
-                                            <div style={{ fontWeight:800, fontSize:15, color:'#7c3aed' }}>₹{r.amount}</div>
-                                            <span style={{ fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20,
-                                                background: r.status==='approved'?'#f0fdf4':r.status==='refunded'?'#fef2f2':'#f9fafb',
-                                                color: r.status==='approved'?'#16a34a':r.status==='refunded'?'#dc2626':'#6B7280' }}>
-                                                {r.status}
-                                            </span>
-                                            <button onClick={() => downloadInvoice(r)}
-                                                style={{ padding:'6px 14px', border:'1px solid #E5E7EB', borderRadius:8, background:'#fff', color:'#374151', fontSize:12, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:5, whiteSpace:'nowrap' }}>
-                                                📄 Download
-                                            </button>
+                                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                    <button className="btn-primary" onClick={saveName}>Save changes</button>
+                                    {nameMsg && <span style={{ fontSize:13, color: nameMsg.startsWith('✅') ? 'var(--success)' : 'var(--danger)' }}>{nameMsg}</span>}
+                                </div>
+                            </div>
+
+                            {/* Plan Status */}
+                            <div className="ac-section">
+                                <div className="ac-section-title">Plan status.</div>
+                                <div className="info-card-grid">
+                                    {[
+                                        { label:'Current Plan', value: PLAN_LABEL[plan], color: planColor },
+                                        { label:'Sites Used', value: `${serverCount} / ${siteLimit}`, color:'var(--primary)' },
+                                        { label:'Status', value: !isActive ? 'Expired' : accountStatus === 'grace' ? 'Grace Period' : 'Active', color: !isActive ? 'var(--danger)' : 'var(--success)' },
+                                        plan === 'free_trial'
+                                            ? { label:'Trial Days Left', value: isActive ? `${trialLeft} days` : 'Expired', color: trialLeft <= 2 ? 'var(--danger)' : 'var(--success)' }
+                                            : { label:'Renews', value: fmt(user?.planEndsAt), color:'var(--text-main)' },
+                                    ].map(s => (
+                                        <div key={s.label} className="info-card">
+                                            <div className="info-card-label">{s.label}</div>
+                                            <div className="info-card-value" style={{ color: s.color }}>{s.value}</div>
                                         </div>
                                     ))}
                                 </div>
+                                <Link to="/pay?plan=select" className="btn-primary" style={{ display:'inline-block', textDecoration:'none' }}>
+                                    Upgrade Plan
+                                </Link>
+                            </div>
+
+                            {/* Delete Account */}
+                            <div className="ac-danger-zone">
+                                <div className="ac-danger-title">Delete account.</div>
+                                <div className="ac-danger-desc">
+                                    UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
+                                </div>
+                                <button onClick={deleteAccount} className="btn-danger">
+                                    Delete account
+                                </button>
+                                {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? 'var(--success)' : 'var(--danger)', fontWeight:600 }}>{deleteMsg}</p>}
+                            </div>
+                        </>
+                    )}
+
+                    {/* ── BILLING ── */}
+                    {section === 'billing' && (
+                        <>
+                            <h1 style={{ fontSize:26, fontWeight:900, color:'var(--text-main)', marginBottom:28, fontFamily:'Outfit, sans-serif' }}>Billing & subscription.</h1>
+                            <div className="ac-section">
+                                <div className="ac-section-title">Current plan.</div>
+                                <div className="plan-display-card">
+                                    <div style={{ width:48, height:48, borderRadius:12, background: PLAN_GRADIENTS[plan], display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>
+                                        {plan === 'free_trial' ? '🆓' : plan === 'bronze' ? '🥉' : plan === 'silver' ? '🥈' : '🥇'}
+                                    </div>
+                                    <div style={{ flex:1 }}>
+                                        <div style={{ fontWeight:800, fontSize:16, color:'var(--text-main)' }}>{PLAN_LABEL[plan]} Plan</div>
+                                        <div style={{ fontSize:13, color:'var(--text-muted)', marginTop:2 }}>
+                                            {plan === 'free_trial' ? `Trial ${isActive ? `· ${trialLeft} days left` : '· Expired'}` : `${siteLimit} sites · Renews ${fmt(user?.planEndsAt)}`}
+                                        </div>
+                                    </div>
+                                    <Link to="/pay?plan=select" className="btn-primary" style={{ textDecoration:'none' }}>
+                                        Change Plan
+                                    </Link>
+                                </div>
+                                <div style={{ fontSize:13, color:'var(--text-muted)' }}>
+                                    💳 Payments secured by <strong>Razorpay</strong> · UPI · Cards · Netbanking
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* ── INVOICES ── */}
+                    {section === 'invoices' && (
+                        <>
+                            <h1 style={{ fontSize:26, fontWeight:900, color:'var(--text-main)', marginBottom:28, fontFamily:'Outfit, sans-serif' }}>Invoices.</h1>
+                            <div className="ac-section">
+                                <div className="ac-section-title">Payment history.</div>
+                                {myRequests.length === 0 ? (
+                                    <div style={{ textAlign:'center', padding:'40px 0', color:'var(--text-muted)' }}>
+                                        <div style={{ fontSize:40, marginBottom:12 }}>🧾</div>
+                                        <div style={{ fontWeight:600 }}>No payments yet</div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {myRequests.map(r => (
+                                            <div key={r._id} className="invoice-row">
+                                                <div style={{ flex:1, minWidth:180 }}>
+                                                    <div className="invoice-title">
+                                                        {r.type === 'verification' ? 'Free Trial Verification' : `${PLAN_LABEL[r.plan] || r.plan} Plan`}
+                                                    </div>
+                                                    <div className="invoice-meta">{r.utr} · {fmt(r.createdAt)}</div>
+                                                </div>
+                                                <div className="invoice-amount">₹{r.amount}</div>
+                                                <span className="invoice-badge" style={{
+                                                    background: r.status==='approved'?'rgba(16, 185, 129, 0.08)':'rgba(244, 63, 94, 0.08)',
+                                                    color: r.status==='approved'?'var(--success)':'var(--danger)',
+                                                    border: `1px solid ${r.status==='approved'?'rgba(16, 185, 129, 0.25)':'rgba(244, 63, 94, 0.25)'}`
+                                                }}>
+                                                    {r.status}
+                                                </span>
+                                                <button onClick={() => downloadInvoice(r)} className="btn-outline" style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 14px' }}>
+                                                    📄 Download
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {/* ── SECURITY ── */}
+                    {section === 'security' && (
+                        <>
+                            <h1 style={{ fontSize:26, fontWeight:900, color:'var(--text-main)', marginBottom:28, fontFamily:'Outfit, sans-serif' }}>Security.</h1>
+
+                            {!user?.isGoogleUser && (
+                            <div className="ac-section">
+                                <div className="ac-section-title">Change password.</div>
+                                <div className="ac-section-desc">Choose a strong password to keep your account safe.</div>
+                                <div style={{ maxWidth:440, display:'flex', flexDirection:'column', gap:14 }}>
+                                    <div>
+                                        <label className="ac-label">Current password</label>
+                                        <input type="password" className="ac-input" value={pwForm.current} onChange={e => setPwForm(f => ({...f, current:e.target.value}))} placeholder="Enter current password" />
+                                    </div>
+                                    <div>
+                                        <label className="ac-label">New password</label>
+                                        <input type="password" className="ac-input" value={pwForm.newPw} onChange={e => setPwForm(f => ({...f, newPw:e.target.value}))} placeholder="Min 6 characters" />
+                                    </div>
+                                    <div>
+                                        <label className="ac-label">Confirm new password</label>
+                                        <input type="password" className="ac-input" value={pwForm.confirm} onChange={e => setPwForm(f => ({...f, confirm:e.target.value}))} placeholder="Repeat new password" />
+                                    </div>
+                                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                        <button className="btn-primary" onClick={savePw}>Update password</button>
+                                        {pwMsg.text && <span style={{ fontSize:13, color: pwMsg.type==='ok'?'var(--success)':'var(--danger)' }}>{pwMsg.text}</span>}
+                                    </div>
+                                </div>
+                            </div>
                             )}
-                        </div>
-                    </>
-                )}
 
-                {/* ── SECURITY ── */}
-                {section === 'security' && (
-                    <>
-                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Security.</h1>
-
-                        {!user?.isGoogleUser && (
-                        <div style={S.section}>
-                            <div style={S.title}>Change password.</div>
-                            <div style={S.desc}>Choose a strong password to keep your account safe.</div>
-                            <div style={{ maxWidth:440, display:'flex', flexDirection:'column', gap:14 }}>
-                                <div>
-                                    <label style={S.label}>Current password</label>
-                                    <input type="password" style={S.input} value={pwForm.current} onChange={e => setPwForm(f => ({...f, current:e.target.value}))} placeholder="Enter current password" />
-                                </div>
-                                <div>
-                                    <label style={S.label}>New password</label>
-                                    <input type="password" style={S.input} value={pwForm.newPw} onChange={e => setPwForm(f => ({...f, newPw:e.target.value}))} placeholder="Min 6 characters" />
-                                </div>
-                                <div>
-                                    <label style={S.label}>Confirm new password</label>
-                                    <input type="password" style={S.input} value={pwForm.confirm} onChange={e => setPwForm(f => ({...f, confirm:e.target.value}))} placeholder="Repeat new password" />
-                                </div>
-                                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                                    <button style={S.saveBtn} onClick={savePw}>Update password</button>
-                                    {pwMsg.text && <span style={{ fontSize:13, color: pwMsg.type==='ok'?'#16a34a':'#dc2626' }}>{pwMsg.text}</span>}
+                            {user?.isGoogleUser && (
+                            <div className="ac-section">
+                                <div className="ac-section-title">Google account.</div>
+                                <div className="ac-section-desc">Your account is linked with Google. Password change is managed through Google.</div>
+                                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'14px 18px', background:'var(--bg-input)', borderRadius:10, border:'1.5px solid var(--border-color)', width:'fit-content' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                    <span style={{ fontSize:14, fontWeight:600, color:'var(--text-main)', fontFamily:'Plus Jakarta Sans, sans-serif' }}>Connected with Google</span>
                                 </div>
                             </div>
-                        </div>
-                        )}
+                            )}
 
-                        {user?.isGoogleUser && (
-                        <div style={S.section}>
-                            <div style={S.title}>Google account.</div>
-                            <div style={S.desc}>Your account is linked with Google. Password change is managed through Google.</div>
-                            <div style={{ display:'flex', alignItems:'center', gap:10, padding:'14px 18px', background:'#F9FAFB', borderRadius:10, border:'1px solid #E5E7EB', width:'fit-content' }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                                <span style={{ fontSize:14, fontWeight:600, color:'#374151' }}>Connected with Google</span>
-                            </div>
-                        </div>
-                        )}
-
-                        <div style={{ ...S.section, border:'1px solid #FECDD3', background:'#FFF5F5' }}>
-                            <div style={{ ...S.title, color:'#DC2626' }}>Danger zone.</div>
-                            <div style={{ ...S.desc, color:'#7f1d1d' }}>
-                                UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
-                            </div>
-                            <button onClick={deleteAccount} style={{ padding:'9px 20px', background:'#DC2626', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:14, cursor:'pointer' }}>
-                                Delete account
-                            </button>
-                            {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? '#16a34a' : '#dc2626', fontWeight:600 }}>{deleteMsg}</p>}
-                        </div>
-                    </>
-                )}
-
-                {/* ── REFERRAL ── */}
-                {section === 'referral' && (
-                    <>
-                        <h1 style={{ fontSize:26, fontWeight:900, color:'#111827', marginBottom:28 }}>Referral.</h1>
-
-                        {/* Hero */}
-                        <div style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', borderRadius:16, padding:'32px', marginBottom:20, color:'#fff' }}>
-                            <div style={{ fontSize:40, marginBottom:12 }}>🎁</div>
-                            <h2 style={{ fontSize:22, fontWeight:900, marginBottom:8 }}>Invite friends, earn rewards!</h2>
-                            <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:16 }}>
-                                Share your referral link. When a friend purchases any paid plan using your code, <strong>both of you get 10 extra days free!</strong>
-                            </p>
-                            <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-                                <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:10, padding:'12px 18px', display:'flex', alignItems:'center', gap:8 }}>
-                                    <span style={{ fontSize:20 }}>👤</span>
-                                    <div>
-                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOUR FRIEND GETS</div>
-                                        <div style={{ fontSize:14, fontWeight:800 }}>10 days free on any paid plan</div>
-                                    </div>
+                            <div className="ac-danger-zone">
+                                <div className="ac-danger-title">Danger zone.</div>
+                                <div className="ac-danger-desc">
+                                    UptimeForge sends an <strong>"account deletion verification e-mail"</strong> to the account e-mail. Once the verification link inside the e-mail is clicked, all account information at UptimeForge (including the account, monitors, logs and settings) will be <strong>lost and can not be recovered</strong>.
                                 </div>
-                                <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:10, padding:'12px 18px', display:'flex', alignItems:'center', gap:8 }}>
-                                    <span style={{ fontSize:20 }}>🤩</span>
-                                    <div>
-                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOU GET</div>
-                                        <div style={{ fontSize:14, fontWeight:800 }}>10 days added to your plan</div>
-                                    </div>
-                                </div>
+                                <button onClick={deleteAccount} className="btn-danger">
+                                    Delete account
+                                </button>
+                                {deleteMsg && <p style={{ marginTop:12, fontSize:13, color: deleteMsg.startsWith('✅') ? 'var(--success)' : 'var(--danger)', fontWeight:600 }}>{deleteMsg}</p>}
                             </div>
-                        </div>
+                        </>
+                    )}
 
-                        {/* My referral status — if I used someone's code */}
-                        {user?.referredBy && (
-                            <div style={{ background: user.referralBonusUsed ? '#f0fdf4' : 'linear-gradient(135deg,#ede9fe,#ddd6fe)', border:`1px solid ${user.referralBonusUsed ? '#bbf7d0' : '#c4b5fd'}`, borderRadius:12, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
-                                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                                    <span style={{ fontSize:28 }}>{user.referralBonusUsed ? '✅' : '🎁'}</span>
-                                    <div>
-                                        <div style={{ fontWeight:800, fontSize:15, color: user.referralBonusUsed ? '#16a34a' : '#7c3aed' }}>
-                                            Referral code applied! 10 extra days FREE
+                    {/* ── REFERRAL ── */}
+                    {section === 'referral' && (
+                        <>
+                            <h1 style={{ fontSize:26, fontWeight:900, color:'var(--text-main)', marginBottom:28, fontFamily:'Outfit, sans-serif' }}>Referral.</h1>
+
+                            {/* Hero */}
+                            <div className="referral-hero">
+                                <div style={{ fontSize:40, marginBottom:12 }}>🎁</div>
+                                <h2 style={{ fontSize:22, fontWeight:900, marginBottom:8, fontFamily:'Outfit, sans-serif' }}>Invite friends, earn rewards!</h2>
+                                <p style={{ fontSize:14, color:'rgba(255,255,255,0.8)', lineHeight:1.7, marginBottom:16, fontFamily:'Plus Jakarta Sans, sans-serif' }}>
+                                    Share your referral link. When a friend purchases any paid plan using your code, <strong>both of you get 10 extra days free!</strong>
+                                </p>
+                                <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+                                    <div className="referral-badge-item">
+                                        <span style={{ fontSize:20 }}>👤</span>
+                                        <div>
+                                            <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOUR FRIEND GETS</div>
+                                            <div style={{ fontSize:14, fontWeight:800 }}>10 days free on any paid plan</div>
                                         </div>
-                                        <div style={{ fontSize:12, color:'#6B7280', marginTop:3 }}>
-                                            {user.referralBonusUsed
-                                                ? '🎉 Bonus already applied to your plan — 10 extra days added!'
-                                                : '⏳ Purchase any paid plan (Bronze/Silver/Gold) to get 10 bonus days automatically.'}
+                                    </div>
+                                    <div className="referral-badge-item">
+                                        <span style={{ fontSize:20 }}>🤩</span>
+                                        <div>
+                                            <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>YOU GET</div>
+                                            <div style={{ fontSize:14, fontWeight:800 }}>10 days added to your plan</div>
                                         </div>
                                     </div>
                                 </div>
-                                <span style={{ fontSize:11, fontWeight:700, padding:'4px 12px', borderRadius:20, background: user.referralBonusUsed ? '#dcfce7' : '#ede9fe', color: user.referralBonusUsed ? '#16a34a' : '#7c3aed' }}>
-                                    {user.referralBonusUsed ? 'Used ✓' : 'Pending'}
-                                </span>
                             </div>
-                        )}
 
-                        {/* Stats */}
-                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, marginBottom:20 }}>
-                            {[
-                                { label:'Friends Joined', value: refStats.total, icon:'👥', color:'#7c3aed', bg:'#ede9fe' },
-                                { label:'Paid Plans', value: refStats.paid, icon:'💳', color:'#16a34a', bg:'#f0fdf4' },
-                                { label:'Bonus Days Earned', value: refStats.paid * 10, icon:'⏱️', color:'#f59e0b', bg:'#fef3c7' },
-                            ].map(s => (
-                                <div key={s.label} style={{ background: s.bg, borderRadius:12, padding:'20px', textAlign:'center', border:`1px solid ${s.color}20` }}>
-                                    <div style={{ fontSize:28, marginBottom:6 }}>{s.icon}</div>
-                                    <div style={{ fontSize:26, fontWeight:900, color: s.color }}>{s.value}</div>
-                                    <div style={{ fontSize:12, color:'#6B7280', fontWeight:600 }}>{s.label}</div>
+                            {/* My referral status — if I used someone's code */}
+                            {user?.referredBy && (
+                                <div className="ref-status-applied" style={{
+                                    border: `1.5px solid ${user.referralBonusUsed ? 'var(--stats-up-border)' : 'var(--badge-total-border)'}`
+                                }}>
+                                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                        <span style={{ fontSize:28 }}>{user.referralBonusUsed ? '✅' : '🎁'}</span>
+                                        <div>
+                                            <div style={{ fontWeight:800, fontSize:15, color: user.referralBonusUsed ? 'var(--success)' : 'var(--primary)', fontFamily:'Plus Jakarta Sans, sans-serif' }}>
+                                                Referral code applied! 10 extra days FREE
+                                            </div>
+                                            <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:3, fontFamily:'Plus Jakarta Sans, sans-serif' }}>
+                                                {user.referralBonusUsed
+                                                    ? '🎉 Bonus already applied to your plan — 10 extra days added!'
+                                                    : '⏳ Purchase any paid plan (Bronze/Silver/Gold) to get 10 bonus days automatically.'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="invoice-badge" style={{
+                                        background: user.referralBonusUsed ? 'rgba(16, 185, 129, 0.08)' : 'rgba(124, 58, 237, 0.08)',
+                                        color: user.referralBonusUsed ? 'var(--success)' : 'var(--primary)',
+                                        border: `1px solid ${user.referralBonusUsed ? 'rgba(16, 185, 129, 0.25)' : 'rgba(124, 58, 237, 0.25)'}`
+                                    }}>
+                                        {user.referralBonusUsed ? 'Used ✓' : 'Pending'}
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
+                            )}
 
-                        {/* Referral Link */}
-                        <div style={S.section}>
-                            <div style={S.title}>Your referral link.</div>
-                            <div style={S.desc}>Share this link with friends to invite them to UptimeForge.</div>
-                            <div style={{ display:'flex', gap:8, marginBottom:16 }}>
-                                <input style={{ ...S.input, fontFamily:'monospace', fontSize:13, background:'#F9FAFB', color:'#374151', flex:1 }}
-                                    value={referralLink} readOnly />
-                                <button onClick={copyRef}
-                                    style={{ padding:'10px 20px', background: refCopied ? '#16a34a' : 'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:8, fontWeight:600, fontSize:13, cursor:'pointer', whiteSpace:'nowrap', minWidth:100 }}>
-                                    {refCopied ? '✓ Copied!' : '📋 Copy Link'}
-                                </button>
-                            </div>
-                            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-                                <a href={`https://wa.me/?text=Join UptimeForge - 24/7 website monitoring! Use my link: ${encodeURIComponent(referralLink)}`} target="_blank" rel="noreferrer"
-                                    style={{ padding:'8px 16px', background:'#25d366', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
-                                    💬 Share on WhatsApp
-                                </a>
-                                <a href={`mailto:?subject=Try UptimeForge&body=I'm using UptimeForge for website monitoring. Join using my link: ${referralLink}`}
-                                    style={{ padding:'8px 16px', background:'#EA4335', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
-                                    📧 Share via Email
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Referral Code */}
-                        <div style={S.section}>
-                            <div style={S.title}>Your referral code.</div>
-                            <div style={S.desc}>Friends can enter this code during registration.</div>
-                            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                                <div style={{ background:'#ede9fe', borderRadius:10, padding:'14px 24px', fontFamily:'monospace', fontSize:20, fontWeight:900, color:'#7c3aed', letterSpacing:3, border:'2px dashed #c4b5fd' }}>
-                                    {user?.accountId || 'N/A'}
-                                </div>
-                                <button onClick={() => { navigator.clipboard.writeText(user?.accountId || ''); }}
-                                    style={{ padding:'10px 16px', border:'1px solid #E5E7EB', borderRadius:8, background:'#fff', cursor:'pointer', fontSize:13, fontWeight:600 }}>
-                                    📋 Copy Code
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* How it works */}
-                        <div style={S.section}>
-                            <div style={S.title}>How it works.</div>
-                            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16 }}>
+                            {/* Stats */}
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, marginBottom:20 }}>
                                 {[
-                                    { step:'1', icon:'🔗', title:'Share your link', desc:'Copy and share your unique referral link or code' },
-                                    { step:'2', icon:'👤', title:'Friend signs up', desc:'Your friend registers using your link or code' },
-                                    { step:'3', icon:'🎉', title:'Both benefit', desc:'You both get rewards when they activate a plan' },
+                                    { label:'Friends Joined', value: refStats.total, icon:'👥', color:'var(--primary)' },
+                                    { label:'Paid Plans', value: refStats.paid, icon:'💳', color:'var(--success)' },
+                                    { label:'Bonus Days Earned', value: refStats.paid * 10, icon:'⏱️', color:'var(--warning)' },
                                 ].map(s => (
-                                    <div key={s.step} style={{ background:'#F9FAFB', border:'1px solid #E5E7EB', borderRadius:10, padding:'20px', textAlign:'center' }}>
-                                        <div style={{ fontSize:32, marginBottom:8 }}>{s.icon}</div>
-                                        <div style={{ fontWeight:700, color:'#111827', fontSize:14, marginBottom:4 }}>{s.title}</div>
-                                        <div style={{ fontSize:12, color:'#9CA3AF', lineHeight:1.5 }}>{s.desc}</div>
+                                    <div key={s.label} className="ref-stat-card">
+                                        <div style={{ fontSize:28, marginBottom:6 }}>{s.icon}</div>
+                                        <div style={{ fontSize:26, fontWeight:900, color: s.color }}>{s.value}</div>
+                                        <div style={{ fontSize:12, color:'var(--text-muted)', fontWeight:600 }}>{s.label}</div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </>
-                )}
 
-            </main>
+                            {/* Referral Link */}
+                            <div className="ac-section">
+                                <div className="ac-section-title">Your referral link.</div>
+                                <div className="ac-section-desc">Share this link with friends to invite them to UptimeForge.</div>
+                                <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+                                    <input className="ac-input" style={{ fontFamily:'monospace', fontSize:13, flex:1 }} value={referralLink} readOnly />
+                                    <button onClick={copyRef} className="btn-primary" style={{ padding:'10px 20px', whiteSpace:'nowrap', minWidth:100, background: refCopied ? 'var(--success)' : 'linear-gradient(135deg,#7c3aed,#6d28d9)' }}>
+                                        {refCopied ? '✓ Copied!' : '📋 Copy Link'}
+                                    </button>
+                                </div>
+                                <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                                    <a href={`https://wa.me/?text=Join UptimeForge - 24/7 website monitoring! Use my link: ${encodeURIComponent(referralLink)}`} target="_blank" rel="noreferrer"
+                                        style={{ padding:'8px 16px', background:'#25d366', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6, fontFamily:'Plus Jakarta Sans, sans-serif' }}>
+                                        💬 Share on WhatsApp
+                                    </a>
+                                    <a href={`mailto:?subject=Try UptimeForge&body=I'm using UptimeForge for website monitoring. Join using my link: ${referralLink}`}
+                                        style={{ padding:'8px 16px', background:'#EA4335', color:'#fff', borderRadius:8, fontWeight:600, fontSize:13, textDecoration:'none', display:'flex', alignItems:'center', gap:6, fontFamily:'Plus Jakarta Sans, sans-serif' }}>
+                                        📧 Share via Email
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* Referral Code */}
+                            <div className="ac-section">
+                                <div className="ac-section-title">Your referral code.</div>
+                                <div className="ac-section-desc">Friends can enter this code during registration.</div>
+                                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                                    <div className="ref-code-box">
+                                        {user?.accountId || 'N/A'}
+                                    </div>
+                                    <button className="btn-outline" onClick={() => { navigator.clipboard.writeText(user?.accountId || ''); }}>
+                                        📋 Copy Code
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* How it works */}
+                            <div className="ac-section">
+                                <div className="ac-section-title">How it works.</div>
+                                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16 }}>
+                                    {[
+                                        { step:'1', icon:'🔗', title:'Share your link', desc:'Copy and share your unique referral link or code' },
+                                        { step:'2', icon:'👤', title:'Friend signs up', desc:'Your friend registers using your link or code' },
+                                        { step:'3', icon:'🎉', title:'Both benefit', desc:'You both get rewards when they activate a plan' },
+                                    ].map(s => (
+                                        <div key={s.step} className="ref-step-card">
+                                            <div style={{ fontSize:32, marginBottom:8 }}>{s.icon}</div>
+                                            <div className="ref-step-title">{s.title}</div>
+                                            <div className="ref-step-desc">{s.desc}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                </main>
+            </div>
         </div>
     );
 }
