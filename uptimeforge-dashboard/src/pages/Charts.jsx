@@ -8,7 +8,7 @@ import {
 import { getServers, getAlerts, getPlans, API_URL } from '../api';
 import axios from 'axios';
 
-export default function Charts({ theme = 'light' }) {
+export default function Charts({ theme = 'light', user }) {
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
     if (match) return match[1];
@@ -60,18 +60,15 @@ export default function Charts({ theme = 'light' }) {
       setPageLoading(false); _loaded_Charts = true;
     }).catch(()=>setPageLoading(false));
     getAlerts().then(r => setAlerts(r.data));
-    // Fetch actual plan interval
+    // Fetch actual plan interval using user's plan
     getPlans().then(r => {
       const s = r.data;
-      // Get interval from the first server's plan, or fall back to plans config
-      getServers().then(sr => {
-        const userPlan = sr.data[0]?.plan || 'free_trial';
-        const iv = userPlan === 'free_trial'
-          ? (s.freeTrialInterval || 300)
-          : (s.plans?.[userPlan]?.interval || 60);
-        setCheckInterval(iv);
-      }).catch(() => setCheckInterval(60));
-    }).catch(() => setCheckInterval(60));
+      const userPlan = user?.plan || 'free_trial';
+      const iv = userPlan === 'free_trial'
+        ? (s.freeTrialInterval || 300)
+        : (s.plans?.[userPlan]?.interval || 30);
+      setCheckInterval(iv);
+    }).catch(() => setCheckInterval(30));
   }, []);
 
   useEffect(() => {
