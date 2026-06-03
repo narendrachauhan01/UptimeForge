@@ -446,7 +446,7 @@ function AppInner() {
     } catch (_) {}
     setAuthed(false); setUser(null); setIsAdmin(false);
     showToast('Logged out successfully.');
-    navigate('/');
+    navigate(isAdmin ? '/admin-login' : '/login');
   };
 
   useEffect(() => {
