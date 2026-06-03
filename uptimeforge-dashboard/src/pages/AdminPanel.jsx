@@ -757,47 +757,60 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     <div style={{ maxWidth: 560 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                             <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0 }}>My Profile</h1>
-                            <ThemeToggle />
                         </div>
                         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
                         <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Username</label>
-                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Username</label>
+                            <input style={inputSt}
                                 placeholder="New username (leave blank to keep current)"
                                 value={profileForm.username}
                                 onChange={e => setProfileForm(f => ({ ...f, username: e.target.value }))} />
                         </div>
                         <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Email</label>
-                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Email</label>
+                            <input style={inputSt}
                                 type="email" placeholder="New email (leave blank to keep current)"
                                 value={profileForm.email}
                                 onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
                         </div>
-                        <hr style={{ border: 'none', borderTop: '1px solid #F3F4F6', margin: '4px 0' }} />
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '4px 0' }} />
                         <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#EF4444' }}>*</span></label>
-                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#EF4444' }}>*</span></label>
+                            <input style={inputSt}
                                 type="password" placeholder="Required to save changes"
                                 value={profileForm.currentPassword}
                                 onChange={e => setProfileForm(f => ({ ...f, currentPassword: e.target.value }))} />
                         </div>
                         <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>New Password</label>
-                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>New Password</label>
+                            <input style={inputSt}
                                 type="password" placeholder="Leave blank to keep current password"
                                 value={profileForm.newPassword}
                                 onChange={e => setProfileForm(f => ({ ...f, newPassword: e.target.value }))} />
                         </div>
                         <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
-                            <input style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
+                            <input style={inputSt}
                                 type="password" placeholder="Confirm new password"
                                 value={profileForm.confirmPassword}
                                 onChange={e => setProfileForm(f => ({ ...f, confirmPassword: e.target.value }))} />
                         </div>
                         {profileMsg.text && (
-                            <div style={{ padding: '10px 14px', borderRadius: 8, background: profileMsg.type === 'ok' ? '#F0FDF4' : '#FFF5F5', color: profileMsg.type === 'ok' ? '#16A34A' : '#DC2626', fontSize: 13, fontWeight: 600 }}>
+                            <div style={{
+                                padding: '10px 14px',
+                                borderRadius: 8,
+                                background: profileMsg.type === 'ok'
+                                    ? (localTheme === 'dark' ? 'rgba(16, 185, 129, 0.08)' : '#F0FDF4')
+                                    : (localTheme === 'dark' ? 'rgba(239, 68, 68, 0.08)' : '#FFF5F5'),
+                                color: profileMsg.type === 'ok'
+                                    ? (localTheme === 'dark' ? '#10B981' : '#16A34A')
+                                    : (localTheme === 'dark' ? '#EF4444' : '#DC2626'),
+                                border: `1px solid ${profileMsg.type === 'ok'
+                                    ? (localTheme === 'dark' ? 'rgba(16, 185, 129, 0.2)' : '#BBF7D0')
+                                    : (localTheme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : '#FECDD3')}`,
+                                fontSize: 13,
+                                fontWeight: 600
+                            }}>
                                 {profileMsg.text}
                             </div>
                         )}
