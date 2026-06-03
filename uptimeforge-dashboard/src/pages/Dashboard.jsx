@@ -821,12 +821,12 @@ export default function Dashboard({ readOnly = false }) {
             {servers.length > 0 ? (
               <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:4}}>
                 {[
-                  { label:'Online', count:up, color:'#10b981', bg: isDark ? 'rgba(16,185,129,0.1)' : '#dcfce7' },
-                  { label:'Offline', count:down, color:'#f43f5e', bg: isDark ? 'rgba(244,63,94,0.1)' : '#fee2e2' },
-                  { label:'Unknown', count:unknown, color:'#f59e0b', bg: isDark ? 'rgba(245,158,11,0.1)' : '#fef3c7' },
+                  { label:'Online', count:up, color:'#10b981', bg: '#dcfce7' },
+                  { label:'Offline', count:down, color:'#f43f5e', bg: '#fee2e2' },
+                  { label:'Unknown', count:unknown, color:'#f59e0b', bg: '#fef3c7' },
                 ].map(item => (
                   <div key={item.label} style={{display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{flex:1,height:6,background: isDark ? '#1b2535' : '#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                    <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
                       <div style={{width:`${servers.length?Math.round(item.count/servers.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
                     </div>
                     <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.count}</span>
