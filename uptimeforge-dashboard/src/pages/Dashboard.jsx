@@ -51,30 +51,6 @@ export default function Dashboard({ readOnly = false }) {
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
 
-  const [localTheme, setLocalTheme] = useState(() => {
-    const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
-    if (match) return match[1];
-    return 'dark'; // Keep dark mode ON by default
-  });
-
-  const isDark = localTheme === 'dark';
-
-  const switchTheme = (next) => {
-    setLocalTheme(next);
-    const exp = new Date(Date.now() + 365 * 864e5).toUTCString();
-    document.cookie = `charts_theme=${next}; expires=${exp}; path=/; SameSite=Lax`;
-  };
-
-  useEffect(() => {
-    if (localTheme === 'dark') {
-      document.body.classList.add('charts-dark-theme');
-    } else {
-      document.body.classList.remove('charts-dark-theme');
-    }
-    return () => {
-      document.body.classList.remove('charts-dark-theme');
-    };
-  }, [localTheme]);
 
   const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); setPageLoading(false); _loaded = true; }).catch(()=>setPageLoading(false));
 
@@ -144,7 +120,7 @@ export default function Dashboard({ readOnly = false }) {
         <div style={{ display:'flex', gap:1.5, width: SLOTS * 5.5 + 'px' }}>
           {padded.map((h,i) => (
             <div key={i} style={{ flex:'1 0 0', height:24, borderRadius:2,
-              background: h.status==='up' ? '#10b981' : h.status==='down' ? '#f43f5e' : isDark ? '#1b2535' : '#e2e8f0',
+              background: h.status==='up' ? '#10b981' : h.status==='down' ? '#f43f5e' : '#e2e8f0',
               opacity: h.status==='empty' ? 0.25 : 0.85,
             }} title={h.time ? `${new Date(h.time).toLocaleTimeString('en-IN')} — ${h.status}` : ''} />
           ))}
@@ -165,7 +141,7 @@ export default function Dashboard({ readOnly = false }) {
   const displayList = filtered.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.url.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className={`perf-page-container ${localTheme}`}>
+    <div className="perf-page-container">
       <ConfirmDialog />
       
       <style>{`
@@ -216,16 +192,6 @@ export default function Dashboard({ readOnly = false }) {
           --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
           --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
           --input-focus-shadow: rgba(139, 92, 246, 0.15);
-        }
-
-        /* Outer layout background overrides for charts view */
-        body.charts-dark-theme {
-          background-color: #0b0f19 !important;
-        }
-        body.charts-dark-theme .app-main,
-        body.charts-dark-theme .content {
-          background-color: #0b0f19 !important;
-          transition: background-color 0.3s ease;
         }
 
         /* Decorative Glows */
@@ -656,48 +622,6 @@ export default function Dashboard({ readOnly = false }) {
           margin: 10px 0;
         }
 
-        /* Theme toggle switch styling */
-        .perf-theme-switch-wrap {
-          display: flex;
-          background: var(--bg-input) !important;
-          border: 1px solid var(--border-color) !important;
-          border-radius: 50px;
-          padding: 4px;
-          gap: 2px;
-          backdrop-filter: blur(8px);
-        }
-        .perf-theme-btn {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          padding: 6px 14px;
-          border: none;
-          border-radius: 50px;
-          font-size: 12px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          background: transparent !important;
-          color: var(--text-muted) !important;
-          font-family: inherit;
-          letter-spacing: 0.3px;
-          box-shadow: none !important;
-        }
-        .perf-theme-btn:hover {
-          color: var(--text-main) !important;
-          background: rgba(var(--primary-rgb), 0.05) !important;
-        }
-        .perf-theme-btn.active {
-          background: var(--bg-card) !important;
-          color: var(--primary) !important;
-          box-shadow: var(--card-shadow) !important;
-        }
-        .perf-page-container.dark .perf-theme-btn.active {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-          color: #fff !important;
-          box-shadow: 0 2px 12px rgba(124,58,237,0.4) !important;
-        }
-
         /* Responsive overrides */
         @media (max-width: 900px) {
           .perf-page-container .mon-layout {
@@ -714,9 +638,6 @@ export default function Dashboard({ readOnly = false }) {
             flex-direction: column;
             align-items: flex-start;
             gap: 16px;
-          }
-          .perf-theme-switch-wrap {
-            align-self: flex-end;
           }
         }
         @media (max-width: 600px) {
@@ -763,19 +684,7 @@ export default function Dashboard({ readOnly = false }) {
             </div>
             
             <div style={{ display:'flex', alignItems: 'center', gap:12, flexWrap: 'wrap' }}>
-              {/* Local Theme Selector */}
-              <div className="perf-theme-switch-wrap">
-                <button className={`perf-theme-btn ${!isDark ? 'active' : ''}`} onClick={() => switchTheme('light')}>
-                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-                  Light
-                </button>
-                <button className={`perf-theme-btn ${isDark ? 'active' : ''}`} onClick={() => switchTheme('dark')}>
-                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-                  Dark
-                </button>
-              </div>
-
-              <button className="mon-btn-csv" onClick={downloadCSV} disabled={servers.length===0} title="Download monitors state as CSV">
+<button className="mon-btn-csv" onClick={downloadCSV} disabled={servers.length===0} title="Download monitors state as CSV">
                 <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                 CSV
               </button>
@@ -810,7 +719,7 @@ export default function Dashboard({ readOnly = false }) {
           <div className="mon-list" style={{maxHeight:'calc(10 * 78px)', overflowY:'auto', paddingRight:2}}>
             {pageLoading ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:14}}>
-                  <div style={{width:44,height:44,borderRadius:'50%',border: isDark ? '4px solid rgba(255,255,255,0.05)' : '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
+                  <div style={{width:44,height:44,borderRadius:'50%',border: '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
                   <div style={{fontSize:13,color: isDark ? '#cbd5e1' : '#94a3b8',fontWeight:600,fontFamily:"'Plus Jakarta Sans', sans-serif"}}>Loading monitors...</div>
                   <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               </div>
