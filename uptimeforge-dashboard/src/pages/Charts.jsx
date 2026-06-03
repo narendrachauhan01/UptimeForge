@@ -692,6 +692,25 @@ export default function Charts({ theme = 'light' }) {
           border-radius: 16px;
           overflow: hidden;
           border: 1px solid var(--border-color);
+          max-height: 380px;
+          overflow-y: auto;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(124,58,237,0.4) transparent;
+        }
+        .perf-page-container .uptime-table-wrap::-webkit-scrollbar {
+          width: 5px;
+        }
+        .perf-page-container .uptime-table-wrap::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .perf-page-container .uptime-table-wrap::-webkit-scrollbar-thumb {
+          background: rgba(124,58,237,0.4);
+          border-radius: 10px;
+        }
+        .perf-page-container .uptime-table thead {
+          position: sticky;
+          top: 0;
+          z-index: 2;
         }
         .perf-page-container .uptime-table {
           width: 100%;
