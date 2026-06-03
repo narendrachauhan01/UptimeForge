@@ -907,6 +907,70 @@ export default function Charts({ theme = 'light' }) {
             justify-content: center;
           }
         }
+
+        /* ── Theme toggle ── */
+        .perf-theme-switch-wrap {
+          display: flex;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 50px;
+          padding: 4px;
+          gap: 2px;
+          backdrop-filter: blur(8px);
+        }
+        .perf-theme-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          padding: 6px 14px;
+          border: none;
+          border-radius: 50px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: transparent;
+          color: rgba(255,255,255,0.45);
+          font-family: inherit;
+          letter-spacing: 0.3px;
+        }
+        .perf-theme-btn:hover {
+          color: rgba(255,255,255,0.75);
+          background: rgba(255,255,255,0.06);
+        }
+        .perf-theme-btn.active {
+          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          color: #fff;
+          box-shadow: 0 2px 12px rgba(124,58,237,0.4);
+        }
+
+        /* ── CSV Export button ── */
+        .btn-csv-export {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 18px;
+          border: 1.5px solid rgba(124,58,237,0.4);
+          border-radius: 10px;
+          background: rgba(124,58,237,0.1);
+          color: #a78bfa;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: inherit;
+          white-space: nowrap;
+        }
+        .btn-csv-export:hover {
+          background: rgba(124,58,237,0.2);
+          border-color: #7c3aed;
+          color: #c4b5fd;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 14px rgba(124,58,237,0.25);
+        }
+        .btn-csv-export:active {
+          transform: translateY(0);
+        }
       `}</style>
 
       {/* Decorative Glows */}
