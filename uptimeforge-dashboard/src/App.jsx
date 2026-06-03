@@ -354,6 +354,7 @@ function UpgradeGate({ user, feature, children }) {
 }
 
 function AppInner() {
+  const theme = 'light';
   const [authed, setAuthed] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
@@ -641,7 +642,7 @@ function AppInner() {
               <Route path="/incidents" element={<Alerts />} />
               <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
               <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />
-              <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts />   : <UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
+              <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts theme={theme} />   : <UpgradeGate user={user} feature="Performance Charts"><Charts theme={theme} /></UpgradeGate>} />
               <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
               <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
               <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
