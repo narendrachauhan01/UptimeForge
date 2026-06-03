@@ -532,7 +532,7 @@ function AppInner() {
   }
 
   // ── Profile completion gate for all users without state/phone ──
-  const skipProfileGate = ['/complete-profile', '/pay', '/pricing', '/support', '/account'].includes(location.pathname);
+  const skipProfileGate = ['/complete-profile', '/pay', '/pricing', '/support', '/account', '/performance'].includes(location.pathname);
   const needsProfile = authed && !isAdmin && user && !user.state && !skipProfileGate;
   if (needsProfile) {
     navigate('/complete-profile');
