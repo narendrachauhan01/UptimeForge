@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { staffLogin } from '../api';
 import UWLogo from '../components/UWLogo';
 
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
+
 export default function StaffLogin() {
     const [email,    setEmail]    = useState('');
     const [password, setPassword] = useState('');
@@ -31,19 +33,18 @@ export default function StaffLogin() {
                 <div className="login-left-orb login-orb-1" />
                 <div className="login-left-orb login-orb-2" />
                 <div className="login-left-content">
-                    <Link to="/" className="login-left-brand">
+                    <a href={LANDING_URL} className="login-left-brand">
                         <UWLogo size={42} />
                         <span>UptimeForge</span>
-                    </Link>
+                    </a>
                     <div className="login-left-body">
                         <h2 className="login-left-h2">Staff Panel.<br />Your assigned access.</h2>
                         <p className="login-left-p">Log in to manage the sections assigned to you by the admin. Your access is role-based and controlled.</p>
                         <div className="login-left-features">
                             {[
-                                ['👥','Manage users & plan assignments'],
-                                ['🎫','Handle support tickets & replies'],
-                                ['📊','View payments & revenue reports'],
-                                ['🔒','Access only what you are allowed'],
+                                ['⚡','Access control mapped by administration'],
+                                ['🎫','Support tickets desk for customer queries'],
+                                ['📈','View real-time status of client monitors'],
                             ].map(([icon,text]) => (
                                 <div key={text} className="login-left-feat">
                                     <div className="login-left-feat-icon">{icon}</div>
@@ -64,11 +65,11 @@ export default function StaffLogin() {
             {/* Right Panel */}
             <div className="login-right">
                 <div className="login-form-wrap">
-                    <Link to="/" className="login-back">← Back to home</Link>
+                    <a href={LANDING_URL} className="login-back">← Back to home</a>
 
-                    <div style={{ marginTop:24 }}>
+                    <a href={LANDING_URL} style={{ display: 'inline-block', marginTop: 24, textDecoration: 'none' }}>
                         <UWLogo size={44} />
-                    </div>
+                    </a>
                     <h1 className="login-right-h1">Staff Login</h1>
                     <p className="login-right-sub">Sign in to your staff panel</p>
 

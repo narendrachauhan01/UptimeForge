@@ -5,6 +5,7 @@ import UWLogo from '../components/UWLogo';
 const EFFECTIVE_DATE = 'June 1, 2026';
 const CONTACT_EMAIL  = 'uptimeforge@gmail.com';
 const OPERATOR_NAME  = 'Narendra Singh';
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 
 export default function TermsOfService() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -14,11 +15,11 @@ export default function TermsOfService() {
 
       {/* ── top nav ── */}
       <nav className="tos-nav">
-        <Link to="/" className="tos-nav-brand">
+        <a href={LANDING_URL} className="tos-nav-brand">
           <UWLogo size={28} />
           <span>UptimeForge</span>
-        </Link>
-        <Link to="/" className="tos-nav-back">← Back to Home</Link>
+        </a>
+        <a href={LANDING_URL} className="tos-nav-back">← Back to Home</a>
       </nav>
 
       <div className="tos-wrap">
@@ -440,7 +441,7 @@ export default function TermsOfService() {
         <div className="tos-footer-bar">
           <p>© 2026 UptimeForge · Operated by {OPERATOR_NAME} · All rights reserved</p>
           <div className="tos-footer-links">
-            <Link to="/">Home</Link>
+            <a href={LANDING_URL}>Home</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/login">Login</Link>
             <Link to="/register">Sign Up</Link>

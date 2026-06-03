@@ -4,6 +4,8 @@ import { API_URL } from '../api';
 import axios from 'axios';
 import UWLogo from '../components/UWLogo';
 
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
+
 export default function AdminLogin() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -32,10 +34,10 @@ export default function AdminLogin() {
                 <div className="login-left-orb login-orb-1" />
                 <div className="login-left-orb login-orb-2" />
                 <div className="login-left-content">
-                    <Link to="/" className="login-left-brand">
+                    <a href={LANDING_URL} className="login-left-brand">
                         <UWLogo size={42} />
                         <span>UptimeForge</span>
-                    </Link>
+                    </a>
                     <div className="login-left-body">
                         <h2 className="login-left-h2">Admin Control.<br />Full power at hand.</h2>
                         <p className="login-left-p">Complete control over users, plans, payments, integrations and platform settings.</p>
@@ -65,11 +67,11 @@ export default function AdminLogin() {
             {/* Right Panel */}
             <div className="login-right">
                 <div className="login-form-wrap">
-                    <Link to="/" className="login-back">← Back to home</Link>
+                    <a href={LANDING_URL} className="login-back">← Back to home</a>
 
-                    <div style={{ marginTop:24 }}>
+                    <a href={LANDING_URL} style={{ display: 'inline-block', marginTop: 24, textDecoration: 'none' }}>
                         <UWLogo size={44} />
-                    </div>
+                    </a>
                     <h1 className="login-right-h1">Admin Login</h1>
                     <p className="login-right-sub">Sign in to the admin panel</p>
 

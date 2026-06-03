@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import UWLogo from '../components/UWLogo';
 import { getPlans } from '../api';
 
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
+
 const PLAN_META = {
     free_trial: {
         name: 'Free Trial', priceNote: 'one-time', color: '#64748b',
@@ -80,10 +82,10 @@ export default function Pricing() {
     return (
         <div className="pricing-page">
             <div className="pricing-hero">
-                <Link to="/" className="pricing-brand-link">
+                <a href={LANDING_URL} className="pricing-brand-link">
                     <UWLogo size={40} />
                     <span className="pricing-brand-name">UptimeForge</span>
-                </Link>
+                </a>
                 <h1 className="pricing-title">Simple, transparent pricing</h1>
                 <p className="pricing-sub">Start with a 5-day free trial. Pay ₹{planData?.verificationFee ?? 2} via Razorpay (UPI/Card/Netbanking/Wallet) to verify. Upgrade anytime — instant activation.</p>
             </div>

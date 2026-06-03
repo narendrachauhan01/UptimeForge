@@ -3,6 +3,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '../api';
 import UWLogo from '../components/UWLogo';
 
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
+
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -44,10 +46,10 @@ export default function ResetPassword() {
   return (
     <div className="reset-page">
       <div className="reset-wrap">
-        <Link to="/" className="reset-brand">
+        <a href={LANDING_URL} className="reset-brand">
           <UWLogo size={36} />
           <span>UptimeForge</span>
-        </Link>
+        </a>
 
         <div className="reset-card">
           {done ? (

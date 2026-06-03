@@ -172,7 +172,11 @@ export default function Login({ onLogin }) {
             Back to home
           </a>
 
-          <div className="login-right-logo"><UWLogo size={48} /></div>
+          <div className="login-right-logo">
+            <a href={LANDING_URL} style={{ display: 'inline-block', textDecoration: 'none' }}>
+              <UWLogo size={48} />
+            </a>
+          </div>
           <h1 className="login-right-h1">Welcome back</h1>
           <p className="login-right-sub">Sign in to your dashboard</p>
 
