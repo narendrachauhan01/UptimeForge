@@ -11,23 +11,30 @@ const CookieIcon = () => (
   </svg>
 );
 
+const setCookie = (name, value, days) => {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+};
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+};
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('uf_cookie_consent');
-    if (!consent) setVisible(true);
+    if (!getCookie('uf_consent')) setVisible(true);
   }, []);
 
   const accept = () => {
-    localStorage.setItem('uf_cookie_consent', 'accepted');
+    setCookie('uf_consent', 'accepted', 365);
     setVisible(false);
   };
 
   const reject = () => {
-    localStorage.setItem('uf_cookie_consent', 'rejected');
-    sessionStorage.removeItem('sm_intended_plan');
-    sessionStorage.removeItem('uf_ref');
+    setCookie('uf_consent', 'rejected', 365);
+    sessionStorage.clear();
     setVisible(false);
     window.location.href = '/';
   };
