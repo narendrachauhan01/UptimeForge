@@ -1032,16 +1032,27 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 value={search} onChange={e => setSearch(e.target.value)} />
                             {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:13, padding:0 }}>✕</button>}
                         </div>
-                        <div style={{ width:1, height:28, background:T.border }} />
-                        {/* Duration filter select */}
+                        <div style={{ width:1, height:28, background:'var(--border-color)' }} />
                         <select value={durationFilter} onChange={e => setDurationFilter(e.target.value)}
-                            style={{ padding:'6px 12px', border:'none', borderRadius:6, fontSize:13, fontWeight:600, color:T.text, background:'#F9FAFB', cursor:'pointer', fontFamily:'inherit', outline:'none' }}>
-                            <option value="all">All Users</option>
-                            <option value="free_trial">Free Trial</option>
-                            <option value="1m">Monthly (1M)</option>
-                            <option value="3m">3 Months</option>
-                            <option value="6m">6 Months</option>
-                            <option value="1y">Yearly (1Y)</option>
+                            style={{ 
+                                padding: '6px 12px', 
+                                border: '1px solid var(--border-color)', 
+                                borderRadius: 6, 
+                                fontSize: 13, 
+                                fontWeight: 600, 
+                                color: 'var(--text-main)', 
+                                background: 'var(--bg-input)', 
+                                cursor: 'pointer', 
+                                fontFamily: 'inherit', 
+                                outline: 'none' 
+                            }}
+                        >
+                            <option value="all" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>All Users</option>
+                            <option value="free_trial" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Free Trial</option>
+                            <option value="1m" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Monthly (1M)</option>
+                            <option value="3m" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>3 Months</option>
+                            <option value="6m" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>6 Months</option>
+                            <option value="1y" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>Yearly (1Y)</option>
                         </select>
 
 
