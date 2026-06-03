@@ -10,18 +10,17 @@ import axios from 'axios';
 
 export default function Charts({ theme = 'light' }) {
   const [localTheme, setLocalTheme] = useState(() => {
-    const saved = localStorage.getItem('uptimeforge-charts-theme');
-    if (saved) return saved;
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return systemDark ? 'dark' : 'light';
+    const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+    if (match) return match[1];
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
   const isDark = localTheme === 'dark';
 
-  const toggleTheme = () => {
-    const next = isDark ? 'light' : 'dark';
+  const switchTheme = (next) => {
     setLocalTheme(next);
-    localStorage.setItem('uptimeforge-charts-theme', next);
+    const exp = new Date(Date.now() + 365 * 864e5).toUTCString();
+    document.cookie = `charts_theme=${next}; expires=${exp}; path=/; SameSite=Lax`;
   };
 
   useEffect(() => {
@@ -125,7 +124,7 @@ export default function Charts({ theme = 'light' }) {
 
   const downloadCSV = () => {
     const headers = ['Site Name', 'URL', 'Status', 'Uptime %', 'Total Checks', 'Up Checks', 'Down Checks', 'Avg RT (ms)', 'Min RT (ms)', 'Max RT (ms)'];
-    const rows = uptimeData.map(s => [
+    const rows = filteredUptimeData.map(s => [
       `"${(s.name || '').replace(/"/g, '""')}"`,
       `"${(s.url || '').replace(/"/g, '""')}"`,
       s.status === 'up' ? 'Online' : s.status === 'down' ? 'Offline' : 'Unknown',
@@ -133,9 +132,9 @@ export default function Charts({ theme = 'light' }) {
       s.total,
       s.upCount,
       s.downCount,
-      s.avgRt || '',
-      s.minRt || '',
-      s.maxRt || ''
+      s.avgRt ? s.avgRt : '',
+      s.minRt ? s.minRt : '',
+      s.maxRt ? s.maxRt : ''
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
@@ -143,8 +142,10 @@ export default function Charts({ theme = 'light' }) {
     const a = document.createElement('a');
     a.href = url;
     a.download = `uptime-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   };
 
   const RtTooltip = ({ active, payload, label }) => {
@@ -927,11 +928,11 @@ export default function Charts({ theme = 'light' }) {
           
           {/* Local Theme Selector */}
           <div className="perf-theme-switch-wrap">
-            <button className={`perf-theme-btn ${!isDark ? 'active' : ''}`} onClick={() => setLocalTheme('light')}>
+            <button className={`perf-theme-btn ${!isDark ? 'active' : ''}`} onClick={() => switchTheme('light')}>
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
               Light
             </button>
-            <button className={`perf-theme-btn ${isDark ? 'active' : ''}`} onClick={() => setLocalTheme('dark')}>
+            <button className={`perf-theme-btn ${isDark ? 'active' : ''}`} onClick={() => switchTheme('dark')}>
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
               Dark
             </button>
