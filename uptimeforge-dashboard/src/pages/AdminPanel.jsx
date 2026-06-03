@@ -529,14 +529,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
-    const expiredUsers = users.filter(u => {
-        if (u.isBlocked) return false;
-        const checkDate = new Date();
-        if (u.plan === 'free_trial') {
-            return u.trialEndsAt && new Date(u.trialEndsAt) < checkDate;
-        }
-        return u.planEndsAt && new Date(u.planEndsAt) < checkDate;
-    });
+    const expiredUsers = users.filter(u => !u.isBlocked && !u.isActive);
 
     // Navigate to Users tab with filter
     const goToUsersFilter = (filterType) => {
