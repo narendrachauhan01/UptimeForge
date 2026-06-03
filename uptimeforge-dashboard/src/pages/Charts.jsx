@@ -518,6 +518,24 @@ export default function Charts({ theme = 'light' }) {
         .perf-page-container .chart-card:hover {
           border-color: rgba(var(--primary-rgb), 0.15);
         }
+        .perf-page-container .chart-card-title {
+          color: var(--text-main) !important;
+          font-size: 16px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .perf-page-container .chart-card-sub {
+          color: var(--text-muted) !important;
+          font-size: 13px;
+          margin-top: 4px;
+        }
+        .perf-page-container .uptime-site-name {
+          color: var(--text-main) !important;
+          font-size: 13px;
+          font-weight: 700;
+        }
         .perf-page-container .chart-card-header {
           display: flex;
           justify-content: space-between;
