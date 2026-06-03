@@ -51,6 +51,40 @@ export default function Dashboard({ readOnly = false }) {
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
 
+  const [localTheme, setLocalTheme] = useState(() => {
+    const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+    if (match) return match[1];
+    return 'dark'; // Keep dark mode ON by default
+  });
+
+  const isDark = localTheme === 'dark';
+
+  // Read theme changes from the cookie when component mounts or pulls updates
+  useEffect(() => {
+    const checkThemeCookie = () => {
+      const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+      const current = match ? match[1] : 'dark';
+      if (current !== localTheme) {
+        setLocalTheme(current);
+      }
+    };
+    
+    // Check theme immediately and interval pool to detect changes from performance page
+    checkThemeCookie();
+    const interval = setInterval(checkThemeCookie, 1000);
+    return () => clearInterval(interval);
+  }, [localTheme]);
+
+  useEffect(() => {
+    if (localTheme === 'dark') {
+      document.body.classList.add('charts-dark-theme');
+    } else {
+      document.body.classList.remove('charts-dark-theme');
+    }
+    return () => {
+      document.body.classList.remove('charts-dark-theme');
+    };
+  }, [localTheme]);
 
   const load = () => getServers().then(r => { setServers(r.data); setLastUpdated(new Date()); setPageLoading(false); _loaded = true; }).catch(()=>setPageLoading(false));
 
@@ -120,7 +154,7 @@ export default function Dashboard({ readOnly = false }) {
         <div style={{ display:'flex', gap:1.5, width: SLOTS * 5.5 + 'px' }}>
           {padded.map((h,i) => (
             <div key={i} style={{ flex:'1 0 0', height:24, borderRadius:2,
-              background: h.status==='up' ? '#10b981' : h.status==='down' ? '#f43f5e' : '#e2e8f0',
+              background: h.status==='up' ? '#10b981' : h.status==='down' ? '#f43f5e' : isDark ? '#1b2535' : '#e2e8f0',
               opacity: h.status==='empty' ? 0.25 : 0.85,
             }} title={h.time ? `${new Date(h.time).toLocaleTimeString('en-IN')} — ${h.status}` : ''} />
           ))}
@@ -141,7 +175,7 @@ export default function Dashboard({ readOnly = false }) {
   const displayList = filtered.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.url.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="perf-page-container">
+    <div className={`perf-page-container ${localTheme}`}>
       <ConfirmDialog />
       
       <style>{`
@@ -684,7 +718,7 @@ export default function Dashboard({ readOnly = false }) {
             </div>
             
             <div style={{ display:'flex', alignItems: 'center', gap:12, flexWrap: 'wrap' }}>
-<button className="mon-btn-csv" onClick={downloadCSV} disabled={servers.length===0} title="Download monitors state as CSV">
+              <button className="mon-btn-csv" onClick={downloadCSV} disabled={servers.length===0} title="Download monitors state as CSV">
                 <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                 CSV
               </button>
@@ -719,8 +753,8 @@ export default function Dashboard({ readOnly = false }) {
           <div className="mon-list" style={{maxHeight:'calc(10 * 78px)', overflowY:'auto', paddingRight:2}}>
             {pageLoading ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:14}}>
-                  <div style={{width:44,height:44,borderRadius:'50%',border: '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
-                  <div style={{fontSize:13,color: '#94a3b8',fontWeight:600,fontFamily:"'Plus Jakarta Sans', sans-serif"}}>Loading monitors...</div>
+                  <div style={{width:44,height:44,borderRadius:'50%',border: isDark ? '4px solid rgba(255,255,255,0.05)' : '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
+                  <div style={{fontSize:13,color: isDark ? '#cbd5e1' : '#94a3b8',fontWeight:600,fontFamily:"'Plus Jakarta Sans', sans-serif"}}>Loading monitors...</div>
                   <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               </div>
             ) : displayList.length===0 ? (
@@ -821,16 +855,16 @@ export default function Dashboard({ readOnly = false }) {
             {servers.length > 0 ? (
               <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:4}}>
                 {[
-                  { label:'Online', count:up, color:'#10b981', bg: '#dcfce7' },
-                  { label:'Offline', count:down, color:'#f43f5e', bg: '#fee2e2' },
-                  { label:'Unknown', count:unknown, color:'#f59e0b', bg: '#fef3c7' },
+                  { label:'Online', count:up, color:'#10b981', bg: isDark ? 'rgba(16,185,129,0.1)' : '#dcfce7' },
+                  { label:'Offline', count:down, color:'#f43f5e', bg: isDark ? 'rgba(244,63,94,0.1)' : '#fee2e2' },
+                  { label:'Unknown', count:unknown, color:'#f59e0b', bg: isDark ? 'rgba(245,158,11,0.1)' : '#fef3c7' },
                 ].map(item => (
                   <div key={item.label} style={{display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                    <div style={{flex:1,height:6,background: isDark ? '#1b2535' : '#f1f5f9',borderRadius:4,overflow:'hidden'}}>
                       <div style={{width:`${servers.length?Math.round(item.count/servers.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
                     </div>
                     <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.count}</span>
-                    <span style={{fontSize:11,color: '#94a3b8',minWidth:48}}>{item.label}</span>
+                    <span style={{fontSize:11,color: isDark ? '#cbd5e1' : '#94a3b8',minWidth:48}}>{item.label}</span>
                   </div>
                 ))}
               </div>
