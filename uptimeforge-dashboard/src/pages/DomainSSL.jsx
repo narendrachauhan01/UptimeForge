@@ -244,12 +244,12 @@ export default function DomainSSL() {
           padding: 0 !important;
         }
         
-        .perf-page-container .search-wrap {
+        .perf-page-container .mon-search-wrap {
           position: relative;
           flex: 1;
           min-width: 200px;
         }
-        .perf-page-container .search-wrap svg {
+        .perf-page-container .mon-search-wrap svg {
           position: absolute;
           left: 12px;
           top: 50%;
@@ -257,9 +257,9 @@ export default function DomainSSL() {
           color: var(--text-muted) !important;
           z-index: 10;
         }
-        .perf-page-container .search-input {
+        .perf-page-container .mon-search {
           width: 100%;
-          padding: 9px 12px 9px 36px !important;
+          padding: 9px 36px 9px 36px !important;
           border: 1.5px solid var(--border-color) !important;
           border-radius: 12px !important;
           background: var(--bg-input) !important;
@@ -271,13 +271,27 @@ export default function DomainSSL() {
           font-family: 'Plus Jakarta Sans', sans-serif !important;
           transition: all 0.2s !important;
         }
-        .perf-page-container .search-input:focus {
+        .perf-page-container .mon-search:focus {
           border-color: var(--primary) !important;
           background: var(--bg-card) !important;
           box-shadow: 0 0 0 4px var(--input-focus-shadow) !important;
         }
         .perf-page-container .search-clear {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none !important;
+          border: none !important;
           color: var(--text-muted) !important;
+          cursor: pointer !important;
+          font-size: 14px !important;
+          z-index: 10;
+          padding: 0 !important;
+          transition: all 0.2s !important;
+        }
+        .perf-page-container .search-clear:hover {
+          color: var(--danger) !important;
         }
         
         .perf-page-container .filter-pills {
@@ -432,9 +446,9 @@ export default function DomainSSL() {
 
         {/* Filter */}
         <div className="filter-bar">
-          <div className="search-wrap">
-            <svg width="16" height="16" fill="none" stroke="var(--text-muted)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input className="search-input" placeholder="Search sites..." value={search} onChange={e => setSearch(e.target.value)} />
+          <div className="mon-search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input className="mon-search" placeholder="Search sites..." value={search} onChange={e => setSearch(e.target.value)} />
             {search && <button className="search-clear" onClick={() => setSearch('')}>✕</button>}
           </div>
           <div className="filter-pills">
