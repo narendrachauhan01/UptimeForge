@@ -498,8 +498,7 @@ function AppInner() {
   }
 
   if (authed && isPublicPath && location.pathname !== '/' && location.pathname !== '/terms') {
-    navigate(isAdmin ? '/admin' : '/performance');
-    return null;
+    return <Navigate to={isAdmin ? '/admin' : '/performance'} replace />;
   }
 
   if (authed && location.pathname === '/terms') {
@@ -507,8 +506,7 @@ function AppInner() {
   }
 
   if (authed && location.pathname === '/') {
-    navigate('/performance', { replace: true });
-    return null;
+    return <Navigate to={isAdmin ? '/admin' : '/performance'} replace />;
   }
 
   if (!authed) {
@@ -535,8 +533,7 @@ function AppInner() {
   const skipProfileGate = ['/complete-profile', '/pay', '/pricing', '/support', '/account', '/performance'].includes(location.pathname);
   const needsProfile = authed && !isAdmin && user && !user.state && !skipProfileGate;
   if (needsProfile) {
-    navigate('/complete-profile');
-    return null;
+    return <Navigate to="/complete-profile" replace />;
   }
   if (authed && location.pathname === '/complete-profile') {
     return (
@@ -552,11 +549,10 @@ function AppInner() {
     const payPlan = new URLSearchParams(location.search).get('plan');
     // Already verified → skip verification page, go to dashboard
     if (payPlan === 'verification' && user && (user.trialVerified || user.plan !== 'free_trial')) {
-      navigate('/performance');
-      return null;
+      return <Navigate to="/performance" replace />;
     }
     return (
-      <>
+<>
         <PaymentPage user={user} onUserUpdate={handleUserUpdate} />
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </>
