@@ -529,7 +529,14 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const blockedUsers = users.filter(u => u.isBlocked).length;
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
-    const expiredUsers = users.filter(u => !u.isActive && !u.isBlocked);
+    const now = new Date();
+    const expiredUsers = users.filter(u => {
+        if (u.isBlocked) return false;
+        if (u.plan === 'free_trial') {
+            return u.trialEndsAt && new Date(u.trialEndsAt) < now;
+        }
+        return u.planEndsAt && new Date(u.planEndsAt) < now;
+    });
 
     // Navigate to Users tab with filter
     const goToUsersFilter = (filterType) => {
@@ -1414,7 +1421,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                 <td style={{ padding: '14px 16px', color: T.sub }}>{u.email}</td>
                                                 <td style={{ padding: '14px 16px' }}><PlanBadge plan={u.plan} /></td>
                                                 <td style={{ padding: '14px 16px', color: T.danger, fontWeight: 600 }}>{fmt(u.planEndsAt || u.trialEndsAt)}</td>
-                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.serverCount || 0} / {u.siteLimit || 2}</td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.serverCount || 0} sites used</td>
                                                 <td style={{ padding: '14px 16px' }}>
                                                     {!readOnly && (
                                                         <button style={{ ...btnPrimary, fontSize: 12, padding: '6px 14px' }}
