@@ -429,7 +429,7 @@ function AppInner() {
     setIsAdmin(false);
     setAuthed(true);
     if (planKey && ['bronze', 'silver', 'gold'].includes(planKey)) {
-      setCookie('sm_intended_plan', planKey, 1);
+      sessionStorage.setItem('sm_intended_plan', planKey);
       navigate(`/pay?plan=${planKey}`);
     } else {
       navigate('/pay?plan=select');
@@ -578,7 +578,7 @@ function AppInner() {
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;
   if (needsVerification && location.pathname !== '/pay') {
-    const intendedPlan = getCookie('sm_intended_plan');
+    const intendedPlan = sessionStorage.getItem('sm_intended_plan');
     if (intendedPlan && ['bronze', 'silver', 'gold'].includes(intendedPlan)) {
       navigate(`/pay?plan=${intendedPlan}`);
     } else {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { setCookie, getCookie, removeCookie } from '../utils/cookies';
+import { setCookie, getCookie } from '../utils/cookies';
 
 const CookieIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="cookie-svg">
@@ -26,8 +26,8 @@ export default function CookieConsent() {
 
   const reject = () => {
     setCookie('uf_consent', 'rejected', 365);
-    removeCookie('sm_intended_plan');
-    removeCookie('uf_ref');
+    sessionStorage.removeItem('sm_intended_plan');
+    sessionStorage.removeItem('uf_ref');
     setVisible(false);
     window.location.href = '/';
   };

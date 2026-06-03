@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { getCookie, setCookie, removeCookie } from '../utils/cookies';
 const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 import { sendRegisterOtp, verifyRegisterOtp, googleAuth } from '../api';
 import { getGoogleClientId } from '../googleConfig';
@@ -55,9 +54,9 @@ function Countdown({ seconds, onDone }) {
 export default function Register({ onRegister }) {
   const location = useLocation();
   // Capture referral code from URL ?ref=UF-2026-XXXXX
-  const refCode = new URLSearchParams(location.search).get('ref') || getCookie('uf_ref') || '';
-  if (refCode) setCookie('uf_ref', refCode, 7);
-  const storedPlan = getCookie('sm_intended_plan');
+  const refCode = new URLSearchParams(location.search).get('ref') || sessionStorage.getItem('uf_ref') || '';
+  if (refCode) sessionStorage.setItem('uf_ref', refCode);
+  const storedPlan = sessionStorage.getItem('sm_intended_plan');
   const defaultPlan = location.state?.intendedPlan || storedPlan || 'free_trial';
 
   const [step, setStep] = useState(1);
@@ -124,7 +123,8 @@ export default function Register({ onRegister }) {
     setError(''); setLoading(true);
     try {
       const res = await verifyRegisterOtp({ email: form.email, otp: otp.trim() });
-      removeCookie('uf_ref');
+      sessionStorage.removeItem('uf_ref');
+      sessionStorage.removeItem('sm_intended_plan');
       onRegister(res.data.user, selectedPlan);
     } catch (err) { setError(err.response?.data?.error || 'Verification failed'); }
     setLoading(false);
