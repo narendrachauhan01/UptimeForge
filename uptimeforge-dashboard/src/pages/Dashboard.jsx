@@ -720,7 +720,7 @@ export default function Dashboard({ readOnly = false }) {
             {pageLoading ? (
               <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:14}}>
                   <div style={{width:44,height:44,borderRadius:'50%',border: '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
-                  <div style={{fontSize:13,color: isDark ? '#cbd5e1' : '#94a3b8',fontWeight:600,fontFamily:"'Plus Jakarta Sans', sans-serif"}}>Loading monitors...</div>
+                  <div style={{fontSize:13,color: '#94a3b8',fontWeight:600,fontFamily:"'Plus Jakarta Sans', sans-serif"}}>Loading monitors...</div>
                   <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               </div>
             ) : displayList.length===0 ? (
@@ -830,7 +830,7 @@ export default function Dashboard({ readOnly = false }) {
                       <div style={{width:`${servers.length?Math.round(item.count/servers.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
                     </div>
                     <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.count}</span>
-                    <span style={{fontSize:11,color: isDark ? '#cbd5e1' : '#94a3b8',minWidth:48}}>{item.label}</span>
+                    <span style={{fontSize:11,color: '#94a3b8',minWidth:48}}>{item.label}</span>
                   </div>
                 ))}
               </div>
