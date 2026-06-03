@@ -791,9 +791,15 @@ export default function Account({ user, onUserUpdate }) {
                                             {plan === 'free_trial' ? `Trial ${isActive ? `· ${trialLeft} days left` : '· Expired'}` : `${siteLimit} sites · Renews ${fmt(user?.planEndsAt)}`}
                                         </div>
                                     </div>
-                                    <Link to="/pay?plan=select" className="btn-primary" style={{ textDecoration:'none' }}>
-                                        Change Plan
-                                    </Link>
+                                    {(plan === 'free_trial' || !isActive) ? (
+                                        <Link to="/pay?plan=select" className="btn-primary" style={{ textDecoration:'none' }}>
+                                            {!isActive ? '🔄 Renew' : '⬆️ Upgrade'}
+                                        </Link>
+                                    ) : (
+                                        <span style={{ fontSize:12, fontWeight:700, color:'#10b981', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:8, padding:'6px 14px' }}>
+                                            ✓ Active
+                                        </span>
+                                    )}
                                 </div>
                                 <div style={{ fontSize:13, color:'var(--text-muted)' }}>
                                     💳 Payments secured by <strong>Razorpay</strong> · UPI · Cards · Netbanking
