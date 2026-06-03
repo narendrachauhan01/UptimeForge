@@ -749,9 +749,16 @@ export default function Account({ user, onUserUpdate }) {
                                         </div>
                                     ))}
                                 </div>
-                                <Link to="/pay?plan=select" className="btn-primary" style={{ display:'inline-block', textDecoration:'none' }}>
-                                    Upgrade Plan
-                                </Link>
+                                {/* Show upgrade only for free trial OR expired plan */}
+                                {(plan === 'free_trial' || !isActive) ? (
+                                    <Link to="/pay?plan=select" className="btn-primary" style={{ display:'inline-block', textDecoration:'none' }}>
+                                        {!isActive ? '🔄 Renew Plan' : '⬆️ Upgrade Plan'}
+                                    </Link>
+                                ) : (
+                                    <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'9px 20px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:8, color:'#10b981', fontWeight:600, fontSize:14 }}>
+                                        ✓ Active {PLAN_LABEL[plan]} Plan
+                                    </div>
+                                )}
                             </div>
 
                             {/* Delete Account */}
