@@ -277,7 +277,7 @@ export default function Account({ user, onUserUpdate }) {
                   
                   --badge-total-bg: #eef2ff;
                   --badge-total-border: #ddd6fe;
-                  --hover-row-bg: #f8fafc;
+                  --hover-row-bg: rgba(124, 58, 237, 0.04);
                 }
 
                 /* Dark Theme Scope */
@@ -301,7 +301,7 @@ export default function Account({ user, onUserUpdate }) {
                   
                   --badge-total-bg: rgba(124, 58, 237, 0.08);
                   --badge-total-border: rgba(124, 58, 237, 0.25);
-                  --hover-row-bg: rgba(255, 255, 255, 0.02);
+                  --hover-row-bg: rgba(124, 58, 237, 0.08);
                 }
 
                 /* Body background overrides */
@@ -533,10 +533,16 @@ export default function Account({ user, onUserUpdate }) {
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
-                  padding: 14px 0;
+                  padding: 14px 16px;
                   border-bottom: 1px solid var(--border-color) !important;
                   gap: 12px;
                   flex-wrap: wrap;
+                  transition: background-color 0.15s ease;
+                  margin: 0 -16px;
+                  border-radius: 10px;
+                }
+                .perf-page-container .invoice-row:hover {
+                  background-color: var(--hover-row-bg) !important;
                 }
                 .perf-page-container .invoice-row:last-child {
                   border-bottom: none !important;

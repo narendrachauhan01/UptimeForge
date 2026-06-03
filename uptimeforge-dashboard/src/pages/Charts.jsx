@@ -282,9 +282,8 @@ export default function Charts({ theme = 'light', user }) {
           --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
           --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
           --glass-bg: rgba(255, 255, 255, 0.7);
-          --glass-border: rgba(226, 232, 240, 0.6);
-          --table-header-bg: #f8fafc;
-          --table-row-hover: #faf5ff;
+           --table-header-bg: #f8fafc;
+          --table-row-hover: rgba(124, 58, 237, 0.04);
           --input-focus-shadow: rgba(124, 58, 237, 0.08);
           --site-dropdown-bg: #ffffff;
           --site-dropdown-border: #e2e8f0;
@@ -306,7 +305,7 @@ export default function Charts({ theme = 'light', user }) {
           --glass-bg: rgba(19, 26, 38, 0.8);
           --glass-border: rgba(255, 255, 255, 0.08);
           --table-header-bg: #101622;
-          --table-row-hover: #1e1b4b;
+          --table-row-hover: rgba(124, 58, 237, 0.08);
           --input-focus-shadow: rgba(139, 92, 246, 0.15);
           --site-dropdown-bg: #131a26;
           --site-dropdown-border: rgba(255, 255, 255, 0.1);

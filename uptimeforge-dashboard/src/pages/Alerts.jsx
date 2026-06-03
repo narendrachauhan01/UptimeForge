@@ -110,7 +110,7 @@ export default function Alerts() {
           --stats-total-border: #ddd6fe;
           --stats-down-border: #fecdd3;
           --stats-up-border: #bbf7d0;
-          --hover-row-bg: #f8fafc;
+          --hover-row-bg: rgba(124, 58, 237, 0.04);
         }
 
         /* Dark Theme Scope */
@@ -130,7 +130,7 @@ export default function Alerts() {
           --stats-total-border: rgba(124, 58, 237, 0.25);
           --stats-down-border: rgba(244, 63, 94, 0.25);
           --stats-up-border: rgba(16, 185, 129, 0.25);
-          --hover-row-bg: rgba(255, 255, 255, 0.02);
+          --hover-row-bg: rgba(124, 58, 237, 0.08);
         }
 
         /* Body background overrides */

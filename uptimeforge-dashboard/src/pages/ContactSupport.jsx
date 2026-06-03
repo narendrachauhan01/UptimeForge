@@ -61,7 +61,7 @@ const SUPPORT_STYLES = `
       --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
       --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
       --input-focus-shadow: rgba(124, 58, 237, 0.08);
-      --hover-row-bg: #f8fafc;
+      --hover-row-bg: rgba(124, 58, 237, 0.04);
       --unread-row-bg: #fafaf7;
       --chat-admin-bg: #FAFFFE;
       --chat-user-bg: #ffffff;
@@ -79,7 +79,7 @@ const SUPPORT_STYLES = `
       --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
       --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
       --input-focus-shadow: rgba(139, 92, 246, 0.15);
-      --hover-row-bg: rgba(255, 255, 255, 0.02);
+      --hover-row-bg: rgba(124, 58, 237, 0.08);
       --unread-row-bg: rgba(124, 58, 237, 0.04);
       --chat-admin-bg: rgba(16, 185, 129, 0.03);
       --chat-user-bg: #131a26;
