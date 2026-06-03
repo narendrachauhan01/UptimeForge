@@ -3426,7 +3426,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .reg-page { display: flex; min-height: 100vh; height: 100vh; overflow: hidden; background: #05020c; font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif; }
 
 /* Left Panel */
-.reg-left { width: 420px; flex-shrink: 0; background: radial-gradient(circle at 50% 30%, #100b2e 0%, #05020c 100%); border-right: 1px solid rgba(255, 255, 255, 0.03); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.reg-left { width: 480px; flex-shrink: 0; background: radial-gradient(circle at 50% 30%, #100b2e 0%, #05020c 100%); border-right: 1px solid rgba(255, 255, 255, 0.03); position: relative; overflow: hidden; display: flex; flex-direction: column; }
 .reg-left-orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(100px); opacity: 0.2; }
 .reg-orb-1 { width: 320px; height: 320px; background: #7c3aed; top: -80px; left: -80px; animation: orb-float 12s ease-in-out infinite; }
 .reg-orb-2 { width: 220px; height: 220px; background: #1e40af; bottom: 40px; right: -60px; animation: orb-float-reverse 15s ease-in-out infinite; }
