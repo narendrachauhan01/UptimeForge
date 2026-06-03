@@ -531,6 +531,8 @@ export default function Charts({ theme = 'light', user }) {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           box-sizing: border-box;
           margin-bottom: 24px;
+          display: flex;
+          flex-direction: column;
         }
         .perf-page-container .chart-card:hover {
           border-color: rgba(var(--primary-rgb), 0.15);
@@ -663,6 +665,7 @@ export default function Charts({ theme = 'light', user }) {
           gap: 16px;
           flex-wrap: wrap;
           padding: 10px 0;
+          flex: 1;
         }
         .pie-chart-box {
           width: 150px;
@@ -1269,17 +1272,19 @@ export default function Charts({ theme = 'light', user }) {
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: 'var(--danger)' }}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               Alerts Trends <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>(Last 7 Days)</span>
             </h2>
-            <ResponsiveContainer width="100%" height={170}>
-              <BarChart data={alertData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }} barSize={16}>
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }} content={<AlertTooltip />} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, fontWeight: 700, paddingTop: 10, color: 'var(--text-main)' }} />
-                <Bar dataKey="down"      name="Downtime Alerts"      fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="recovered" name="Recovery Alerts" fill="#10b981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ position: 'relative', flex: 1, minHeight: 170 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={alertData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }} barSize={16}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{ fill: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }} content={<AlertTooltip />} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, fontWeight: 700, paddingTop: 10, color: 'var(--text-main)' }} />
+                  <Bar dataKey="down"      name="Downtime Alerts"      fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="recovered" name="Recovery Alerts" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
