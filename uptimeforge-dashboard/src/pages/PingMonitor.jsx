@@ -36,6 +36,8 @@ function TargetModal({ target, onClose, onSave }) {
     const [integSites,   setIntegSites]   = useState({});
     const [integExpanded,setIntegExpanded]= useState(null);
 
+    const isDark = document.body.classList.contains('charts-dark-theme');
+
     useEffect(() => {
         axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
             .then(r => {
@@ -78,56 +80,56 @@ function TargetModal({ target, onClose, onSave }) {
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
             onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:420, padding:28, boxShadow:'0 24px 80px rgba(0,0,0,0.5)', position:'relative' }}>
-                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
-                <h2 style={{ color:'#fff', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
+            <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:420, padding:28, boxShadow:'var(--card-shadow)', position:'relative' }}>
+                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
+                <h2 style={{ color:'var(--text-main)', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
                     {target ? '✏️ Edit Target' : '➕ Add Ping Target'}
                 </h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Name *</label>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Name *</label>
                         <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="My Server / Router"
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} autoFocus />
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} autoFocus />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Host / IP / URL *</label>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Host / IP / URL *</label>
                         <input value={form.host} onChange={e=>setForm({...form,host:e.target.value})} placeholder="192.168.1.1 or mysite.com"
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Port</label>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Port</label>
                         <input type="number" min="1" max="65535" placeholder="e.g. 443 (blank = auto)"
                             value={form.port}
                             onChange={e => setForm({...form, port: e.target.value === '' ? '' : Number(e.target.value)})}
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
-                        <div style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>Blank = auto (443→80) · 443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
+                        <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>Blank = auto (443→80) · 443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
                     </div>
                 </div>
                 {/* Recipients */}
                 <div style={{ marginTop:4 }}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0' }}>🔔 Notify Recipients</label>
-                        <span style={{ fontSize:11, color:'#94a3b8' }}>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)' }}>🔔 Notify Recipients</label>
+                        <span style={{ fontSize:11, color:'var(--text-muted)' }}>
                             {selected.length===0 ? '⚠️ No one selected — tick at least one' : `${selected.length} selected`}
                         </span>
                     </div>
                     {loadingR ? (
-                        <div style={{ fontSize:12, color:'#94a3b8', padding:'8px 0' }}>Loading...</div>
+                        <div style={{ fontSize:12, color:'var(--text-muted)', padding:'8px 0' }}>Loading...</div>
                     ) : activeRecs.length === 0 ? (
-                        <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
+                        <div style={{ background:'rgba(244,63,94,0.08)', border:'1px solid rgba(244,63,94,0.15)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
                             <span>⚠️</span>
                             <div>
-                                <div style={{ fontSize:12, color:'#fca5a5', fontWeight:600 }}>No recipients found</div>
-                                <a href="/integrations" style={{ fontSize:11, color:'#a78bfa', fontWeight:700 }}>Go to Integrations → Add recipient</a>
+                                <div style={{ fontSize:12, color:'var(--danger)', fontWeight:600 }}>No recipients found</div>
+                                <a href="/integrations" style={{ fontSize:11, color:'var(--primary)', fontWeight:700 }}>Go to Integrations → Add recipient</a>
                             </div>
                         </div>
                     ) : (
-                        <div style={{ background:'rgba(255,255,255,0.04)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)', overflow:'hidden' }}>
+                        <div style={{ background:'var(--bg-input)', borderRadius:10, border:'1px solid var(--border-color)', overflow:'hidden' }}>
                             {/* Search */}
-                            <div style={{ padding:'8px 12px', borderBottom:'1px solid rgba(255,255,255,0.06)', position:'relative' }}>
-                                <svg style={{ position:'absolute', left:20, top:'50%', transform:'translateY(-50%)' }} width="12" height="12" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <div style={{ padding:'8px 12px', borderBottom:'1px solid var(--border-color)', position:'relative' }}>
+                                <svg style={{ position:'absolute', left:20, top:'50%', transform:'translateY(-50%)' }} width="12" height="12" fill="none" stroke="var(--text-muted)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                                 <input value={rSearch} onChange={e=>setRSearch(e.target.value)} placeholder="Search recipients..."
-                                    style={{ width:'100%', padding:'6px 8px 6px 26px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:7, fontSize:12, color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                                    style={{ width:'100%', padding:'6px 8px 6px 26px', background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:7, fontSize:12, color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
                             </div>
                             {/* List */}
                             <div style={{ maxHeight:180, overflowY:'auto' }}>
@@ -135,16 +137,16 @@ function TargetModal({ target, onClose, onSave }) {
                                     const isChecked = selected.includes(r._id);
                                     const ac = `hsl(${(r.name||'').charCodeAt(0)*37%360},55%,48%)`;
                                     return (
-                                        <label key={r._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom:'1px solid rgba(255,255,255,0.05)', cursor:'pointer',
-                                            background: isChecked ? 'rgba(124,58,237,0.15)' : 'transparent', transition:'background 0.12s' }}>
+                                        <label key={r._id} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom:'1px solid var(--border-color)', cursor:'pointer',
+                                            background: isChecked ? 'var(--primary-glow)' : 'transparent', transition:'background 0.12s' }}>
                                             <input type="checkbox" checked={isChecked} onChange={()=>toggleR(r._id)}
-                                                style={{ width:15, height:15, accentColor:'#7c3aed', cursor:'pointer', flexShrink:0 }} />
-                                            <div style={{ width:28, height:28, borderRadius:'50%', background:ac, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:12, flexShrink:0 }}>
+                                                style={{ width:15, height:15, accentColor:'var(--primary)', cursor:'pointer', flexShrink:0 }} />
+                                            <div style={{ width:28, height:28, borderRadius:'50%', background:ac, display:'flex', alignItems:'center', justifyTerminal:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:12, flexShrink:0 }}>
                                                 {(r.name||'?')[0].toUpperCase()}
                                             </div>
                                             <div style={{ flex:1, minWidth:0 }}>
-                                                <div style={{ fontSize:13, fontWeight:600, color:'#e2e8f0' }}>{r.name}</div>
-                                                <div style={{ fontSize:11, color:'#94a3b8', display:'flex', gap:6 }}>
+                                                <div style={{ fontSize:13, fontWeight:600, color:'var(--text-main)' }}>{r.name}</div>
+                                                <div style={{ fontSize:11, color:'var(--text-muted)', display:'flex', gap:6 }}>
                                                     {r.email && <span style={{display:'flex',alignItems:'center',gap:3}}>
                                                         <svg width="11" height="11" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
                                                         {r.email}
@@ -152,95 +154,74 @@ function TargetModal({ target, onClose, onSave }) {
                                                     {r.phone && <span style={{display:'flex',alignItems:'center',gap:3}}>
                                                         <svg width="11" height="11" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                                                         +{r.phone.slice(0,12)}
-                                                    </span>}
-                                                </div>
-                                            </div>
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                            {selected.length === 0 && (
-                                <div style={{ padding:'8px 14px', fontSize:11, color:'#94a3b8', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-                                    ⚠️ No one selected — no alerts will be sent. Tick at least one recipient.
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                                                     </span>}
+                                                 </div>
+                                             </div>
+                                         </label>
+                                     );
+                                 })}
+                             </div>
+                             {selected.length === 0 && (
+                                 <div style={{ padding:'8px 14px', fontSize:11, color:'var(--text-muted)', borderTop:'1px solid var(--border-color)' }}>
+                                     ⚠️ No one selected — no alerts will be sent. Tick at least one recipient.
+                                 </div>
+                             )}
+                         </div>
+                     )}
+                 </div>
 
-                {/* Integrations (Webhook etc.) */}
-                {integrations.length > 0 && (
-                    <div style={{ marginTop:14 }}>
-                        <div style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', marginBottom:8 }}>🔗 Active Integrations</div>
-                        {integrations.map(intg => {
-                            const siteSel = integSites[intg._id] || [];
-                            const isExp = integExpanded === intg._id;
-                            const icons = { webhook:'🔗', slack:'', discord:'🎮', telegram:'✈️' };
-                            return (
-                                <div key={intg._id} style={{ marginBottom:6 }}>
-                                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.3)', borderRadius:9 }}>
-                                        <span>{icons[intg.type]||'🔗'}</span>
-                                        <div style={{ flex:1 }}>
-                                            <div style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', textTransform:'capitalize' }}>{intg.type}</div>
-                                            <div style={{ fontSize:10, color:'#94a3b8' }}>{intg.config?.url?.slice(0,35)||'Configured'}</div>
-                                        </div>
-                                        <span style={{ fontSize:10, fontWeight:700, background:'rgba(16,185,129,0.2)', color:'#34d399', padding:'2px 7px', borderRadius:20 }}>✓ Active</span>
-                                        <button type="button" onClick={async()=>{
-                                            if(!confirm(`Remove ${intg.type} integration?`)) return;
-                                            await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
-                                            setIntegrations(p=>p.filter(x=>x._id!==intg._id));
-                                        }} style={{ padding:'3px 8px', background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:6, color:'#f87171', fontSize:11, cursor:'pointer' }}>🗑</button>
-                                    </div>
-                                    {isExp && (
-                                        <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'0 0 9px 9px', padding:'8px 12px' }}>
-                                            <div style={{ fontSize:10, color:'#94a3b8', marginBottom:6 }}>Select sites (empty = all):</div>
-                                            <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
-                                                {[].concat(window._pingServers||[]).map(s => {
-                                                    const sel = siteSel.includes(s._id);
-                                                    return (
-                                                        <button key={s._id} type="button"
-                                                            onClick={async()=>{
-                                                                const n = sel ? siteSel.filter(x=>x!==s._id) : [...siteSel, s._id];
-                                                                setIntegSites(p=>({...p,[intg._id]:n}));
-                                                                await axios.post(`${API_URL}/api/integrations/${intg.type}`,{config:intg.config,events:intg.events,servers:n}, { withCredentials: true });
-                                                            }}
-                                                            style={{ padding:'2px 8px', borderRadius:20, border:`1px solid ${sel?'#a78bfa':'rgba(255,255,255,0.15)'}`, background:sel?'rgba(124,58,237,0.2)':'transparent', color:sel?'#a78bfa':'#94a3b8', fontSize:10, cursor:'pointer' }}>
-                                                            {s.name} {sel&&'✓'}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                 {/* Integrations (Webhook etc.) */}
+                 {integrations.length > 0 && (
+                     <div style={{ marginTop:14 }}>
+                         <div style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', marginBottom:8 }}>🔗 Active Integrations</div>
+                         {integrations.map(intg => {
+                             const siteSel = integSites[intg._id] || [];
+                             const isExp = integExpanded === intg._id;
+                             const icons = { webhook:'🔗', slack:'', discord:'🎮', telegram:'✈️' };
+                             return (
+                                 <div key={intg._id} style={{ marginBottom:6 }}>
+                                     <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', background:'var(--primary-glow)', border:'1px solid var(--border-color)', borderRadius:9 }}>
+                                         <span>{icons[intg.type]||'🔗'}</span>
+                                         <div style={{ flex:1 }}>
+                                             <div style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', textTransform:'capitalize' }}>{intg.type}</div>
+                                             <div style={{ fontSize:10, color:'var(--text-muted)' }}>{intg.config?.url?.slice(0,35)||'Configured'}</div>
+                                         </div>
+                                         <span style={{ fontSize:10, fontWeight:700, background:'rgba(16,185,129,0.08)', color:'var(--success)', padding:'2px 7px', borderRadius:20, border:'1px solid rgba(16,185,129,0.15)' }}>✓ Active</span>
+                                         <button type="button" onClick={async()=>{
+                                             if(!confirm(`Remove ${intg.type} integration?`)) return;
+                                             await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
+                                             setIntegrations(p=>p.filter(x=>x._id!==intg._id));
+                                         }} style={{ padding:'3px 8px', background:'rgba(244,63,94,0.08)', border:'1px solid rgba(244,63,94,0.15)', borderRadius:6, color:'var(--danger)', fontSize:11, cursor:'pointer' }}>🗑</button>
+                                     </div>
+                                 </div>
+                             );
+                         })}
+                     </div>
+                 )}
 
-                {saveError && (
-                    <div style={{ marginTop:12, background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:10, padding:'12px 16px' }}>
-                        <div style={{ color:'#f87171', fontSize:13, fontWeight:600, marginBottom: saveError.includes('limit') ? 8 : 0 }}>
-                            ⚠️ {saveError}
-                        </div>
-                        {saveError.includes('limit') && (
-                            <a href="/pay?plan=select" style={{ display:'inline-block', marginTop:4, padding:'6px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none' }}>
-                                ⬆️ Upgrade Plan
-                            </a>
-                        )}
-                    </div>
-                )}
+                 {saveError && (
+                     <div style={{ marginTop:12, background:'rgba(244,63,94,0.08)', border:'1px solid rgba(244,63,94,0.15)', borderRadius:10, padding:'12px 16px' }}>
+                         <div style={{ color:'var(--danger)', fontSize:13, fontWeight:600, marginBottom: saveError.includes('limit') ? 8 : 0 }}>
+                             ⚠️ {saveError}
+                         </div>
+                         {saveError.includes('limit') && (
+                             <a href="/pay?plan=select" style={{ display:'inline-block', marginTop:4, padding:'6px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none' }}>
+                                 ⬆️ Upgrade Plan
+                             </a>
+                         )}
+                     </div>
+                 )}
 
-                <div style={{ display:'flex', gap:10, marginTop:16 }}>
-                    <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
-                    <button onClick={save} disabled={saving || !form.name || !form.host}
-                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(saving||!form.name||!form.host)?0.6:1 }}>
-                        {saving ? 'Saving...' : target ? 'Save Changes' : 'Add Target'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+                 <div style={{ display:'flex', gap:10, marginTop:16 }}>
+                     <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid var(--border-color)', borderRadius:10, background:'var(--bg-card)', color:'var(--text-muted)', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
+                     <button onClick={save} disabled={saving || !form.name || !form.host}
+                         style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(saving||!form.name||!form.host)?0.6:1, boxShadow:'0 2px 8px rgba(124,58,237,0.2)' }}>
+                         {saving ? 'Saving...' : target ? 'Save Changes' : 'Add Target'}
+                     </button>
+                 </div>
+             </div>
+         </div>
+     );
 }
 
 // ── Detail Modal ──────────────────────────────────────────────────────────────
@@ -250,6 +231,8 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
     const timerRef = useRef(null);
     const termRef  = useRef(null);
     const seqRef   = useRef(0);
+
+    const isDark = document.body.classList.contains('charts-dark-theme');
 
     const hist48 = (target.history || []).slice(-48);
     const chartData = hist48.map(h => ({
@@ -290,24 +273,25 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:12 }}
             onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'#f8fafc', borderRadius:20, width:'100%', maxWidth:800, maxHeight:'94vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.3)' }}>
+            <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:800, maxHeight:'94vh', overflowY:'auto', boxShadow:'var(--card-shadow)' }}>
 
                 {/* Header */}
-                <div style={{ background:'linear-gradient(135deg,#1e1b4b,#2d2466)', padding:'18px 22px', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                <div style={{ background:'var(--bg-input)', padding:'18px 22px', borderBottom:'1px solid var(--border-color)', borderRadius:'20px 20px 0 0', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
                     <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                         <PulseDot status={target.status} size={14} />
                         <div>
-                            <div style={{ fontWeight:800, fontSize:17, color:'#fff' }}>{target.name}</div>
-                            <div style={{ fontSize:12, color:'rgba(255,255,255,0.5)', fontFamily:'monospace' }}>{target.host}:{target.port}</div>
+                            <div style={{ fontWeight:800, fontSize:17, color:'var(--text-main)' }}>{target.name}</div>
+                            <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:'monospace' }}>{target.host}:{target.port}</div>
                         </div>
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         <span style={{ fontSize:12, fontWeight:700, padding:'3px 10px', borderRadius:20,
-                            background: target.status==='up'?'#dcfce7':target.status==='down'?'#fee2e2':'#fef3c7',
+                            background: target.status==='up'?'rgba(16,185,129,0.08)':target.status==='down'?'rgba(244,63,94,0.08)':'rgba(245,158,11,0.08)',
+                            border:`1px solid ${target.status==='up'?'rgba(16,185,129,0.15)':target.status==='down'?'rgba(244,63,94,0.15)':'rgba(245,158,11,0.15)'}`,
                             color: statColor }}>
                             {target.status==='up'?'● UP':target.status==='down'?'● DOWN':'● Unknown'}
                         </span>
-                        <button onClick={onClose} style={{ background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:30, height:30, borderRadius:8, cursor:'pointer', fontSize:15 }}>✕</button>
+                        <button onClick={onClose} style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:30, height:30, borderRadius:8, cursor:'pointer', fontSize:15 }}>✕</button>
                     </div>
                 </div>
 
@@ -320,28 +304,28 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                             { l:'Uptime',   v: `${upPct}%`, c:'#10b981' },
                             { l:'Avg (48h)',v: avgMs?`${avgMs}ms`:'—', c:'#7c3aed' },
                         ].map(s => (
-                            <div key={s.l} style={{ background:'#fff', borderRadius:12, padding:'12px 14px', border:'1px solid #e2e8f0', textAlign:'center' }}>
-                                <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', marginBottom:4 }}>{s.l}</div>
+                            <div key={s.l} style={{ background:'var(--bg-input)', borderRadius:12, padding:'12px 14px', border:'1px solid var(--border-color)', textAlign:'center' }}>
+                                <div style={{ fontSize:10, color:'var(--text-muted)', fontWeight:600, textTransform:'uppercase', marginBottom:4 }}>{s.l}</div>
                                 <div style={{ fontSize:16, fontWeight:800, color:s.c }}>{s.v}</div>
                             </div>
                         ))}
                     </div>
 
                     {/* Chart */}
-                    <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', padding:'14px 16px' }}>
-                        <div style={{ fontWeight:700, fontSize:13, color:'#1e1b4b', marginBottom:10 }}>📈 Response Time — Last 48 checks</div>
+                    <div style={{ background:'var(--bg-input)', borderRadius:14, border:'1px solid var(--border-color)', padding:'14px 16px' }}>
+                        <div style={{ fontWeight:700, fontSize:13, color:'var(--text-main)', marginBottom:10 }}>📈 Response Time — Last 48 checks</div>
                         {chartData.length > 1 ? (
                             <ResponsiveContainer width="100%" height={150}>
-                                <AreaChart data={chartData} margin={{top:5,right:10,left:0,bottom:0}}>
+                                <AreaChart data={chartData} margin={{top:5,right:10,left:-20,bottom:0}}>
                                     <defs><linearGradient id="pgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/><stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/></linearGradient></defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
-                                    <XAxis dataKey="time" tick={{fontSize:10,fill:'#94a3b8'}} interval={Math.floor(chartData.length/5)||1} tickLine={false} axisLine={false}/>
-                                    <YAxis tick={{fontSize:10,fill:'#94a3b8'}} unit="ms" tickLine={false} axisLine={false} width={42}/>
-                                    <Tooltip contentStyle={{borderRadius:8,fontSize:12}} formatter={v=>[`${v}ms`,'Latency']}/>
-                                    <Area type="monotone" dataKey="ms" stroke="#7c3aed" strokeWidth={2.5} fill="url(#pgGrad)" dot={false}/>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false}/>
+                                    <XAxis dataKey="time" tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} interval={Math.floor(chartData.length/5)||1} tickLine={false} axisLine={false}/>
+                                    <YAxis tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} unit="ms" tickLine={false} axisLine={false} width={42}/>
+                                    <Tooltip contentStyle={{borderRadius:12,fontSize:12,background: isDark ? '#1e293b' : '#ffffff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'}} formatter={v=>[`${v}ms`,'Latency']}/>
+                                    <Area type="monotone" dataKey="ms" stroke="var(--primary)" strokeWidth={2.5} fill="url(#pgGrad)" dot={false}/>
                                 </AreaChart>
                             </ResponsiveContainer>
-                        ) : <div style={{ textAlign:'center', padding:30, color:'#94a3b8', fontSize:13 }}>No history yet — auto-updates every minute</div>}
+                        ) : <div style={{ textAlign:'center', padding:30, color:'var(--text-muted)', fontSize:13 }}>No history yet — auto-updates every minute</div>}
                     </div>
 
                     {/* Terminal */}
@@ -369,20 +353,20 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                     </div>
 
                     {/* Alerts info */}
-                    <div style={{ background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:12, padding:'12px 16px', fontSize:13, color:'#475569', display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ background:'var(--primary-glow)', border:'1px solid var(--border-color)', borderRadius:12, padding:'12px 16px', fontSize:13, color:'var(--text-muted)', display:'flex', alignItems:'center', gap:10 }}>
                         <span style={{ fontSize:20 }}>🔔</span>
                         <div>
-                            <strong style={{ color:'#7c3aed' }}>Alerts active</strong> — When this target goes DOWN or recovers UP, selected recipients will be notified via Email &amp; WhatsApp. Webhooks also fire automatically.
+                            <strong style={{ color:'var(--primary)' }}>Alerts active</strong> — When this target goes DOWN or recovers UP, selected recipients will be notified via Email &amp; WhatsApp. Webhooks also fire automatically.
                         </div>
                     </div>
 
                     {/* Actions */}
                     <div style={{ display:'flex', gap:10, justifyContent:'flex-end', flexWrap:'wrap' }}>
-                        <button onClick={() => onEdit(target)} style={{ padding:'8px 18px', background:'#f5f3ff', border:'1.5px solid #ddd6fe', borderRadius:10, fontSize:13, fontWeight:700, color:'#7c3aed', cursor:'pointer' }}>✏️ Edit</button>
-                        <button onClick={() => onToggle(target)} style={{ padding:'8px 18px', background:'#f8fafc', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:13, fontWeight:600, color:'#475569', cursor:'pointer' }}>
+                        <button onClick={() => onEdit(target)} style={{ padding:'8px 18px', background:'var(--primary-glow)', border:'1.5px solid var(--border-color)', borderRadius:10, fontSize:13, fontWeight:700, color:'var(--primary)', cursor:'pointer' }}>✏️ Edit</button>
+                        <button onClick={() => onToggle(target)} style={{ padding:'8px 18px', background:'var(--bg-input)', border:'1.5px solid var(--border-color)', borderRadius:10, fontSize:13, fontWeight:600, color:'var(--text-muted)', cursor:'pointer' }}>
                             {target.active ? '⏸ Pause' : '▶ Resume'}
                         </button>
-                        <button onClick={() => onDelete(target._id)} style={{ padding:'8px 18px', background:'#fef2f2', border:'1.5px solid #fecdd3', borderRadius:10, fontSize:13, fontWeight:700, color:'#dc2626', cursor:'pointer' }}>🗑 Delete</button>
+                        <button onClick={() => onDelete(target._id)} style={{ padding:'8px 18px', background:'rgba(244,63,94,0.08)', border:'1.5px solid rgba(244,63,94,0.15)', borderRadius:10, fontSize:13, fontWeight:700, color:'var(--danger)', cursor:'pointer' }}>🗑 Delete</button>
                     </div>
                 </div>
             </div>
@@ -401,6 +385,39 @@ export default function PingMonitor() {
     const [pageLoading, setPageLoading] = useState(!_loaded_PingMonitor);
     const [limitError,  setLimitError]  = useState('');
     const [pingLimit,   setPingLimit]   = useState(null);
+
+    const [localTheme, setLocalTheme] = useState(() => {
+        const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+        if (match) return match[1];
+        return 'dark'; // Keep dark mode ON by default
+    });
+
+    const isDark = localTheme === 'dark';
+
+    // Synchronize theme cookie shifts
+    useEffect(() => {
+        const checkThemeCookie = () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const current = match ? match[1] : 'dark';
+            if (current !== localTheme) {
+                setLocalTheme(current);
+            }
+        };
+        checkThemeCookie();
+        const interval = setInterval(checkThemeCookie, 1000);
+        return () => clearInterval(interval);
+    }, [localTheme]);
+
+    useEffect(() => {
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            document.body.classList.remove('charts-dark-theme');
+        };
+    }, [localTheme]);
 
     const load = () =>
         axios.get(`${API_URL}/api/ping-targets`, { withCredentials: true })
@@ -457,7 +474,7 @@ export default function PingMonitor() {
                 <div style={{display:'flex',gap:1.5}}>
                     {padded.map((h,i)=>(
                         <div key={i} style={{width:5,height:22,borderRadius:2,
-                            background:h.status==='up'?'#10b981':h.status==='down'?'#ef4444':'#e2e8f0',
+                            background:h.status==='up'?'#10b981':h.status==='down'?'#ef4444':isDark?'#1b2535':'#e2e8f0',
                             opacity:h.status==='empty'?0.3:0.85}} />
                     ))}
                 </div>
@@ -472,9 +489,501 @@ export default function PingMonitor() {
         ? Math.round(targets.filter(t=>t.responseTime).reduce((a,t)=>a+t.responseTime,0)/targets.filter(t=>t.responseTime).length) : 0;
 
     return (
-      <>
+      <div className={`perf-page-container ${localTheme}`}>
+        <style>{`
+          /* Global CSS Variables for scope */
+          .perf-page-container {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --primary-rgb: 124, 58, 237;
+            --success: #10b981;
+            --success-rgb: 16, 185, 129;
+            --danger: #f43f5e;
+            --danger-rgb: 244, 63, 94;
+            --warning: #f59e0b;
+            --warning-rgb: 245, 158, 11;
+            --info: #06b6d4;
+            
+            transition: background-color 0.3s ease;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+          }
+
+          /* Light Theme Scope */
+          .perf-page-container.light {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-muted-darker: #475569;
+            --primary-glow: rgba(124, 58, 237, 0.04);
+            --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+            --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
+            --input-focus-shadow: rgba(124, 58, 237, 0.08);
+          }
+
+          /* Dark Theme Scope */
+          .perf-page-container.dark {
+            --bg-primary: #0b0f19;
+            --bg-card: #131a26;
+            --bg-input: #1b2535;
+            --border-color: rgba(255, 255, 255, 0.07);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-muted-darker: #cbd5e1;
+            --primary-glow: rgba(139, 92, 246, 0.1);
+            --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
+            --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
+            --input-focus-shadow: rgba(139, 92, 246, 0.15);
+          }
+
+          /* Outer layout background overrides for charts view */
+          body.charts-dark-theme {
+            background-color: #0b0f19 !important;
+          }
+          body.charts-dark-theme .app-main,
+          body.charts-dark-theme .content {
+            background-color: #0b0f19 !important;
+            transition: background-color 0.3s ease;
+          }
+
+          /* Decorative Glows */
+          .perf-bg-glow-1 {
+            position: absolute;
+            top: -200px;
+            right: 10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, rgba(124, 58, 237, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+          }
+          .perf-page-container.dark .perf-bg-glow-1 {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, rgba(139, 92, 246, 0) 70%);
+          }
+          .perf-bg-glow-2 {
+            position: absolute;
+            bottom: -150px;
+            left: -50px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, rgba(6, 182, 212, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+          }
+          .perf-page-container.dark .perf-bg-glow-2 {
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(6, 182, 212, 0) 70%);
+          }
+
+          /* Layout structure */
+          .perf-page-container .mon-layout {
+            display: flex;
+            gap: 24px;
+            min-height: calc(100vh - 60px);
+            position: relative;
+            z-index: 10;
+          }
+          .perf-page-container .mon-main {
+            flex: 1;
+            padding: 0;
+            min-width: 0;
+          }
+          .perf-page-container .mon-panel {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--bg-card) !important;
+            border-left: 1px solid var(--border-color) !important;
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            box-shadow: var(--card-shadow);
+            height: fit-content;
+            box-sizing: border-box;
+            transition: all 0.3s;
+          }
+          .perf-page-container .mon-panel:hover {
+            border-color: rgba(var(--primary-rgb), 0.15) !important;
+          }
+
+          /* Header overrides */
+          .perf-page-container .mon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+          }
+          .perf-page-container .mon-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main) !important;
+            letter-spacing: -0.8px;
+            margin: 0;
+          }
+          .perf-page-container .mon-dot {
+            color: var(--primary);
+          }
+          .perf-page-container .mon-sub {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+          }
+          .perf-page-container .mon-btn-csv {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-card) !important;
+            border: 1.5px solid var(--border-color) !important;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main) !important;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-btn-csv:hover:not(:disabled) {
+            background: var(--bg-input) !important;
+            border-color: var(--text-muted) !important;
+          }
+          .perf-page-container .mon-btn-check {
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(124,58,237,0.2) !important;
+          }
+          .perf-page-container .mon-btn-check:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(124,58,237,0.3) !important;
+          }
+
+          /* Toolbar styles */
+          .perf-page-container .mon-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+          }
+          .perf-page-container .mon-search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+          }
+          .perf-page-container .mon-search-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+          }
+          .perf-page-container .mon-search {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1.5px solid var(--border-color) !important;
+            border-radius: 12px;
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-search:focus {
+            border-color: var(--primary) !important;
+            background: var(--bg-card) !important;
+            box-shadow: 0 0 0 4px var(--input-focus-shadow) !important;
+          }
+          .perf-page-container .mon-filter-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 12px;
+            padding: 4px;
+          }
+          .perf-page-container .mon-filter-tab {
+            padding: 6px 14px;
+            border: none !important;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent !important;
+            color: var(--text-muted) !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-filter-tab:hover {
+            color: var(--text-main) !important;
+          }
+          .perf-page-container .mon-filter-tab.active-all {
+            background: var(--bg-card) !important;
+            color: var(--primary) !important;
+            box-shadow: var(--card-shadow) !important;
+          }
+          .perf-page-container .mon-filter-tab.active-up {
+            background: rgba(16, 185, 129, 0.08) !important;
+            color: var(--success) !important;
+          }
+          .perf-page-container .mon-filter-tab.active-down {
+            background: rgba(244, 63, 94, 0.08) !important;
+            color: var(--danger) !important;
+          }
+          .perf-page-container .mon-tab-count {
+            background: var(--bg-card) !important;
+            color: var(--text-muted-darker) !important;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+          }
+
+          /* List views */
+          .perf-page-container .mon-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          .perf-page-container .mon-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-radius: 20px;
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border-color) !important;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+          }
+          .perf-page-container .mon-row:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-hover-shadow);
+            border-color: rgba(var(--primary-rgb), 0.15) !important;
+          }
+          .perf-page-container .mon-row-down {
+            border-left: 4px solid var(--danger) !important;
+          }
+          .perf-page-container .mon-row-up {
+            border-left: 4px solid var(--success) !important;
+          }
+          .perf-page-container .mon-row-unknown {
+            border-left: 4px solid var(--warning) !important;
+          }
+          
+          .perf-page-container .mon-site-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-main) !important;
+          }
+          .perf-page-container .mon-site-meta {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-muted);
+            margin-top: 4px;
+          }
+          .perf-page-container .mon-proto {
+            background: var(--bg-input) !important;
+            color: var(--text-muted-darker) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+          }
+          .perf-page-container .mon-status-up {
+            color: var(--success) !important;
+            background: rgba(16, 185, 129, 0.08) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+          }
+          .perf-page-container .mon-status-down {
+            color: var(--danger) !important;
+            background: rgba(244, 63, 94, 0.08) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+          }
+          .perf-page-container .mon-status-unknown {
+            color: var(--warning) !important;
+            background: rgba(245, 158, 11, 0.08) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+          }
+          .perf-page-container .mon-resp {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            background: var(--bg-input) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+          }
+          .perf-page-container .mon-time {
+            color: var(--text-muted);
+            background: var(--bg-input) !important;
+            padding: 2px 8px;
+            border-radius: 6px;
+          }
+
+          /* Empty states */
+          .perf-page-container .mon-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--bg-input);
+            border-radius: 18px;
+            border: 1px dashed var(--border-color);
+            margin: 10px 0;
+          }
+
+          /* Right panel list details */
+          .perf-page-container .mon-panel-section {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+          }
+          .perf-page-container .mon-panel-section:last-child {
+            border-bottom: none;
+          }
+          .perf-page-container .mon-panel-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main) !important;
+            margin-bottom: 14px;
+          }
+          .perf-page-container .mon-count-down {
+            background: rgba(244, 63, 94, 0.08) !important;
+            color: var(--danger) !important;
+            border: 1px solid rgba(244, 63, 94, 0.15) !important;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-count-down:hover {
+            background: rgba(244, 63, 94, 0.14) !important;
+          }
+          .perf-page-container .mon-count-up {
+            background: rgba(16, 185, 129, 0.08) !important;
+            color: var(--success) !important;
+            border: 1px solid rgba(16, 185, 129, 0.15) !important;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-count-up:hover {
+            background: rgba(16, 185, 129, 0.14) !important;
+          }
+          .perf-page-container .mon-count-unknown {
+            background: rgba(245, 158, 11, 0.08) !important;
+            color: var(--warning) !important;
+            border: 1px solid rgba(245, 158, 11, 0.15) !important;
+            transition: all 0.2s;
+          }
+          .perf-page-container .mon-count-unknown:hover {
+            background: rgba(245, 158, 11, 0.14) !important;
+          }
+          .perf-page-container .mon-count-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+          }
+          .perf-page-container .mon-count-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+          }
+          .perf-page-container .mon-panel-total {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 14px;
+            text-align: center;
+          }
+          .perf-page-container .mon-uptime-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+          }
+          .perf-page-container .mon-uptime-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 4px;
+          }
+          .perf-page-container .mon-panel-uptime {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            text-align: center;
+          }
+
+          /* Responsive overrides */
+          @media (max-width: 900px) {
+            .perf-page-container .mon-layout {
+              flex-direction: column !important;
+              gap: 20px;
+            }
+            .perf-page-container .mon-panel {
+              width: 100% !important;
+              border-left: none !important;
+              border-top: 1px solid var(--border-color) !important;
+              margin-top: 10px;
+            }
+            .perf-page-container .mon-header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 16px;
+            }
+          }
+          @media (max-width: 600px) {
+            .perf-page-container .mon-toolbar {
+              flex-direction: column;
+              align-items: stretch;
+            }
+            .perf-page-container .mon-filter-tabs {
+              width: 100%;
+              justify-content: space-around;
+            }
+            .perf-page-container .mon-row {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 12px;
+            }
+            .perf-page-container .mon-bar-wrap {
+              width: 100%;
+              align-self: stretch;
+            }
+            .perf-page-container .mon-bar-wrap > div {
+              align-items: flex-start !important;
+            }
+          }
+        `}</style>
+
+        {/* Decorative Glows */}
+        <div className="perf-bg-glow-1" />
+        <div className="perf-bg-glow-2" />
+
         <ConfirmDialog />
-        <div className="mon-layout">
+        <div className="mon-layout" style={{ padding: '0 4px' }}>
             {/* ── Left: list ── */}
             <div className="mon-main">
                 <div className="mon-header">
@@ -494,16 +1003,16 @@ export default function PingMonitor() {
 
                 {/* Limit error banner */}
                 {limitError && (
-                    <div style={{ background:'#FEF2F2', border:'1px solid #FECDD3', borderRadius:10, padding:'12px 18px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
+                    <div style={{ background:'rgba(244,63,94,0.08)', border:'1px solid rgba(244,63,94,0.15)', borderRadius:10, padding:'12px 18px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                             <span style={{ fontSize:18 }}>⚠️</span>
-                            <span style={{ fontSize:14, fontWeight:600, color:'#DC2626' }}>{limitError}</span>
+                            <span style={{ fontSize:14, fontWeight:600, color:'var(--danger)' }}>{limitError}</span>
                         </div>
                         <div style={{ display:'flex', gap:10, alignItems:'center' }}>
                             <a href="/pay?plan=select" style={{ padding:'7px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:13, fontWeight:700, textDecoration:'none' }}>
                                 ⬆️ Upgrade Plan
                             </a>
-                            <button onClick={() => setLimitError('')} style={{ background:'none', border:'none', color:'#9CA3AF', cursor:'pointer', fontSize:18 }}>✕</button>
+                            <button onClick={() => setLimitError('')} style={{ background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:18 }}>✕</button>
                         </div>
                     </div>
                 )}
@@ -511,7 +1020,7 @@ export default function PingMonitor() {
                 {/* Toolbar */}
                 <div className="mon-toolbar">
                     <div className="mon-search-wrap">
-                        <svg width="14" height="14" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <svg width="14" height="14" fill="none" stroke="var(--text-muted)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search targets..." className="mon-search" />
                     </div>
                     <div className="mon-filter-tabs">
@@ -526,15 +1035,15 @@ export default function PingMonitor() {
                 <div className="mon-list" style={{maxHeight:'calc(10 * 68px)', overflowY:'auto'}}>
                     {pageLoading ? (
                         <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'60px 0',gap:14}}>
-                            <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
-                            <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading targets...</div>
+                            <div style={{width:44,height:44,borderRadius:'50%',border: isDark ? '4px solid rgba(255,255,255,0.05)' : '4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.8s linear infinite'}}/>
+                            <div style={{fontSize:13,color:'var(--text-muted)',fontWeight:500}}>Loading targets...</div>
                             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
                         </div>
                     ) : filtered.length === 0 ? (
                         <div className="mon-empty">
                             <div style={{fontSize:48,marginBottom:12}}>📡</div>
-                            <div style={{fontWeight:700,color:'#475569'}}>No targets yet</div>
-                            <div style={{fontSize:13,color:'#94a3b8',marginTop:4}}>Click + Add Target to start monitoring</div>
+                            <div style={{fontWeight:700,color:'var(--text-muted)'}}>No targets yet</div>
+                            <div style={{fontSize:13,color:'var(--text-muted)',marginTop:4}}>Click + Add Target to start monitoring</div>
                         </div>
                     ) : filtered.map(t => (
                         <div key={t._id} className={`mon-row mon-row-${t.status}`} onClick={()=>setSelected(t)}>
@@ -581,7 +1090,7 @@ export default function PingMonitor() {
                 <div className="mon-panel-section">
                     <div className="mon-panel-title">Response</div>
                     <div className="mon-panel-uptime">
-                        <div style={{flex:1,background:'#f8fafc',borderRadius:10,padding:12,textAlign:'center',border:'1px solid #e2e8f0'}}>
+                        <div style={{flex:1,background:'var(--bg-input)',borderRadius:10,padding:12,textAlign:'center',border:'1px solid var(--border-color)'}}>
                             <div className="mon-uptime-val" style={{color:avgResp<100?'#10b981':avgResp<300?'#f59e0b':'#ef4444'}}>{avgResp?`${avgResp}ms`:'—'}</div>
                             <div className="mon-uptime-label">Avg latency</div>
                         </div>
@@ -591,11 +1100,11 @@ export default function PingMonitor() {
                     <div className="mon-panel-title">Breakdown</div>
                     {[{l:'Up',c:up,color:'#10b981'},{l:'Down',c:down,color:'#ef4444'}].map(item=>(
                         <div key={item.l} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
-                            <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                            <div style={{flex:1,height:6,background:'var(--bg-input)',borderRadius:4,overflow:'hidden'}}>
                                 <div style={{width:`${targets.length?Math.round(item.c/targets.length*100):0}%`,height:'100%',background:item.color,borderRadius:4}}/>
                             </div>
                             <span style={{fontSize:12,color:item.color,fontWeight:700,minWidth:20,textAlign:'right'}}>{item.c}</span>
-                            <span style={{fontSize:11,color:'#94a3b8',minWidth:36}}>{item.l}</span>
+                            <span style={{fontSize:11,color:'var(--text-muted)',minWidth:36}}>{item.l}</span>
                         </div>
                     ))}
                 </div>
@@ -614,6 +1123,6 @@ export default function PingMonitor() {
                 onEdit={(t) => { setSelected(null); setEditTarget(t); }}
             />
         )}
-      </>
+      </div>
     );
 }
