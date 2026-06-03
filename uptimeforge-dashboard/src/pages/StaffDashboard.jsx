@@ -85,21 +85,27 @@ export default function StaffDashboard() {
     const firstPath = firstItem?.to || '/staff-login';
 
     return (
-        <div style={{ display:'flex', height:'100vh', background:'#F3F4F6', fontFamily:'Inter,sans-serif' }}>
+        <div style={{ display:'flex', height:'100vh', background:'#F3F4F6', fontFamily:'Inter,sans-serif', overflow:'hidden' }}>
+            {/* Sidebar Overlay */}
+            {sidebarOpen && <div className="staff-overlay" onClick={() => setSidebarOpen(false)} />}
+
             {/* Sidebar */}
-            <aside style={{
+            <aside className={`staff-sidebar ${sidebarOpen ? 'open' : ''}`} style={{
                 width: 220, background:'#1e1b4b', display:'flex', flexDirection:'column',
                 flexShrink:0, position:'fixed', top:0, bottom:0, left:0, zIndex:100,
-                overflowY:'auto', transition:'transform 0.25s',
+                overflowY:'auto', transition:'transform 0.25s ease',
             }}>
                 {/* Logo */}
                 <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                        <UWLogo size={30} />
-                        <div>
-                            <div style={{ color:'#fff', fontWeight:800, fontSize:15, fontFamily:'Outfit,sans-serif' }}>UptimeForge</div>
-                            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10, fontWeight:500 }}>Staff Panel</div>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                            <UWLogo size={30} />
+                            <div>
+                                <div style={{ color:'#fff', fontWeight:800, fontSize:15, fontFamily:'Outfit,sans-serif' }}>UptimeForge</div>
+                                <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10, fontWeight:500 }}>Staff Panel</div>
+                            </div>
                         </div>
+                        <button onClick={() => setSidebarOpen(false)} className="staff-toggle-btn" style={{ background:'none', border:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', display:'none', fontSize:16, padding:4 }}>✕</button>
                     </div>
                 </div>
 
@@ -111,10 +117,10 @@ export default function StaffDashboard() {
                         return (
                             <div key={group.label} style={{ marginBottom:4 }}>
                                 <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:1, padding:'8px 12px 4px' }}>
-                                    {group.label}
+                                    {visibleItems.length > 0 && group.label}
                                 </div>
                                 {visibleItems.map(item => (
-                                    <NavLink key={item.key} to={item.to}
+                                    <NavLink key={item.key} to={item.to} onClick={() => setSidebarOpen(false)}
                                         style={({ isActive }) => ({
                                             display:'flex', alignItems:'center', gap:10,
                                             padding:'9px 12px', borderRadius:8, marginBottom:1,
@@ -135,32 +141,44 @@ export default function StaffDashboard() {
                 {/* User footer */}
                 <div style={{ padding:'12px 14px', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                        <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:13, flexShrink:0 }}>
+                        <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', display:'flex', alignItems:'center', justifycontent:'center', color:'#fff', fontWeight:800, fontSize:13, flexShrink:0 }}>
                             {staff?.name?.charAt(0)?.toUpperCase()}
                         </div>
-                        <div style={{ minWidth:0 }}>
+                        <div style={{ minWidth:0, flex:1 }}>
                             <div style={{ color:'#fff', fontSize:12, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{staff?.name}</div>
                             <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{staff?.email}</div>
                         </div>
                     </div>
-                    <button onClick={logout} style={{ width:'100%', padding:'7px', background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.25)', color:'#f87171', borderRadius:8, fontWeight:600, fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                    <button onClick={logout} style={{ width:'100%', padding:'7px', background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.25)', color:'#f87171', borderRadius:8, fontWeight:600, fontSize:12, cursor:'pointer', display:'flex', alignItems:'center', justifycontent:'center', gap:6 }}>
                         <span>→</span> Logout
                     </button>
                 </div>
             </aside>
 
             {/* Main content */}
-            <main style={{ marginLeft:220, width:'calc(100vw - 220px)', overflowY:'auto', minHeight:'100vh', background:'#F3F4F6', boxSizing:'border-box' }}>
+            <main className="staff-main" style={{ marginLeft:220, width:'calc(100vw - 220px)', overflowY:'auto', minHeight:'100vh', background:'#F3F4F6', boxSizing:'border-box' }}>
                 <style>{`
-                    @media(max-width:768px){ .staff-main{ margin-left:0!important; } }
-                    .staff-page-inner{ padding: 24px; }
+                    .staff-page-inner { padding: 24px; }
+                    @media(min-width: 769px) {
+                        .staff-sidebar { transform: none !important; }
+                    }
+                    @media(max-width: 768px) {
+                        .staff-sidebar { transform: translateX(-100%); }
+                        .staff-sidebar.open { transform: translateX(0); }
+                        .staff-main { margin-left: 0 !important; width: 100% !important; }
+                        .staff-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 90; }
+                        .staff-toggle-btn { display: block !important; }
+                    }
                 `}</style>
                 {/* Topbar */}
-                <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'14px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'4px 14px', borderRadius:20 }}>🔐 Staff Panel</span>
+                <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                        <button onClick={() => setSidebarOpen(true)} className="staff-toggle-btn" style={{ background:'none', border:'none', cursor:'pointer', display:'none', fontSize:20, padding:'4px 8px', color:'#374151' }}>☰</button>
+                        <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'4px 14px', borderRadius:20 }}>🔐 Staff Panel</span>
+                    </div>
                     <div style={{ fontSize:13, color:'#6B7280', fontWeight:500 }}>Welcome, <strong style={{ color:'#111827' }}>{staff?.name}</strong></div>
                 </div>
-                <div style={{ padding:'24px 28px' }}>
+                <div style={{ padding:'24px' }}>
                 <Suspense fallback={
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:300 }}>
                         <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid #e2e8f0', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
