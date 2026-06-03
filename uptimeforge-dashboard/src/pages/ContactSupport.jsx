@@ -286,6 +286,10 @@ const SUPPORT_STYLES = `
     .perf-page-container .ticket-td {
       padding: 14px 16px;
       font-family: 'Plus Jakarta Sans', sans-serif !important;
+      transition: background-color 0.15s ease;
+    }
+    .perf-page-container .ticket-tr:hover td {
+      background: var(--hover-row-bg) !important;
     }
 
     /* Form styling */
