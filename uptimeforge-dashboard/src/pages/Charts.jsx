@@ -75,7 +75,7 @@ export default function Charts({ theme = 'light' }) {
     : 0;
 
   const uptimeData = servers.map(s => {
-    const hist      = s.history || [];
+    const hist      = s.historyBar || s.history || [];
     const total     = hist.length;
     const upCount   = hist.filter(h => h.status === 'up').length;
     const downCount = total - upCount;
