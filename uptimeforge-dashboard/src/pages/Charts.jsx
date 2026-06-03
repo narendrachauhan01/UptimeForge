@@ -12,7 +12,7 @@ export default function Charts({ theme = 'light' }) {
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
     if (match) return match[1];
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'dark'; // Keep dark mode ON by default
   });
 
   const isDark = localTheme === 'dark';
@@ -929,8 +929,8 @@ export default function Charts({ theme = 'light' }) {
         /* ── Theme toggle ── */
         .perf-theme-switch-wrap {
           display: flex;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.12);
+          background: var(--bg-input) !important;
+          border: 1px solid var(--border-color) !important;
           border-radius: 50px;
           padding: 4px;
           gap: 2px;
@@ -947,19 +947,25 @@ export default function Charts({ theme = 'light' }) {
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s ease;
-          background: transparent;
-          color: rgba(255,255,255,0.45);
+          background: transparent !important;
+          color: var(--text-muted) !important;
           font-family: inherit;
           letter-spacing: 0.3px;
+          box-shadow: none !important;
         }
         .perf-theme-btn:hover {
-          color: rgba(255,255,255,0.75);
-          background: rgba(255,255,255,0.06);
+          color: var(--text-main) !important;
+          background: rgba(var(--primary-rgb), 0.05) !important;
         }
         .perf-theme-btn.active {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9);
-          color: #fff;
-          box-shadow: 0 2px 12px rgba(124,58,237,0.4);
+          background: var(--bg-card) !important;
+          color: var(--primary) !important;
+          box-shadow: var(--card-shadow) !important;
+        }
+        .perf-page-container.dark .perf-theme-btn.active {
+          background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+          color: #fff !important;
+          box-shadow: 0 2px 12px rgba(124,58,237,0.4) !important;
         }
 
         /* ── CSV Export button ── */
