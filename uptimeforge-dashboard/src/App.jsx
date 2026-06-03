@@ -420,7 +420,7 @@ function AppInner() {
         showToast('Welcome! Choose a plan to get started.');
       }
     } else {
-      navigate('/monitoring');
+      navigate('/performance');
       showToast('Login successful! Welcome back.');
     }
   };
@@ -498,7 +498,7 @@ function AppInner() {
   }
 
   if (authed && isPublicPath && location.pathname !== '/' && location.pathname !== '/terms') {
-    navigate(isAdmin ? '/admin' : '/monitoring');
+    navigate(isAdmin ? '/admin' : '/performance');
     return null;
   }
 
@@ -507,7 +507,7 @@ function AppInner() {
   }
 
   if (authed && location.pathname === '/') {
-    navigate('/monitoring', { replace: true });
+    navigate('/performance', { replace: true });
     return null;
   }
 
@@ -552,7 +552,7 @@ function AppInner() {
     const payPlan = new URLSearchParams(location.search).get('plan');
     // Already verified → skip verification page, go to dashboard
     if (payPlan === 'verification' && user && (user.trialVerified || user.plan !== 'free_trial')) {
-      navigate('/monitoring');
+      navigate('/performance');
       return null;
     }
     return (
