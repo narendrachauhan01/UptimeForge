@@ -310,16 +310,16 @@ function TrialBanner({ user }) {
   // Grace period banner (all plan types)
   if (status === 'grace') {
     return (
-      <div style={{ background:'linear-gradient(135deg,#d97706,#b45309)', color:'#fff', padding:'12px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <span style={{ fontSize:18 }}>⚠️</span>
+      <div style={{ background:'linear-gradient(90deg,#92400e 0%,#b45309 50%,#d97706 100%)', color:'#fff', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16, flexWrap:'wrap', boxShadow:'0 2px 12px rgba(180,83,9,0.35)', borderBottom:'1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+          <div style={{ width:36, height:36, borderRadius:10, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:18 }}>🔔</div>
           <div>
-            <div style={{ fontWeight:800, fontSize:14 }}>Subscription Expired — Account in Grace Period</div>
-            <div style={{ fontSize:12, opacity:0.9 }}>All monitoring services have been paused. Dashboard is in read-only mode. Renew your plan within 10 days to avoid account suspension.</div>
+            <div style={{ fontWeight:800, fontSize:14, letterSpacing:'0.2px' }}>Subscription Expired — Grace Period Active</div>
+            <div style={{ fontSize:12, opacity:0.85, marginTop:2 }}>All monitoring services paused · Read-only mode · Renew within 10 days to avoid suspension</div>
           </div>
         </div>
-        <Link to="/pay?plan=select" style={{ padding:'8px 20px', background:'#fff', color:'#d97706', borderRadius:8, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap' }}>
-          ⬆️ Upgrade Now
+        <Link to="/pay?plan=select" style={{ padding:'9px 22px', background:'#fff', color:'#b45309', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,0.15)', letterSpacing:'0.2px' }}>
+          Renew Plan →
         </Link>
       </div>
     );
