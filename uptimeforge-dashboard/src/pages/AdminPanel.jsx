@@ -469,6 +469,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         }));
 
     const startEdit = (u) => {
+        setExpandedId(null);
         setEditId(u._id?.toString());
         setEditForm({
             plan: u.plan,
@@ -1217,7 +1218,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                                                             {readOnly ? <span style={{ fontSize:11, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:6, padding:'4px 10px', fontWeight:600 }}>👁 Read Only</span> : <>
                                                             <button title="Assign Plan" onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Assign Plan</button>
-                                                            <button title="Edit" onClick={() => startEdit(u)} style={{ ...btnSecondary, padding: '5px 10px', fontSize: 11 }}>Edit</button>
+                                                            <button title="Edit" onClick={e => { e.stopPropagation(); startEdit(u); }} style={{ ...btnSecondary, padding: '5px 10px', fontSize: 11 }}>Edit</button>
                                                             <button title="Extend Trial +5 days" onClick={() => extendTrial(u._id, u.name)} style={{ padding: '5px 10px', fontSize: 11, background: '#EFF6FF', color: T.info, border: `1px solid #BFDBFE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+Trial</button>
                                                             <button title={u.isBlocked ? 'Unblock user' : 'Block user'} onClick={() => toggleBlock(u)}
                                                                 style={{ padding: '5px 10px', fontSize: 11, borderRadius: 8, cursor: 'pointer', fontWeight: 600, border: `1px solid ${u.isBlocked ? '#BBF7D0' : '#FECDD3'}`, background: u.isBlocked ? '#F0FDF4' : '#FFF1F2', color: u.isBlocked ? T.success : T.danger }}>
@@ -1339,7 +1340,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                         <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
                                                             {readOnly ? <span style={{fontSize:11,color:'#92400e',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:6,padding:'4px 10px',fontWeight:600}}>👁 Read Only</span> : <>
                                                             <button onClick={()=>openAssign(u)} style={{...btnPrimary,padding:'5px 10px',fontSize:11}}>Assign Plan</button>
-                                                            <button onClick={()=>startEdit(u)} style={{...btnSecondary,padding:'5px 10px',fontSize:11}}>Edit</button>
+                                                            <button onClick={e=>{e.stopPropagation();startEdit(u);}} style={{...btnSecondary,padding:'5px 10px',fontSize:11}}>Edit</button>
                                                             <button onClick={()=>extendTrial(u._id,u.name)} style={{padding:'5px 10px',fontSize:11,background:'#EFF6FF',color:T.info,border:`1px solid #BFDBFE`,borderRadius:8,cursor:'pointer',fontWeight:600}}>+Trial</button>
                                                             <button onClick={()=>toggleBlock(u)} style={{padding:'5px 10px',fontSize:11,borderRadius:8,cursor:'pointer',fontWeight:600,border:`1px solid ${u.isBlocked?'#BBF7D0':'#FECDD3'}`,background:u.isBlocked?'#F0FDF4':'#FFF1F2',color:u.isBlocked?T.success:T.danger}}>{u.isBlocked?'Unblock':'Block'}</button>
                                                             <button onClick={()=>deleteUser(u)} style={{padding:'5px 10px',fontSize:11,background:'#FEF2F2',color:T.danger,border:`1px solid #FECDD3`,borderRadius:8,cursor:'pointer',fontWeight:600}}>Delete</button>
