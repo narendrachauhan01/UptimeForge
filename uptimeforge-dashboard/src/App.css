@@ -1143,14 +1143,16 @@ body.charts-dark-theme .app-footer strong {
   align-items: center;
   gap: 12px;
 }
-.footer-link {
+.footer-link, .footer-version, .footer-region {
   font-size: 12.5px;
   color: #64748b;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
-body.charts-dark-theme .footer-link {
+body.charts-dark-theme .footer-link,
+body.charts-dark-theme .footer-version,
+body.charts-dark-theme .footer-region {
   color: #94a3b8;
 }
 .footer-link:hover {

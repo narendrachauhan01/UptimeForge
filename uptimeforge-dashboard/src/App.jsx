@@ -685,15 +685,13 @@ function AppInner() {
                 <span className="status-text">All systems operational</span>
               </div>
               <span className="footer-copyright">
-                © {new Date().getFullYear()} UptimeForge. Built & managed by <strong>Narendra Singh</strong>
+                © {new Date().getFullYear()} UptimeForge · Managed by <strong>Narendra Singh</strong>
               </span>
             </div>
             <div className="footer-right">
-              <Link to="/terms" className="footer-link">Terms</Link>
+              <span className="footer-version">v1.0.0</span>
               <span className="footer-divider">•</span>
-              <Link to="/support" className="footer-link">Support</Link>
-              <span className="footer-divider">•</span>
-              <a href="https://servermonitor.narendrasingh.site" target="_blank" rel="noreferrer" className="footer-link">Status Page</a>
+              <span className="footer-region">Asia-South1 (Mumbai)</span>
             </div>
           </div>
         </footer>
