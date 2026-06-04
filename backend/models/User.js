@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     phone:   { type: String, default: null, trim: true },
     address: { type: String, default: null, trim: true },
     city:    { type: String, default: null, trim: true },
+    gender:  { type: String, enum: ['male', 'female', 'other', null], default: null },
     state:   { type: String, default: null, trim: true },
     country: { type: String, default: null, trim: true },
     password: { type: String, default: null },

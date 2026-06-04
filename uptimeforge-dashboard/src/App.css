@@ -2519,16 +2519,16 @@ body.charts-dark-theme .footer-divider {
 ══════════════════════════════════════════ */
 /* Variables for Pricing & Checkout Screen */
 :root {
-  --checkout-bg: linear-gradient(135deg, #f5f3ff 0%, #faf8ff 50%, #e0f7fa 100%);
-  --checkout-card-bg: #ffffff;
-  --checkout-card-border: #e2e8f0;
-  --checkout-card-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
-  --checkout-text: #1e293b;
-  --checkout-text-muted: #64748b;
-  --checkout-summary-bg: #f8fafc;
-  --checkout-summary-border: #e2e8f0;
-  --checkout-summary-text: #1e293b;
-  --checkout-summary-amount: #7c3aed;
+  --checkout-bg: linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%);
+  --checkout-card-bg: rgba(20,12,40,0.95);
+  --checkout-card-border: rgba(124,58,237,0.2);
+  --checkout-card-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  --checkout-text: #f8fafc;
+  --checkout-text-muted: rgba(255,255,255,0.55);
+  --checkout-summary-bg: rgba(255,255,255,0.04);
+  --checkout-summary-border: rgba(255,255,255,0.08);
+  --checkout-summary-text: rgba(255,255,255,0.8);
+  --checkout-summary-amount: #c084fc;
   
   --pricing-bg: linear-gradient(165deg, #f5f3ff 0%, #faf8ff 50%, #e0f7fa 100%);
   --pricing-text: #1e293b;

@@ -20,19 +20,23 @@ const PURPOSES = [
   { key: 'business',  label: '💼 Business',  desc: 'Professional & business use' },
 ];
 
+const GENDERS = [
+  { key: 'male',   label: '👨 Male' },
+  { key: 'female', label: '👩 Female' },
+  { key: 'other',  label: '🧑 Other' },
+];
+
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ phone: '', state: '', country: '', purpose: '' });
+  const [form, setForm] = useState({ city: '', gender: '', country: '', state: 'N/A', phone: 'N/A', purpose: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const digits = form.phone.replace(/\D/g, '');
-    if (!form.phone) { setError('Mobile number is required'); return; }
-    if (digits.length !== 10) { setError('Enter a valid 10-digit mobile number'); return; }
+    if (!form.city.trim()) { setError('City is required'); return; }
+    if (!form.gender) { setError('Please select your gender'); return; }
     if (!form.country) { setError('Please select your country'); return; }
-    if (!form.state) { setError('Please select / enter your state'); return; }
     if (!form.purpose) { setError('Please select your account purpose'); return; }
     setError(''); setLoading(true);
     try {
@@ -57,15 +61,28 @@ export default function CompleteProfile({ user, onUserUpdate }) {
 
         <form onSubmit={handleSubmit} className="cp-form">
           <div className="cp-field">
-            <label className="cp-label">Mobile Number <span className="reg-req">*</span></label>
+            <label className="cp-label">City <span className="reg-req">*</span></label>
             <input
               className="cp-input"
-              type="tel"
-              placeholder="10-digit mobile number"
-              maxLength={10}
-              value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+              type="text"
+              placeholder="e.g. Mumbai, Delhi"
+              value={form.city}
+              onChange={e => setForm({ ...form, city: e.target.value })}
             />
+          </div>
+
+          <div className="cp-field">
+            <label className="cp-label">Gender <span className="reg-req">*</span></label>
+            <div style={{ display:'flex', gap:10 }}>
+              {GENDERS.map(g => (
+                <button key={g.key} type="button"
+                  className={`cp-purpose-btn ${form.gender === g.key ? 'cp-purpose-active' : ''}`}
+                  style={{ flex:1, padding:'10px 8px' }}
+                  onClick={() => setForm({ ...form, gender: g.key })}>
+                  <span className="cp-purpose-label">{g.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="cp-field">
@@ -73,33 +90,11 @@ export default function CompleteProfile({ user, onUserUpdate }) {
             <select
               className="cp-input cp-select"
               value={form.country}
-              onChange={e => setForm({ ...form, country: e.target.value, state: '' })}
+              onChange={e => setForm({ ...form, country: e.target.value })}
             >
               <option value="">Select your country</option>
               {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-          </div>
-
-          <div className="cp-field">
-            <label className="cp-label">State / Province <span className="reg-req">*</span></label>
-            {form.country === 'India' ? (
-              <select
-                className="cp-input cp-select"
-                value={form.state}
-                onChange={e => setForm({ ...form, state: e.target.value })}
-              >
-                <option value="">Select your state</option>
-                {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            ) : (
-              <input
-                className="cp-input"
-                type="text"
-                placeholder="Enter your state / province"
-                value={form.state}
-                onChange={e => setForm({ ...form, state: e.target.value })}
-              />
-            )}
           </div>
 
           <div className="cp-field">

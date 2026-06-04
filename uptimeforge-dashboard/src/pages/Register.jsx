@@ -100,7 +100,6 @@ export default function Register({ onRegister }) {
     if (!form.name || !form.email || !form.password) { setError('Name, email and password are required'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return; }
     if (!form.phone || form.phone.replace(/\D/g,'').length < 10) { setError('Enter valid 10-digit mobile number'); return; }
-    if (!form.state) { setError('State is required'); return; }
     setLoading(true);
     try {
       const phoneFormatted = '91' + form.phone.replace(/\D/g,'').slice(-10);
@@ -276,12 +275,6 @@ export default function Register({ onRegister }) {
                   <input className="reg-input" type="tel" placeholder="10-digit mobile number"
                     value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g,'').slice(0,10) })}
                     maxLength={10} />
-                </div>
-
-                <div className="reg-field">
-                  <label className="reg-label">State / Province <span className="reg-req">*</span></label>
-                  <input className="reg-input" type="text" placeholder="e.g. Gujarat, Maharashtra"
-                    value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
                 </div>
 
                 {error && <div className="login-error-box">{error}</div>}
