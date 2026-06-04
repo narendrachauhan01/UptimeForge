@@ -97,11 +97,15 @@ router.post('/support-tickets/:id/reply',     auth, allow('supportTickets','writ
     const t = await SupportTicket.findById(req.params.id);
     if (!t) return res.status(404).json({ error: 'Not found' });
     const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
-    const staffName = req.staffUser ? req.staffUser.name : (req.staffName || null);
-    const senderName = req.isAdmin
-        ? (process.env.ADMIN_USERNAME || 'Admin')
-        : (staffName || req.user?.name || 'Support Team');
-    console.log(`[SupportReply] isAdmin=${req.isAdmin} isStaff=${req.isStaff} staffName=${staffName} senderName=${senderName}`);
+    let senderName = 'Support Team';
+    if (req.isAdmin) {
+        senderName = process.env.ADMIN_USERNAME || 'Admin';
+    } else if (req.staffId) {
+        const StaffUser = require('../models/StaffUser');
+        const staffDoc = await StaffUser.findById(req.staffId).select('name');
+        senderName = staffDoc?.name || req.staffName || 'Support Team';
+    }
+    console.log(`[SupportReply] isAdmin=${req.isAdmin} isStaff=${req.isStaff} staffId=${req.staffId} senderName=${senderName}`);
     t.replies.push({ from: 'admin', message: req.body.message, images, senderName });
     if (t.status === 'open') t.status = 'in_progress';
     t.adminUnread = false;
