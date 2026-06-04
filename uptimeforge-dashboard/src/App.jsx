@@ -314,7 +314,7 @@ function TrialBanner({ user }) {
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <span style={{ fontSize:18 }}>⚠️</span>
           <div>
-            <div style={{ fontWeight:800, fontSize:14 }}>⚠️ Subscription Expired — Account in Grace Period</div>
+            <div style={{ fontWeight:800, fontSize:14 }}>Subscription Expired — Account in Grace Period</div>
             <div style={{ fontSize:12, opacity:0.9 }}>All monitoring services have been paused. Dashboard is in read-only mode. Renew your plan within 10 days to avoid account suspension.</div>
           </div>
         </div>
