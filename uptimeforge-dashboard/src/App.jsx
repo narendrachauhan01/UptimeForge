@@ -31,6 +31,7 @@ const RedisCache        = lazy(() => import('./pages/RedisCache'));
 const PlanCanceling     = lazy(() => import('./pages/PlanCanceling'));
 const AnnualPlans       = lazy(() => import('./pages/AnnualPlans'));
 const DeletedUsers      = lazy(() => import('./pages/DeletedUsers'));
+const UsersList         = lazy(() => import('./pages/UsersList'));
 const ContactSupport    = lazy(() => import('./pages/ContactSupport'));
 const SupportTickets    = lazy(() => import('./pages/SupportTickets'));
 const Servers           = lazy(() => import('./pages/Servers'));
@@ -113,6 +114,7 @@ const ADMIN_NAV_GROUPS = [
   {
     label: 'RECORDS',
     items: [
+      { to: '/users-list',    label: 'All Users',     icon: <IcoUsers /> },
       { to: '/deleted-users', label: 'Deleted Users', icon: <IcoUsers /> },
     ],
   },
@@ -680,6 +682,7 @@ function AppInner() {
               {isAdmin && <Route path="/redis-cache" element={<RedisCache />} />}
               {isAdmin && <Route path="/plan-canceling" element={<PlanCanceling />} />}
               {isAdmin && <Route path="/support-tickets" element={<SupportTickets />} />}
+              {isAdmin && <Route path="/users-list"    element={<UsersList />} />}
               {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
               {isAdmin && <Route path="/staff-management" element={<StaffManagement />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
