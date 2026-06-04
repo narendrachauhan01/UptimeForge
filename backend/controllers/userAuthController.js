@@ -139,6 +139,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' });
 
         const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) return res.status(401).json({ error: 'Invalid email or password' });

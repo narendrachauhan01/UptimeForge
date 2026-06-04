@@ -60,6 +60,7 @@ export default function Login({ onLogin }) {
 
   const handleUserForgot = async () => {
     if (!forgotEmail || forgotInFlight.current) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) { setToast({ message: 'Please enter a valid email address', type: 'error' }); return; }
     forgotInFlight.current = true;
     setForgotLoading(true);
     try {
@@ -88,6 +89,7 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     setError('');
     if (!form.email || !form.password) { setError('Email and password required'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Please enter a valid email address'); return; }
     setLoading(true);
     try {
       const res = await loginUser({ email: form.email, password: form.password });
