@@ -671,10 +671,10 @@ export default function Resources() {
                       </div>
                     );
                   })}
-                </div>
+                </div>}
 
-                {/* Info boxes grid */}
-                <div style={{
+                {/* Info boxes grid — only when online */}
+                {isOnline && <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                   gap: 16,
