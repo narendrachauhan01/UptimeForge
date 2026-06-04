@@ -645,7 +645,8 @@ export default function IntegrationBackend({ readOnly = false }) {
 
     const deleteEmail = async (e) => {
         e.stopPropagation();
-        if (!confirm('Remove Email SMTP configuration?')) return;
+        const ok = await confirm('Remove Email SMTP configuration?', { title: 'Remove Email', confirmText: 'Remove', danger: true });
+        if (!ok) return;
         try {
             await axios.delete(`${API_URL}/api/email-config/reset`, { withCredentials: true });
             setEmailOk(false); setEmailUser('');
@@ -655,7 +656,8 @@ export default function IntegrationBackend({ readOnly = false }) {
 
     const deleteWa = async (e) => {
         e.stopPropagation();
-        if (!confirm('Remove WhatsApp configuration?')) return;
+        const ok = await confirm('Remove WhatsApp configuration?', { title: 'Remove WhatsApp', confirmText: 'Remove', danger: true });
+        if (!ok) return;
         try {
             await axios.delete(`${API_URL}/api/whatsapp/reset`, { withCredentials: true });
             setWaOk(false); setWaProvider('');
