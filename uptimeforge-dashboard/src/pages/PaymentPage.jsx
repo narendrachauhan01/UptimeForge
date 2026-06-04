@@ -118,7 +118,12 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
 
             {/* Plan cards */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', gap:20, maxWidth:1100, margin:'0 auto' }}>
-                {PLAN_ORDER.filter(p => !(p === 'verification' && user?.noFreeTrial)).map(p => {
+                {PLAN_ORDER.filter(p => {
+                    if (p === 'verification' && user?.noFreeTrial) return false;
+                    // Hide free trial if user already had a paid plan (upgrading/renewing)
+                    if (p === 'verification' && user?.plan && user.plan !== 'free_trial') return false;
+                    return true;
+                }).map(p => {
                     const isVerif   = p === 'verification';
                     const isPopular = p === 'silver';
                     const isGold    = p === 'gold';
