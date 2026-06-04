@@ -481,7 +481,7 @@ export default function SupportTickets({ readOnly = false, adminOnly = false }) 
     const markRead = async(id)=>{ await axios.post(`${API_URL}/api/admin/support-tickets/${id}/mark-read`,{},{withCredentials:true}).catch(()=>{}); setTickets(p=>p.map(t=>t._id===id?{...t,adminUnread:false}:t)); };
     const openTicket = (t)=>{ setSelected(t); setView('reply'); if(t.adminUnread) markRead(t._id); };
     const update = async(id,data)=>{ await axios.put(`${API_URL}/api/admin/support-tickets/${id}`,data,{withCredentials:true}); load(true); if(selected?._id===id) setSelected(s=>({...s,...data})); };
-    const del = async(id)=>{ if(!confirm('Delete this ticket?')) return; await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`,{withCredentials:true}); setSelected(null); setView('list'); load(); };
+    const del = async(id)=>{ const ok = await confirm('Delete this ticket?', { title:'Delete Ticket', confirmText:'Delete', danger:true }); if(!ok) return; await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`,{withCredentials:true}); setSelected(null); setView('list'); load(); };
     const sendReply = async(files=[])=>{
         if(!reply.trim()||!selected) return Promise.resolve();
         setSending(true);
