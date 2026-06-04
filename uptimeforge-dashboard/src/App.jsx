@@ -578,11 +578,16 @@ function AppInner() {
 
   // ── Suspended: show full suspension page ──
   if (authed && !isAdmin && user && accountStatus === 'suspended') {
-    return (
-      <Suspense fallback={null}>
-        <AccountSuspended user={user} onLogout={async () => { await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true }); window.location.href = '/login'; }} />
-      </Suspense>
-    );
+    // Allow support page even when suspended
+    if (location.pathname === '/support') {
+      // fall through to render support page normally
+    } else {
+      return (
+        <Suspense fallback={null}>
+          <AccountSuspended user={user} onLogout={async () => { await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true }); window.location.href = '/login'; }} />
+        </Suspense>
+      );
+    }
   }
 
   // ── Verification gate for unverified free-trial users ──
