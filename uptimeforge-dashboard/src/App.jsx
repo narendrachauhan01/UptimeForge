@@ -420,7 +420,7 @@ function AppInner() {
       showToast('Welcome back, Admin!');
     } else if (isNewUser) {
       // New user — check if profile complete, then show plan selection
-      if (!userData?.city || !userData?.gender) {
+      if (!userData?.city || !userData?.gender || !userData?.phone) {
         navigate('/complete-profile');
         showToast('Welcome to UptimeForge! Complete your profile to get started.');
       } else {
@@ -438,7 +438,7 @@ function AppInner() {
     setIsAdmin(false);
     setAuthed(true);
     // If profile incomplete (Google signup — no city/gender), go to complete profile first
-    if (!userData?.city || !userData?.gender) {
+    if (!userData?.city || !userData?.gender || !userData?.phone) {
       if (planKey && ['bronze', 'silver', 'gold'].includes(planKey)) {
         sessionStorage.setItem('sm_intended_plan', planKey);
       }
@@ -548,7 +548,7 @@ function AppInner() {
   // ── Profile completion gate for all users without state/phone ──
   // Note: /pay is NOT skipped so new Google users always go through complete-profile first
   const skipProfileGate = ['/complete-profile', '/support', '/account'].includes(location.pathname);
-  const needsProfile = authed && !isAdmin && user && !user.city && !user.gender && !skipProfileGate;
+  const needsProfile = authed && !isAdmin && user && (!user.city || !user.gender || !user.phone) && !skipProfileGate;
   if (needsProfile) {
     return <Navigate to="/complete-profile" replace />;
   }

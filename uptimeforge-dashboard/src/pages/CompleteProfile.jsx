@@ -30,12 +30,13 @@ const GENDERS = [
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
-  const [form, setForm] = useState({ city: '', gender: '', state: '', country: '', phone: 'N/A', purpose: '' });
+  const [form, setForm] = useState({ phone: '', city: '', gender: '', state: '', country: '', purpose: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.phone || form.phone.replace(/\D/g,'').length < 10) { setError('Enter valid 10-digit mobile number'); return; }
     if (!form.city.trim()) { setError('City is required'); return; }
     if (!form.gender) { setError('Please select your gender'); return; }
     if (!form.country) { setError('Please select your country'); return; }
@@ -80,6 +81,12 @@ export default function CompleteProfile({ user, onUserUpdate }) {
         <p className="cp-sub">Hi <strong>{user?.name}</strong>, a few more details to complete your account setup.</p>
 
         <form onSubmit={handleSubmit} className="cp-form">
+          <div className="cp-field">
+            <label className="cp-label">Mobile Number <span className="reg-req">*</span></label>
+            <input className="cp-input" type="tel" placeholder="10-digit mobile number" maxLength={10}
+              value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g,'').slice(0,10) })} />
+          </div>
+
           <div className="cp-field">
             <label className="cp-label">City <span className="reg-req">*</span></label>
             <input
