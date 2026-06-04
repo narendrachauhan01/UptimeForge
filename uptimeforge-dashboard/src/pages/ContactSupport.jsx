@@ -402,7 +402,21 @@ const SUPPORT_STYLES = `
       box-shadow: var(--card-hover-shadow);
       z-index: 100;
       margin-top: 4px;
-      overflow: hidden;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .perf-page-container .topic-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+    .perf-page-container .topic-dropdown::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .perf-page-container .topic-dropdown::-webkit-scrollbar-thumb {
+      background: rgba(124, 58, 237, 0.3);
+      border-radius: 4px;
+    }
+    .perf-page-container .topic-dropdown::-webkit-scrollbar-thumb:hover {
+      background: rgba(124, 58, 237, 0.5);
     }
     .perf-page-container .topic-option {
       padding: 11px 16px;
