@@ -78,13 +78,13 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
     const EMOJI = { verification:'🆓', bronze:'🥉', silver:'🥈', gold:'🥇' };
 
     return (
-        <div style={{ minHeight:'100vh', background:'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', padding:'40px 24px 60px', fontFamily:"'Plus Jakarta Sans',sans-serif", position:'relative', overflow:'hidden' }}>
+        <div style={{ height:'100vh', background:'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', padding:'16px 20px', fontFamily:"'Plus Jakarta Sans',sans-serif", position:'relative', overflow:'hidden', display:'flex', flexDirection:'column' }}>
             {/* Bg glows */}
             <div style={{ position:'absolute', top:'-10%', left:'10%', width:'45%', height:'60%', background:'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
             <div style={{ position:'absolute', bottom:'-5%', right:'5%', width:'40%', height:'50%', background:'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
 
             {/* Back button */}
-            <button onClick={onBack} style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:600, marginBottom:36, transition:'all 0.2s' }}
+            <button onClick={onBack} style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:600, marginBottom:8, transition:'all 0.2s' }}
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='rgba(255,255,255,0.6)';}}>
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -92,14 +92,14 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
             </button>
 
             {/* Header */}
-            <div style={{ textAlign:'center', marginBottom:40, position:'relative', zIndex:2 }}>
-                <UWLogo size={52} />
-                <h1 style={{ fontSize:36, fontWeight:900, color:'#fff', margin:'18px 0 10px', fontFamily:"'Outfit',sans-serif", letterSpacing:'-0.8px', lineHeight:1.1 }}>Choose Your Plan</h1>
+            <div style={{ textAlign:'center', marginBottom:8, position:'relative', zIndex:2 }}>
+                <UWLogo size={36} />
+                <h1 style={{ fontSize:24, fontWeight:900, color:'#fff', margin:'8px 0 4px', fontFamily:"'Outfit',sans-serif", letterSpacing:'-0.8px', lineHeight:1.1 }}>Choose Your Plan</h1>
                 <p style={{ fontSize:15, color:'rgba(255,255,255,0.5)', margin:0 }}>Welcome, <strong style={{ color:'#c084fc', fontWeight:700 }}>{user?.name}</strong>! Select a plan to get started.</p>
             </div>
 
             {/* Billing toggle */}
-            <div style={{ display:'flex', justifyContent:'center', marginBottom:44, position:'relative', zIndex:2 }}>
+            <div style={{ display:'flex', justifyContent:'center', marginBottom:12, position:'relative', zIndex:2 }}>
                 <div style={{ display:'inline-flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:50, padding:5, backdropFilter:'blur(10px)' }}>
                     <button onClick={() => setBilling('monthly')} style={{ padding:'10px 26px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.3s', fontFamily:'inherit',
                         background: billing==='monthly' ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'transparent',
@@ -129,7 +129,7 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
             )}
 
             {/* Plan cards */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(250px, 1fr))', gap:22, maxWidth:1160, margin:'0 auto', position:'relative', zIndex:2 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:14, maxWidth:1160, margin:'0 auto', position:'relative', zIndex:2 }}>
                 {PLAN_ORDER.filter(p => {
                     if (p === 'verification' && user?.noFreeTrial) return false;
                     if (p === 'verification' && user?.plan && user.plan !== 'free_trial') return false;
@@ -176,11 +176,11 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                             )}
 
                             {/* Top section */}
-                            <div style={{ padding:'28px 22px 18px', textAlign:'center', position:'relative', background:'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+                            <div style={{ padding:'14px 16px 10px', textAlign:'center', position:'relative', background:'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
                                 <div style={{ fontSize:32, marginBottom:10 }}>{EMOJI[p]}</div>
-                                <div style={{ fontSize:19, fontWeight:800, color:'#fff', marginBottom:10, fontFamily:"'Outfit',sans-serif", letterSpacing:'0.3px' }}>{PLAN_LABEL[p]}</div>
+                                <div style={{ fontSize:15, fontWeight:800, color:'#fff', marginBottom:6, fontFamily:"'Outfit',sans-serif", letterSpacing:'0.3px' }}>{PLAN_LABEL[p]}</div>
                                 <div style={{ display:'flex', alignItems:'baseline', justifyContent:'center', gap:5, marginBottom:4 }}>
-                                    <span style={{ fontSize:34, fontWeight:950, background:'linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontFamily:"'Outfit',sans-serif", letterSpacing:'-1px' }}>₹{price}</span>
+                                    <span style={{ fontSize:26, fontWeight:950, background:'linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontFamily:"'Outfit',sans-serif", letterSpacing:'-1px' }}>₹{price}</span>
                                     {!isVerif && <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>/mo</span>}
                                 </div>
                                 {!isVerif && billing === 'annually' && (
@@ -190,12 +190,12 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                             </div>
 
                             {/* Features */}
-                            <div style={{ padding:'18px 18px 22px', flex:1, display:'flex', flexDirection:'column' }}>
-                                <ul style={{ listStyle:'none', margin:'0 0 18px', padding:0, display:'flex', flexDirection:'column', gap:9, flex:1 }}>
+                            <div style={{ padding:'10px 14px 14px', flex:1, display:'flex', flexDirection:'column' }}>
+                                <ul style={{ listStyle:'none', margin:'0 0 18px', padding:0, display:'flex', flexDirection:'column', gap:6, flex:1 }}>
                                     {features.map(f => {
                                         const { type, label } = parseFeature(f);
                                         return (
-                                            <li key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color: type==='no' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.75)', fontWeight:500 }}>
+                                            <li key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:12, color: type==='no' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.75)', fontWeight:500 }}>
                                                 <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:18, height:18, borderRadius:'50%', flexShrink:0,
                                                     background: type==='ok' ? 'rgba(16,185,129,0.1)' : type==='no' ? 'rgba(239,68,68,0.08)' : 'transparent',
                                                     border: type==='ok' ? '1px solid rgba(16,185,129,0.2)' : type==='no' ? '1px solid rgba(239,68,68,0.15)' : 'none',
