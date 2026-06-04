@@ -11,9 +11,16 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
 redis.on('error', () => {});
 
 // GET /api/admin/users
+const computeIsActive = (u) => {
+    if (u.isBlocked) return false;
+    if (u.plan === 'free_trial') return !!(u.trialEndsAt && new Date() < new Date(u.trialEndsAt));
+    if (!u.planEndsAt) return true;
+    return new Date() < new Date(u.planEndsAt);
+};
+
 exports.getUsers = async (req, res) => {
     try {
-        const users = await User.find().sort('-createdAt').lean({ virtuals: true });
+        const users = await User.find().sort('-createdAt').lean();
         const serverCounts = await Server.aggregate([
             { $group: { _id: '$userId', count: { $sum: 1 } } }
         ]);
@@ -23,6 +30,9 @@ exports.getUsers = async (req, res) => {
         const result = users.map(u => ({
             ...u,
             serverCount: countMap[u._id.toString()] || 0,
+            isActive: computeIsActive(u),
+            siteLimit: u.plan === 'free_trial' ? 2 : u.plan === 'bronze' ? 5 : u.plan === 'silver' ? 15 : u.plan === 'gold' ? 30 : 2,
+            trialDaysLeft: u.plan === 'free_trial' && u.trialEndsAt ? Math.max(0, Math.ceil((new Date(u.trialEndsAt) - Date.now()) / 86400000)) : 0,
         }));
         res.json(result);
     } catch (e) {
