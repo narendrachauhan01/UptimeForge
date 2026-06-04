@@ -314,8 +314,8 @@ function TrialBanner({ user }) {
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <span style={{ fontSize:18 }}>⚠️</span>
           <div>
-            <div style={{ fontWeight:800, fontSize:14 }}>Plan Expired — Grace Period (Read-Only)</div>
-            <div style={{ fontSize:12, opacity:0.85 }}>You can view your data but cannot add, edit or delete resources. Upgrade before suspension.</div>
+            <div style={{ fontWeight:800, fontSize:14 }}>⚠️ Subscription Expired — Account in Grace Period</div>
+            <div style={{ fontSize:12, opacity:0.9 }}>All monitoring services have been paused. Dashboard is in read-only mode. Renew your plan within 10 days to avoid account suspension.</div>
           </div>
         </div>
         <Link to="/pay?plan=select" style={{ padding:'8px 20px', background:'#fff', color:'#d97706', borderRadius:8, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap' }}>
