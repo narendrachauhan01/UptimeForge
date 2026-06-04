@@ -73,7 +73,7 @@ const PLAN_COLOR_MAP = {
         if (custom && custom > 0) return custom;
         return Math.round(monthly * (1 - discPct / 100));
     };
-    const EMOJI = { bronze: '🥉', silver: '🥈', gold: '🥇' };
+    const EMOJI = { verification:'🆓', bronze: '🥉', silver: '🥈', gold: '🥇' };
 
     return (
         <div className="pricing-page-container">
@@ -135,7 +135,16 @@ const PLAN_COLOR_MAP = {
 
             {/* Plan cards */}
             <div className="pricing-grid">
-                {PLAN_ORDER.filter(p => p !== 'verification').map(p => {
+                {PLAN_ORDER.filter(p => {
+                    if (p === 'verification') {
+                        // Hide free trial if: re-registered user, already used free trial, or already has/had a paid plan
+                        if (user?.noFreeTrial) return false;
+                        if (user?.trialVerified) return false;
+                        if (user?.plan && user.plan !== 'free_trial') return false;
+                        return true; // new user — show free trial
+                    }
+                    return true;
+                }).map(p => {
                     const isPopular = p === 'silver';
                     const isGold = p === 'gold';
                     const cfg = planData?.plans?.[p] || {};
