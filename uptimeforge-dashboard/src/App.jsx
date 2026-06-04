@@ -586,12 +586,18 @@ function AppInner() {
   // ── Account status based on 3-state model ──
   const accountStatus = user?.accountStatus || 'active'; // 'active' | 'grace' | 'suspended'
   const planExpired   = authed && !isAdmin && user && accountStatus !== 'active';
+  const expiredAllowed = ['/pay', '/support', '/account'].some(p => location.pathname.startsWith(p));
+
+  // ── Grace: redirect to pay page unless already on allowed pages ──
+  if (authed && !isAdmin && user && accountStatus === 'grace' && !expiredAllowed) {
+    return <Navigate to="/pay?plan=select" replace />;
+  }
 
   // ── Suspended: show full suspension page ──
   if (authed && !isAdmin && user && accountStatus === 'suspended') {
-    // Allow support page even when suspended
-    if (location.pathname === '/support') {
-      // fall through to render support page normally
+    // Allow support and pay pages even when suspended
+    if (location.pathname === '/support' || location.pathname.startsWith('/pay')) {
+      // fall through to render normally
     } else {
       return (
         <Suspense fallback={null}>
