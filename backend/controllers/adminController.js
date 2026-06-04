@@ -62,6 +62,44 @@ exports.updateUser = async (req, res) => {
         user.$__.saveOptions = { validateModifiedOnly: true };
         await user.save();
 
+        // Send email notification if trial extended
+        if (extendTrial) {
+            try {
+                const { sendEmail } = require('../services/email');
+                const expiryDate = new Date(user.trialEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+                await sendEmail(user.email, 'UptimeForge — Free Trial Extended by 5 Days', `
+                <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
+                  <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);padding:28px 32px;text-align:center">
+                    <div style="font-size:40px;margin-bottom:8px">🎉</div>
+                    <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800">Free Trial Extended!</h1>
+                  </div>
+                  <div style="padding:28px 32px">
+                    <p style="color:#374151;font-size:14px;line-height:1.7">Hi <strong>${user.name}</strong>,</p>
+                    <p style="color:#374151;font-size:14px;line-height:1.7">
+                      Great news! Your UptimeForge Free Trial has been extended by <strong>5 additional days</strong> by our admin team.
+                    </p>
+                    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:16px 20px;margin:20px 0;text-align:center">
+                      <div style="font-size:13px;color:#15803D;font-weight:600">New Trial Expiry Date</div>
+                      <div style="font-size:20px;font-weight:800;color:#166534;margin-top:4px">${expiryDate}</div>
+                    </div>
+                    <p style="color:#374151;font-size:14px;line-height:1.7">
+                      Your account is now active with full access to all Free Trial features. Take this time to explore UptimeForge and set up your site monitoring.
+                    </p>
+                    <div style="text-align:center;margin:24px 0">
+                      <a href="https://servermonitor.narendrasingh.site" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none">
+                        Go to Dashboard →
+                      </a>
+                    </div>
+                  </div>
+                  <div style="padding:14px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
+                    UptimeForge — 24/7 Website Monitoring
+                  </div>
+                </div>`);
+            } catch (emailErr) {
+                console.error('[ExtendTrial] Email failed:', emailErr.message);
+            }
+        }
+
         res.json({ success: true, user });
     } catch (e) {
         res.status(500).json({ error: e.message });
