@@ -3629,7 +3629,7 @@ body.charts-dark-theme {
 .cp-form { display: flex; flex-direction: column; gap: 16px; }
 .cp-field { display: flex; flex-direction: column; gap: 6px; }
 .cp-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.72); }
-.cp-input { padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.13); border-radius: 10px; font-size: 14px; color: #fff; font-family: inherit; outline: none; transition: border-color 0.18s; background: rgba(255,255,255,0.09); }
+.cp-input { padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.13); border-radius: 10px; font-size: 14px; color: #fff; font-family: inherit; outline: none; transition: border-color 0.18s; background: rgba(255,255,255,0.09); width: 100%; max-width: 100%; box-sizing: border-box; }
 .cp-input::placeholder { color: rgba(255,255,255,0.25); }
 .cp-input:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,0.18); }
 .cp-select { cursor: pointer; }

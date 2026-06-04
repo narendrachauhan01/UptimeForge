@@ -84,7 +84,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
 
         <form onSubmit={handleSubmit} className="cp-form">
           {/* Row 1: Phone + City */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, minWidth:0 }}>
             <div className="cp-field">
               <label className="cp-label">📱 Mobile Number <span className="reg-req">*</span></label>
               <input className="cp-input" type="tel" placeholder="10-digit number" maxLength={10}
