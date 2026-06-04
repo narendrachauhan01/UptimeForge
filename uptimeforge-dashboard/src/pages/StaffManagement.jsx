@@ -64,8 +64,8 @@ function StaffModal({ staff, onClose, onSaved, isDark }) {
     };
 
     const save = async () => {
-        if (!form.name.trim() || !form.email.trim()) { setError('Name and email required'); return; }
-        if (!staff && !form.password.trim()) { setError('Password required'); return; }
+        if (!form.name.trim()) { setError('Username is required'); return; }
+        if (!staff && !form.password.trim()) { setError('Password is required'); return; }
         setSaving(true);
         try {
             const payload = {
@@ -125,7 +125,7 @@ function StaffModal({ staff, onClose, onSaved, isDark }) {
                         <input className="custom-input" value={form.name} onChange={e => setForm(f=>({...f,name:e.target.value}))} placeholder="Full name" />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Email *</label>
+                        <label style={{ fontSize:12, fontWeight:600, color:'var(--text-muted)', display:'block', marginBottom:4 }}>Email <span style={{color:'#94a3b8',fontWeight:400}}>(optional)</span></label>
                         <input className="custom-input" type="email" value={form.email} onChange={e => setForm(f=>({...f,email:e.target.value}))} placeholder="staff@example.com" />
                     </div>
                     <div>

@@ -6,7 +6,7 @@ import UWLogo from '../components/UWLogo';
 const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
 
 export default function StaffLogin() {
-    const [email,    setEmail]    = useState('');
+    const [email,    setEmail]    = useState(''); // used as username
     const [password, setPassword] = useState('');
     const [showPw,   setShowPw]   = useState(false);
     const [error,    setError]    = useState('');
@@ -18,7 +18,7 @@ export default function StaffLogin() {
         setError('');
         setLoading(true);
         try {
-            await staffLogin({ email, password });
+            await staffLogin({ username: email, password });
             navigate('/staff');
         } catch(err) {
             setError(err.response?.data?.error || 'Invalid credentials');
@@ -89,8 +89,8 @@ export default function StaffLogin() {
 
                     <form onSubmit={submit}>
                         <div className="login-field">
-                            <label className="login-label">Email address</label>
-                            <input className="login-input" type="email" placeholder="staff@example.com" value={email} onChange={e=>setEmail(e.target.value)} required />
+                            <label className="login-label">Username</label>
+                            <input className="login-input" type="text" placeholder="Enter username" value={email} onChange={e=>setEmail(e.target.value)} required />
                         </div>
                         <div className="login-field" style={{ position:'relative' }}>
                             <label className="login-label">Password</label>

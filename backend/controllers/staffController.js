@@ -15,10 +15,12 @@ exports.list = async (req, res) => {
 exports.create = async (req, res) => {
     try {
         const { name, email, password, permissions } = req.body;
-        if (!name || !email || !password) return res.status(400).json({ error: 'Name, email, password required' });
-        const exists = await StaffUser.findOne({ email });
-        if (exists) return res.status(400).json({ error: 'Email already exists' });
-        const staff = await StaffUser.create({ name, email, password, permissions: permissions || [] });
+        if (!name || !password) return res.status(400).json({ error: 'Name and password required' });
+        if (email) {
+            const exists = await StaffUser.findOne({ email });
+            if (exists) return res.status(400).json({ error: 'Email already exists' });
+        }
+        const staff = await StaffUser.create({ name, email: email || '', password, permissions: permissions || [] });
         res.json({ ...staff.toObject(), password: undefined });
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
@@ -54,9 +56,11 @@ exports.remove = async (req, res) => {
 // POST /api/staff/login
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
-        const staff = await StaffUser.findOne({ email });
+        const { email, username, password } = req.body;
+        const loginId = username || email;
+        if (!loginId || !password) return res.status(400).json({ error: 'Username and password required' });
+        // Support login by name (username) or email
+        const staff = await StaffUser.findOne({ $or: [{ name: loginId }, { email: loginId }] });
         if (!staff) return res.status(401).json({ error: 'Invalid credentials' });
         if (!staff.isActive) return res.status(403).json({ error: 'Account deactivated. Contact admin.' });
         const ok = await staff.checkPassword(password);
