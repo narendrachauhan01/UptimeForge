@@ -140,6 +140,24 @@ const USERS_LIST_STYLES = `
     background: rgba(245, 158, 11, 0.08);
     color: #f59e0b;
   }
+
+  .users-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .users-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+  .users-table-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .users-table-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 4px;
+  }
+  .users-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.5);
+  }
 `;
 
 function fmt(d) {
@@ -232,13 +250,22 @@ export default function UsersList() {
         </div>
 
         {/* Toolbar */}
-        <div style={{ display:'flex', gap:8, marginBottom:20, flexWrap:'wrap', alignItems:'center' }}>
-          <input 
-            value={search} 
-            onChange={e=>setSearch(e.target.value)}
-            placeholder="Search name, email, phone, account ID..."
-            className="users-search-input" 
-          />
+        <div style={{ display:'flex', gap:12, marginBottom:20, flexWrap:'wrap', alignItems:'center' }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
+            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <input 
+              value={search} 
+              onChange={e=>setSearch(e.target.value)}
+              placeholder="Search name, email, phone, account ID..."
+              className="users-search-input" 
+              style={{ paddingLeft: 38 }}
+            />
+          </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {['all','active','expired','blocked','paid'].map(f => (
               <button 
@@ -254,7 +281,7 @@ export default function UsersList() {
 
         {/* Table */}
         <div className="users-table-card">
-          <div style={{ overflowX:'auto' }}>
+          <div className="users-table-wrapper">
             <table className="users-table" style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
               <thead>
                 <tr>
