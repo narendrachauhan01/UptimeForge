@@ -252,7 +252,7 @@ function MetricCard({ label, value, color, icon, sub, onClick }) {
             }}>{icon}</div>
             <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                 <div style={{ fontSize: 26, fontWeight: 800, color: T.text, lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 12, color: T.sub, fontWeight: 700, marginTop: 5, textTransform: 'uppercase', letterSpacing: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+                <div style={{ fontSize: 12, color: T.sub, fontWeight: 700, marginTop: 5, textTransform: 'uppercase', letterSpacing: 0.5, lineHeight: 1.3 }}>{label}</div>
                 {sub && <div style={{ fontSize: 11, color: T.muted, marginTop: 3 }}>{sub}</div>}
                 {onClick && <div style={{ fontSize:10, color: color, marginTop:3, fontWeight:600 }}>Click to filter →</div>}
             </div>
@@ -892,7 +892,6 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         <MetricCard label="Active Subscriptions" value={activeUsers} color={T.success} icon="🟢" onClick={() => goToUsersFilter('active')} />
                         <MetricCard label="Free Trial"   value={freeTrialUsers}  color="#64748B"    icon="⏳" onClick={() => goToUsersFilter('free_trial')} />
                         <MetricCard label="Paid Users"   value={paidUsers}       color={T.warning}  icon="💳" onClick={() => goToUsersFilter('paid')} />
-                        <MetricCard label="Annual Users" value={users.filter(u=>u.billing==='annually').length} color="#7c3aed" icon="📆" onClick={() => goToUsersFilter('annual')} />
                         <MetricCard label="Total Sites"  value={totalSites}      color={T.info}     icon="🌐" />
                         <MetricCard label="Blocked"      value={blockedUsers}    color={T.danger}   icon="🚫" onClick={() => goToUsersFilter('blocked')} />
                     </div>
