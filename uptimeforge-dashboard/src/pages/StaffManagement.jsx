@@ -408,10 +408,14 @@ export default function StaffManagement() {
     useEffect(() => { load(); }, []);
 
     const del = async (s) => {
-        const ok = await confirm(`Delete "${s.name}"?`, { title: 'Delete Staff User', confirmText: 'Delete User', danger: true });
+        const ok = await confirm(
+            `Deactivate "${s.name}"?\n\nTheir account will be disabled but all support ticket history will be preserved.`,
+            { title: 'Deactivate Staff', confirmText: 'Deactivate', danger: true }
+        );
         if (!ok) return;
         setDeleting(s._id);
-        await staffDelete(s._id).catch(() => {});
+        // Deactivate instead of delete — preserves chat history
+        await staffUpdate(s._id, { isActive: false }).catch(() => {});
         load();
         setDeleting(null);
     };
@@ -511,8 +515,17 @@ export default function StaffManagement() {
                                     </div>
                                     <div style={{ display:'flex', gap:8, flexShrink:0 }}>
                                         <button onClick={() => setModal(s)} className="btn-secondary">Edit</button>
-                                        <button onClick={() => del(s)} disabled={deleting===s._id} className="btn-secondary" style={{ color:'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
-                                            {deleting===s._id ? '...' : 'Delete'}
+                                        <button onClick={() => del(s)} disabled={deleting===s._id} className="btn-secondary" style={{ color: s.isActive ? 'var(--danger)' : 'var(--success)', borderColor: s.isActive ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)' }}
+                                            title={s.isActive ? 'Deactivate staff account' : 'Reactivate staff account'}
+                                            onClick={async () => {
+                                                if (s.isActive) { del(s); }
+                                                else {
+                                                    setDeleting(s._id);
+                                                    await staffUpdate(s._id, { isActive: true }).catch(() => {});
+                                                    load(); setDeleting(null);
+                                                }
+                                            }}>
+                                            {deleting===s._id ? '...' : s.isActive ? 'Deactivate' : 'Reactivate'}
                                         </button>
                                     </div>
                                 </div>
