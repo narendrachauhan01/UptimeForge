@@ -233,7 +233,8 @@ export default function RedisCache({ readOnly = false }) {
     const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 5000); };
 
     const clearAll = async () => {
-        if (!confirm('Clear all SSL & Domain cache? Fresh data will be fetched on next check.')) return;
+        const ok = await confirm('Clear all SSL & Domain cache? Fresh data will be fetched on next check.', { title: 'Clear Cache', confirmText: 'Clear All', danger: true });
+        if (!ok) return;
         setLoading(true);
         try {
             const r = await axios.post(`${API_URL}/api/admin/clear-cache`, {}, { withCredentials: true });
