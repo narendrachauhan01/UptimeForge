@@ -2575,11 +2575,11 @@ body.charts-dark-theme {
 }
 
 .pay-page {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--checkout-bg) !important;
   display: flex; align-items: center; justify-content: center;
-  padding: 40px 16px;
+  padding: 16px;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
