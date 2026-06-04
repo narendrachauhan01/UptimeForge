@@ -368,6 +368,56 @@ export default function Account({ user, onUserUpdate }) {
                   max-width: 900px;
                 }
 
+                .perf-page-container .ac-grid-2 {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 20px;
+                  margin-bottom: 20px;
+                }
+                .perf-page-container .ac-grid-3 {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr 1fr;
+                  gap: 16px;
+                  margin-bottom: 20px;
+                }
+
+                @media (max-width: 768px) {
+                  .perf-page-container .ac-layout {
+                    flex-direction: column !important;
+                  }
+                  .perf-page-container .ac-sidebar {
+                    width: 100% !important;
+                    border-right: none !important;
+                    border-bottom: 1px solid var(--border-color) !important;
+                    padding: 16px 8px !important;
+                  }
+                  .perf-page-container .sidebar-user-section {
+                    padding: 0 12px 16px !important;
+                  }
+                  .perf-page-container .ac-main {
+                    padding: 24px 16px !important;
+                    max-width: 100% !important;
+                  }
+                  .perf-page-container .ac-sidebar nav {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 6px !important;
+                  }
+                  .perf-page-container .sidebar-btn {
+                    width: auto !important;
+                    flex: 1 !important;
+                    min-width: 110px !important;
+                    justify-content: center !important;
+                    margin-bottom: 0 !important;
+                    padding: 8px 10px !important;
+                  }
+                  .perf-page-container .ac-grid-2,
+                  .perf-page-container .ac-grid-3 {
+                    grid-template-columns: 1fr !important;
+                    gap: 12px !important;
+                  }
+                }
+
                 /* Section Cards */
                 .perf-page-container .ac-section {
                   background: var(--bg-card) !important;
@@ -708,7 +758,7 @@ export default function Account({ user, onUserUpdate }) {
                             <div className="ac-section">
                                 <div className="ac-section-title">Account info.</div>
                                 <div className="ac-section-desc">Used to display in your dashboard and all communications with you.</div>
-                                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+                                <div className="ac-grid-2">
                                     <div>
                                         <label className="ac-label">Full name</label>
                                         <input className="ac-input" value={nameForm.name} onChange={e => setNameForm({ name: e.target.value })} placeholder="Your name" />
@@ -721,7 +771,7 @@ export default function Account({ user, onUserUpdate }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+                                <div className="ac-grid-2">
                                     <div>
                                         <label className="ac-label">Email address</label>
                                         <input className="ac-input" value={user?.email || ''} readOnly />
@@ -967,7 +1017,7 @@ export default function Account({ user, onUserUpdate }) {
                             )}
 
                             {/* Stats */}
-                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, marginBottom:20 }}>
+                            <div className="ac-grid-3">
                                 {[
                                     { label:'Friends Joined', value: refStats.total, icon:'👥', color:'var(--primary)' },
                                     { label:'Paid Plans', value: refStats.paid, icon:'💳', color:'var(--success)' },
