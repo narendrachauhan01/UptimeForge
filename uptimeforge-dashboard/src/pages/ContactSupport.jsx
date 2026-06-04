@@ -788,11 +788,15 @@ export default function ContactSupport({ user }) {
                                         {v:'high',l:'High',c:'var(--danger)',bg:'rgba(244, 63, 94, 0.08)',border:'rgba(244, 63, 94, 0.25)'}
                                     ].map(p=>{
                                         const active=form.priority===p.v;
+                                        const textColor = active
+                                            ? (p.v === 'medium' ? '#92400e' : '#fff')
+                                            : p.c;
                                         return <button key={p.v} type="button" onClick={()=>setForm({...form,priority:p.v})} className="btn-prio"
                                             style={{
                                                 border: `2px solid ${active ? p.c : 'var(--border-color)'}`,
-                                                background: active ? p.c : 'var(--bg-card)',
-                                                color: active ? '#fff' : p.c
+                                                background: active ? p.bg : 'var(--bg-card)',
+                                                color: textColor,
+                                                fontWeight: active ? 800 : 600,
                                             }}>
                                             {p.v==='low'?'🟢':p.v==='medium'?'🟡':'🔴'} {p.l}
                                         </button>;
