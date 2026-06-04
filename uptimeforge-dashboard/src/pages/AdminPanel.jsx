@@ -889,7 +889,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     {/* Row 1 — User Metric Cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 16 }}>
                         <MetricCard label="Total Users"  value={users.length}    color={T.primary}  icon="👥" onClick={() => goToUsersFilter('all')} />
-                        <MetricCard label="Active"       value={activeUsers}     color={T.success}  icon="✅" onClick={() => goToUsersFilter('active')} />
+                        <MetricCard label="Active Plans" value={activeUsers}     color={T.success}  icon="🟢" onClick={() => goToUsersFilter('active')} />
                         <MetricCard label="Free Trial"   value={freeTrialUsers}  color="#64748B"    icon="⏳" onClick={() => goToUsersFilter('free_trial')} />
                         <MetricCard label="Paid Users"   value={paidUsers}       color={T.warning}  icon="💳" onClick={() => goToUsersFilter('paid')} />
                         <MetricCard label="Annual Users" value={users.filter(u=>u.billing==='annually').length} color="#7c3aed" icon="📆" onClick={() => goToUsersFilter('annual')} />
