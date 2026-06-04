@@ -168,7 +168,7 @@ export default function Dashboard({ readOnly = false }) {
 
   // Overall uptime from all sites (using historyBar)
   const allHistory = servers.flatMap(s => s.historyBar || []);
-  const overallUptime = allHistory.length ? Math.round((allHistory.filter(h=>h.status==='up').length/allHistory.length)*100*10)/10 : 100;
+  const overallUptime = allHistory.length ? Math.round((allHistory.filter(h=>h.status==='up').length/allHistory.length)*100*10)/10 : null;
   const avgResponse = servers.filter(s=>s.responseTime).length ? Math.round(servers.filter(s=>s.responseTime).reduce((a,s)=>a+s.responseTime,0)/servers.filter(s=>s.responseTime).length) : 0;
 
   const filtered = servers.filter(s => statusFilter==='all' || s.status===statusFilter);
@@ -848,8 +848,8 @@ export default function Dashboard({ readOnly = false }) {
             <div className="mon-panel-title">Last 24 Hours</div>
             <div className="mon-panel-uptime">
               <div>
-                <div className="mon-uptime-val" style={{color: overallUptime>=99?'#10b981':overallUptime>=95?'#f59e0b':'#f43f5e'}}>
-                  {overallUptime}%
+                <div className="mon-uptime-val" style={{color: overallUptime===null?'#64748b':overallUptime>=99?'#10b981':overallUptime>=95?'#f59e0b':'#f43f5e'}}>
+                  {overallUptime === null ? '—' : `${overallUptime}%`}
                 </div>
                 <div className="mon-uptime-label">Overall uptime</div>
               </div>
