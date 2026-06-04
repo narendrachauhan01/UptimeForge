@@ -51,12 +51,13 @@ body {
 
 .sidebar {
   width: 240px; height: 100vh; height: 100dvh;
-  background: #1C2434;
+  background: #0d121f;
   display: flex; flex-direction: column;
   position: fixed; left: 0; top: 0; bottom: 0;
   z-index: 200;
   transition: transform 0.3s cubic-bezier(.4,0,.2,1);
   overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sb-overlay {
@@ -66,8 +67,8 @@ body {
 
 .sb-brand {
   display: flex; align-items: center; gap: 10px;
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   flex-shrink: 0;
 }
 .sb-logo {
@@ -75,41 +76,80 @@ body {
   background: linear-gradient(135deg, #7c3aed, #06b6d4);
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 800; color: #fff;
-  box-shadow: 0 4px 12px rgba(124,58,237,0.4); flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(124,58,237,0.3); flex-shrink: 0;
 }
 .sb-title {
-  font-size: 15px; font-weight: 800; color: #fff;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 17px; font-weight: 900; color: #fff;
   letter-spacing: -0.3px; line-height: 1;
+  background: linear-gradient(120deg, #ffffff, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.sb-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; overflow-x: hidden; }
+.sb-nav {
+  flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overflow-x: hidden;
+}
 
-/* Admin nav groups — TailAdmin style */
-.sb-nav-group { display: flex; flex-direction: column; gap: 1px; margin-bottom: 6px; }
+/* Scrollbar styling for sidebar navigation */
+.sb-nav::-webkit-scrollbar {
+  width: 5px;
+}
+.sb-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sb-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.sb-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Admin nav groups */
+.sb-nav-group { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
 .sb-nav-group-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
-  text-transform: uppercase; color: rgba(255,255,255,0.35);
-  padding: 10px 12px 5px; margin-top: 4px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  padding: 8px 12px 4px;
 }
 
 .sb-link {
   display: flex; align-items: center; gap: 11px;
-  padding: 10px 12px; border-radius: 8px;
-  color: rgba(255,255,255,0.65); text-decoration: none;
-  font-size: 13.5px; font-weight: 500;
-  transition: all 0.18s; white-space: nowrap;
+  padding: 9px 12px; border-radius: 8px;
+  color: rgba(255,255,255,0.55); text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px; font-weight: 600;
+  transition: all 0.2s ease; white-space: nowrap;
 }
-.sb-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.sb-link svg {
+  flex-shrink: 0; width: 18px; height: 18px;
+  color: rgba(255,255,255,0.4);
+  transition: color 0.2s ease;
+}
+.sb-link:hover {
+  color: #fff; background: rgba(255, 255, 255, 0.04);
+}
+.sb-link:hover svg {
+  color: #a78bfa;
+}
 .sb-link.sb-active {
   color: #fff;
-  background: #3C50E0;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(124, 58, 237, 0.04) 100%);
+  border-left: 3px solid #7c3aed;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
 }
-.sb-link svg { flex-shrink: 0; width: 20px; height: 20px; }
+.sb-link.sb-active svg {
+  color: #a78bfa;
+}
 
 .sb-footer {
-  padding: 10px 10px 10px; border-top: 1px solid rgba(255,255,255,0.07);
-  display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+  padding: 14px 12px; border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+  background: rgba(12, 16, 27, 0.4);
 }
 .sb-plan-badge {
   display: flex; align-items: center; gap: 7px;
@@ -122,12 +162,17 @@ body {
 
 .sb-user {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; border-radius: 10px;
-  background: rgba(255,255,255,0.05);
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: border-color 0.2s ease;
+}
+.sb-user:hover {
+  border-color: rgba(124, 58, 237, 0.3);
 }
 .sb-avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg,#7c3aed,#06b6d4);
+  background: linear-gradient(135deg,#7c3aed,#4f46e5);
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
 }
@@ -138,12 +183,14 @@ body {
 
 .sb-logout {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 9px 12px; border-radius: 10px;
-  background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.35);
-  color: #f87171; font-size: 13px; font-weight: 700; cursor: pointer;
-  transition: all 0.18s; letter-spacing: 0.2px;
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  background: transparent; border: 1.5px solid rgba(239, 68, 68, 0.2);
+  color: rgba(248, 113, 113, 0.85); font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s ease; letter-spacing: 0.2px;
 }
-.sb-logout:hover { background: rgba(239,68,68,0.28); color: #fff; border-color: #ef4444; }
+.sb-logout:hover {
+  background: rgba(239,68,68,0.06); color: #fff; border-color: rgba(239, 68, 68, 0.4);
+}
 .sb-logout svg { flex-shrink: 0; }
 
 /* Main area */
