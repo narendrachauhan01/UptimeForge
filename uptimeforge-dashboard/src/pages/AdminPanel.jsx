@@ -310,6 +310,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const [loading, setLoading]     = useState(true);
     const [editId, setEditId]       = useState(null);
     const [editForm, setEditForm]   = useState({});
+    const [editModal, setEditModal] = useState(null); // user object for modal edit
     const [search, setSearch]       = useState('');
     const [planFilter, setPlanFilter] = useState('all');
     const [durationFilter, setDurationFilter] = useState('all');
@@ -469,7 +470,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         }));
 
     const startEdit = (u) => {
-        setExpandedId(null);
+        setEditModal(u);
         setEditId(u._id?.toString());
         setEditForm({
             plan: u.plan,
@@ -1907,6 +1908,43 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
             <ConfirmDialog />
 
             {/* Assign Plan Modal */}
+            {/* ── Edit User Modal ── */}
+            {editModal && (
+                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
+                    onClick={() => setEditModal(null)}>
+                    <div style={{ background: T.card, borderRadius:16, width:'100%', maxWidth:460, boxShadow:'0 20px 60px rgba(0,0,0,0.3)', border:`1px solid ${T.border}` }}
+                        onClick={e => e.stopPropagation()}>
+                        <div style={{ padding:'20px 24px 16px', borderBottom:`1px solid ${T.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                            <div>
+                                <div style={{ fontSize:16, fontWeight:800, color:T.text }}>Edit User</div>
+                                <div style={{ fontSize:12, color:T.sub, marginTop:2 }}>{editModal.name} · {editModal.email}</div>
+                            </div>
+                            <button onClick={() => setEditModal(null)} style={{ background:'none', border:'none', fontSize:18, cursor:'pointer', color:T.muted }}>✕</button>
+                        </div>
+                        <div style={{ padding:'20px 24px', display:'flex', flexDirection:'column', gap:16 }}>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:T.sub, display:'block', marginBottom:6 }}>Plan</label>
+                                <select value={editForm.plan} onChange={e => setEditForm({ ...editForm, plan: e.target.value })} style={inputSt}>
+                                    {PLAN_OPTIONS.map(p => <option key={p} value={p}>{PLAN_LABEL[p]}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:T.sub, display:'block', marginBottom:6 }}>Plan Ends At</label>
+                                <input type="date" style={inputSt} value={editForm.planEndsAt} onChange={e => setEditForm({ ...editForm, planEndsAt: e.target.value })} />
+                            </div>
+                            <label style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:13, fontWeight:600, color:T.text }}>
+                                <input type="checkbox" checked={editForm.isBlocked} onChange={e => setEditForm({ ...editForm, isBlocked: e.target.checked })} />
+                                Block this account
+                            </label>
+                        </div>
+                        <div style={{ padding:'16px 24px', borderTop:`1px solid ${T.border}`, display:'flex', gap:10 }}>
+                            <button style={{ ...btnPrimary, flex:1 }} onClick={async () => { await saveEdit(); setEditModal(null); }}>Save Changes</button>
+                            <button style={btnSecondary} onClick={() => setEditModal(null)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {assignModal && (
                 <div style={{ position:'fixed', inset:0, background:'rgba(17,24,39,0.5)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', padding:20, zIndex:500 }}
                     onClick={() => setAssignModal(null)}>
