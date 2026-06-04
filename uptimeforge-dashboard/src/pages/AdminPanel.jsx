@@ -511,7 +511,10 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const filtered = users.filter(u => {
         const q = search.toLowerCase();
         const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q);
-        const matchPlan = planFilter === 'all' || planFilter === '__paid__' ? (planFilter === '__paid__' ? u.plan !== 'free_trial' : true) : u.plan === planFilter;
+        const matchPlan = planFilter === 'all' ? true
+            : planFilter === '__paid__' ? u.plan !== 'free_trial'
+            : planFilter === '__active__' ? (u.isActive && !u.isBlocked)
+            : u.plan === planFilter;
         const matchDuration = durationFilter === 'all'
             || (durationFilter === 'free_trial' && u.plan === 'free_trial')
             || (durationFilter === '1m'  && u.plan !== 'free_trial' && (u.planDuration === '1m' || (!u.planDuration && u.billing !== 'annually')))
@@ -546,7 +549,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         if (filterType === 'paid')       { setPlanFilter('__paid__'); }   // custom: all non-free_trial
         else if (filterType === 'free_trial') setDurationFilter('free_trial');
         else if (filterType === 'annual')     setDurationFilter('1y');
-        else if (filterType === 'blocked')    {} // search blank shows all, blocked in sections
+        else if (filterType === 'blocked')    {}
+        else if (filterType === 'active')     { setPlanFilter('__active__'); }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -885,7 +889,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     {/* Row 1 — User Metric Cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: 16 }}>
                         <MetricCard label="Total Users"  value={users.length}    color={T.primary}  icon="👥" onClick={() => goToUsersFilter('all')} />
-                        <MetricCard label="Active"       value={activeUsers}     color={T.success}  icon="✅" onClick={() => goToUsersFilter('all')} />
+                        <MetricCard label="Active"       value={activeUsers}     color={T.success}  icon="✅" onClick={() => goToUsersFilter('active')} />
                         <MetricCard label="Free Trial"   value={freeTrialUsers}  color="#64748B"    icon="⏳" onClick={() => goToUsersFilter('free_trial')} />
                         <MetricCard label="Paid Users"   value={paidUsers}       color={T.warning}  icon="💳" onClick={() => goToUsersFilter('paid')} />
                         <MetricCard label="Annual Users" value={users.filter(u=>u.billing==='annually').length} color="#7c3aed" icon="📆" onClick={() => goToUsersFilter('annual')} />
