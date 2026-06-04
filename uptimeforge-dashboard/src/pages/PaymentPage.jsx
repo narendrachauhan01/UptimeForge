@@ -64,9 +64,7 @@ const PLAN_COLOR_MAP = {
     bronze:       '#b45309',
     silver:       '#7c3aed',
     gold:         '#ca8a04',
-};
-
-function PlanSelectScreen({ planData, user, onSelect, onBack }) {
+};function PlanSelectScreen({ planData, user, onSelect, onBack }) {
     const [billing, setBilling] = useState('monthly');
     const discPct = planData?.annualDiscount ?? 20;
     const ap = planData?.annualPlans;
@@ -75,146 +73,142 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
         if (custom && custom > 0) return custom;
         return Math.round(monthly * (1 - discPct / 100));
     };
-    const EMOJI = { verification:'🆓', bronze:'🥉', silver:'🥈', gold:'🥇' };
+    const EMOJI = { bronze: '🥉', silver: '🥈', gold: '🥇' };
 
     return (
-        <div style={{ height:'100vh', background:'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', padding:'16px 20px', fontFamily:"'Plus Jakarta Sans',sans-serif", position:'relative', overflow:'hidden', display:'flex', flexDirection:'column' }}>
-            {/* Bg glows */}
-            <div style={{ position:'absolute', top:'-10%', left:'10%', width:'45%', height:'60%', background:'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
-            <div style={{ position:'absolute', bottom:'-5%', right:'5%', width:'40%', height:'50%', background:'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
+        <div className="pricing-page-container">
+            {/* Background Glows */}
+            <div className="pricing-glow-1" />
+            <div className="pricing-glow-2" />
 
             {/* Back button */}
-            <div style={{ position:'relative', zIndex:2, marginBottom:6 }}>
-                <button onClick={onBack} style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:12, fontWeight:600, transition:'all 0.2s' }}
-                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
-                    onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='rgba(255,255,255,0.6)';}}>
-                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                    Back
+            <div style={{ position: 'relative', zIndex: 10, marginBottom: 12 }}>
+                <button onClick={onBack} className="pricing-back-btn">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path d="M19 12H5M12 5l-7 7 7 7"/>
+                    </svg>
+                    Back to Dashboard
                 </button>
             </div>
 
             {/* Header */}
-            <div style={{ textAlign:'center', marginBottom:8, position:'relative', zIndex:2 }}>
-                <UWLogo size={36} />
-                <h1 style={{ fontSize:24, fontWeight:900, color:'#fff', margin:'8px 0 4px', fontFamily:"'Outfit',sans-serif", letterSpacing:'-0.8px', lineHeight:1.1 }}>Choose Your Plan</h1>
-                <p style={{ fontSize:15, color:'rgba(255,255,255,0.5)', margin:0 }}>Welcome, <strong style={{ color:'#c084fc', fontWeight:700 }}>{user?.name}</strong>! Select a plan to get started.</p>
+            <div className="pricing-header" style={{ textAlign: 'center', marginBottom: 24, position: 'relative', zIndex: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+                    <UWLogo size={42} />
+                </div>
+                <h1>Choose Your Plan</h1>
+                <p style={{ fontSize: 16, color: 'var(--pricing-card-text-muted)', margin: 0 }}>
+                    Welcome, <span className="pricing-welcome-user">{user?.name}</span>! Upgrade to unlock premium monitoring features.
+                </p>
             </div>
 
-            {/* Billing toggle */}
-            <div style={{ display:'flex', justifyContent:'center', marginBottom:12, position:'relative', zIndex:2 }}>
-                <div style={{ display:'inline-flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:50, padding:5, backdropFilter:'blur(10px)' }}>
-                    <button onClick={() => setBilling('monthly')} style={{ padding:'10px 26px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.3s', fontFamily:'inherit',
-                        background: billing==='monthly' ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'transparent',
-                        color: billing==='monthly' ? '#fff' : 'rgba(255,255,255,0.45)',
-                        boxShadow: billing==='monthly' ? '0 4px 18px rgba(124,58,237,0.4)' : 'none' }}>
+            {/* Billing Toggle */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, position: 'relative', zIndex: 10 }}>
+                <div className="pricing-toggle-wrap">
+                    <button 
+                        onClick={() => setBilling('monthly')} 
+                        className={`pricing-toggle-btn ${billing === 'monthly' ? 'active' : ''}`}
+                    >
                         Monthly
                     </button>
-                    <button onClick={() => setBilling('annually')} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 26px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.3s', fontFamily:'inherit',
-                        background: billing==='annually' ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'transparent',
-                        color: billing==='annually' ? '#fff' : 'rgba(255,255,255,0.45)',
-                        boxShadow: billing==='annually' ? '0 4px 18px rgba(124,58,237,0.4)' : 'none' }}>
+                    <button 
+                        onClick={() => setBilling('annually')} 
+                        className={`pricing-toggle-btn ${billing === 'annually' ? 'active' : ''}`}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                    >
                         Annually
-                        <span style={{ background:'linear-gradient(135deg,#f59e0b,#d97706)', color:'#fff', fontSize:10, fontWeight:800, padding:'3px 10px', borderRadius:50, letterSpacing:'0.3px' }}>Save {discPct}%</span>
+                        <span className="pricing-discount-badge">Save {discPct}%</span>
                     </button>
                 </div>
             </div>
 
             {/* No free trial banner */}
             {user?.noFreeTrial && (
-                <div style={{ maxWidth:640, margin:'0 auto 28px', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:14, padding:'14px 20px', display:'flex', alignItems:'center', gap:12, position:'relative', zIndex:2 }}>
-                    <span style={{ fontSize:20 }}>⚠️</span>
+                <div style={{ maxWidth: 640, margin: '0 auto 28px', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 10 }}>
+                    <span style={{ fontSize: 20 }}>⚠️</span>
                     <div>
-                        <div style={{ fontWeight:700, fontSize:14, color:'#fbbf24' }}>Free Trial not available</div>
-                        <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', marginTop:2 }}>You previously had a UptimeForge account. Please choose a paid plan.</div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: '#fbbf24' }}>Free Trial not available</div>
+                        <div style={{ fontSize: 12, color: 'var(--pricing-card-text-muted)', marginTop: 2 }}>You previously had an active free trial. Please select a premium plan.</div>
                     </div>
                 </div>
             )}
 
             {/* Plan cards */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:14, maxWidth:1160, margin:'0 auto', position:'relative', zIndex:2 }}>
-                {PLAN_ORDER.filter(p => {
-                    if (p === 'verification') return false; // Always hide free trial on upgrade page
-                    return true;
-                }).map(p => {
-                    const isVerif   = p === 'verification';
+            <div className="pricing-grid">
+                {PLAN_ORDER.filter(p => p !== 'verification').map(p => {
                     const isPopular = p === 'silver';
-                    const isGold    = p === 'gold';
-                    const cfg       = planData?.plans?.[p] || {};
-                    const monthlyPrice = isVerif ? (planData?.verificationFee ?? 2) : (cfg.price ?? { bronze:499, silver:999, gold:1499 }[p]);
-                    const price     = (!isVerif && billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
-                    const sites     = isVerif ? (planData?.freeTrialSiteLimit ?? 2) : (cfg.sites ?? { bronze:5, silver:15, gold:30 }[p]);
-                    const features  = isVerif
-                        ? (planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures : PLAN_FEATURES_FALLBACK.verification)
-                        : (cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p]);
-                    const note      = isVerif ? '5-day trial · one-time verification' : `${sites} sites`;
-                    const gradient  = PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+                    const isGold = p === 'gold';
+                    const cfg = planData?.plans?.[p] || {};
+                    const monthlyPrice = cfg.price ?? { bronze: 499, silver: 999, gold: 1499 }[p];
+                    const price = (billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
+                    const sites = cfg.sites ?? { bronze: 5, silver: 15, gold: 30 }[p];
+                    const features = cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p];
+                    
+                    const note = `${sites} sites monitored`;
+                    const gradient = PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)';
                     const planColor = PLAN_COLOR_MAP[p] || '#7c3aed';
 
                     return (
-                        <div key={p} style={{
-                            position:'relative', borderRadius:28, overflow:'hidden',
-                            background: isPopular
-                                ? 'linear-gradient(180deg, rgba(124,58,237,0.06) 0%, rgba(255,255,255,0.01) 100%)'
-                                : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                            border: isPopular ? '1px solid rgba(167,139,250,0.4)' : '1px solid rgba(255,255,255,0.04)',
-                            boxShadow: isPopular ? '0 20px 55px -10px rgba(124,58,237,0.35)' : '0 15px 45px -10px rgba(0,0,0,0.5)',
-                            display:'flex', flexDirection:'column',
-                            backdropFilter:'blur(24px)',
-                            transition:'all 0.5s cubic-bezier(0.16,1,0.3,1)',
-                            '--plan-color': planColor, '--plan-gradient': gradient,
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-12px) scale(1.01)'; e.currentTarget.style.boxShadow=isPopular?'0 30px 65px -15px rgba(124,58,237,0.5)':'0 30px 65px -15px rgba(0,0,0,0.7)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform='translateY(0) scale(1)'; e.currentTarget.style.boxShadow=isPopular?'0 20px 55px -10px rgba(124,58,237,0.35)':'0 15px 45px -10px rgba(0,0,0,0.5)'; }}>
-
-                            {/* Glow */}
-                            <div style={{ position:'absolute', top:-40, left:'10%', width:'80%', height:80, background:`radial-gradient(circle, ${planColor} 0%, transparent 70%)`, opacity: isPopular ? 0.15 : 0.08, filter:'blur(25px)', pointerEvents:'none' }} />
+                        <div 
+                            key={p} 
+                            className={`pricing-card ${isPopular ? 'pricing-card-popular' : ''}`}
+                        >
+                            {/* Card top gradient glow */}
+                            <div 
+                                className="pricing-card-glow" 
+                                style={{ background: `radial-gradient(circle, ${planColor} 0%, transparent 70%)` }} 
+                            />
 
                             {/* Badge */}
-                            {(isVerif || isPopular || isGold) && (
-                                <div style={{ position:'absolute', top:16, right:16, background: isPopular ? 'linear-gradient(135deg,#c084fc,#7c3aed)' : isGold ? 'linear-gradient(135deg,#f59e0b,#ca8a04)' : 'linear-gradient(135deg,#10b981,#059669)', color:'#fff', fontSize:10, fontWeight:800, padding:'6px 14px', borderRadius:99, letterSpacing:'1px', textTransform:'uppercase', zIndex:3, boxShadow: isPopular ? '0 4px 15px rgba(124,58,237,0.4)' : 'none' }}>
-                                    {isVerif ? 'FREE' : isPopular ? '⭐ Most Popular' : '🏆 Best Value'}
+                            {(isPopular || isGold) && (
+                                <div 
+                                    className="pricing-card-badge" 
+                                    style={{ background: isPopular ? 'linear-gradient(135deg,#c084fc,#7c3aed)' : 'linear-gradient(135deg,#f59e0b,#ca8a04)' }}
+                                >
+                                    {isPopular ? '⭐ Popular' : '🏆 Value'}
                                 </div>
                             )}
 
-                            {/* Top section — gradient background */}
-                            <div style={{ padding:'16px 16px 12px', textAlign:'center', position:'relative', background: gradient, borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                                <div style={{ fontSize:28, marginBottom:6 }}>{EMOJI[p]}</div>
-                                <div style={{ fontSize:15, fontWeight:800, color:'#fff', marginBottom:6, fontFamily:"'Outfit',sans-serif", letterSpacing:'0.3px' }}>{PLAN_LABEL[p]}</div>
-                                <div style={{ display:'flex', alignItems:'baseline', justifyContent:'center', gap:5, marginBottom:4 }}>
-                                    <span style={{ fontSize:26, fontWeight:950, background:'linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontFamily:"'Outfit',sans-serif", letterSpacing:'-1px' }}>₹{price}</span>
-                                    {!isVerif && <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>/mo</span>}
+                            {/* Top section */}
+                            <div className="pricing-card-top" style={{ background: gradient }}>
+                                <div className="pricing-card-emoji">{EMOJI[p]}</div>
+                                <div className="pricing-card-name">{PLAN_LABEL[p]}</div>
+                                <div className="pricing-card-price-row">
+                                    <span className="pricing-card-price">₹{price}</span>
+                                    <span className="pricing-card-period">/mo</span>
                                 </div>
-                                {!isVerif && billing === 'annually' && (
-                                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', textDecoration:'line-through', marginBottom:2 }}>₹{monthlyPrice}/mo</div>
+                                {billing === 'annually' && (
+                                    <div className="pricing-card-original-price">₹{monthlyPrice}/mo if billed monthly</div>
                                 )}
-                                <div style={{ display:'inline-block', fontSize:11, fontWeight:700, marginTop:6, background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', padding:'3px 12px', borderRadius:99, color:'rgba(255,255,255,0.7)', letterSpacing:'0.5px' }}>{note}</div>
+                                <div className="pricing-card-limit-badge">{note}</div>
                             </div>
 
-                            {/* Features */}
-                            <div style={{ padding:'10px 14px 14px', flex:1, display:'flex', flexDirection:'column' }}>
-                                <ul style={{ listStyle:'none', margin:'0 0 18px', padding:0, display:'flex', flexDirection:'column', gap:6, flex:1 }}>
+                            {/* Features and CTA */}
+                            <div className="pricing-card-body">
+                                <ul className="pricing-features-list">
                                     {features.map(f => {
                                         const { type, label } = parseFeature(f);
                                         return (
-                                            <li key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:12, color: type==='no' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.75)', fontWeight:500 }}>
-                                                <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:18, height:18, borderRadius:'50%', flexShrink:0,
-                                                    background: type==='ok' ? 'rgba(16,185,129,0.1)' : type==='no' ? 'rgba(239,68,68,0.08)' : 'transparent',
-                                                    border: type==='ok' ? '1px solid rgba(16,185,129,0.2)' : type==='no' ? '1px solid rgba(239,68,68,0.15)' : 'none',
-                                                    color: type==='ok' ? '#10b981' : type==='no' ? '#ef4444' : 'rgba(255,255,255,0.4)', fontSize:10 }}>
-                                                    {type==='ok' ? '✓' : type==='no' ? '✕' : type==='soon' ? '◷' : '~'}
+                                            <li 
+                                                key={f} 
+                                                className={`pricing-feature-item ${type === 'no' ? 'muted' : ''}`}
+                                            >
+                                                <span className={`pricing-feature-icon ${type}`}>
+                                                    {type === 'ok' ? '✓' : type === 'no' ? '✕' : type === 'soon' ? '◷' : '~'}
                                                 </span>
                                                 <span>{label}</span>
-                                                {type==='soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.35)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:4, padding:'1px 6px', fontWeight:700, flexShrink:0, textTransform:'uppercase', letterSpacing:'0.5px', marginLeft:4 }}>Soon</span>}
+                                                {type === 'soon' && <span className="pricing-soon-tag">Soon</span>}
                                             </li>
                                         );
                                     })}
                                 </ul>
 
-                                <button onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}
-                                    style={{ width:'100%', padding:'11px', background: gradient, color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:850, cursor:'pointer', transition:'all 0.4s cubic-bezier(0.16,1,0.3,1)', fontFamily:'inherit', letterSpacing:'0.8px', textTransform:'uppercase', boxShadow:'0 4px 20px -2px rgba(0,0,0,0.3)', position:'relative', overflow:'hidden' }}
-                                    onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.filter='brightness(1.1)'; e.currentTarget.style.boxShadow=`0 10px 25px rgba(0,0,0,0.4), 0 0 20px -2px ${planColor}`; }}
-                                    onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.filter='brightness(1)'; e.currentTarget.style.boxShadow='0 4px 20px -2px rgba(0,0,0,0.3)'; }}>
-                                    {isVerif ? 'Start Free Trial' : billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price*12}/yr` : `Get ${PLAN_LABEL[p]}`}
+                                <button 
+                                    onClick={() => onSelect(p, billing)}
+                                    className="pricing-card-btn"
+                                    style={{ background: gradient }}
+                                >
+                                    {billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price * 12}/yr` : `Get ${PLAN_LABEL[p]}`}
                                 </button>
                             </div>
                         </div>
@@ -223,8 +217,12 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
             </div>
 
             {/* Footer note */}
-            <div style={{ textAlign:'center', marginTop:40, color:'rgba(255,255,255,0.3)', fontSize:12, position:'relative', zIndex:2 }}>
-                Payments secured by Razorpay · UPI · Cards · Netbanking
+            <div className="pricing-bottom-secure">
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ verticalAlign: 'middle' }}>
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span>Payments secured by Razorpay · UPI · Cards · Netbanking</span>
             </div>
         </div>
     );
@@ -244,6 +242,35 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
     const isSelect       = plan === 'select';
     const isVerification = plan === 'verification';
+
+    const [localTheme, setLocalTheme] = useState(() => {
+        const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+        return match ? match[1] : 'dark';
+    });
+
+    useEffect(() => {
+        const checkThemeCookie = () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const current = match ? match[1] : 'dark';
+            if (current !== localTheme) {
+                setLocalTheme(current);
+            }
+        };
+        checkThemeCookie();
+        const interval = setInterval(checkThemeCookie, 1000);
+        return () => clearInterval(interval);
+    }, [localTheme]);
+
+    useEffect(() => {
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            document.body.classList.remove('charts-dark-theme');
+        };
+    }, [localTheme]);
 
     // Calculate amount based on billing type
     const monthlyAmt = isVerification
