@@ -318,7 +318,10 @@ function TrialBanner({ user }) {
             <div style={{ fontSize:12, opacity:0.85, marginTop:2 }}>All monitoring services paused · Read-only mode · Renew within 10 days to avoid suspension</div>
           </div>
         </div>
-        <Link to="/pay?plan=select" style={{ padding:'9px 22px', background:'#fff', color:'#b45309', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,0.15)', letterSpacing:'0.2px' }}>
+        <Link to="/pay?plan=select"
+          style={{ padding:'9px 22px', background:'#fff', color:'#b45309', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none', whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,0.15)', letterSpacing:'0.2px', transition:'all 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background='#fef3c7'; e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.25)'; e.currentTarget.style.transform='translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)'; e.currentTarget.style.transform='translateY(0)'; }}>
           Renew Plan →
         </Link>
       </div>
