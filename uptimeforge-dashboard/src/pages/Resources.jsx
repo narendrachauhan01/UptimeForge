@@ -745,18 +745,6 @@ export default function Resources() {
                   </InfoBox>
                 </div>}
 
-                {/* Network info — always show even when offline */}
-                <div style={{ marginBottom: 16 }}>
-                  <InfoBox icon="🌐" title="Network" accent="#F59E0B">
-                    <InfoRow label="Local IP"  value={s.localIp}  mono />
-                    <InfoRow label="Public IP" value={s.publicIp || '—'} mono />
-                    {s.networkRoutes && s.networkRoutes.length > 0 && (
-                      <InfoRow label="Routes" value={`${s.networkRoutes.length} routes`} />
-                    )}
-                    <InfoRow label="Last seen" value={new Date(s.timestamp).toLocaleString('en-IN')} />
-                  </InfoBox>
-                </div>
-
                 {/* Active SSH Sessions table */}
                 {s.activeSessions && (
                   <div className="sessions-card">
