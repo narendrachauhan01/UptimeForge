@@ -1,6 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { NavLink, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { staffMe, staffLogout } from '../api';
+import axios from 'axios';
+import { API_URL } from '../api';
 import UWLogo from '../components/UWLogo';
 
 const AdminPanel         = lazy(() => import('./AdminPanel'));
@@ -229,6 +231,7 @@ export default function StaffDashboard() {
     const [staff, setStaff]     = useState(null);
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const navigate  = useNavigate();
     const location  = useLocation();
 
@@ -264,6 +267,17 @@ export default function StaffDashboard() {
     useEffect(() => {
         staffMe().then(r => { setStaff(r.data); setLoading(false); })
             .catch(() => navigate('/staff-login'));
+    }, []);
+
+    // Poll unread support tickets every 30s
+    useEffect(() => {
+        const fetchUnread = () => {
+            axios.get(`${API_URL}/api/admin/support-tickets/unread`, { withCredentials: true })
+                .then(r => setUnreadCount(r.data?.count || 0)).catch(() => {});
+        };
+        fetchUnread();
+        const t = setInterval(fetchUnread, 30000);
+        return () => clearInterval(t);
     }, []);
 
     const logout = async () => {
@@ -356,8 +370,21 @@ export default function StaffDashboard() {
                             <button onClick={() => setSidebarOpen(true)} className="staff-toggle-btn" style={{ background:'none', border:'none', cursor:'pointer', display:'none', fontSize:20, padding:'4px 8px', color:'var(--text-main)' }}>☰</button>
                             <span style={{ fontSize:12, fontWeight:700, color:'#7c3aed', background: isDark ? 'rgba(124, 58, 237, 0.08)' : '#ede9fe', border: isDark ? '1px solid rgba(124, 58, 237, 0.15)' : '1px solid #d8b4fe', padding:'4px 14px', borderRadius:20 }}>🔐 Staff Panel</span>
                         </div>
-                        <div style={{ fontSize:13, color:'var(--text-muted)', fontWeight:500 }}>
-                            Welcome, <strong style={{ color:'var(--text-main)' }}>{staff?.name}</strong>
+                        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                            <div style={{ fontSize:13, color:'var(--text-muted)', fontWeight:500 }}>
+                                Welcome, <strong style={{ color:'var(--text-main)' }}>{staff?.name}</strong>
+                            </div>
+                            {/* Bell icon for support tickets */}
+                            <NavLink to="/staff/support-tickets" style={{ position:'relative', textDecoration:'none', display:'flex', alignItems:'center', justifyContent:'center', width:36, height:36, borderRadius:10, background: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0', cursor:'pointer' }}>
+                                <svg width="18" height="18" fill="none" stroke={unreadCount > 0 ? '#7c3aed' : 'currentColor'} strokeWidth="1.8" viewBox="0 0 24 24" style={{ color:'var(--text-muted)' }}>
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                                {unreadCount > 0 && (
+                                    <span style={{ position:'absolute', top:-4, right:-4, background:'#ef4444', color:'#fff', fontSize:10, fontWeight:800, borderRadius:'50%', width:18, height:18, display:'flex', alignItems:'center', justifyContent:'center', border:'2px solid var(--bg-primary)' }}>
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </NavLink>
                         </div>
                     </div>
                     <div style={{ padding:'24px' }}>
