@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { updateProfile } from '../api';
+import { updateProfile, deleteMyAccount } from '../api';
 import UWLogo from '../components/UWLogo';
 import COUNTRIES from '../constants/countries';
 
@@ -28,7 +28,7 @@ const GENDERS = [
 
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ city: '', gender: '', country: '', state: 'N/A', phone: 'N/A', purpose: '' });
+  const [form, setForm] = useState({ city: '', gender: '', state: '', country: '', phone: 'N/A', purpose: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,6 +37,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     if (!form.city.trim()) { setError('City is required'); return; }
     if (!form.gender) { setError('Please select your gender'); return; }
     if (!form.country) { setError('Please select your country'); return; }
+    if (!form.state.trim()) { setError('State is required'); return; }
     if (!form.purpose) { setError('Please select your account purpose'); return; }
     setError(''); setLoading(true);
     try {
@@ -52,9 +53,22 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     setLoading(false);
   };
 
+  const handleBack = async () => {
+    if (!window.confirm('Go back? Your account will be deleted.')) return;
+    try {
+      await deleteMyAccount();
+    } catch (_) {}
+    window.location.href = '/register';
+  };
+
   return (
     <div className="cp-page">
       <div className="cp-card">
+        <button onClick={handleBack} style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.6)', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:600, marginBottom:16, transition:'all 0.2s' }}
+          onMouseEnter={e=>e.currentTarget.style.color='#fff'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.6)'}>
+          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </button>
         <div className="cp-logo"><UWLogo size={40} /></div>
         <h1 className="cp-title">Complete Your Profile</h1>
         <p className="cp-sub">Hi <strong>{user?.name}</strong>, a few more details to complete your account setup.</p>
@@ -95,6 +109,19 @@ export default function CompleteProfile({ user, onUserUpdate }) {
               <option value="">Select your country</option>
               {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+          </div>
+
+          <div className="cp-field">
+            <label className="cp-label">State / Province <span className="reg-req">*</span></label>
+            {form.country === 'India' ? (
+              <select className="cp-input cp-select" value={form.state} onChange={e => setForm({ ...form, state: e.target.value })}>
+                <option value="">Select your state</option>
+                {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            ) : (
+              <input className="cp-input" type="text" placeholder="Enter your state / province"
+                value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
+            )}
           </div>
 
           <div className="cp-field">
