@@ -403,7 +403,7 @@ export default function StaffDashboard() {
                             {hasAccess(perms,'integrationBackend') && <Route path="/integration-backend" element={<IntegrationBackend readOnly={!canWrite('integrationBackend')} />} />}
                             {hasAccess(perms,'redisCache')         && <Route path="/redis-cache"         element={<RedisCache         readOnly={!canWrite('redisCache')} />} />}
                             {hasAccess(perms,'deletedUsers')       && <Route path="/deleted-users"       element={<DeletedUsers       readOnly={!canWrite('deletedUsers')} />} />}
-                            {hasAccess(perms,'supportTickets')     && <Route path="/support-tickets"     element={<SupportTickets     readOnly={!canWrite('supportTickets')} />} />}
+                            {hasAccess(perms,'supportTickets')     && <Route path="/support-tickets"     element={<SupportTickets     readOnly={!canWrite('supportTickets')} adminOnly={true} />} />}
                             {hasAccess(perms,'planCanceling')      && <Route path="/plan-canceling"      element={<PlanCanceling />} />}
                             <Route path="*" element={<Navigate to={firstPath} replace />} />
                         </Routes>

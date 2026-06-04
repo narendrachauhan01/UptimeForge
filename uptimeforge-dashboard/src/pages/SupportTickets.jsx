@@ -409,7 +409,7 @@ const SUPPORT_TICKETS_STYLES = `
   }
 `;
 
-export default function SupportTickets({ readOnly = false }) {
+export default function SupportTickets({ readOnly = false, adminOnly = false }) {
     const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const [tickets,  setTickets]   = useState([]);
     const [loading,  setLoading]   = useState(true);
@@ -645,9 +645,9 @@ export default function SupportTickets({ readOnly = false }) {
                                         <span style={{ color:selected.status===v?c:'var(--text-muted)', fontWeight:selected.status===v?700:500 }}>{l}</span>
                                     </label>
                                 ))}
-                                <div style={{ marginLeft:'auto' }}>
+                                {!adminOnly && <div style={{ marginLeft:'auto' }}>
                                     <button onClick={()=>del(selected._id)} className="btn-secondary" style={{ color:'var(--danger)', borderColor:'rgba(239, 68, 68, 0.2)', padding:'5px 14px' }}>Delete</button>
-                                </div>
+                                </div>}
                             </div>
                         )}
                     </div>
@@ -851,7 +851,7 @@ export default function SupportTickets({ readOnly = false }) {
                                             {menuOpen===t._id && (
                                                 <div className="ticket-menu-dropdown">
                                                     <div onClick={()=>{ openTicket(t); setMenuOpen(null); }} className="ticket-menu-item">View More</div>
-                                                    <div onClick={()=>{ setMenuOpen(null); del(t._id); }} className="ticket-menu-item danger">Delete</div>
+                                                    {!adminOnly && <div onClick={()=>{ setMenuOpen(null); del(t._id); }} className="ticket-menu-item danger">Delete</div>}
                                                 </div>
                                             )}
                                         </td>
