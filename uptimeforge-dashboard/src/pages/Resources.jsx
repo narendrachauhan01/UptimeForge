@@ -541,7 +541,7 @@ export default function Resources() {
   const ramPct  = s ? pct(s.ramUsed,  s.ramTotal)  : 0;
   const diskPct = s ? pct(s.diskUsed, s.diskTotal) : 0;
   const swapPct = s ? pct(s.swapUsed, s.swapTotal) : 0;
-  const STALE_MS = 60 * 1000; // 60 seconds — 2 missed agent pings
+  const STALE_MS = 90 * 1000; // 90 seconds — 3 missed agent pings
   const dataAge = s ? (Date.now() - new Date(s.timestamp).getTime()) : Infinity;
   const isOnline = dataAge < STALE_MS;
 
