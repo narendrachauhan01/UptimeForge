@@ -35,17 +35,16 @@ module.exports = async function authMiddleware(req, res, next) {
 
             const status = user.accountStatus; // 'active' | 'grace' | 'suspended'
             const fullPath = req.originalUrl || (req.baseUrl + req.path);
+            // Only payment, support, logout, me allowed after expiry
             const allowedPaths = ['/api/payment', '/api/users/logout', '/api/users/me', '/api/users/support'];
             const isAllowed = allowedPaths.some(p => fullPath.startsWith(p));
 
-            // Suspended: block ALL operations except payment/logout/me
-            if (status === 'suspended' && !isAllowed) {
-                return res.status(403).json({ error: 'Account suspended. Your plan expired more than 10 days ago. Please upgrade.', accountStatus: 'suspended' });
-            }
-
-            // Grace: block write operations only
-            if (status === 'grace' && ['POST','PUT','DELETE','PATCH'].includes(req.method) && !isAllowed) {
-                return res.status(403).json({ error: 'Plan expired. Upgrade to continue creating resources.', accountStatus: 'grace', planExpired: true });
+            // Grace OR Suspended: block ALL except payment/support/logout/me
+            if ((status === 'grace' || status === 'suspended') && !isAllowed) {
+                const msg = status === 'suspended'
+                    ? 'Account suspended. Please upgrade your plan.'
+                    : 'Plan expired. Please upgrade to continue.';
+                return res.status(403).json({ error: msg, accountStatus: status, planExpired: true });
             }
 
             return next();
