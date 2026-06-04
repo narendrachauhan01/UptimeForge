@@ -5,6 +5,143 @@ import { API_URL } from '../api';
 const PLAN_COLORS = { free_trial:'#64748b', bronze:'#b45309', silver:'#7c3aed', gold:'#ca8a04' };
 const PLAN_LABEL  = { free_trial:'Free Trial', bronze:'Bronze', silver:'Silver', gold:'Gold' };
 
+const USERS_LIST_STYLES = `
+  .users-list-container {
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Light Theme */
+  .users-list-container.light {
+    --bg-primary: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --border-color: rgba(226, 232, 240, 0.8);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --table-header-bg: #f8fafc;
+    --hover-row-bg: #f9f7ff;
+    --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06);
+    --badge-bg: #ede9fe;
+    --badge-color: #7c3aed;
+  }
+
+  /* Dark Theme */
+  .users-list-container.dark {
+    --bg-primary: #0b0f19;
+    --bg-card: #0d121f;
+    --bg-input: rgba(255, 255, 255, 0.02);
+    --border-color: rgba(255, 255, 255, 0.06);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --table-header-bg: #131a26;
+    --hover-row-bg: rgba(124, 58, 237, 0.08);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --badge-bg: rgba(167, 139, 250, 0.08);
+    --badge-color: #a78bfa;
+  }
+
+  .users-search-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 12px;
+    font-size: 13.5px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  .users-search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  }
+
+  .users-filter-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border-color);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+  .users-filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .users-filter-btn.active {
+    background: var(--primary);
+    color: #ffffff !important;
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+  }
+
+  .users-table-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+
+  .users-table th {
+    padding: 14px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--table-header-bg);
+  }
+
+  .users-table td {
+    padding: 12px 16px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.15s ease;
+  }
+
+  .users-table tbody tr {
+    transition: background 0.15s ease;
+  }
+  .users-table tbody tr:hover {
+    background: var(--hover-row-bg);
+  }
+
+  .users-status-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+
+  .users-status-active {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+  }
+  .users-status-blocked {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+  }
+  .users-status-expired {
+    background: rgba(245, 158, 11, 0.08);
+    color: #f59e0b;
+  }
+`;
+
 function fmt(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
@@ -28,6 +165,32 @@ export default function UsersList() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
+  const [localTheme, setLocalTheme] = useState(() => {
+    const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+    return match ? match[1] : 'dark';
+  });
+
+  useEffect(() => {
+    const checkThemeCookie = () => {
+      const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+      const current = match ? match[1] : 'dark';
+      if (current !== localTheme) {
+        setLocalTheme(current);
+      }
+    };
+    checkThemeCookie();
+    const interval = setInterval(checkThemeCookie, 1000);
+    return () => clearInterval(interval);
+  }, [localTheme]);
+
+  useEffect(() => {
+    if (localTheme === 'dark') {
+      document.body.classList.add('charts-dark-theme');
+    } else {
+      document.body.classList.remove('charts-dark-theme');
+    }
+  }, [localTheme]);
+
   useEffect(() => {
     axios.get(`${API_URL}/api/admin/users`, { withCredentials: true })
       .then(r => { setUsers(r.data); setLoading(false); })
@@ -48,87 +211,133 @@ export default function UsersList() {
 
   if (loading) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:300 }}>
-      <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid #e2e8f0', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
+      <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid var(--border-color)', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
+  const isDark = localTheme === 'dark';
+
   return (
-    <div className="pg-wrap">
-      <div className="pg-header">
-        <div>
-          <h1 className="pg-title">All Users</h1>
-          <p className="pg-sub">{filtered.length} of {users.length} users</p>
+    <div className={`users-list-container ${localTheme}`}>
+      <style>{USERS_LIST_STYLES}</style>
+      <div className="pg-wrap">
+        <div className="pg-header">
+          <div>
+            <h1 className="pg-title" style={{ color: 'var(--text-main)', fontFamily: 'Outfit, sans-serif', fontWeight: 900 }}>
+              All Users <span style={{ color: 'var(--primary)' }}>.</span>
+            </h1>
+            <p className="pg-sub" style={{ color: 'var(--text-muted)' }}>{filtered.length} of {users.length} users registered</p>
+          </div>
         </div>
-      </div>
 
-      {/* Toolbar */}
-      <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap', alignItems:'center' }}>
-        <input value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="Search name, email, phone, account ID..."
-          style={{ flex:1, minWidth:220, padding:'8px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:13, outline:'none' }} />
-        {['all','active','expired','blocked','paid'].map(f => (
-          <button key={f} onClick={() => setFilter(f)}
-            style={{ padding:'7px 14px', borderRadius:20, border:'1.5px solid', fontSize:12, fontWeight:700, cursor:'pointer',
-              background: filter===f ? '#7c3aed' : 'transparent',
-              color: filter===f ? '#fff' : '#64748b',
-              borderColor: filter===f ? '#7c3aed' : '#e2e8f0' }}>
-            {f.charAt(0).toUpperCase()+f.slice(1)}
-          </button>
-        ))}
-      </div>
+        {/* Toolbar */}
+        <div style={{ display:'flex', gap:8, marginBottom:20, flexWrap:'wrap', alignItems:'center' }}>
+          <input 
+            value={search} 
+            onChange={e=>setSearch(e.target.value)}
+            placeholder="Search name, email, phone, account ID..."
+            className="users-search-input" 
+          />
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {['all','active','expired','blocked','paid'].map(f => (
+              <button 
+                key={f} 
+                onClick={() => setFilter(f)}
+                className={`users-filter-btn ${filter === f ? 'active' : ''}`}
+              >
+                {f.charAt(0).toUpperCase()+f.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* Table */}
-      <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
-        <div style={{ overflowX:'auto' }}>
-          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
-            <thead>
-              <tr style={{ background:'#f8fafc' }}>
-                {COLS.map(h => (
-                  <th key={h} style={{ padding:'11px 14px', textAlign:'left', fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'0.5px', borderBottom:'1px solid #f1f5f9', whiteSpace:'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={COLS.length} style={{ padding:48, textAlign:'center', color:'#94a3b8' }}>No users found</td></tr>
-              ) : filtered.map((u, idx) => (
-                <tr key={u._id} style={{ borderBottom:'1px solid #f1f5f9' }}
-                  onMouseEnter={e=>e.currentTarget.style.background='#f9f7ff'}
-                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                  <td style={{ padding:'12px 14px', color:'#94a3b8', fontWeight:600 }}>{idx+1}</td>
-                  <td style={{ padding:'12px 14px' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                      <Avatar name={u.name} size={32} />
-                      <div>
-                        <div style={{ fontWeight:700, color:'#1e293b', fontSize:13 }}>{u.name}</div>
-                        <div style={{ fontSize:11, color:'#64748b' }}>{u.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ padding:'12px 14px' }}><span style={{ fontFamily:'monospace', fontSize:11, background:'#ede9fe', color:'#7c3aed', padding:'2px 8px', borderRadius:20, fontWeight:700 }}>{u.accountId}</span></td>
-                  <td style={{ padding:'12px 14px' }}><span style={{ fontSize:11, background:`${PLAN_COLORS[u.plan]}15`, color:PLAN_COLORS[u.plan], padding:'3px 10px', borderRadius:20, fontWeight:700 }}>{PLAN_LABEL[u.plan]}</span></td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.phone || '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.city || '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.state || '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.country || '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.gender ? u.gender.charAt(0).toUpperCase()+u.gender.slice(1) : '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.purpose || '—'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151', fontWeight:600 }}>{u.serverCount||0}/{u.siteLimit||2}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151' }}>{u.billing==='annually' ? 'Annual' : 'Monthly'}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151', whiteSpace:'nowrap' }}>{fmt(u.trialEndsAt||u.planEndsAt)}</td>
-                  <td style={{ padding:'12px 14px', color:'#374151', whiteSpace:'nowrap' }}>{fmt(u.createdAt)}</td>
-                  <td style={{ padding:'12px 14px' }}>
-                    {u.isBlocked
-                      ? <span style={{ fontSize:11, background:'#fee2e2', color:'#dc2626', padding:'3px 10px', borderRadius:20, fontWeight:700 }}>Blocked</span>
-                      : u.isActive
-                        ? <span style={{ fontSize:11, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20, fontWeight:700 }}>Active</span>
-                        : <span style={{ fontSize:11, background:'#fef3c7', color:'#d97706', padding:'3px 10px', borderRadius:20, fontWeight:700 }}>Expired</span>}
-                  </td>
+        {/* Table */}
+        <div className="users-table-card">
+          <div style={{ overflowX:'auto' }}>
+            <table className="users-table" style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+              <thead>
+                <tr>
+                  {COLS.map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={COLS.length} style={{ padding:48, textAlign:'center', color:'var(--text-muted)' }}>
+                      No users found
+                    </td>
+                  </tr>
+                ) : filtered.map((u, idx) => {
+                  const planColor = PLAN_COLORS[u.plan] || '#64748b';
+                  const planBadgeStyle = {
+                    fontSize: 11,
+                    background: isDark ? `${planColor}15` : `${planColor}12`,
+                    color: planColor,
+                    border: `1px solid ${planColor}22`,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap'
+                  };
+
+                  return (
+                    <tr key={u._id}>
+                      <td style={{ color:'var(--text-muted)', fontWeight:600 }}>{idx+1}</td>
+                      <td>
+                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                          <Avatar name={u.name} size={32} />
+                          <div>
+                            <div style={{ fontWeight:700, color:'var(--text-main)', fontSize:13 }}>{u.name}</div>
+                            <div style={{ fontSize:11, color:'var(--text-muted)' }}>{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span style={{ 
+                          fontFamily:'monospace', 
+                          fontSize:11, 
+                          background:'var(--badge-bg)', 
+                          color:'var(--badge-color)', 
+                          padding:'3px 8px', 
+                          borderRadius:20, 
+                          fontWeight:700, 
+                          border:'1px solid var(--border-color)',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {u.accountId}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={planBadgeStyle}>{PLAN_LABEL[u.plan] || u.plan}</span>
+                      </td>
+                      <td style={{ color:'var(--text-main)' }}>{u.phone || '—'}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.city || '—'}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.state || '—'}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.country || '—'}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.gender ? u.gender.charAt(0).toUpperCase()+u.gender.slice(1) : '—'}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.purpose || '—'}</td>
+                      <td style={{ color:'var(--text-main)', fontWeight:600 }}>{u.serverCount||0}/{u.siteLimit||2}</td>
+                      <td style={{ color:'var(--text-main)' }}>{u.billing==='annually' ? 'Annual' : 'Monthly'}</td>
+                      <td style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.trialEndsAt||u.planEndsAt)}</td>
+                      <td style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.createdAt)}</td>
+                      <td>
+                        {u.isBlocked ? (
+                          <span className="users-status-badge users-status-blocked">Blocked</span>
+                        ) : u.isActive ? (
+                          <span className="users-status-badge users-status-active">Active</span>
+                        ) : (
+                          <span className="users-status-badge users-status-expired">Expired</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
