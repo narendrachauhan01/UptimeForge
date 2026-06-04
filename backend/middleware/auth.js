@@ -40,7 +40,7 @@ module.exports = async function authMiddleware(req, res, next) {
 
             // Suspended: block ALL operations except payment/logout/me
             if (status === 'suspended' && !isAllowed) {
-                return res.status(403).json({ error: 'Account suspended. Your plan expired more than 30 days ago. Please upgrade.', accountStatus: 'suspended' });
+                return res.status(403).json({ error: 'Account suspended. Your plan expired more than 10 days ago. Please upgrade.', accountStatus: 'suspended' });
             }
 
             // Grace: block write operations only

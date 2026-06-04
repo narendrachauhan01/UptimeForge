@@ -69,10 +69,10 @@ userSchema.virtual('trialDaysLeft').get(function () {
 });
 
 // accountStatus: 'active' | 'grace' | 'suspended'
-// grace = expired but < 30 days ago, suspended = expired > 30 days ago
+// grace = expired but < 10 days ago, suspended = expired > 10 days ago (20 days total)
 userSchema.virtual('accountStatus').get(function () {
     if (this.isBlocked) return 'suspended';
-    const GRACE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+    const GRACE_MS = 10 * 24 * 60 * 60 * 1000; // 10 days grace period
     const now = Date.now();
     let expiryDate = null;
     if (this.plan === 'free_trial') {
