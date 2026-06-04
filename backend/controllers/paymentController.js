@@ -372,6 +372,11 @@ exports.refundStatus = async (req, res) => {
         };
         const info = statusMap[refund.status] || { label: refund.status, color: '#64748b', desc: '' };
 
+        // Save refund status to DB for auto-display next time
+        if (refund.status === 'processed') {
+            await PaymentRequest.findByIdAndUpdate(req.params.id, { refundStatus: 'successful' });
+        }
+
         res.json({
             refundId:    refund.id,
             status:      refund.status,
@@ -423,7 +428,8 @@ exports.razorpayWebhook = async (req, res) => {
 
                 // Update payment record
                 pr.status = 'refunded';
-                pr.adminNote = `Refund processed via Razorpay webhook. Payment: ${paymentId}`;
+                pr.refundStatus = event === 'refund.processed' ? 'successful' : 'initiated';
+                pr.adminNote = `Refund ${pr.refundStatus} via Razorpay webhook. Payment: ${paymentId}`;
                 await pr.save();
 
                 console.log(`[Razorpay Webhook] Refund: ${user.email} reverted ${prevPlan} → free_trial`);
