@@ -108,7 +108,6 @@ const ADMIN_NAV_GROUPS = [
     items: [
       { to: '/integration-backend', label: 'Integration Backend', icon: <IcoLink /> },
       { to: '/redis-cache',         label: 'Redis Cache',         icon: <IcoDatabase /> },
-      { to: '/admin-profile',       label: 'My Profile',          icon: <IcoProfile /> },
     ],
   },
   {

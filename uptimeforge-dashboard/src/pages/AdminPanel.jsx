@@ -754,76 +754,77 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 )}
 
                 {tab === 'profile' && (
-                    <div style={{ maxWidth: 560, margin: '0 auto' }}>
+                    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 20px' }}>
+                        {/* Back button */}
+                        <div style={{ width: '100%', maxWidth: 520, marginBottom: 24 }}>
+                            <button onClick={() => window.history.back()} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                                Back to Admin
+                            </button>
+                        </div>
+
                         {/* Profile Header */}
                         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#f59e0b,#ef4444)', color: '#fff', fontSize: 28, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 8px 24px rgba(245,158,11,0.35)' }}>A</div>
-                            <div style={{ fontSize: 20, fontWeight: 800, color: T.text }}>Admin</div>
-                            <div style={{ fontSize: 13, color: T.sub, marginTop: 4 }}>Full access · UptimeForge</div>
+                            <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#f59e0b,#ef4444)', color: '#fff', fontSize: 32, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 28px rgba(245,158,11,0.4)' }}>A</div>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Outfit',sans-serif" }}>Admin</div>
+                            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Full access · UptimeForge</div>
                         </div>
-                        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-                        <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Username</label>
-                            <input style={inputSt}
-                                placeholder="New username (leave blank to keep current)"
-                                value={profileForm.username}
-                                onChange={e => setProfileForm(f => ({ ...f, username: e.target.value }))} />
-                        </div>
-                        <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Email</label>
-                            <input style={inputSt}
-                                type="email" placeholder="New email (leave blank to keep current)"
-                                value={profileForm.email}
-                                onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
-                        </div>
-                        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '4px 0' }} />
-                        <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#EF4444' }}>*</span></label>
-                            <input style={inputSt}
-                                type="password" placeholder="Required to save changes"
-                                value={profileForm.currentPassword}
-                                onChange={e => setProfileForm(f => ({ ...f, currentPassword: e.target.value }))} />
-                        </div>
-                        <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>New Password</label>
-                            <input style={inputSt}
-                                type="password" placeholder="Leave blank to keep current password"
-                                value={profileForm.newPassword}
-                                onChange={e => setProfileForm(f => ({ ...f, newPassword: e.target.value }))} />
-                        </div>
-                        <div>
-                            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
-                            <input style={inputSt}
-                                type="password" placeholder="Confirm new password"
-                                value={profileForm.confirmPassword}
-                                onChange={e => setProfileForm(f => ({ ...f, confirmPassword: e.target.value }))} />
-                        </div>
-                        {profileMsg.text && (
-                            <div style={{
-                                padding: '10px 14px',
-                                borderRadius: 8,
-                                background: profileMsg.type === 'ok'
-                                    ? (localTheme === 'dark' ? 'rgba(16, 185, 129, 0.08)' : '#F0FDF4')
-                                    : (localTheme === 'dark' ? 'rgba(239, 68, 68, 0.08)' : '#FFF5F5'),
-                                color: profileMsg.type === 'ok'
-                                    ? (localTheme === 'dark' ? '#10B981' : '#16A34A')
-                                    : (localTheme === 'dark' ? '#EF4444' : '#DC2626'),
-                                border: `1px solid ${profileMsg.type === 'ok'
-                                    ? (localTheme === 'dark' ? 'rgba(16, 185, 129, 0.2)' : '#BBF7D0')
-                                    : (localTheme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : '#FECDD3')}`,
-                                fontSize: 13,
-                                fontWeight: 600
-                            }}>
-                                {profileMsg.text}
+
+                        {/* Form card */}
+                        <div style={{ width: '100%', maxWidth: 520, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Account Settings</div>
+
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Username</label>
+                                <input style={{ ...inputSt, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: '#fff' }}
+                                    placeholder="New username (leave blank to keep current)"
+                                    value={profileForm.username}
+                                    onChange={e => setProfileForm(f => ({ ...f, username: e.target.value }))} />
                             </div>
-                        )}
-                        <button onClick={saveProfile} disabled={profileSaving}
-                            style={{ padding: '11px 24px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: profileSaving ? 'not-allowed' : 'pointer', opacity: profileSaving ? 0.7 : 1, alignSelf: 'flex-start' }}>
-                            {profileSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Email</label>
+                                <input style={{ ...inputSt, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: '#fff' }}
+                                    type="email" placeholder="New email (leave blank to keep current)"
+                                    value={profileForm.email}
+                                    onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
+                            </div>
+
+                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: -4 }}>Change Password</div>
+
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Current Password <span style={{ color: '#EF4444' }}>*</span></label>
+                                <input style={{ ...inputSt, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: '#fff' }}
+                                    type="password" placeholder="Required to save changes"
+                                    value={profileForm.currentPassword}
+                                    onChange={e => setProfileForm(f => ({ ...f, currentPassword: e.target.value }))} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>New Password</label>
+                                <input style={{ ...inputSt, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: '#fff' }}
+                                    type="password" placeholder="Leave blank to keep current password"
+                                    value={profileForm.newPassword}
+                                    onChange={e => setProfileForm(f => ({ ...f, newPassword: e.target.value }))} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
+                                <input style={{ ...inputSt, background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: '#fff' }}
+                                    type="password" placeholder="Confirm new password"
+                                    value={profileForm.confirmPassword}
+                                    onChange={e => setProfileForm(f => ({ ...f, confirmPassword: e.target.value }))} />
+                            </div>
+
+                            {profileMsg.text && (
+                                <div style={{ padding: '10px 14px', borderRadius: 8, background: profileMsg.type === 'ok' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: profileMsg.type === 'ok' ? '#10B981' : '#EF4444', border: `1px solid ${profileMsg.type === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, fontSize: 13, fontWeight: 600 }}>
+                                    {profileMsg.text}
+                                </div>
+                            )}
+                            <button onClick={saveProfile} disabled={profileSaving}
+                                style={{ padding: '13px 24px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: profileSaving ? 'not-allowed' : 'pointer', opacity: profileSaving ? 0.7 : 1, width: '100%', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}>
+                                {profileSaving ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
             {tab !== 'profile' && (
                 <>
