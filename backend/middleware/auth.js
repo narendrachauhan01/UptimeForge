@@ -21,6 +21,7 @@ module.exports = async function authMiddleware(req, res, next) {
             req.isStaff     = true;
             req.staffId     = staff._id;
             req.staffUser   = staff;
+            req.staffName   = staff.name;
             req.permissions = staff.permissions;
             return next();
         }

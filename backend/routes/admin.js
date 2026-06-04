@@ -97,7 +97,8 @@ router.post('/support-tickets/:id/reply',     auth, allow('supportTickets','writ
     const t = await SupportTicket.findById(req.params.id);
     if (!t) return res.status(404).json({ error: 'Not found' });
     const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
-    t.replies.push({ from: 'admin', message: req.body.message, images });
+    const senderName = req.isAdmin ? (process.env.ADMIN_USERNAME || 'Admin') : (req.staffName || req.user?.name || 'Support Team');
+    t.replies.push({ from: 'admin', message: req.body.message, images, senderName });
     if (t.status === 'open') t.status = 'in_progress';
     t.adminUnread = false;
     t.userUnread  = true;

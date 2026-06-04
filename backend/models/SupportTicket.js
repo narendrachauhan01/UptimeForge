@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const replySchema = new mongoose.Schema({
-    from:    { type: String, enum: ['user','admin'], required: true },
-    message: { type: String, required: true },
-    images:  [{ type: String }], // file paths
-    at:      { type: Date, default: Date.now },
+    from:       { type: String, enum: ['user','admin'], required: true },
+    senderName: { type: String, default: '' },
+    message:    { type: String, required: true },
+    images:     [{ type: String }],
+    at:         { type: Date, default: Date.now },
 });
 
 const supportTicketSchema = new mongoose.Schema({

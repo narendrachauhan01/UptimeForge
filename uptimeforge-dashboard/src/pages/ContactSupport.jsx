@@ -665,7 +665,7 @@ export default function ContactSupport({ user }) {
                                                     <div style={{width:40,height:40,borderRadius:'50%',background:isAdmin?'rgba(16,185,129,0.08)':'var(--bg-input)',color:isAdmin?'var(--success)':'var(--primary)',fontWeight:800,fontSize:14,display:'flex',alignItems:'center',justifyContent:'center',border:isAdmin?'1.5px solid rgba(16,185,129,0.25)':'1.5px solid var(--border-color)',flexShrink:0}}>{isAdmin?'S':(selected.name||'U')[0].toUpperCase()}</div>
                                                     <div>
                                                         <div style={{fontWeight:700,fontSize:14,color:'var(--text-main)',fontFamily:'Plus Jakarta Sans'}}>{isAdmin?'Support Team':selected.name}</div>
-                                                        <div style={{fontSize:12,color:'var(--text-muted)',fontFamily:'Plus Jakarta Sans'}}>{isAdmin?'From - support team':selected.email}</div>
+                                                        <div style={{fontSize:12,color:'var(--text-muted)',fontFamily:'Plus Jakarta Sans'}}>{isAdmin ? `From - ${reply.senderName || 'Support Team'}` : selected.email}</div>
                                                     </div>
                                                 </div>
                                                 <span style={{fontSize:12,color:'var(--text-muted)'}}>{new Date(r.at).toLocaleDateString('en-US',{weekday:'short'})}, {new Date(r.at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})} ({timeAgo(r.at)})</span>
