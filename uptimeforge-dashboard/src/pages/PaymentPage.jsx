@@ -84,12 +84,14 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
             <div style={{ position:'absolute', bottom:'-5%', right:'5%', width:'40%', height:'50%', background:'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
 
             {/* Back button */}
-            <button onClick={onBack} style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:600, marginBottom:8, transition:'all 0.2s' }}
-                onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
-                onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='rgba(255,255,255,0.6)';}}>
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                Back
-            </button>
+            <div style={{ position:'relative', zIndex:2, marginBottom:6 }}>
+                <button onClick={onBack} style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:12, fontWeight:600, transition:'all 0.2s' }}
+                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
+                    onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='rgba(255,255,255,0.6)';}}>
+                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                    Back
+                </button>
+            </div>
 
             {/* Header */}
             <div style={{ textAlign:'center', marginBottom:8, position:'relative', zIndex:2 }}>
@@ -131,8 +133,7 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
             {/* Plan cards */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:14, maxWidth:1160, margin:'0 auto', position:'relative', zIndex:2 }}>
                 {PLAN_ORDER.filter(p => {
-                    if (p === 'verification' && user?.noFreeTrial) return false;
-                    if (p === 'verification' && user?.plan && user.plan !== 'free_trial') return false;
+                    if (p === 'verification') return false; // Always hide free trial on upgrade page
                     return true;
                 }).map(p => {
                     const isVerif   = p === 'verification';
@@ -175,9 +176,9 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                                 </div>
                             )}
 
-                            {/* Top section */}
-                            <div style={{ padding:'14px 16px 10px', textAlign:'center', position:'relative', background:'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
-                                <div style={{ fontSize:32, marginBottom:10 }}>{EMOJI[p]}</div>
+                            {/* Top section — gradient background */}
+                            <div style={{ padding:'16px 16px 12px', textAlign:'center', position:'relative', background: gradient, borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ fontSize:28, marginBottom:6 }}>{EMOJI[p]}</div>
                                 <div style={{ fontSize:15, fontWeight:800, color:'#fff', marginBottom:6, fontFamily:"'Outfit',sans-serif", letterSpacing:'0.3px' }}>{PLAN_LABEL[p]}</div>
                                 <div style={{ display:'flex', alignItems:'baseline', justifyContent:'center', gap:5, marginBottom:4 }}>
                                     <span style={{ fontSize:26, fontWeight:950, background:'linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontFamily:"'Outfit',sans-serif", letterSpacing:'-1px' }}>₹{price}</span>
