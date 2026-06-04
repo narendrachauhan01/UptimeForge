@@ -149,7 +149,7 @@ function otpEmailHtml(name, otp) {
       <div style="padding:32px;text-align:center">
         <p style="color:#475569;font-size:15px;margin:0 0 24px">Hi <strong style="color:#0f172a">${name}</strong>, use the code below to complete your registration.</p>
         <div style="background:#f5f3ff;border:2px dashed #c4b5fd;border-radius:16px;padding:20px 32px;display:inline-block;margin-bottom:24px">
-          <div style="font-size:42px;font-weight:900;letter-spacing:12px;color:#7c3aed;font-variant-numeric:tabular-nums">${otp}</div>
+          <div style="font-size:36px;font-weight:900;letter-spacing:6px;color:#7c3aed;font-family:monospace;text-align:center;padding:0 8px">${otp}</div>
         </div>
         <p style="color:#94a3b8;font-size:13px;margin:0">This code expires in <strong>10 minutes</strong>.<br/>If you didn't request this, you can safely ignore this email.</p>
       </div>

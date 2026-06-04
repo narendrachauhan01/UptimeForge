@@ -318,6 +318,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const [settingsForm, setSettingsForm] = useState(null);
     const [settingsSaving, setSettingsSaving] = useState(false);
     const [expandedId, setExpandedId] = useState(null);
+    const [detailUser, setDetailUser] = useState(null);
     const [payments, setPayments]   = useState([]);
     const [paySearch, setPaySearch] = useState('');
     const [payStatusFilter, setPayStatusFilter] = useState('all');
@@ -1126,7 +1127,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                         {freeTrialFiltered.map(u => (
                                             <React.Fragment key={u._id}>
                                                 <tr className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}
-                                                    onClick={() => setExpandedId(expandedId === u._id ? null : u._id)}>
+                                                    onClick={() => setDetailUser(u)} style={{ cursor:'pointer' }}>
                                                     <td style={tdStyle}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                             <Avatar name={u.name} size={36} />
@@ -1896,6 +1897,60 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
             <ConfirmDialog />
 
             {/* Assign Plan Modal */}
+            {/* ── User Detail Modal ── */}
+            {detailUser && (
+                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:600, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
+                    onClick={() => setDetailUser(null)}>
+                    <div style={{ background: T.card, borderRadius:18, width:'100%', maxWidth:560, maxHeight:'90vh', overflowY:'auto', boxShadow:'0 24px 64px rgba(0,0,0,0.4)', border:`1px solid ${T.border}` }}
+                        onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div style={{ padding:'20px 24px', borderBottom:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                                <Avatar name={detailUser.name} size={48} />
+                                <div>
+                                    <div style={{ fontWeight:800, fontSize:17, color:T.text }}>{detailUser.name}</div>
+                                    <div style={{ fontSize:12, color:T.sub }}>{detailUser.email}</div>
+                                    <div style={{ fontSize:11, fontFamily:'monospace', color:T.primary, marginTop:2 }}>{detailUser.accountId}</div>
+                                </div>
+                            </div>
+                            <button onClick={() => setDetailUser(null)} style={{ background:'none', border:'none', fontSize:20, cursor:'pointer', color:T.muted }}>✕</button>
+                        </div>
+                        {/* Details grid */}
+                        <div style={{ padding:'20px 24px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                            {[
+                                { label:'Plan', value: <PlanBadge plan={detailUser.plan} /> },
+                                { label:'Status', value: <StatusBadge u={detailUser} /> },
+                                { label:'Phone', value: detailUser.phone || '—' },
+                                { label:'Country', value: detailUser.country || '—' },
+                                { label:'City', value: detailUser.city || '—' },
+                                { label:'State', value: detailUser.state || '—' },
+                                { label:'Gender', value: detailUser.gender ? detailUser.gender.charAt(0).toUpperCase() + detailUser.gender.slice(1) : '—' },
+                                { label:'Account Purpose', value: detailUser.purpose || '—' },
+                                { label:'Sites Used', value: `${detailUser.serverCount || 0} / ${detailUser.siteLimit || 2}` },
+                                { label:'Billing', value: detailUser.billing === 'annually' ? '📆 Annual' : '📅 Monthly' },
+                                { label:'Trial Ends', value: fmt(detailUser.trialEndsAt) },
+                                { label:'Plan Ends', value: fmt(detailUser.planEndsAt) },
+                                { label:'Registered', value: fmt(detailUser.createdAt) },
+                                { label:'Google User', value: detailUser.isGoogleUser ? '✅ Yes' : '❌ No' },
+                                { label:'Blocked', value: detailUser.isBlocked ? '🚫 Yes' : '✅ No' },
+                                { label:'Referral Code', value: detailUser.accountId ? `UF-REF-${detailUser.accountId}` : '—' },
+                            ].map(({ label, value }) => (
+                                <div key={label} style={{ background: T.headerBg, borderRadius:10, padding:'12px 14px' }}>
+                                    <div style={{ fontSize:11, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:4 }}>{label}</div>
+                                    <div style={{ fontSize:13, fontWeight:600, color:T.text }}>{value}</div>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Actions */}
+                        <div style={{ padding:'14px 24px', borderTop:`1px solid ${T.border}`, display:'flex', gap:10, flexWrap:'wrap' }}>
+                            <button style={{ ...btnPrimary, fontSize:12 }} onClick={() => { setDetailUser(null); setAssignModal({ user: detailUser }); setAssignForm({ plan:'bronze', billing:'monthly', planDuration:'1m', duration:'1m' }); }}>Assign Plan</button>
+                            <button style={{ ...btnSecondary, fontSize:12 }} onClick={() => { setDetailUser(null); startEdit(detailUser); }}>Edit User</button>
+                            <button style={{ ...btnSecondary, fontSize:12, color:T.danger, borderColor:'rgba(239,68,68,0.2)' }} onClick={() => setDetailUser(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ── Edit User Modal ── */}
             {editModal && (
                 <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
