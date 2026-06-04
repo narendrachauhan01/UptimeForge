@@ -605,7 +605,7 @@ function AppInner() {
 
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;
-  if (needsVerification && location.pathname !== '/pay') {
+  if (needsVerification && location.pathname !== '/pay' && location.pathname !== '/complete-profile') {
     const intendedPlan = sessionStorage.getItem('sm_intended_plan');
     if (intendedPlan && ['bronze', 'silver', 'gold'].includes(intendedPlan)) {
       navigate(`/pay?plan=${intendedPlan}`);
