@@ -789,7 +789,7 @@ export default function ContactSupport({ user }) {
                                     ].map(p=>{
                                         const active=form.priority===p.v;
                                         const textColor = active
-                                            ? (p.v === 'medium' ? '#92400e' : '#fff')
+                                            ? (p.v === 'medium' ? '#92400e' : p.v === 'low' ? '#065f46' : '#991b1b')
                                             : p.c;
                                         return <button key={p.v} type="button" onClick={()=>setForm({...form,priority:p.v})} className="btn-prio"
                                             style={{
