@@ -1126,8 +1126,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                     <tbody>
                                         {freeTrialFiltered.map(u => (
                                             <React.Fragment key={u._id}>
-                                                <tr className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}
-                                                    onClick={() => setDetailUser(u)} style={{ cursor:'pointer' }}>
+                                                <tr className={`admin-tr ${u.isBlocked ? 'blocked' : ''}`}>
                                                     <td style={tdStyle}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                             <Avatar name={u.name} size={36} />
