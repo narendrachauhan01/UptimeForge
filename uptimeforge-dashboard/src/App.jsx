@@ -467,6 +467,17 @@ function AppInner() {
     navigate(isAdmin ? '/admin-login' : '/login');
   };
 
+  // Auto-refresh user data every 5 min to keep plan/status up to date
+  useEffect(() => {
+    if (!authed || isAdmin) return;
+    const interval = setInterval(() => {
+      axios.get(`${API_URL}/api/users/me`, { withCredentials: true })
+        .then(r => { setUser(r.data); })
+        .catch(() => {});
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [authed, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!authed) return;
     let timer;

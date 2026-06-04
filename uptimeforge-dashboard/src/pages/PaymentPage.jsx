@@ -316,9 +316,10 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
     useEffect(() => {
         if (!success) return;
-        const t = setTimeout(() => navigate('/monitoring'), 2000);
+        // Full reload ensures fresh auth state after payment
+        const t = setTimeout(() => { window.location.href = '/performance'; }, 2000);
         return () => clearTimeout(t);
-    }, [success, navigate]);
+    }, [success]);
 
     const isNewUnverified = user && user.plan === 'free_trial' && !user.trialVerified;
 
@@ -470,7 +471,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
                             </div>
                         )}
                         <div className="pay-success-redirect">Redirecting to dashboard in 2s...</div>
-                        <button onClick={() => navigate('/monitoring')} style={{ marginTop:16, padding:'10px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>
+                        <button onClick={() => { window.location.href = '/performance'; }} style={{ marginTop:16, padding:'10px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>
                             Go to Dashboard →
                         </button>
                     </div>
