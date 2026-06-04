@@ -409,13 +409,24 @@ export default function StaffManagement() {
 
     const del = async (s) => {
         const ok = await confirm(
-            `Deactivate "${s.name}"?\n\nTheir account will be disabled but all support ticket history will be preserved.`,
+            `Deactivate "${s.name}"?\n\nAccount disabled — support ticket history preserved.`,
             { title: 'Deactivate Staff', confirmText: 'Deactivate', danger: true }
         );
         if (!ok) return;
         setDeleting(s._id);
-        // Deactivate instead of delete — preserves chat history
         await staffUpdate(s._id, { isActive: false }).catch(() => {});
+        load();
+        setDeleting(null);
+    };
+
+    const permanentDelete = async (s) => {
+        const ok = await confirm(
+            `Permanently delete "${s.name}"? This cannot be undone.`,
+            { title: 'Delete Staff Permanently', confirmText: 'Delete Permanently', danger: true }
+        );
+        if (!ok) return;
+        setDeleting(s._id);
+        await staffDelete(s._id).catch(() => {});
         load();
         setDeleting(null);
     };
@@ -526,6 +537,11 @@ export default function StaffManagement() {
                                                 }
                                             }}>
                                             {deleting===s._id ? '...' : s.isActive ? 'Deactivate' : 'Reactivate'}
+                                        </button>
+                                        <button onClick={() => permanentDelete(s)} disabled={deleting===s._id} className="btn-secondary"
+                                            style={{ color:'var(--danger)', borderColor:'rgba(239,68,68,0.2)' }}
+                                            title="Permanently delete staff account">
+                                            🗑️ Delete
                                         </button>
                                     </div>
                                 </div>
