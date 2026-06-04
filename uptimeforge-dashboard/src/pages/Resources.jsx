@@ -541,7 +541,7 @@ export default function Resources() {
   const ramPct  = s ? pct(s.ramUsed,  s.ramTotal)  : 0;
   const diskPct = s ? pct(s.diskUsed, s.diskTotal) : 0;
   const swapPct = s ? pct(s.swapUsed, s.swapTotal) : 0;
-  const STALE_MS = 5 * 60 * 1000; // 5 minutes
+  const STALE_MS = 90 * 1000; // 90 seconds — 2 missed agent pings
   const dataAge = s ? (Date.now() - new Date(s.timestamp).getTime()) : Infinity;
   const isOnline = dataAge < STALE_MS;
 
@@ -635,7 +635,7 @@ export default function Resources() {
                 {/* Offline banner */}
                 {!isOnline && (
                   <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: '#ef4444', fontSize: 13, fontWeight: 600 }}>
-                    🔴 Server offline — last seen {Math.round(dataAge/60000)} min ago. Showing SSH &amp; Network history only.
+                    🔴 Server offline — last seen {dataAge < 60000 ? `${Math.round(dataAge/1000)}s` : `${Math.round(dataAge/60000)} min`} ago. Showing SSH &amp; Network history only.
                   </div>
                 )}
 
