@@ -1055,15 +1055,14 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
    FOOTER
 ══════════════════════════════════════ */
 .app-footer {
-  background: rgba(248, 250, 252, 0.4);
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
   padding: 18px 32px;
   text-align: center;
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
 }
 body.charts-dark-theme .app-footer {
-  background: rgba(11, 15, 25, 0.4);
+  background: #0d121f;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 .footer-bottom {
@@ -1074,10 +1073,10 @@ body.charts-dark-theme .app-footer {
   transition: color 0.3s ease;
 }
 body.charts-dark-theme .footer-bottom {
-  color: rgba(255, 255, 255, 0.4);
+  color: #94a3b8;
 }
 .app-footer strong {
-  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
