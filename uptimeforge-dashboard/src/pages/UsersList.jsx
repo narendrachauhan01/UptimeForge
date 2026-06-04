@@ -6,6 +6,12 @@ const PLAN_COLORS = { free_trial:'#64748b', bronze:'#b45309', silver:'#7c3aed', 
 const PLAN_LABEL  = { free_trial:'Free Trial', bronze:'Bronze', silver:'Silver', gold:'Gold' };
 
 const USERS_LIST_STYLES = `
+  body.charts-dark-theme .app-main,
+  body.charts-dark-theme .content {
+    background-color: #0b0f19 !important;
+    transition: background-color 0.3s ease;
+  }
+
   .users-list-container {
     --primary: #7c3aed;
     --primary-hover: #6d28d9;
