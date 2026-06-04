@@ -337,8 +337,14 @@ async function checkOne(server, settings, recipients) {
     // 2. Release lock — next tick can check this server again
     serverLocks.delete(sid);
 
-    // 3. Fire alerts & integrations in background
-    if (alertType) {
+    // 3. Fire alerts & integrations in background (only if plan active)
+    const uObj = server.userId;
+    const planActive = uObj ? (() => {
+        if (uObj.plan === 'free_trial') return uObj.trialEndsAt && new Date() < new Date(uObj.trialEndsAt);
+        return !uObj.planEndsAt || new Date() < new Date(uObj.planEndsAt);
+    })() : false;
+
+    if (alertType && planActive) {
         const eligible = getEligibleRecipients(recipients, server._id, server.userId);
         const userId   = server.userId?._id || server.userId;
         const intType  = alertType === 'recovered' ? 'up' : 'down';
@@ -408,9 +414,11 @@ async function checkExpiry() {
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const server of servers) {
-            // Free trial users do not get SSL & Domain expiry monitoring
-            const plan = server.userId?.plan || null;
+            const u    = server.userId;
+            const plan = u?.plan || null;
+            // Skip free trial and expired plans
             if (plan === 'free_trial') continue;
+            if (u?.planEndsAt && new Date() > new Date(u.planEndsAt)) continue;
 
             const hostname = extractHostname(server.url);
             if (!hostname) continue;
