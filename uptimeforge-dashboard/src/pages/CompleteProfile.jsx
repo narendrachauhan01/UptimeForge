@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, deleteMyAccount } from '../api';
+import { useConfirm } from '../components/ConfirmDialog';
 import UWLogo from '../components/UWLogo';
 import COUNTRIES from '../constants/countries';
 
@@ -28,6 +29,7 @@ const GENDERS = [
 
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
+  const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const [form, setForm] = useState({ city: '', gender: '', state: '', country: '', phone: 'N/A', purpose: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,15 +56,19 @@ export default function CompleteProfile({ user, onUserUpdate }) {
   };
 
   const handleBack = async () => {
-    if (!window.confirm('Go back? Your account will be deleted.')) return;
-    try {
-      await deleteMyAccount();
-    } catch (_) {}
+    const ok = await confirm('Your account will be deleted if you go back. Continue?', {
+      title: 'Go Back & Delete Account',
+      confirmText: 'Yes, Delete & Go Back',
+      danger: true
+    });
+    if (!ok) return;
+    try { await deleteMyAccount(); } catch (_) {}
     window.location.href = '/register';
   };
 
   return (
     <div className="cp-page">
+      <ConfirmDialog />
       <div className="cp-card">
         <button onClick={handleBack} style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.6)', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:600, marginBottom:16, transition:'all 0.2s' }}
           onMouseEnter={e=>e.currentTarget.style.color='#fff'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.6)'}>
