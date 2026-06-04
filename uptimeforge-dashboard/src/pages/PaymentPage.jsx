@@ -145,16 +145,18 @@ const PLAN_COLOR_MAP = {
                     }
                     return true;
                 }).map(p => {
+                    const isVerif   = p === 'verification';
                     const isPopular = p === 'silver';
-                    const isGold = p === 'gold';
-                    const cfg = planData?.plans?.[p] || {};
-                    const monthlyPrice = cfg.price ?? { bronze: 499, silver: 999, gold: 1499 }[p];
-                    const price = (billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
-                    const sites = cfg.sites ?? { bronze: 5, silver: 15, gold: 30 }[p];
-                    const features = cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p];
-                    
-                    const note = `${sites} sites monitored`;
-                    const gradient = PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+                    const isGold    = p === 'gold';
+                    const cfg       = planData?.plans?.[p] || {};
+                    const monthlyPrice = isVerif ? (planData?.verificationFee ?? 2) : (cfg.price ?? { bronze:499, silver:999, gold:1499 }[p]);
+                    const price     = (!isVerif && billing === 'annually') ? annualPrice(p, monthlyPrice) : monthlyPrice;
+                    const sites     = isVerif ? (planData?.freeTrialSiteLimit ?? 2) : (cfg.sites ?? { bronze:5, silver:15, gold:30 }[p]);
+                    const features  = isVerif
+                        ? (planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures : PLAN_FEATURES_FALLBACK.verification)
+                        : (cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p]);
+                    const note      = isVerif ? '5-day trial · one-time ₹2 verification' : `${sites} sites`;
+                    const gradient  = PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)';
                     const planColor = PLAN_COLOR_MAP[p] || '#7c3aed';
 
                     return (
@@ -212,12 +214,12 @@ const PLAN_COLOR_MAP = {
                                     })}
                                 </ul>
 
-                                <button 
-                                    onClick={() => onSelect(p, billing)}
+                                <button
+                                    onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}
                                     className="pricing-card-btn"
                                     style={{ background: gradient }}
                                 >
-                                    {billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price * 12}/yr` : `Get ${PLAN_LABEL[p]}`}
+                                    {isVerif ? 'Start Free Trial — ₹2' : billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price * 12}/yr` : `Get ${PLAN_LABEL[p]}`}
                                 </button>
                             </div>
                         </div>
