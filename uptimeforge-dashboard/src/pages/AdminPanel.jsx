@@ -1510,79 +1510,67 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         </div>
                     </div>
 
-                    {/* Payment Cards */}
-                    {filteredPayments.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: 60, color: T.muted, fontSize: 14 }}>
-                            {paySearch || payStatusFilter !== 'all' ? 'No payments match your filter.' : 'No payments yet.'}
-                        </div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            {filteredPayments.map(pr => {
-                                const isPending = !pr.status || pr.status === 'pending';
-                                const planColor = { bronze:'#B45309', silver:'#475569', gold:'#CA8A04' }[pr.plan] || '#64748B';
-                                return (
-                                    <div key={pr._id} style={{
-                                        ...cardStyle,
-                                        padding: '18px 20px',
-                                        borderLeft: isPending ? `4px solid ${T.warning}` : `4px solid ${T.border}`,
-                                    }}>
-                                        {/* Top row */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-                                                <Avatar name={pr.userName} size={40} />
-                                                <div style={{ minWidth: 0 }}>
-                                                    <div style={{ fontWeight: 700, color: T.text, fontSize: 14 }}>{pr.userName}</div>
-                                                    <div style={{ fontSize: 12, color: T.sub }}>{pr.userEmail}</div>
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
-                                                {pr.type === 'verification' ? (
-                                                    <span style={pill('#FEF3C7','#92400E')}>₹{pr.amount} Verification</span>
-                                                ) : (
-                                                    <span style={pill(`${planColor}20`, planColor)}>
-                                                        {pr.plan?.charAt(0).toUpperCase() + pr.plan?.slice(1)}
-                                                    </span>
-                                                )}
-                                                <strong style={{ fontSize: 20, color: T.text }}>₹{pr.amount}</strong>
-                                                <PayStatusBadge status={pr.status} />
-                                            </div>
-                                        </div>
-
-                                        {/* UTR + date */}
-                                        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                                            <div style={{ fontSize: 12, color: T.sub }}>
-                                                Razorpay ID: <span style={{ fontFamily: 'monospace', color: T.text, fontWeight: 600 }}>{pr.utr}</span>
-                                            </div>
-                                            <span style={{ fontSize: 12, color: T.muted }}>{fmt(pr.createdAt)}</span>
-                                        </div>
-
-                                        {/* Actions */}
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-                                            {isPending && (
-                                                <>
-                                                    <button style={btnSuccess} onClick={() => approvePayment(pr._id)}>Approve</button>
-                                                    <button style={btnDanger}  onClick={() => rejectPayment(pr._id)}>Reject</button>
-                                                </>
-                                            )}
-                                            {!readOnly && pr.status === 'approved' && (
-                                                <button onClick={() => refundPayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3' }}>
-                                                    Refund
-                                                </button>
-                                            )}
-                                            {pr.status === 'refunded' && (
-                                                <span style={pill('#FEE2E2','#B91C1C')}>Refunded</span>
-                                            )}
-                                            {!readOnly && <button onClick={() => deletePayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3', padding: '9px 12px' }}>
-                                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
-                                                </svg>
-                                            </button>}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
+                    {/* Payment Table */}
+                    <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                        {filteredPayments.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: 60, color: T.muted, fontSize: 14 }}>
+                                {paySearch || payStatusFilter !== 'all' ? 'No payments match your filter.' : 'No payments yet.'}
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg }}>
+                                            {['#', 'User', 'Type', 'Amount', 'Razorpay ID', 'Date', 'Status', 'Actions'].map(h => (
+                                                <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}`, whiteSpace: 'nowrap' }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredPayments.map((pr, idx) => {
+                                            const isPending = !pr.status || pr.status === 'pending';
+                                            const planColor = { bronze:'#B45309', silver:'#475569', gold:'#CA8A04' }[pr.plan] || '#64748B';
+                                            return (
+                                                <tr key={pr._id} style={{ borderBottom: `1px solid ${T.border}`, background: isPending ? `${T.warning}08` : 'transparent' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                    onMouseLeave={e => e.currentTarget.style.background = isPending ? `${T.warning}08` : 'transparent'}>
+                                                    <td style={{ padding: '12px 14px', color: T.muted, fontWeight: 600, fontSize: 12 }}>{idx + 1}</td>
+                                                    <td style={{ padding: '12px 14px' }}>
+                                                        <div style={{ fontWeight: 700, color: T.text }}>{pr.userName}</div>
+                                                        <div style={{ fontSize: 11, color: T.sub }}>{pr.userEmail}</div>
+                                                    </td>
+                                                    <td style={{ padding: '12px 14px' }}>
+                                                        {pr.type === 'verification'
+                                                            ? <span style={pill('#FEF3C7','#92400E')}>Verification</span>
+                                                            : <span style={pill(`${planColor}20`, planColor)}>{pr.plan?.charAt(0).toUpperCase() + pr.plan?.slice(1)}</span>}
+                                                    </td>
+                                                    <td style={{ padding: '12px 14px', fontWeight: 800, color: T.text }}>₹{pr.amount}</td>
+                                                    <td style={{ padding: '12px 14px', fontFamily: 'monospace', fontSize: 12, color: T.sub }}>{pr.utr}</td>
+                                                    <td style={{ padding: '12px 14px', fontSize: 12, color: T.muted, whiteSpace: 'nowrap' }}>{fmt(pr.createdAt)}</td>
+                                                    <td style={{ padding: '12px 14px' }}><PayStatusBadge status={pr.status} /></td>
+                                                    <td style={{ padding: '12px 14px' }}>
+                                                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                                            {isPending && <>
+                                                                <button style={{ ...btnSuccess, padding: '5px 12px', fontSize: 11 }} onClick={() => approvePayment(pr._id)}>Approve</button>
+                                                                <button style={{ ...btnDanger, padding: '5px 12px', fontSize: 11 }} onClick={() => rejectPayment(pr._id)}>Reject</button>
+                                                            </>}
+                                                            {!readOnly && pr.status === 'approved' && (
+                                                                <button onClick={() => refundPayment(pr._id)} style={{ ...btnSecondary, padding: '5px 12px', fontSize: 11, color: T.danger, borderColor: '#FECDD3' }}>Refund</button>
+                                                            )}
+                                                            {pr.status === 'refunded' && <span style={pill('#FEE2E2','#B91C1C')}>Refunded</span>}
+                                                            {!readOnly && <button onClick={() => deletePayment(pr._id)} style={{ ...btnSecondary, color: T.danger, borderColor: '#FECDD3', padding: '6px 10px' }}>
+                                                                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                                            </button>}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
