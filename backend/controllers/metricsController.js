@@ -12,13 +12,18 @@ exports.ingestMetrics = async (req, res) => {
         } = req.body;
         if (!serverId || !serverName) return res.status(400).json({ error: 'serverId and serverName required' });
 
-        await ServerMetric.create({
-            serverId, serverName, hostname, platform, cpu, cpuTemp,
-            ramUsed, ramTotal, diskUsed, diskTotal,
-            swapUsed, swapTotal, load1, load5, load15,
-            uptime, uptimeStr, users, cpuCores, cpuModel, cpuArch,
-            localIp, publicIp, networkRoutes, activeSessions, lastSsh,
-        });
+        await ServerMetric.findOneAndUpdate(
+            { serverId },
+            {
+                serverId, serverName, hostname, platform, cpu, cpuTemp,
+                ramUsed, ramTotal, diskUsed, diskTotal,
+                swapUsed, swapTotal, load1, load5, load15,
+                uptime, uptimeStr, users, cpuCores, cpuModel, cpuArch,
+                localIp, publicIp, networkRoutes, activeSessions, lastSsh,
+                timestamp: new Date(),
+            },
+            { upsert: true, new: true }
+        );
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -29,11 +34,7 @@ exports.ingestMetrics = async (req, res) => {
 exports.getLatest = async (req, res) => {
     if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
     try {
-        const servers = await ServerMetric.aggregate([
-            { $sort: { timestamp: -1 } },
-            { $group: { _id: '$serverId', latest: { $first: '$$ROOT' } } },
-            { $replaceRoot: { newRoot: '$latest' } },
-        ]);
+        const servers = await ServerMetric.find({}).lean();
         res.json(servers);
     } catch (e) {
         res.status(500).json({ error: e.message });

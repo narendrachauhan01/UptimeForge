@@ -541,7 +541,9 @@ export default function Resources() {
   const ramPct  = s ? pct(s.ramUsed,  s.ramTotal)  : 0;
   const diskPct = s ? pct(s.diskUsed, s.diskTotal) : 0;
   const swapPct = s ? pct(s.swapUsed, s.swapTotal) : 0;
-  const isOnline = s ? (Date.now() - new Date(s.timestamp).getTime()) < 60000 : false;
+  const STALE_MS = 5 * 60 * 1000; // 5 minutes
+  const dataAge = s ? (Date.now() - new Date(s.timestamp).getTime()) : Infinity;
+  const isOnline = dataAge < STALE_MS;
 
   return (
     <div className={`perf-page-container ${localTheme}`}>
@@ -583,7 +585,7 @@ export default function Resources() {
                 flexWrap: 'wrap',
               }}>
                 {servers.map(sv => {
-                  const svOnline = (Date.now() - new Date(sv.timestamp).getTime()) < 60000;
+                  const svOnline = (Date.now() - new Date(sv.timestamp).getTime()) < STALE_MS;
                   const active = selected?.serverId === sv.serverId;
                   return (
                     <button
@@ -630,8 +632,15 @@ export default function Resources() {
                   </span>
                 </div>
 
-                {/* Quick metric cards */}
-                <div style={{
+                {/* Offline banner */}
+                {!isOnline && (
+                  <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: '#ef4444', fontSize: 13, fontWeight: 600 }}>
+                    🔴 Server offline — last seen {Math.round(dataAge/60000)} min ago. Showing SSH &amp; Network history only.
+                  </div>
+                )}
+
+                {/* Quick metric cards — only when online */}
+                {isOnline && <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                   gap: 12,
@@ -734,7 +743,7 @@ export default function Resources() {
                       </div>
                     )}
                   </InfoBox>
-                </div>
+                </div>}
 
                 {/* Active SSH Sessions table */}
                 {s.activeSessions && (
