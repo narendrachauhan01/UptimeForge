@@ -754,9 +754,10 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 )}
 
                 {tab === 'profile' && (
-                    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 20px' }}>
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,3,15,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+                        <div style={{ width: '100%', maxWidth: 480, animation: 'apFadeIn 0.25s ease-out' }}>
                         {/* Back button */}
-                        <div style={{ width: '100%', maxWidth: 520, marginBottom: 24 }}>
+                        <div style={{ marginBottom: 16 }}>
                             <button onClick={() => window.history.back()} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
                                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
                                 Back to Admin
@@ -771,7 +772,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         </div>
 
                         {/* Form card */}
-                        <div style={{ width: '100%', maxWidth: 520, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                        <div style={{ background: 'rgba(20,12,40,0.95)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 20, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 16, boxShadow: '0 24px 60px rgba(0,0,0,0.5)' }}>
                             <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Account Settings</div>
 
                             <div>
@@ -822,6 +823,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 style={{ padding: '13px 24px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: profileSaving ? 'not-allowed' : 'pointer', opacity: profileSaving ? 0.7 : 1, width: '100%', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}>
                                 {profileSaving ? 'Saving...' : 'Save Changes'}
                             </button>
+                        </div>
                         </div>
                     </div>
                 )}
