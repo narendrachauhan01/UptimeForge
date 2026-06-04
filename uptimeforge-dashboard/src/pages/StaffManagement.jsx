@@ -66,6 +66,7 @@ function StaffModal({ staff, onClose, onSaved, isDark }) {
     const save = async () => {
         if (!form.name.trim()) { setError('Username is required'); return; }
         if (!staff && !form.password.trim()) { setError('Password is required'); return; }
+        if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Please enter a valid email address'); return; }
         setSaving(true);
         try {
             const payload = {

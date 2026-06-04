@@ -17,6 +17,7 @@ exports.create = async (req, res) => {
         const { name, email, password, permissions } = req.body;
         if (!name || !password) return res.status(400).json({ error: 'Name and password required' });
         if (email) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' });
             const exists = await StaffUser.findOne({ email });
             if (exists) return res.status(400).json({ error: 'Email already exists' });
         }
