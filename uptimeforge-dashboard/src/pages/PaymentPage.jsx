@@ -82,7 +82,7 @@ const PLAN_COLOR_MAP = {
             <div className="pricing-glow-2" />
 
             {/* Back button */}
-            <div style={{ position: 'relative', zIndex: 10, marginBottom: 12 }}>
+            <div style={{ position: 'relative', zIndex: 10, marginBottom: 8 }}>
                 <button onClick={onBack} className="pricing-back-btn">
                     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                         <path d="M19 12H5M12 5l-7 7 7 7"/>
@@ -92,18 +92,18 @@ const PLAN_COLOR_MAP = {
             </div>
 
             {/* Header */}
-            <div className="pricing-header" style={{ textAlign: 'center', marginBottom: 24, position: 'relative', zIndex: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-                    <UWLogo size={42} />
+            <div className="pricing-header" style={{ textAlign: 'center', marginBottom: 14, position: 'relative', zIndex: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
+                    <UWLogo size={36} />
                 </div>
                 <h1>Choose Your Plan</h1>
-                <p style={{ fontSize: 16, color: 'var(--pricing-card-text-muted)', margin: 0 }}>
+                <p style={{ fontSize: 15, color: 'var(--pricing-card-text-muted)', margin: 0 }}>
                     Welcome, <span className="pricing-welcome-user">{user?.name}</span>! Upgrade to unlock premium monitoring features.
                 </p>
             </div>
 
             {/* Billing Toggle */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, position: 'relative', zIndex: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, position: 'relative', zIndex: 10 }}>
                 <div className="pricing-toggle-wrap">
                     <button 
                         onClick={() => setBilling('monthly')} 
