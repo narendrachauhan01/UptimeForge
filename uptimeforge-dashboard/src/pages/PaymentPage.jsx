@@ -59,6 +59,13 @@ const PLAN_BADGE = {
     custom:       null,
 };
 
+const PLAN_COLOR_MAP = {
+    verification: '#6366f1',
+    bronze:       '#b45309',
+    silver:       '#7c3aed',
+    gold:         '#ca8a04',
+};
+
 function PlanSelectScreen({ planData, user, onSelect, onBack }) {
     const [billing, setBilling] = useState('monthly');
     const discPct = planData?.annualDiscount ?? 20;
@@ -71,56 +78,60 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
     const EMOJI = { verification:'🆓', bronze:'🥉', silver:'🥈', gold:'🥇' };
 
     return (
-        <div style={{ minHeight:'100vh', background:'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', padding:'32px 20px', fontFamily:"'Plus Jakarta Sans',sans-serif" }}>
+        <div style={{ minHeight:'100vh', background:'linear-gradient(160deg,#0f0a1e 0%,#1a0533 50%,#0a1628 100%)', padding:'40px 24px 60px', fontFamily:"'Plus Jakarta Sans',sans-serif", position:'relative', overflow:'hidden' }}>
+            {/* Bg glows */}
+            <div style={{ position:'absolute', top:'-10%', left:'10%', width:'45%', height:'60%', background:'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
+            <div style={{ position:'absolute', bottom:'-5%', right:'5%', width:'40%', height:'50%', background:'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents:'none', filter:'blur(60px)' }} />
 
             {/* Back button */}
-            <button onClick={onBack} style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.7)', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:600, marginBottom:32, transition:'all 0.2s' }}>
+            <button onClick={onBack} style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:600, marginBottom:36, transition:'all 0.2s' }}
+                onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.1)';e.currentTarget.style.color='#fff';}}
+                onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.05)';e.currentTarget.style.color='rgba(255,255,255,0.6)';}}>
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
                 Back
             </button>
 
             {/* Header */}
-            <div style={{ textAlign:'center', marginBottom:36 }}>
-                <UWLogo size={48} />
-                <h1 style={{ fontSize:32, fontWeight:900, color:'#fff', margin:'16px 0 8px', fontFamily:"'Outfit',sans-serif", letterSpacing:'-0.5px' }}>Choose Your Plan</h1>
-                <p style={{ fontSize:15, color:'rgba(255,255,255,0.55)', margin:0 }}>Welcome, <strong style={{ color:'#a78bfa' }}>{user?.name}</strong>! Select a plan to get started.</p>
+            <div style={{ textAlign:'center', marginBottom:40, position:'relative', zIndex:2 }}>
+                <UWLogo size={52} />
+                <h1 style={{ fontSize:36, fontWeight:900, color:'#fff', margin:'18px 0 10px', fontFamily:"'Outfit',sans-serif", letterSpacing:'-0.8px', lineHeight:1.1 }}>Choose Your Plan</h1>
+                <p style={{ fontSize:15, color:'rgba(255,255,255,0.5)', margin:0 }}>Welcome, <strong style={{ color:'#c084fc', fontWeight:700 }}>{user?.name}</strong>! Select a plan to get started.</p>
             </div>
 
             {/* Billing toggle */}
-            <div style={{ display:'flex', justifyContent:'center', marginBottom:36 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:50, padding:5 }}>
-                    <button onClick={() => setBilling('monthly')} style={{ padding:'9px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s', fontFamily:'inherit',
+            <div style={{ display:'flex', justifyContent:'center', marginBottom:44, position:'relative', zIndex:2 }}>
+                <div style={{ display:'inline-flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:50, padding:5, backdropFilter:'blur(10px)' }}>
+                    <button onClick={() => setBilling('monthly')} style={{ padding:'10px 26px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.3s', fontFamily:'inherit',
                         background: billing==='monthly' ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'transparent',
-                        color: billing==='monthly' ? '#fff' : 'rgba(255,255,255,0.5)',
-                        boxShadow: billing==='monthly' ? '0 4px 14px rgba(124,58,237,0.4)' : 'none' }}>
+                        color: billing==='monthly' ? '#fff' : 'rgba(255,255,255,0.45)',
+                        boxShadow: billing==='monthly' ? '0 4px 18px rgba(124,58,237,0.4)' : 'none' }}>
                         Monthly
                     </button>
-                    <button onClick={() => setBilling('annually')} style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 22px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.2s', fontFamily:'inherit',
+                    <button onClick={() => setBilling('annually')} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 26px', borderRadius:50, border:'none', cursor:'pointer', fontWeight:700, fontSize:14, transition:'all 0.3s', fontFamily:'inherit',
                         background: billing==='annually' ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'transparent',
-                        color: billing==='annually' ? '#fff' : 'rgba(255,255,255,0.5)',
-                        boxShadow: billing==='annually' ? '0 4px 14px rgba(124,58,237,0.4)' : 'none' }}>
+                        color: billing==='annually' ? '#fff' : 'rgba(255,255,255,0.45)',
+                        boxShadow: billing==='annually' ? '0 4px 18px rgba(124,58,237,0.4)' : 'none' }}>
                         Annually
-                        <span style={{ background:'#f59e0b', color:'#78350f', fontSize:11, fontWeight:800, padding:'2px 10px', borderRadius:50 }}>Save {discPct}%</span>
+                        <span style={{ background:'linear-gradient(135deg,#f59e0b,#d97706)', color:'#fff', fontSize:10, fontWeight:800, padding:'3px 10px', borderRadius:50, letterSpacing:'0.3px' }}>Save {discPct}%</span>
                     </button>
                 </div>
             </div>
 
             {/* No free trial banner */}
             {user?.noFreeTrial && (
-                <div style={{ maxWidth:600, margin:'0 auto 24px', background:'rgba(251,191,36,0.12)', border:'1px solid rgba(251,191,36,0.3)', borderRadius:12, padding:'12px 18px', display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ maxWidth:640, margin:'0 auto 28px', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:14, padding:'14px 20px', display:'flex', alignItems:'center', gap:12, position:'relative', zIndex:2 }}>
                     <span style={{ fontSize:20 }}>⚠️</span>
                     <div>
                         <div style={{ fontWeight:700, fontSize:14, color:'#fbbf24' }}>Free Trial not available</div>
-                        <div style={{ fontSize:12, color:'rgba(255,255,255,0.5)' }}>You previously had a UptimeForge account. Please choose a paid plan.</div>
+                        <div style={{ fontSize:12, color:'rgba(255,255,255,0.45)', marginTop:2 }}>You previously had a UptimeForge account. Please choose a paid plan.</div>
                     </div>
                 </div>
             )}
 
             {/* Plan cards */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', gap:20, maxWidth:1100, margin:'0 auto' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(250px, 1fr))', gap:22, maxWidth:1160, margin:'0 auto', position:'relative', zIndex:2 }}>
                 {PLAN_ORDER.filter(p => {
                     if (p === 'verification' && user?.noFreeTrial) return false;
-                    // Hide free trial if user already had a paid plan (upgrading/renewing)
                     if (p === 'verification' && user?.plan && user.plan !== 'free_trial') return false;
                     return true;
                 }).map(p => {
@@ -136,64 +147,83 @@ function PlanSelectScreen({ planData, user, onSelect, onBack }) {
                         : (cfg.features?.length ? cfg.features : PLAN_FEATURES_FALLBACK[p]);
                     const note      = isVerif ? '5-day trial · one-time verification' : `${sites} sites`;
                     const gradient  = PLAN_GRADIENT[p] || 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+                    const planColor = PLAN_COLOR_MAP[p] || '#7c3aed';
 
                     return (
-                        <div key={p} style={{ position:'relative', borderRadius:20, overflow:'hidden', background:'rgba(255,255,255,0.04)', border: isPopular ? '2px solid #7c3aed' : '1px solid rgba(255,255,255,0.1)', transition:'transform 0.2s, box-shadow 0.2s', boxShadow: isPopular ? '0 0 40px rgba(124,58,237,0.25)' : 'none', display:'flex', flexDirection:'column' }}
-                            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=isPopular?'0 16px 50px rgba(124,58,237,0.35)':'0 8px 30px rgba(0,0,0,0.3)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=isPopular?'0 0 40px rgba(124,58,237,0.25)':'none'; }}>
+                        <div key={p} style={{
+                            position:'relative', borderRadius:28, overflow:'hidden',
+                            background: isPopular
+                                ? 'linear-gradient(180deg, rgba(124,58,237,0.06) 0%, rgba(255,255,255,0.01) 100%)'
+                                : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                            border: isPopular ? '1px solid rgba(167,139,250,0.4)' : '1px solid rgba(255,255,255,0.04)',
+                            boxShadow: isPopular ? '0 20px 55px -10px rgba(124,58,237,0.35)' : '0 15px 45px -10px rgba(0,0,0,0.5)',
+                            display:'flex', flexDirection:'column',
+                            backdropFilter:'blur(24px)',
+                            transition:'all 0.5s cubic-bezier(0.16,1,0.3,1)',
+                            '--plan-color': planColor, '--plan-gradient': gradient,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.transform='translateY(-12px) scale(1.01)'; e.currentTarget.style.boxShadow=isPopular?'0 30px 65px -15px rgba(124,58,237,0.5)':'0 30px 65px -15px rgba(0,0,0,0.7)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform='translateY(0) scale(1)'; e.currentTarget.style.boxShadow=isPopular?'0 20px 55px -10px rgba(124,58,237,0.35)':'0 15px 45px -10px rgba(0,0,0,0.5)'; }}>
+
+                            {/* Glow */}
+                            <div style={{ position:'absolute', top:-40, left:'10%', width:'80%', height:80, background:`radial-gradient(circle, ${planColor} 0%, transparent 70%)`, opacity: isPopular ? 0.15 : 0.08, filter:'blur(25px)', pointerEvents:'none' }} />
 
                             {/* Badge */}
                             {(isVerif || isPopular || isGold) && (
-                                <div style={{ position:'absolute', top:14, right:14, background: isPopular ? '#7c3aed' : isGold ? '#ca8a04' : '#10b981', color:'#fff', fontSize:11, fontWeight:800, padding:'4px 12px', borderRadius:50, letterSpacing:'0.3px' }}>
+                                <div style={{ position:'absolute', top:16, right:16, background: isPopular ? 'linear-gradient(135deg,#c084fc,#7c3aed)' : isGold ? 'linear-gradient(135deg,#f59e0b,#ca8a04)' : 'linear-gradient(135deg,#10b981,#059669)', color:'#fff', fontSize:10, fontWeight:800, padding:'6px 14px', borderRadius:99, letterSpacing:'1px', textTransform:'uppercase', zIndex:3, boxShadow: isPopular ? '0 4px 15px rgba(124,58,237,0.4)' : 'none' }}>
                                     {isVerif ? 'FREE' : isPopular ? '⭐ Most Popular' : '🏆 Best Value'}
                                 </div>
                             )}
 
-                            {/* Top gradient header */}
-                            <div style={{ background: gradient, padding:'28px 24px 20px', textAlign:'center' }}>
-                                <div style={{ fontSize:36, marginBottom:8 }}>{EMOJI[p]}</div>
-                                <div style={{ fontSize:18, fontWeight:800, color:'#fff', marginBottom:4, fontFamily:"'Outfit',sans-serif" }}>{PLAN_LABEL[p]}</div>
-                                <div style={{ display:'flex', alignItems:'baseline', justifyContent:'center', gap:4 }}>
-                                    <span style={{ fontSize:36, fontWeight:900, color:'#fff', fontFamily:"'Outfit',sans-serif" }}>₹{price}</span>
-                                    {!isVerif && <span style={{ fontSize:13, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>/mo</span>}
+                            {/* Top section */}
+                            <div style={{ padding:'28px 22px 18px', textAlign:'center', position:'relative', background:'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+                                <div style={{ fontSize:32, marginBottom:10 }}>{EMOJI[p]}</div>
+                                <div style={{ fontSize:19, fontWeight:800, color:'#fff', marginBottom:10, fontFamily:"'Outfit',sans-serif", letterSpacing:'0.3px' }}>{PLAN_LABEL[p]}</div>
+                                <div style={{ display:'flex', alignItems:'baseline', justifyContent:'center', gap:5, marginBottom:4 }}>
+                                    <span style={{ fontSize:34, fontWeight:950, background:'linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontFamily:"'Outfit',sans-serif", letterSpacing:'-1px' }}>₹{price}</span>
+                                    {!isVerif && <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>/mo</span>}
                                 </div>
                                 {!isVerif && billing === 'annually' && (
-                                    <>
-                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)', textDecoration:'line-through', marginTop:2 }}>₹{monthlyPrice}/mo</div>
-                                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.8)', marginTop:2, fontWeight:600 }}>₹{price * 12} billed annually</div>
-                                    </>
+                                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', textDecoration:'line-through', marginBottom:2 }}>₹{monthlyPrice}/mo</div>
                                 )}
-                                <div style={{ fontSize:12, color:'rgba(255,255,255,0.65)', marginTop:8, fontWeight:600 }}>{note}</div>
+                                <div style={{ display:'inline-block', fontSize:11, fontWeight:700, marginTop:6, background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', padding:'3px 12px', borderRadius:99, color:'rgba(255,255,255,0.7)', letterSpacing:'0.5px' }}>{note}</div>
                             </div>
 
                             {/* Features */}
-                            <div style={{ padding:'20px 24px', flex:1, display:'flex', flexDirection:'column', gap:0 }}>
-                                <ul style={{ listStyle:'none', margin:'0 0 20px', padding:0, display:'flex', flexDirection:'column', gap:10 }}>
+                            <div style={{ padding:'18px 18px 22px', flex:1, display:'flex', flexDirection:'column' }}>
+                                <ul style={{ listStyle:'none', margin:'0 0 18px', padding:0, display:'flex', flexDirection:'column', gap:9, flex:1 }}>
                                     {features.map(f => {
                                         const { type, label } = parseFeature(f);
                                         return (
-                                            <li key={f} style={{ display:'flex', alignItems:'flex-start', gap:8, opacity: type === 'no' ? 0.4 : 1, fontSize:13, color:'rgba(255,255,255,0.8)', fontWeight:500 }}>
-                                                {type === 'ok'      && <svg width="14" height="14" fill="none" stroke="#10b981" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><polyline points="20 6 9 17 4 12"/></svg>}
-                                                {type === 'no'      && <svg width="14" height="14" fill="none" stroke="#f87171" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0,marginTop:2}}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
-                                                {type === 'limited' && <span style={{flexShrink:0,fontSize:13,marginTop:-1}}>😐</span>}
-                                                {type === 'soon'    && <span style={{flexShrink:0,fontSize:12,marginTop:-1}}>🔜</span>}
+                                            <li key={f} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color: type==='no' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.75)', fontWeight:500 }}>
+                                                <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:18, height:18, borderRadius:'50%', flexShrink:0,
+                                                    background: type==='ok' ? 'rgba(16,185,129,0.1)' : type==='no' ? 'rgba(239,68,68,0.08)' : 'transparent',
+                                                    border: type==='ok' ? '1px solid rgba(16,185,129,0.2)' : type==='no' ? '1px solid rgba(239,68,68,0.15)' : 'none',
+                                                    color: type==='ok' ? '#10b981' : type==='no' ? '#ef4444' : 'rgba(255,255,255,0.4)', fontSize:10 }}>
+                                                    {type==='ok' ? '✓' : type==='no' ? '✕' : type==='soon' ? '◷' : '~'}
+                                                </span>
                                                 <span>{label}</span>
-                                                {type === 'soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.5)', borderRadius:4, padding:'1px 6px', marginLeft:2, fontWeight:700, flexShrink:0 }}>Soon</span>}
+                                                {type==='soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.35)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:4, padding:'1px 6px', fontWeight:700, flexShrink:0, textTransform:'uppercase', letterSpacing:'0.5px', marginLeft:4 }}>Soon</span>}
                                             </li>
                                         );
                                     })}
                                 </ul>
 
                                 <button onClick={() => onSelect(p, isVerif ? 'monthly' : billing)}
-                                    style={{ width:'100%', padding:'13px', background: gradient, color:'#fff', border:'none', borderRadius:12, fontSize:14, fontWeight:800, cursor:'pointer', transition:'all 0.2s', fontFamily:'inherit', marginTop:'auto', boxShadow:'0 4px 14px rgba(0,0,0,0.2)' }}
-                                    onMouseEnter={e => { e.currentTarget.style.opacity='0.88'; e.currentTarget.style.transform='translateY(-1px)'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.opacity='1'; e.currentTarget.style.transform='translateY(0)'; }}>
+                                    style={{ width:'100%', padding:'11px', background: gradient, color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:850, cursor:'pointer', transition:'all 0.4s cubic-bezier(0.16,1,0.3,1)', fontFamily:'inherit', letterSpacing:'0.8px', textTransform:'uppercase', boxShadow:'0 4px 20px -2px rgba(0,0,0,0.3)', position:'relative', overflow:'hidden' }}
+                                    onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.filter='brightness(1.1)'; e.currentTarget.style.boxShadow=`0 10px 25px rgba(0,0,0,0.4), 0 0 20px -2px ${planColor}`; }}
+                                    onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.filter='brightness(1)'; e.currentTarget.style.boxShadow='0 4px 20px -2px rgba(0,0,0,0.3)'; }}>
                                     {isVerif ? 'Start Free Trial' : billing === 'annually' ? `Get ${PLAN_LABEL[p]} — ₹${price*12}/yr` : `Get ${PLAN_LABEL[p]}`}
                                 </button>
                             </div>
                         </div>
                     );
                 })}
+            </div>
+
+            {/* Footer note */}
+            <div style={{ textAlign:'center', marginTop:40, color:'rgba(255,255,255,0.3)', fontSize:12, position:'relative', zIndex:2 }}>
+                Payments secured by Razorpay · UPI · Cards · Netbanking
             </div>
         </div>
     );
