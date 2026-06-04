@@ -216,7 +216,7 @@ exports.forgotPassword = async (req, res) => {
         if (!user) return res.json({ success: true });
         const token = crypto.randomBytes(32).toString('hex');
         userResetTokens[token] = { userId: user._id, expiry: Date.now() + 15 * 60 * 1000 };
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}&type=user`;
+        const resetUrl = `${process.env.FRONTEND_URL || process.env.DASHBOARD_URL || 'https://servermonitor.narendrasingh.site'}/reset-password?token=${token}&type=user`;
         await sendEmail(
             user.email,
             'UptimeForge — Reset Your Password',
