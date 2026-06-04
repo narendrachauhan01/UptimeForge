@@ -754,9 +754,12 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 )}
 
                 {tab === 'profile' && (
-                    <div style={{ maxWidth: 560 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                            <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0 }}>My Profile</h1>
+                    <div style={{ maxWidth: 560, margin: '0 auto' }}>
+                        {/* Profile Header */}
+                        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+                            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,#f59e0b,#ef4444)', color: '#fff', fontSize: 28, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 8px 24px rgba(245,158,11,0.35)' }}>A</div>
+                            <div style={{ fontSize: 20, fontWeight: 800, color: T.text }}>Admin</div>
+                            <div style={{ fontSize: 13, color: T.sub, marginTop: 4 }}>Full access · UptimeForge</div>
                         </div>
                         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 14, padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
                         <div>

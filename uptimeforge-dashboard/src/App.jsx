@@ -281,13 +281,17 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
             </div>
           )}
           {isAdmin && (
-            <div className="sb-user">
-              <div className="sb-avatar sb-avatar-admin">A</div>
-              <div className="sb-user-info">
-                <div className="sb-user-name">Admin</div>
-                <div className="sb-user-email">Full access</div>
+            <NavLink to="/admin-profile" style={{ textDecoration:'none' }}>
+              <div className="sb-user" style={{ cursor:'pointer', transition:'background 0.2s', borderRadius:10 }}
+                onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.06)'}
+                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <div className="sb-avatar sb-avatar-admin">A</div>
+                <div className="sb-user-info">
+                  <div className="sb-user-name">Admin</div>
+                  <div className="sb-user-email">Full access</div>
+                </div>
               </div>
-            </div>
+            </NavLink>
           )}
           <button className="sb-logout" onClick={onLogout}>
             <IcoLogout /> Logout
@@ -539,6 +543,16 @@ function AppInner() {
     return (
       <>
         <CompleteProfile user={user} onUserUpdate={handleUserUpdate} />
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </>
+    );
+  }
+
+  // ── Admin profile (no sidebar, full screen) ──
+  if (authed && isAdmin && location.pathname === '/admin-profile') {
+    return (
+      <>
+        <AdminPanel initialTab="profile" />
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </>
     );
