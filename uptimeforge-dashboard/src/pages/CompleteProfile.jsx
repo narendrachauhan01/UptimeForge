@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { updateProfile, deleteMyAccount } from '../api';
+import { updateProfile, deleteMyAccount, API_URL } from '../api';
+import axios from 'axios';
 import { useConfirm } from '../components/ConfirmDialog';
 import UWLogo from '../components/UWLogo';
 import COUNTRIES from '../constants/countries';
@@ -56,15 +57,28 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     setLoading(false);
   };
 
+  // Check if user is brand new (created within last 10 min, no sites, never verified)
+  const isNewUser = user && !user.trialVerified &&
+    user.createdAt && (Date.now() - new Date(user.createdAt).getTime()) < 10 * 60 * 1000;
+
   const handleBack = async () => {
-    const ok = await confirm('Your account will be deleted if you go back. Continue?', {
-      title: 'Go Back & Delete Account',
-      confirmText: 'Yes, Delete & Go Back',
-      danger: true
-    });
-    if (!ok) return;
-    try { await deleteMyAccount(); } catch (_) {}
-    window.location.href = '/register';
+    if (isNewUser) {
+      // New user → confirm delete
+      const ok = await confirm('Your new account will be deleted. Continue?', {
+        title: 'Delete Account & Go Back',
+        confirmText: 'Yes, Delete',
+        danger: true
+      });
+      if (!ok) return;
+      try { await deleteMyAccount(); } catch (_) {}
+      window.location.href = '/register';
+    } else {
+      // Existing user → just logout safely
+      try {
+        await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
+      } catch (_) {}
+      window.location.href = '/login';
+    }
   };
 
   return (
