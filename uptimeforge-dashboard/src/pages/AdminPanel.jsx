@@ -252,7 +252,7 @@ function MetricCard({ label, value, color, icon, sub, onClick }) {
             }}>{icon}</div>
             <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                 <div style={{ fontSize: 26, fontWeight: 800, color: T.text, lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 10, color: T.sub, fontWeight: 700, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+                <div style={{ fontSize: 12, color: T.sub, fontWeight: 700, marginTop: 5, textTransform: 'uppercase', letterSpacing: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
                 {sub && <div style={{ fontSize: 11, color: T.muted, marginTop: 3 }}>{sub}</div>}
                 {onClick && <div style={{ fontSize:10, color: color, marginTop:3, fontWeight:600 }}>Click to filter →</div>}
             </div>
@@ -887,7 +887,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
                     {/* Row 1 — User Metric Cards */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
                         <MetricCard label="Total Users"  value={users.length}    color={T.primary}  icon="👥" onClick={() => goToUsersFilter('all')} />
                         <MetricCard label="Active Subscriptions" value={activeUsers} color={T.success} icon="🟢" onClick={() => goToUsersFilter('active')} />
                         <MetricCard label="Free Trial"   value={freeTrialUsers}  color="#64748B"    icon="⏳" onClick={() => goToUsersFilter('free_trial')} />
