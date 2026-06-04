@@ -468,7 +468,7 @@ function AppInner() {
   useEffect(() => {
     if (!authed) return;
     let timer;
-    const reset = () => { clearTimeout(timer); timer = setTimeout(handleLogout, 15 * 60 * 1000); };
+    const reset = () => { clearTimeout(timer); timer = setTimeout(handleLogout, 5 * 60 * 1000); };
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
     events.forEach(e => window.addEventListener(e, reset));
     reset();
