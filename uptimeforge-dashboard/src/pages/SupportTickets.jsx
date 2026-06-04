@@ -592,7 +592,7 @@ export default function SupportTickets({ readOnly = false }) {
                                                     </div>
                                                     <div>
                                                         <div style={{ fontWeight:700, fontSize:14, color:'var(--text-main)' }}>{isAdmin?'Support Team':selected.name}</div>
-                                                        <div style={{ fontSize:12, color:'var(--text-muted)' }}>{isAdmin?'From - admin support team':selected.email}</div>
+                                                        <div style={{ fontSize:12, color:'var(--text-muted)' }}>{isAdmin ? `From - ${r.senderName || 'Support Team'}` : selected.email}</div>
                                                     </div>
                                                 </div>
                                                 <span style={{ fontSize:12, color:'var(--text-muted)' }}>
