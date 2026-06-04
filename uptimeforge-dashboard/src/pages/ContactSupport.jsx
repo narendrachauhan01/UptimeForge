@@ -5,11 +5,18 @@ import { API_URL } from '../api';
 const API_BASE = (API_URL||'').replace('/api','');
 
 const TOPICS = [
-    { value:'Account blocked / refund issue', icon:'🔒' },
-    { value:'Payment issue',                  icon:'💳' },
-    { value:'Plan upgrade help',              icon:'🚀' },
+    { value:'Site monitoring not working',    icon:'📡' },
+    { value:'Alert not received',             icon:'🔔' },
+    { value:'SSL / Domain expiry issue',      icon:'🔒' },
+    { value:'Plan upgrade / downgrade',       icon:'🚀' },
+    { value:'Payment failed / not reflecting',icon:'💳' },
+    { value:'Refund request',                 icon:'💰' },
+    { value:'Account blocked / suspended',    icon:'🚫' },
+    { value:'Billing & invoice query',        icon:'🧾' },
+    { value:'WhatsApp / Email alerts setup',  icon:'📲' },
+    { value:'Integrations (Webhook/Slack)',   icon:'🔗' },
+    { value:'Performance & response time',    icon:'⚡' },
     { value:'Technical issue',               icon:'⚙️' },
-    { value:'Billing question',              icon:'🧾' },
     { value:'Other',                         icon:'💬' },
 ];
 
