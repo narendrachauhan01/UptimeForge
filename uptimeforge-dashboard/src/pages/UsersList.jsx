@@ -23,6 +23,9 @@ const USERS_LIST_STYLES = `
     background-color: var(--bg-primary);
     color: var(--text-main);
     transition: background-color 0.3s ease, color 0.3s ease;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
   }
 
   /* Light Theme */
@@ -55,15 +58,29 @@ const USERS_LIST_STYLES = `
     --badge-color: #a78bfa;
   }
 
-  .users-search-input {
+  .users-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .users-search-wrapper {
+    position: relative;
     flex: 1;
     min-width: 220px;
-    padding: 10px 16px;
+  }
+
+  .users-search-input {
+    width: 100%;
+    padding: 8px 14px 8px 34px;
     background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     color: var(--text-main);
-    border-radius: 12px;
-    font-size: 13.5px;
+    border-radius: 10px;
+    font-size: 13px;
     outline: none;
     transition: all 0.2s ease;
   }
@@ -72,11 +89,17 @@ const USERS_LIST_STYLES = `
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
   }
 
+  .users-filter-wrapper {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
   .users-filter-btn {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 20px;
     border: 1.5px solid var(--border-color);
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     background: transparent;
@@ -96,27 +119,38 @@ const USERS_LIST_STYLES = `
 
   .users-table-card {
     background: var(--bg-card);
-    border-radius: 16px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
     box-shadow: var(--card-shadow);
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .users-table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 
   .users-table th {
-    padding: 14px 16px;
-    font-size: 11px;
+    padding: 8px 10px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-color);
     background: var(--table-header-bg);
+    white-space: nowrap;
   }
 
   .users-table td {
-    padding: 12px 16px;
+    padding: 6px 10px;
     color: var(--text-main);
     border-bottom: 1px solid var(--border-color);
+    font-size: 11.5px;
     transition: background 0.15s ease;
   }
 
@@ -128,10 +162,11 @@ const USERS_LIST_STYLES = `
   }
 
   .users-status-badge {
-    font-size: 11px;
-    padding: 3px 10px;
+    font-size: 9.5px;
+    padding: 2px 6px;
     border-radius: 20px;
     font-weight: 700;
+    white-space: nowrap;
   }
 
   .users-status-active {
@@ -147,22 +182,64 @@ const USERS_LIST_STYLES = `
     color: #f59e0b;
   }
 
-  .users-table-wrapper {
-    overflow-x: auto;
-  }
-  
   .users-table-wrapper::-webkit-scrollbar {
-    height: 8px;
+    height: 5px;
   }
   .users-table-wrapper::-webkit-scrollbar-track {
     background: transparent;
   }
   .users-table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(124, 58, 237, 0.3);
-    border-radius: 4px;
+    background: rgba(124, 58, 237, 0.25);
+    border-radius: 3px;
   }
   .users-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(124, 58, 237, 0.5);
+    background: rgba(124, 58, 237, 0.45);
+  }
+
+  @media (max-width: 1024px) {
+    .hide-tablet {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .pg-wrap {
+      padding: 12px 6px !important;
+    }
+    .users-table td {
+      padding: 6px 8px;
+    }
+    .users-table th {
+      padding: 6px 8px;
+    }
+    .hide-mobile {
+      display: none !important;
+    }
+    .users-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .users-search-wrapper {
+      width: 100%;
+      min-width: 100%;
+    }
+    .users-search-input {
+      padding: 7px 12px 7px 32px;
+      font-size: 12px;
+    }
+    .users-filter-wrapper {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .users-filter-btn {
+      flex: 1;
+      padding: 6px 4px;
+      font-size: 10px;
+      text-align: center;
+      border-radius: 15px;
+    }
   }
 `;
 
@@ -171,7 +248,7 @@ function fmt(d) {
   return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 }
 
-function Avatar({ name, size = 32 }) {
+function Avatar({ name, size = 28 }) {
   const initials = (name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const colors = ['#7c3aed','#10B981','#F59E0B','#EF4444','#06b6d4','#3B82F6'];
   const idx = (name||'').charCodeAt(0) % colors.length;
@@ -231,7 +308,23 @@ export default function UsersList() {
     return matchSearch;
   });
 
-  const COLS = ['#','User','Account ID','Plan','Phone','City','State','Country','Gender','Purpose','Sites','Billing','Trial Ends','Registered','Status'];
+  const COLS = [
+    { label: '#', className: '' },
+    { label: 'User', className: '' },
+    { label: 'Account ID', className: 'hide-tablet' },
+    { label: 'Plan', className: '' },
+    { label: 'Phone', className: 'hide-tablet' },
+    { label: 'City', className: 'hide-mobile' },
+    { label: 'State', className: 'hide-mobile' },
+    { label: 'Country', className: 'hide-tablet' },
+    { label: 'Gender', className: 'hide-mobile' },
+    { label: 'Purpose', className: 'hide-mobile' },
+    { label: 'Sites', className: '' },
+    { label: 'Billing', className: 'hide-mobile' },
+    { label: 'Trial Ends', className: 'hide-tablet' },
+    { label: 'Registered', className: 'hide-tablet' },
+    { label: 'Status', className: '' }
+  ];
 
   if (loading) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:300 }}>
@@ -256,9 +349,9 @@ export default function UsersList() {
         </div>
 
         {/* Toolbar */}
-        <div style={{ display:'flex', gap:12, marginBottom:20, flexWrap:'wrap', alignItems:'center' }}>
-          <div style={{ position: 'relative', flex: 1, minWidth: 260 }}>
-            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+        <div className="users-toolbar">
+          <div className="users-search-wrapper">
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
               <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -269,10 +362,9 @@ export default function UsersList() {
               onChange={e=>setSearch(e.target.value)}
               placeholder="Search name, email, phone, account ID..."
               className="users-search-input" 
-              style={{ paddingLeft: 38 }}
             />
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div className="users-filter-wrapper">
             {['all','active','expired','blocked','paid'].map(f => (
               <button 
                 key={f} 
@@ -288,11 +380,11 @@ export default function UsersList() {
         {/* Table */}
         <div className="users-table-card">
           <div className="users-table-wrapper">
-            <table className="users-table" style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+            <table className="users-table" style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr>
-                  {COLS.map(h => (
-                    <th key={h}>{h}</th>
+                  {COLS.map((col, idx) => (
+                    <th key={idx} className={col.className}>{col.label}</th>
                   ))}
                 </tr>
               </thead>
@@ -306,11 +398,11 @@ export default function UsersList() {
                 ) : filtered.map((u, idx) => {
                   const planColor = PLAN_COLORS[u.plan] || '#64748b';
                   const planBadgeStyle = {
-                    fontSize: 11,
+                    fontSize: 10,
                     background: isDark ? `${planColor}15` : `${planColor}12`,
                     color: planColor,
                     border: `1px solid ${planColor}22`,
-                    padding: '3px 10px',
+                    padding: '2px 8px',
                     borderRadius: 20,
                     fontWeight: 700,
                     whiteSpace: 'nowrap'
@@ -321,20 +413,20 @@ export default function UsersList() {
                       <td style={{ color:'var(--text-muted)', fontWeight:600 }}>{idx+1}</td>
                       <td>
                         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                          <Avatar name={u.name} size={32} />
+                          <Avatar name={u.name} size={28} />
                           <div>
-                            <div style={{ fontWeight:700, color:'var(--text-main)', fontSize:13 }}>{u.name}</div>
-                            <div style={{ fontSize:11, color:'var(--text-muted)' }}>{u.email}</div>
+                            <div style={{ fontWeight:700, color:'var(--text-main)', fontSize:12.5 }}>{u.name}</div>
+                            <div style={{ fontSize:10.5, color:'var(--text-muted)' }}>{u.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td className="hide-tablet">
                         <span style={{ 
                           fontFamily:'monospace', 
-                          fontSize:11, 
+                          fontSize:10, 
                           background:'var(--badge-bg)', 
                           color:'var(--badge-color)', 
-                          padding:'3px 8px', 
+                          padding:'2px 6px', 
                           borderRadius:20, 
                           fontWeight:700, 
                           border:'1px solid var(--border-color)',
@@ -346,16 +438,16 @@ export default function UsersList() {
                       <td>
                         <span style={planBadgeStyle}>{PLAN_LABEL[u.plan] || u.plan}</span>
                       </td>
-                      <td style={{ color:'var(--text-main)' }}>{u.phone || '—'}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.city || '—'}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.state || '—'}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.country || '—'}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.gender ? u.gender.charAt(0).toUpperCase()+u.gender.slice(1) : '—'}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.purpose || '—'}</td>
+                      <td className="hide-tablet" style={{ color:'var(--text-main)' }}>{u.phone || '—'}</td>
+                      <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.city || '—'}</td>
+                      <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.state || '—'}</td>
+                      <td className="hide-tablet" style={{ color:'var(--text-main)' }}>{u.country || '—'}</td>
+                      <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.gender ? u.gender.charAt(0).toUpperCase()+u.gender.slice(1) : '—'}</td>
+                      <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.purpose || '—'}</td>
                       <td style={{ color:'var(--text-main)', fontWeight:600 }}>{u.serverCount||0}/{u.siteLimit||2}</td>
-                      <td style={{ color:'var(--text-main)' }}>{u.billing==='annually' ? 'Annual' : 'Monthly'}</td>
-                      <td style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.trialEndsAt||u.planEndsAt)}</td>
-                      <td style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.createdAt)}</td>
+                      <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.billing==='annually' ? 'Annual' : 'Monthly'}</td>
+                      <td className="hide-tablet" style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.trialEndsAt||u.planEndsAt)}</td>
+                      <td className="hide-tablet" style={{ color:'var(--text-main)', whiteSpace:'nowrap' }}>{fmt(u.createdAt)}</td>
                       <td>
                         {u.isBlocked ? (
                           <span className="users-status-badge users-status-blocked">Blocked</span>
