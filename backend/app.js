@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const { connectDB } = require('./config/db');
 const wa      = require('./services/whatsapp');
 const monitor = require('./services/monitor');
+const { startExpiryReminder } = require('./services/expiryReminder');
 
 const app        = express();
 const httpServer = http.createServer(app);
@@ -64,5 +65,6 @@ const PORT = process.env.PORT || 5001;
 connectDB().then(() => {
     wa.init();
     monitor.start();
+    startExpiryReminder();
     httpServer.listen(PORT, () => console.log(`http://localhost:${PORT}/api-docs`));
 });
