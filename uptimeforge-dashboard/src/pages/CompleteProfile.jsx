@@ -31,7 +31,7 @@ const GENDERS = [
 export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
-  const [form, setForm] = useState({ phone: '', city: '', gender: '', state: '', country: '', purpose: '' });
+  const [form, setForm] = useState({ phone: '', city: '', gender: '', state: '', country: '', purpose: '', pincode: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -42,6 +42,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     if (!form.gender) { setError('Please select your gender'); return; }
     if (!form.country) { setError('Please select your country'); return; }
     if (!form.state.trim()) { setError('State is required'); return; }
+    if (!form.pincode.trim()) { setError('PIN Code is required'); return; }
     if (!form.purpose) { setError('Please select your account purpose'); return; }
     setError(''); setLoading(true);
     try {
@@ -132,6 +133,13 @@ export default function CompleteProfile({ user, onUserUpdate }) {
                   value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
               )}
             </div>
+          </div>
+
+          {/* PIN Code */}
+          <div className="cp-field">
+            <label className="cp-label">📮 PIN Code <span className="reg-req">*</span></label>
+            <input className="cp-input" type="text" inputMode="numeric" placeholder="Enter PIN / ZIP code"
+              value={form.pincode} onChange={e => setForm({ ...form, pincode: e.target.value })} />
           </div>
 
           {/* Gender */}
