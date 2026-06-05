@@ -36,7 +36,7 @@ module.exports = async function authMiddleware(req, res, next) {
             const status = user.accountStatus; // 'active' | 'grace' | 'suspended'
             const fullPath = req.originalUrl || (req.baseUrl + req.path);
             // Only payment, support, logout, me allowed after expiry
-            const allowedPaths = ['/api/payment', '/api/users/logout', '/api/users/me', '/api/users/support', '/api/users/forgot-password', '/api/users/reset-password', '/api/users/change-password'];
+            const allowedPaths = ['/api/payment', '/api/users/logout', '/api/users/me', '/api/users/support', '/api/users/forgot-password', '/api/users/reset-password', '/api/users/change-password', '/api/users/profile'];
             const isAllowed = allowedPaths.some(p => fullPath.startsWith(p));
 
             // Grace OR Suspended: block ALL except payment/support/logout/me
