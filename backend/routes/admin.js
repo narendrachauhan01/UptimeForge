@@ -57,6 +57,11 @@ router.delete('/payments/:id',      auth, adminOnly,                    ctrl.del
 router.put('/payments/:id/approve', auth, allow('payments','write'),    ctrl.approvePayment);
 router.put('/payments/:id/reject',  auth, allow('payments','write'),    ctrl.rejectPayment);
 router.post('/clear-cache',         auth, adminOnly,                    ctrl.clearCache);
+router.get('/abandoned-users',                  auth, adminOnly, ctrl.getAbandonedUsers);
+router.post('/abandoned-users/:id/followup',    auth, adminOnly, ctrl.sendFollowupEmail);
+router.get('/plan-history/summary',             auth, allow('payments','read','dashboard'), ctrl.getPlanHistorySummary);
+router.get('/plan-history',                     auth, allow('payments','read','dashboard'), ctrl.getPlanHistory);
+router.get('/plan-history/user/:userId',        auth, allow('payments','read','dashboard'), ctrl.getUserPlanHistory);
 
 // Support tickets — admin
 router.get('/support-tickets/unread',       auth, allow('supportTickets','read'), async (req, res) => {

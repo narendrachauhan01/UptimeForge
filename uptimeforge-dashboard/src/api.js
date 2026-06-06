@@ -50,7 +50,9 @@ export const markNotificationsRead = () => api.put('/notifications/read');
 export const getPlans             = ()     => api.get('/payment/plans');
 export const createOrder          = (data) => api.post('/payment/create-order', data);
 export const verifyPayment        = (data) => api.post('/payment/verify', data);
+export const markAbandoned        = (reason) => api.post('/payment/mark-abandoned', { reason });
 export const getMyPaymentRequests = ()     => api.get('/payment/my-requests');
+export const getMyPlanHistory     = (page=1) => api.get(`/payment/my-history?page=${page}`);
 
 // Admin profile
 export const getAdminProfile    = ()     => api.get('/auth/profile');

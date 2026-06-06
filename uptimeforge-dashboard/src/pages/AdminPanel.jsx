@@ -211,6 +211,20 @@ function StatusBadge({ u }) {
     if (u.plan === 'free_trial') return <span style={pill('#EFF6FF','#2563EB')}>Trial</span>;
     return <span style={pill('#D1FAE5','#065F46')}>Active</span>;
 }
+function VerifiedBadge({ u }) {
+    if (u.trialVerified)
+        return <span style={{ ...pill('#D1FAE5','#065F46'), marginLeft: 4 }}>✓ Verified</span>;
+    return <span style={{ ...pill('#FEF3C7','#B45309'), marginLeft: 4 }}>⚠ Not Verified</span>;
+}
+const ABANDON_REASON_LABEL = {
+    payment_failed:    { label: '❌ Payment Failed',     bg: '#FEE2E2', color: '#B91C1C' },
+    payment_cancelled: { label: '↩ Cancelled Payment',  bg: '#FEF3C7', color: '#92400E' },
+    profile_only:      { label: '📝 Profile Only',       bg: '#EFF6FF', color: '#1D4ED8' },
+};
+function AbandonReasonBadge({ reason }) {
+    const r = ABANDON_REASON_LABEL[reason] || { label: '⏳ Awaiting Payment', bg: '#F3F4F6', color: '#6B7280' };
+    return <span style={pill(r.bg, r.color)}>{r.label}</span>;
+}
 
 // ── Payment Status Badge ──────────────────────────────────────────────────────
 function PayStatusBadge({ status }) {
@@ -328,6 +342,18 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const [profileSaving, setProfileSaving] = useState(false);
     const [profileMsg, setProfileMsg] = useState({ text: '', type: '' });
     const [refundStatuses, setRefundStatuses] = useState({});
+    const [abandonedUsers, setAbandonedUsers]   = useState([]);
+    const [abandonedLoading, setAbandonedLoading] = useState(false);
+    const [followupSending, setFollowupSending]   = useState({});
+    const [planHistory, setPlanHistory]       = useState([]);
+    const [planHistoryTotal, setPlanHistoryTotal] = useState(0);
+    const [planHistoryPages, setPlanHistoryPages] = useState(1);
+    const [planHistoryPage, setPlanHistoryPage]   = useState(1);
+    const [planHistoryLoading, setPlanHistoryLoading] = useState(false);
+    const [planHistoryUserId, setPlanHistoryUserId]   = useState(null); // filter by user
+    const [planHistoryUser, setPlanHistoryUser]       = useState(null); // user detail modal
+    const [userHistoryModal, setUserHistoryModal]     = useState(null); // { user, records }
+    const [userHistoryLoading, setUserHistoryLoading] = useState(false);
 
     const [localTheme, setLocalTheme] = useState(() => {
         const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -678,9 +704,53 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         loadTickets();
     };
 
+    // Load plan history (summary: one row per user)
+    const loadPlanHistory = (page = 1) => {
+        setPlanHistoryLoading(true);
+        axios.get(`${API_URL}/api/admin/plan-history/summary?page=${page}&limit=25`, { withCredentials: true })
+            .then(r => { setPlanHistory(r.data.records); setPlanHistoryTotal(r.data.total); setPlanHistoryPages(r.data.pages); setPlanHistoryPage(r.data.page); })
+            .catch(() => {})
+            .finally(() => setPlanHistoryLoading(false));
+    };
+    useEffect(() => { if (tab === 'planhistory') loadPlanHistory(1); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const openUserHistory = async (u) => {
+        setUserHistoryLoading(true);
+        setUserHistoryModal({ user: u, records: [] });
+        try {
+            const r = await axios.get(`${API_URL}/api/admin/plan-history/user/${u._id}`, { withCredentials: true });
+            setUserHistoryModal({ user: r.data.user || u, records: r.data.records || [] });
+        } catch {}
+        setUserHistoryLoading(false);
+    };
+
+    // Load abandoned users when tab selected
+    useEffect(() => {
+        if (tab !== 'abandoned') return;
+        setAbandonedLoading(true);
+        axios.get(`${API_URL}/api/admin/abandoned-users`, { withCredentials: true })
+            .then(r => setAbandonedUsers(r.data))
+            .catch(() => {})
+            .finally(() => setAbandonedLoading(false));
+    }, [tab]);
+
+    const sendFollowup = async (userId, email) => {
+        setFollowupSending(s => ({ ...s, [userId]: true }));
+        try {
+            await axios.post(`${API_URL}/api/admin/abandoned-users/${userId}/followup`, {}, { withCredentials: true });
+            setToast(`✅ Follow-up email sent to ${email}`);
+            setAbandonedUsers(u => u.map(x => x._id === userId ? { ...x, followupSent: true, followupSentAt: new Date() } : x));
+        } catch (e) {
+            setToast(`❌ ${e.response?.data?.error || 'Failed to send email'}`);
+        }
+        setFollowupSending(s => ({ ...s, [userId]: false }));
+    };
+
     const TABS = [
         { id: 'overview',     label: 'Overview' },
         { id: 'users',        label: `Users (${users.length})` },
+        { id: 'planhistory',  label: `Plan History (${planHistoryTotal || '...'})` },
+        { id: 'abandoned',    label: `Abandoned (${abandonedUsers.length || '?'})` },
         { id: 'expired',      label: `Expired Plans (${expiredUsers.length})` },
         { id: 'payments',     label: `Payments (${payments.length})` },
         { id: 'transactions', label: `Payments & Refund (${payments.length})` },
@@ -1142,13 +1212,19 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                     </td>
                                                     <td style={{ ...tdStyle }}><PlanBadge plan={u.plan} /></td>
                                                     <td style={{ ...tdStyle, fontWeight: 700 }}>{u.serverCount || 0}</td>
-                                                    <td style={{ ...tdStyle }}><StatusBadge u={u} /></td>
+                                                    <td style={{ ...tdStyle }}>
+                                                        <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                                                            <StatusBadge u={u} />
+                                                            <VerifiedBadge u={u} />
+                                                        </div>
+                                                    </td>
                                                     <td style={{ ...tdStyle, fontSize: 12, color: T.sub }}>{u.trialEndsAt ? fmt(u.trialEndsAt) : '—'}</td>
                                                     <td style={{ ...tdStyle }} onClick={e => e.stopPropagation()}>
                                                         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                                                             {readOnly ? <span style={{ fontSize:11, color:'#92400e', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:6, padding:'4px 10px', fontWeight:600 }}>👁 Read Only</span> : <>
                                                             <button onClick={() => openAssign(u)} style={{ ...btnPrimary, padding: '5px 10px', fontSize: 11 }}>Assign Plan</button>
                                                             <button onClick={() => startEdit(u)} style={{ ...btnSecondary, padding: '5px 10px', fontSize: 11 }}>Edit</button>
+                                                            <button onClick={() => openUserHistory(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#F5F3FF', color: '#7C3AED', border: `1px solid #DDD6FE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>📋 History</button>
                                                             <button onClick={() => extendTrial(u._id, u.name)} style={{ padding: '5px 10px', fontSize: 11, background: '#EFF6FF', color: T.info, border: `1px solid #BFDBFE`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>+Trial</button>
                                                             <button onClick={() => toggleBlock(u)} style={{ padding: '5px 10px', fontSize: 11, borderRadius: 8, cursor: 'pointer', fontWeight: 600, border: `1px solid ${u.isBlocked ? '#BBF7D0' : '#FECDD3'}`, background: u.isBlocked ? '#F0FDF4' : '#FFF1F2', color: u.isBlocked ? T.success : T.danger }}>{u.isBlocked ? 'Unblock' : 'Block'}</button>
                                                             <button onClick={() => deleteUser(u)} style={{ padding: '5px 10px', fontSize: 11, background: '#FEF2F2', color: T.danger, border: `1px solid #FECDD3`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Delete</button>
@@ -1402,6 +1478,216 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     </div>}
                     </>
                     )}
+                </div>
+            )}
+
+            {/* ================================================================
+                ABANDONED USERS TAB
+            ================================================================ */}
+            {tab === 'abandoned' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Header card */}
+                    <div style={{ ...cardStyle, padding: '20px 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 17 }}>👥 Abandoned Users</div>
+                                <div style={{ color: T.muted, fontSize: 13, marginTop: 4 }}>
+                                    Users who filled profile but haven't paid ₹2 verification fee (account &gt; 2 hours old)
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <span style={{ ...pill('#F5F3FF', '#7C3AED'), fontSize: 13 }}>{abandonedUsers.length} users</span>
+                                <span style={{ ...pill('#FEF3C7', '#D97706'), fontSize: 13 }}>
+                                    {abandonedUsers.filter(u => u.followupSent).length} emailed
+                                </span>
+                                <button onClick={() => {
+                                    setAbandonedLoading(true);
+                                    axios.get(`${API_URL}/api/admin/abandoned-users`, { withCredentials: true })
+                                        .then(r => setAbandonedUsers(r.data)).catch(() => {}).finally(() => setAbandonedLoading(false));
+                                }} style={{ padding: '6px 14px', background: T.primary, color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                                    ↻ Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table */}
+                    <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                        {abandonedLoading ? (
+                            <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Loading...</div>
+                        ) : abandonedUsers.length === 0 ? (
+                            <div style={{ padding: '40px 20px', textAlign: 'center', color: T.muted }}>
+                                <div style={{ fontSize: 32, marginBottom: 8 }}>🎉</div>
+                                <div style={{ fontWeight: 600 }}>No abandoned users</div>
+                                <div style={{ fontSize: 13, marginTop: 4 }}>All users who filled profile have completed payment!</div>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg }}>
+                                            {['Name', 'Email', 'Phone', 'City', 'Reason', 'Signup', 'Hours Ago', 'Follow-up'].map(h => (
+                                                <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}` }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {abandonedUsers.map(u => (
+                                            <tr key={u._id} style={{ borderBottom: `1px solid ${T.border}`, transition: 'background 0.15s' }}
+                                                onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                <td style={{ padding: '12px 16px', fontWeight: 600 }}>{u.name}</td>
+                                                <td style={{ padding: '12px 16px', color: T.sub }}>{u.email}</td>
+                                                <td style={{ padding: '12px 16px', color: T.sub, fontFamily: 'monospace' }}>{u.phone || '—'}</td>
+                                                <td style={{ padding: '12px 16px', color: T.sub }}>{u.city || '—'}{u.state ? `, ${u.state}` : ''}</td>
+                                                <td style={{ padding: '12px 16px' }}><AbandonReasonBadge reason={u.abandonReason} /></td>
+                                                <td style={{ padding: '12px 16px', color: T.muted, fontSize: 12 }}>
+                                                    {new Date(u.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                                                </td>
+                                                <td style={{ padding: '12px 16px' }}>
+                                                    <span style={{ ...pill(u.hoursSinceSignup < 24 ? '#FEF3C7' : '#FEE2E2', u.hoursSinceSignup < 24 ? '#D97706' : '#DC2626'), fontSize: 11 }}>
+                                                        {u.hoursSinceSignup}h ago
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '12px 16px' }}>
+                                                    {u.followupSent ? (
+                                                        <span style={{ ...pill('#D1FAE5', '#065F46'), fontSize: 11 }}>
+                                                            ✅ Sent {u.followupSentAt ? new Date(u.followupSentAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : ''}
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => sendFollowup(u._id, u.email)}
+                                                            disabled={followupSending[u._id]}
+                                                            style={{ padding: '5px 12px', background: followupSending[u._id] ? T.muted : '#7c3aed', color: '#fff', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: followupSending[u._id] ? 'not-allowed' : 'pointer' }}>
+                                                            {followupSending[u._id] ? 'Sending...' : '📧 Send Follow-up'}
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ================================================================
+                PLAN HISTORY TAB
+            ================================================================ */}
+            {tab === 'planhistory' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Header */}
+                    <div style={{ ...cardStyle, padding: '20px 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 17 }}>📋 Plan History</div>
+                                <div style={{ color: T.muted, fontSize: 13, marginTop: 4 }}>
+                                    {planHistoryTotal} users with plan records — click any row to see full history
+                                </div>
+                            </div>
+                            <button onClick={() => loadPlanHistory(planHistoryPage)}
+                                style={{ padding: '6px 14px', background: T.primary, color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                                ↻ Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Table — one row per user */}
+                    <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                        {planHistoryLoading ? (
+                            <div style={{ padding: 40, textAlign: 'center', color: T.muted }}>Loading...</div>
+                        ) : planHistory.length === 0 ? (
+                            <div style={{ padding: '40px 20px', textAlign: 'center', color: T.muted }}>
+                                <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
+                                <div style={{ fontWeight: 600 }}>No plan history found</div>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg }}>
+                                            {['User', 'Current Plan', 'Latest Billing', 'Total Paid', 'Records', 'Latest Start Date', 'Expires On', 'Status'].map(h => (
+                                                <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}`, whiteSpace: 'nowrap' }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {planHistory.map(r => {
+                                            const PLAN_COLOR = { bronze:'#b45309', silver:'#7c3aed', gold:'#ca8a04', free_trial:'#6366f1' };
+                                            // Current plan from user doc (most accurate)
+                                            const curPlan = r.currentPlan || r.plan || 'free_trial';
+                                            const planLabel = { bronze:'Bronze', silver:'Silver', gold:'Gold', free_trial:'Free Trial' }[curPlan] || curPlan;
+                                            const planColor = PLAN_COLOR[curPlan] || '#6366f1';
+                                            const sd = r.startDate || r.createdAt;
+                                            // Expiry: use currentPlanEndsAt (user's actual current expiry) or trialEndsAt
+                                            const expiry = r.currentPlanEndsAt || (curPlan === 'free_trial' ? r.currentTrialEndsAt : null) || r.planEndsAt;
+                                            const isExpired = expiry && new Date(expiry) < new Date();
+                                            return (
+                                                <tr key={r._id} style={{ borderBottom: `1px solid ${T.border}`, transition: 'background 0.15s', cursor: 'pointer' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                    onClick={() => openUserHistory({ _id: r.userId, name: r.userName, email: r.userEmail })}>
+                                                    <td style={{ padding: '12px 16px' }}>
+                                                        <div style={{ fontWeight: 700, fontSize: 13, color: T.primary }}>{r.userName}</div>
+                                                        <div style={{ fontSize: 11, color: T.muted }}>{r.userEmail}</div>
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px' }}>
+                                                        <span style={{ ...pill(planColor + '20', planColor), fontWeight: 700 }}>{planLabel}</span>
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px', color: T.sub }}>
+                                                        {r.billing ? (r.billing === 'annually' ? '🗓 Annual' : '📅 Monthly') : '—'}
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px', fontWeight: 700, color: '#16a34a' }}>
+                                                        ₹{r.totalAmount || 0}
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                                                        <span style={{ ...pill('#F5F3FF', '#7C3AED'), fontWeight: 700, fontSize: 12 }}>
+                                                            {r.totalRecords} {r.totalRecords === 1 ? 'record' : 'records'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px', color: T.sub, fontSize: 12, whiteSpace: 'nowrap' }}>
+                                                        {sd ? new Date(sd).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—'}
+                                                        <div style={{ fontSize: 10, color: T.muted }}>
+                                                            {sd ? new Date(sd).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) : ''}
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px', fontSize: 12, whiteSpace: 'nowrap' }}>
+                                                        {expiry ? (
+                                                            <span style={{ color: isExpired ? T.danger : T.success, fontWeight: 600 }}>
+                                                                {new Date(expiry).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                                                            </span>
+                                                        ) : <span style={{ color: T.muted }}>—</span>}
+                                                    </td>
+                                                    <td style={{ padding: '12px 16px' }}>
+                                                        <span style={{ ...pill(isExpired ? '#FEE2E2' : '#D1FAE5', isExpired ? '#DC2626' : '#065F46'), fontSize: 11, fontWeight: 700 }}>
+                                                            {isExpired ? '✕ Expired' : '✓ Active'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+
+                        {/* Pagination */}
+                        {planHistoryPages > 1 && (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '16px 20px', borderTop: `1px solid ${T.border}` }}>
+                                <button onClick={() => loadPlanHistory(planHistoryPage - 1)} disabled={planHistoryPage <= 1}
+                                    style={{ padding: '6px 14px', background: planHistoryPage <= 1 ? T.border : T.primary, color: planHistoryPage <= 1 ? T.muted : '#fff', border: 'none', borderRadius: 8, cursor: planHistoryPage <= 1 ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13 }}>
+                                    ← Prev
+                                </button>
+                                <span style={{ fontSize: 13, color: T.sub }}>Page {planHistoryPage} / {planHistoryPages} &nbsp;·&nbsp; {planHistoryTotal} users</span>
+                                <button onClick={() => loadPlanHistory(planHistoryPage + 1)} disabled={planHistoryPage >= planHistoryPages}
+                                    style={{ padding: '6px 14px', background: planHistoryPage >= planHistoryPages ? T.border : T.primary, color: planHistoryPage >= planHistoryPages ? T.muted : '#fff', border: 'none', borderRadius: 8, cursor: planHistoryPage >= planHistoryPages ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13 }}>
+                                    Next →
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -2040,6 +2326,129 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 <button style={{ ...btnPrimary, flex:1 }} onClick={saveAssign}>Assign Plan</button>
                                 <button style={btnSecondary} onClick={() => setAssignModal(null)}>Cancel</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── User Plan History Modal ── */}
+            {userHistoryModal && (
+                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)', zIndex:700, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
+                    onClick={() => setUserHistoryModal(null)}>
+                    <div style={{ background: T.card, borderRadius:16, boxShadow:'0 20px 60px rgba(0,0,0,0.4)', width:'100%', maxWidth:820, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden' }}
+                        onClick={e => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div style={{ padding:'20px 24px', borderBottom:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                            <div>
+                                <div style={{ fontWeight:800, fontSize:16 }}>📋 Plan History — {userHistoryModal.user?.name}</div>
+                                <div style={{ fontSize:12, color:T.muted, marginTop:3 }}>{userHistoryModal.user?.email}</div>
+                            </div>
+                            <button onClick={() => setUserHistoryModal(null)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:T.muted, lineHeight:1 }}>✕</button>
+                        </div>
+                        {/* Current Plan Summary */}
+                        {userHistoryModal.user && (
+                            <div style={{ padding:'12px 24px', borderBottom:`1px solid ${T.border}`, display:'flex', gap:24, flexWrap:'wrap', background: isDark ? '#1a1a2e' : '#F8FAFC' }}>
+                                <div style={{ fontSize:12 }}>
+                                    <span style={{ color:T.muted }}>Current Plan: </span>
+                                    <strong style={{ color: ({ bronze:'#b45309', silver:'#7c3aed', gold:'#ca8a04', free_trial:'#6366f1' })[userHistoryModal.user.plan] || T.text }}>
+                                        {PLAN_LABEL[userHistoryModal.user.plan] || userHistoryModal.user.plan}
+                                    </strong>
+                                </div>
+                                {userHistoryModal.user.planEndsAt && (
+                                    <div style={{ fontSize:12 }}>
+                                        <span style={{ color:T.muted }}>Expires: </span>
+                                        <strong style={{ color: new Date(userHistoryModal.user.planEndsAt) < new Date() ? T.danger : T.success }}>
+                                            {new Date(userHistoryModal.user.planEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                                        </strong>
+                                    </div>
+                                )}
+                                {userHistoryModal.user.trialEndsAt && userHistoryModal.user.plan === 'free_trial' && (
+                                    <div style={{ fontSize:12 }}>
+                                        <span style={{ color:T.muted }}>Trial Ends: </span>
+                                        <strong>{new Date(userHistoryModal.user.trialEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</strong>
+                                    </div>
+                                )}
+                                <div style={{ fontSize:12 }}>
+                                    <span style={{ color:T.muted }}>Verified: </span>
+                                    <strong style={{ color: userHistoryModal.user.trialVerified ? T.success : T.danger }}>
+                                        {userHistoryModal.user.trialVerified ? '✓ Yes' : '✗ No'}
+                                    </strong>
+                                </div>
+                            </div>
+                        )}
+                        {/* Records Table */}
+                        <div style={{ overflowY:'auto', flex:1 }}>
+                            {userHistoryLoading ? (
+                                <div style={{ padding:40, textAlign:'center', color:T.muted }}>Loading history...</div>
+                            ) : userHistoryModal.records.length === 0 ? (
+                                <div style={{ padding:'40px 20px', textAlign:'center', color:T.muted }}>
+                                    <div style={{ fontSize:32, marginBottom:8 }}>📭</div>
+                                    <div style={{ fontWeight:600 }}>No payment history</div>
+                                    <div style={{ fontSize:13, marginTop:4 }}>This user hasn't made any purchases yet</div>
+                                </div>
+                            ) : (
+                                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg, position:'sticky', top:0, zIndex:1 }}>
+                                            {['#', 'Plan', 'Billing', 'Amount', 'Type', 'Payment ID', 'Purchase Date', 'Expires On'].map(h => (
+                                                <th key={h} style={{ padding:'10px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', borderBottom:`1px solid ${T.border}`, whiteSpace:'nowrap' }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {userHistoryModal.records.map((r, idx) => {
+                                            const PLAN_COLOR = { bronze:'#b45309', silver:'#7c3aed', gold:'#ca8a04', free_trial:'#6366f1' };
+                                            const planLabel = r.type === 'verification' ? 'Free Trial' : ({ bronze:'Bronze', silver:'Silver', gold:'Gold' }[r.plan] || r.plan || '—');
+                                            const planColor = PLAN_COLOR[r.plan] || PLAN_COLOR.free_trial;
+                                            const isExpired = r.planEndsAt && new Date(r.planEndsAt) < new Date();
+                                            return (
+                                                <tr key={r._id} style={{ borderBottom:`1px solid ${T.border}`, transition:'background 0.15s' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                    <td style={{ padding:'10px 14px', color:T.muted, fontSize:11, fontWeight:700 }}>#{userHistoryModal.records.length - idx}</td>
+                                                    <td style={{ padding:'10px 14px' }}>
+                                                        <span style={{ ...pill(planColor + '20', planColor), fontWeight:700 }}>{planLabel}</span>
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px', color:T.sub }}>
+                                                        {r.billing ? (r.billing === 'annually' ? '🗓 Annual' : '📅 Monthly') : '—'}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px', fontWeight:700, color: r.amount > 0 ? '#16a34a' : T.muted }}>
+                                                        {r.amount > 0 ? `₹${r.amount}` : '₹0 (Admin)'}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px' }}>
+                                                        {(() => {
+                                                            const utr = r.utr || '';
+                                                            if (utr.startsWith('admin_trial_ext')) return <span style={{ ...pill('#FEF3C7','#B45309'), fontSize:11 }}>🔧 Admin +Trial</span>;
+                                                            if (utr.startsWith('admin_plan')) return <span style={{ ...pill('#F0FDF4','#166534'), fontSize:11 }}>🔧 Admin Assign</span>;
+                                                            if (r.type === 'verification') return <span style={{ ...pill('#EFF6FF','#1D4ED8'), fontSize:11 }}>Trial Activation</span>;
+                                                            return <span style={{ ...pill('#F0FDF4','#166534'), fontSize:11 }}>Plan Purchase</span>;
+                                                        })()}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px', fontFamily:'monospace', fontSize:10, color:T.muted, maxWidth:130, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }} title={r.razorpay_payment_id || r.utr || ''}>
+                                                        {r.razorpay_payment_id || (r.utr?.startsWith('admin_') ? '(admin action)' : r.utr) || '—'}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px', color:T.sub, fontSize:11, whiteSpace:'nowrap' }}>
+                                                        {(r.startDate || r.createdAt) ? new Date(r.startDate || r.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px', fontSize:11, whiteSpace:'nowrap' }}>
+                                                        {r.planEndsAt ? (
+                                                            <span style={{ color: isExpired ? T.danger : T.success, fontWeight:600 }}>
+                                                                {new Date(r.planEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                                                                <div style={{ fontSize:10, opacity:0.8 }}>{isExpired ? '✕ Expired' : '✓ Active'}</div>
+                                                            </span>
+                                                        ) : <span style={{ color:T.muted }}>—</span>}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                        {/* Footer */}
+                        <div style={{ padding:'14px 24px', borderTop:`1px solid ${T.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                            <span style={{ fontSize:12, color:T.muted }}>{userHistoryModal.records.length} record{userHistoryModal.records.length !== 1 ? 's' : ''} found</span>
+                            <button onClick={() => setUserHistoryModal(null)} style={{ padding:'7px 20px', background:T.primary, color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', fontSize:13 }}>Close</button>
                         </div>
                     </div>
                 </div>

@@ -27,7 +27,9 @@ const userSchema = new mongoose.Schema({
     accountId: { type: String, unique: true, sparse: true },
     referredBy:         { type: String, default: null },
     referralBonusUsed:  { type: Boolean, default: false },
-    noFreeTrial:        { type: Boolean, default: false }, // previously deleted — no free trial
+    noFreeTrial:        { type: Boolean, default: false },
+    followupSentAt:     { type: Date, default: null },
+    abandonReason:      { type: String, enum: ['payment_failed', 'payment_cancelled', 'profile_only', null], default: null },
     deleteToken:        { type: String, select: false },
     deleteTokenExpires: { type: Date,   select: false },
 }, { timestamps: true });

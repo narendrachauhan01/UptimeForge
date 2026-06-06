@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getPlans, createOrder, verifyPayment, deleteMyAccount } from '../api';
+import { getPlans, createOrder, verifyPayment, markAbandoned } from '../api';
 import UWLogo from '../components/UWLogo';
 import { removeCookie } from '../utils/cookies';
 
@@ -249,7 +249,8 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const [success,  setSuccess] = useState(false);
     const [error,    setError]   = useState('');
     const [billing,  setBilling] = useState('monthly');
-    const paymentDone = React.useRef(false);
+    const paymentDone   = React.useRef(false);
+    const paymentFailed = React.useRef(false);
 
     const isSelect       = plan === 'select';
     const isVerification = plan === 'verification';
@@ -325,7 +326,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
     const handleCancel = async () => {
         if (!isNewUnverified || paymentDone.current) return;
-        try { await deleteMyAccount(); } catch (_) {}
+        try { await markAbandoned('payment_cancelled'); } catch (_) {}
         sessionStorage.removeItem('sm_intended_plan');
         window.location.href = '/register';
     };
@@ -362,7 +363,16 @@ export default function PaymentPage({ user, onUserUpdate }) {
             prefill:     orderData.prefill,
             theme:       { color: '#7c3aed' },
             modal: {
-                ondismiss: () => { setPaying(false); handleCancel(); },
+                ondismiss: () => {
+                    setPaying(false);
+                    // Payment failed (technical error) → don't delete account, just show error
+                    if (paymentFailed.current) {
+                        paymentFailed.current = false;
+                        return;
+                    }
+                    // User deliberately closed without paying → cancel flow
+                    handleCancel();
+                },
             },
             handler: async (response) => {
                 try {
@@ -370,8 +380,6 @@ export default function PaymentPage({ user, onUserUpdate }) {
                         razorpay_order_id:   response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature:  response.razorpay_signature,
-                        plan,
-                        billing,
                     });
                     // Fetch fresh user data so profile gate doesn't trigger
                     try {
@@ -395,8 +403,10 @@ export default function PaymentPage({ user, onUserUpdate }) {
 
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', (resp) => {
-            setError(`Payment failed: ${resp.error.description}`);
+            paymentFailed.current = true;
+            setError(`Payment failed: ${resp.error.description}. Please try again.`);
             setPaying(false);
+            if (isNewUnverified) markAbandoned('payment_failed').catch(() => {});
         });
         rzp.open();
     };

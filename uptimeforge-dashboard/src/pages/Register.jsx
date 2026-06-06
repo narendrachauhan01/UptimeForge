@@ -104,7 +104,14 @@ export default function Register({ onRegister }) {
       const phoneFormatted = '91' + form.phone.replace(/\D/g,'').slice(-10);
       await sendRegisterOtp({ ...form, phone: phoneFormatted, referredBy: refCode || undefined });
       setStep(2); setCanResend(false);
-    } catch (err) { setError(err.response?.data?.error || 'Failed to send OTP'); }
+    } catch (err) {
+      const code = err.response?.data?.code;
+      if (code === 'ACCOUNT_EXISTS_UNVERIFIED') {
+        setError('__ACCOUNT_EXISTS_UNVERIFIED__');
+      } else {
+        setError(err.response?.data?.error || 'Failed to send OTP');
+      }
+    }
     setLoading(false);
   };
 
@@ -269,7 +276,17 @@ export default function Register({ onRegister }) {
                   </div>
                 </div>
 
-                {error && <div className="login-error-box">{error}</div>}
+                {error === '__ACCOUNT_EXISTS_UNVERIFIED__' ? (
+                  <div className="login-error-box" style={{ lineHeight: 1.5 }}>
+                    Account already exists with this email.{' '}
+                    <a href="/login" style={{ color: '#a78bfa', fontWeight: 700, textDecoration: 'underline' }}>
+                      Login here
+                    </a>{' '}
+                    to complete your payment and activate your account.
+                  </div>
+                ) : error ? (
+                  <div className="login-error-box">{error}</div>
+                ) : null}
 
                 <button className="reg-submit" type="submit" disabled={loading}>
                   {loading ? <><span className="login-spinner" /> Sending OTP...</> : 'Send OTP →'}

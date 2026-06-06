@@ -148,25 +148,72 @@ exports.createOrder = async (req, res) => {
 exports.verifyPayment = async (req, res) => {
     if (req.isAdmin) return res.status(400).json({ error: 'Not applicable for admin' });
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan, billing = 'monthly' } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
+        // ── Security Layer 1: Razorpay signature verification ───────────────
         const expected = crypto
             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
 
         if (expected !== razorpay_signature) {
+            console.warn(`[Payment Security] Invalid signature for payment ${razorpay_payment_id}`);
             return res.status(400).json({ error: 'Payment verification failed — invalid signature.' });
+        }
+
+        // ── Security Layer 2: Replay attack prevention ───────────────────────
+        // Same payment_id cannot be used twice
+        const alreadyProcessed = await PaymentRequest.findOne({ razorpay_payment_id });
+        if (alreadyProcessed) {
+            console.warn(`[Payment Security] Replay attempt: payment ${razorpay_payment_id} already processed`);
+            return res.status(400).json({ error: 'Payment already processed.' });
+        }
+
+        // ── Security Layer 3: Fetch order from Razorpay (server-side truth) ─
+        // plan/billing/userId come from Razorpay order notes (set by our server
+        // during create-order). We NEVER trust these from the client request.
+        let rzpOrder;
+        try {
+            const rzp = getRzp();
+            rzpOrder = await rzp.orders.fetch(razorpay_order_id);
+        } catch (fetchErr) {
+            console.error('[Payment Security] Failed to fetch Razorpay order:', fetchErr?.error || fetchErr);
+            return res.status(500).json({ error: 'Could not verify order with payment gateway.' });
+        }
+
+        if (!rzpOrder || !rzpOrder.notes) {
+            console.warn(`[Payment Security] Missing order notes for order ${razorpay_order_id}`);
+            return res.status(400).json({ error: 'Invalid payment order data.' });
+        }
+
+        // ── Security Layer 4: UserId ownership check ─────────────────────────
+        // Prevent user A from using user B's order_id
+        const orderUserId = rzpOrder.notes.userId;
+        if (!orderUserId || orderUserId !== req.userId.toString()) {
+            console.warn(`[Payment Security] UserId mismatch: order.notes.userId=${orderUserId} req.userId=${req.userId}`);
+            return res.status(403).json({ error: 'Unauthorized payment access.' });
+        }
+
+        // Use plan & billing exclusively from server-side Razorpay order notes
+        const plan    = rzpOrder.notes.plan;
+        const billing = rzpOrder.notes.billing || 'monthly';
+
+        if (!plan || !['verification', 'bronze', 'silver', 'gold'].includes(plan)) {
+            console.warn(`[Payment Security] Invalid plan in order notes: ${plan}`);
+            return res.status(400).json({ error: 'Invalid plan in order.' });
         }
 
         const user     = await User.findById(req.userId);
         const settings = await Settings.get();
-        let amount = 0, planEndsAt = null;
+        let amount = 0, planEndsAt = null, startDate = new Date();
 
         if (plan === 'verification') {
             if (user.trialVerified) return res.status(400).json({ error: 'Account already verified' });
             amount = settings.verificationFee || 2;
             user.trialVerified = true;
+            // Trial starts now; planEndsAt = trialEndsAt (saved to history)
+            planEndsAt = user.trialEndsAt || new Date(Date.now() + settings.trialDays * 86400000);
+            startDate  = new Date();
         } else if (['bronze', 'silver', 'gold'].includes(plan)) {
             const cfg = settings.plans[plan];
             const isAnnual = billing === 'annually';
@@ -180,6 +227,7 @@ exports.verifyPayment = async (req, res) => {
             }
             const now        = new Date();
             const currentEnd = user.planEndsAt && user.planEndsAt > now ? user.planEndsAt : now;
+            startDate        = new Date(currentEnd); // plan starts from current expiry (or now)
             const newEnd     = new Date(currentEnd);
             newEnd.setMonth(newEnd.getMonth() + months);
             user.plan         = plan;
@@ -236,6 +284,7 @@ exports.verifyPayment = async (req, res) => {
             plan:      plan === 'verification' ? null : plan,
             billing:   plan === 'verification' ? null : billing,
             amount,
+            startDate,
             utr:       razorpay_payment_id,
             razorpay_payment_id,
             status:    'approved',
@@ -462,6 +511,44 @@ exports.getMyRequests = async (req, res) => {
     try {
         const requests = await PaymentRequest.find({ userId: req.userId }).sort('-createdAt').limit(20);
         res.json(requests);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// GET /api/payment/my-history?page=1
+exports.getMyHistory = async (req, res) => {
+    if (req.isAdmin) return res.json({ records: [], total: 0, pages: 0 });
+    try {
+        const page  = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = 10;
+        const filter = { userId: req.userId, status: 'approved' };
+        const [records, total] = await Promise.all([
+            PaymentRequest.find(filter).sort('-createdAt').skip((page - 1) * limit).limit(limit).lean(),
+            PaymentRequest.countDocuments(filter),
+        ]);
+        res.json({ records, total, page, pages: Math.ceil(total / limit) });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// POST /api/payment/mark-abandoned
+exports.markAbandoned = async (req, res) => {
+    try {
+        const { reason } = req.body; // 'payment_failed' | 'payment_cancelled' | 'profile_only'
+        const allowed = ['payment_failed', 'payment_cancelled', 'profile_only'];
+        if (!allowed.includes(reason)) return res.status(400).json({ error: 'Invalid reason' });
+
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Only mark abandoned if user hasn't verified/paid yet
+        if (user.trialVerified) return res.json({ ok: true }); // already paid, ignore
+
+        user.abandonReason = reason;
+        await user.save();
+        res.json({ ok: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

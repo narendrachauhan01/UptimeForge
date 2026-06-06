@@ -6,6 +6,8 @@ const paymentRequestSchema = new mongoose.Schema({
     userEmail: { type: String },
     type:      { type: String, enum: ['plan', 'verification'], default: 'plan' },
     plan:      { type: String, enum: ['bronze', 'silver', 'gold', null], default: null },
+    billing:   { type: String, enum: ['monthly', 'annually', null], default: null },
+    startDate: { type: Date, default: null },
     amount:    { type: Number, required: true },
     utr:       { type: String, required: true, trim: true },
     status:    { type: String, enum: ['pending', 'approved', 'rejected', 'refunded'], default: 'pending' },

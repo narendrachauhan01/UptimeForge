@@ -67,7 +67,16 @@ exports.sendOtp = async (req, res) => {
         if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
         const existing = await User.findOne({ email: email.toLowerCase() });
-        if (existing) return res.status(400).json({ error: 'Email already registered. Please login.' });
+        if (existing) {
+            // Unverified user (didn't pay ₹2 yet) — guide them to login to continue
+            if (!existing.trialVerified) {
+                return res.status(400).json({
+                    error: 'Account already exists. Please login to complete your payment and activate your account.',
+                    code: 'ACCOUNT_EXISTS_UNVERIFIED',
+                });
+            }
+            return res.status(400).json({ error: 'Email already registered. Please login.' });
+        }
 
         const otp = genOtp();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
@@ -182,7 +191,9 @@ exports.googleAuth = async (req, res) => {
             isNewUser = true;
             const settings = await Settings.get();
             const trialEndsAt = new Date(Date.now() + settings.trialDays * 24 * 60 * 60 * 1000);
-            user = await User.create({ name, email: email.toLowerCase(), googleId, trialEndsAt });
+            const DeletedUser = require('../models/DeletedUser');
+            const wasPreviouslyDeleted = !!(await DeletedUser.findOne({ email: email.toLowerCase() }));
+            user = await User.create({ name, email: email.toLowerCase(), googleId, trialEndsAt, noFreeTrial: wasPreviouslyDeleted });
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
