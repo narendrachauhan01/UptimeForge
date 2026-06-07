@@ -60,7 +60,7 @@ export default function AdminLogin() {
                             <div className="login-preview-row up"><div className="login-preview-dot green"/><span>All Systems</span><span className="login-preview-badge up">Online</span></div>
                         </div>
                     </div>
-                    <div className="login-left-footer">© 2026 UptimeForge</div>
+                    <div className="login-left-footer">© 2026 UptimeForge.in</div>
                 </div>
             </div>
 

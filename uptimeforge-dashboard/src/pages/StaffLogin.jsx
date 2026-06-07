@@ -58,7 +58,7 @@ export default function StaffLogin() {
                             <div className="login-preview-row down"><div className="login-preview-dot red"/><span>Plan Settings</span><span className="login-preview-badge down">No Access</span></div>
                         </div>
                     </div>
-                    <div className="login-left-footer">© 2026 UptimeForge</div>
+                    <div className="login-left-footer">© 2026 UptimeForge.in</div>
                 </div>
             </div>
 

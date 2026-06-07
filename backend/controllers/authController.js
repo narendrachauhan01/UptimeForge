@@ -110,7 +110,7 @@ exports.forgotPassword = async (req, res) => {
                 </p>
               </div>
               <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-                SM Server Monitor — © 2026 Narendra Singh
+                © 2026 UptimeForge.in – <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
               </div>
             </div>`,
         });

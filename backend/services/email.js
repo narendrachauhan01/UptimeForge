@@ -82,7 +82,7 @@ function downEmailHtml(name, url, time, statusCode) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
@@ -107,7 +107,7 @@ function recoveredEmailHtml(name, url, time, statusCode) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
@@ -133,7 +133,7 @@ function sslEmailHtml(name, url, daysLeft, expiry) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
@@ -156,7 +156,7 @@ function otpEmailHtml(name, otp) {
         <p style="color:#94a3b8;font-size:13px;margin:0">This code expires in <strong>10 minutes</strong>.<br/>If you didn't request this, you can safely ignore this email.</p>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
@@ -181,7 +181,7 @@ function pingDownEmailHtml(name, host, time) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
@@ -206,7 +206,7 @@ function pingRecoveredEmailHtml(name, host, time) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }

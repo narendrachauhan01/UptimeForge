@@ -184,7 +184,7 @@ export default function Register({ onRegister }) {
             </div>
           </div>
 
-          <div className="reg-left-footer">© 2026 UptimeForge</div>
+          <div className="reg-left-footer">© 2026 UptimeForge.in</div>
         </div>
       </div>
 

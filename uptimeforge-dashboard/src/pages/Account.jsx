@@ -204,7 +204,7 @@ export default function Account({ user, onUserUpdate }) {
   </div>
   <div class="footer">
     <span>Thank you for using UptimeForge! For support: uptimeforge@gmail.com</span>
-    <strong>UptimeForge © 2026</strong>
+    <strong>© 2026 UptimeForge.in</strong>
   </div>
 </div>
 <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>

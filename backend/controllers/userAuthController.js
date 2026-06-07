@@ -345,7 +345,7 @@ exports.requestDelete = async (req, res) => {
             <p style="color:#94a3b8;font-size:13px;text-align:center">This link expires in <strong>1 hour</strong>. If you did not request this, ignore this email — your account is safe.</p>
           </div>
           <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-            UptimeForge &mdash; &copy; 2026 Narendra Singh
+            &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
           </div>
         </div>`;
 

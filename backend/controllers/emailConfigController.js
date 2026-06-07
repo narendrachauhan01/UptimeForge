@@ -81,7 +81,7 @@ exports.test = async (req, res) => {
                 <h2 style="text-align:center;color:#7c3aed;margin-bottom:8px">Email Connected!</h2>
                 <p style="text-align:center;color:#64748b;font-size:15px">Your SMTP email is working correctly.<br>Alerts will be sent to this address.</p>
                 <div style="margin-top:20px;padding:14px;background:#ede9fe;border-radius:10px;text-align:center;color:#7c3aed;font-size:13px;font-weight:600">
-                    SM Server Monitor &mdash; © 2026 Narendra Singh
+                    &copy; 2026 UptimeForge.in &ndash; Privacy Policy | Terms &amp; Conditions
                 </div>
             </div>`,
         });

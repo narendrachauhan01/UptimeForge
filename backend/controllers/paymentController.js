@@ -61,7 +61,7 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
         <p style="color:#94a3b8;font-size:13px;margin:0;text-align:center">Keep this email as your payment receipt · Powered by Razorpay</p>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeForge &mdash; &copy; 2026 Narendra Singh
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
       </div>
     </div>`;
 }
