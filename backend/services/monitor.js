@@ -571,6 +571,12 @@ async function checkPingTargets() {
                         if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); } catch(_){} }
                         sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: `${target.host}${target.port ? ':' + target.port : ''}` },
+                        'down',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(() => {});
                     // Save to Incidents
                     await Alert.create({
                         userId:     target.userId || null,
@@ -595,6 +601,12 @@ async function checkPingTargets() {
                         if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
                         sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: `${target.host}${target.port ? ':' + target.port : ''}` },
+                        'up',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(() => {});
                     // Save to Incidents
                     await Alert.create({
                         userId:     target.userId || null,
