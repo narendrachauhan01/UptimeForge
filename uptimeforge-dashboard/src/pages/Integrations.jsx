@@ -385,6 +385,15 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
         setTgModal(true);
     };
 
+    const copyTgLink = async () => {
+        try {
+            await navigator.clipboard.writeText(tgLink);
+            showToast('📋 Link copied! Open it on your phone to connect.');
+        } catch {
+            showToast('⚠️ Could not copy — long-press the link to copy manually');
+        }
+    };
+
     const generateTgLink = async () => {
         setTgConnecting(true);
         try {
@@ -1186,6 +1195,13 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                                         </button>
                                     ) : (
                                         <>
+                                            <div style={{ display:'flex', alignItems:'center', gap:8, background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:10, padding:'10px 12px' }}>
+                                                <span style={{ flex:1, fontSize:12.5, color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{tgLink}</span>
+                                                <button onClick={copyTgLink} className="btn-add" style={{ padding:'6px 12px', fontSize:12, whiteSpace:'nowrap', background:'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>📋 Copy</button>
+                                            </div>
+                                            <p style={{ fontSize:12, color:'var(--text-muted)', textAlign:'center', margin:'-6px 0 0' }}>
+                                                Tip: Copy this link and open it on your <b>phone</b> if you want alerts there — or just tap the button below.
+                                            </p>
                                             <a href={tgLink} target="_blank" rel="noopener noreferrer" className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', textDecoration:'none', display:'block', boxSizing:'border-box', background:'linear-gradient(135deg, #0088cc, #006699)', color:'#fff' }}>
                                                 📲 Open Telegram &amp; Tap Start
                                             </a>
