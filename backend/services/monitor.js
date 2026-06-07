@@ -16,7 +16,7 @@ const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml, pingDownEmai
 const serverLocks = new Set();
 
 // Fire user-configured integrations (Slack, Discord, Webhook, etc.)
-async function fireIntegrations(server, type, userId) {
+async function fireIntegrations(server, type, userId, statusCode) {
     if (!userId) return;
     try {
         const integrations = await Integration.find({ userId, active: true });
@@ -29,6 +29,7 @@ async function fireIntegrations(server, type, userId) {
             const isDown = type === 'down';
             const now = new Date();
             const timeStr = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+            const codeLabel = statusCodeLabel(statusCode);
 
             const payload = {
                 text: '🔔 *UptimeForge Alert*',
@@ -36,15 +37,17 @@ async function fireIntegrations(server, type, userId) {
                 site: server.name,
                 url: server.url,
                 status: isDown ? 'DOWN' : 'UP',
+                statusCode: statusCode ?? null,
                 time: now.toISOString(),
                 attachments: [{
                     color: isDown ? '#ef4444' : '#22c55e',
                     title: isDown ? `🚨 ${server.name} is DOWN` : `✅ ${server.name} is back UP`,
                     title_link: server.url,
                     fields: [
-                        { title: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
-                        { title: 'Time',   value: timeStr,                        short: true },
-                        { title: 'URL',    value: server.url,                     short: false },
+                        { title: 'Status',      value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
+                        { title: 'Status Code', value: codeLabel,                     short: true },
+                        { title: 'Time',        value: timeStr,                        short: true },
+                        { title: 'URL',         value: server.url,                     short: false },
                     ],
                     footer: 'UptimeForge Monitor',
                 }],
@@ -63,9 +66,10 @@ async function fireIntegrations(server, type, userId) {
                     title,
                     title_link: server.url,
                     fields: [
-                        { title: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
-                        { title: 'Time',   value: timeStr,                        short: true },
-                        { title: 'URL',    value: server.url,                     short: false },
+                        { title: 'Status',      value: isDown ? '🔴 DOWN' : '🟢 UP', short: true },
+                        { title: 'Status Code', value: codeLabel,                     short: true },
+                        { title: 'Time',        value: timeStr,                        short: true },
+                        { title: 'URL',         value: server.url,                     short: false },
                     ],
                     footer: 'UptimeForge Monitor',
                 }]
@@ -80,9 +84,10 @@ async function fireIntegrations(server, type, userId) {
                     title,
                     url: server.url,
                     fields: [
-                        { name: 'Status', value: isDown ? '🔴 DOWN' : '🟢 UP', inline: true },
-                        { name: 'Time',   value: timeStr,                        inline: true },
-                        { name: 'URL',    value: server.url,                     inline: false },
+                        { name: 'Status',      value: isDown ? '🔴 DOWN' : '🟢 UP', inline: true },
+                        { name: 'Status Code', value: codeLabel,                     inline: true },
+                        { name: 'Time',        value: timeStr,                        inline: true },
+                        { name: 'URL',         value: server.url,                     inline: false },
                     ],
                     footer: { text: 'UptimeForge Monitor' },
                 }]
@@ -90,8 +95,8 @@ async function fireIntegrations(server, type, userId) {
 
             // Telegram — markdown
             const tgText = isDown
-                ? `🚨 *${server.name} is DOWN*\n🔴 Status: DOWN\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`
-                : `✅ *${server.name} is back UP*\n🟢 Status: UP\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`;
+                ? `🚨 *${server.name} is DOWN*\n🔴 Status: DOWN\n📟 Status Code: ${codeLabel}\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`
+                : `✅ *${server.name} is back UP*\n🟢 Status: UP\n📟 Status Code: ${codeLabel}\n🕐 Time: ${timeStr}\n🌐 URL: ${server.url}`;
 
             try {
                 if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
@@ -214,6 +219,11 @@ const DOMAIN_MILESTONES = [30, 15, 7];
 
 function now() {
     return new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+}
+
+// Human-friendly status code label — 0 means no HTTP response was received (timeout/connection error)
+function statusCodeLabel(code) {
+    return (code && code !== 0) ? String(code) : '0 (No Response / Timeout)';
 }
 
 function checkUrl(url, options = {}) {
@@ -351,9 +361,9 @@ async function checkOne(server, settings, recipients) {
         const userId   = server.userId?._id || server.userId;
         const intType  = alertType === 'recovered' ? 'up' : 'down';
         console.log(`[Monitor] ${server.name} → ${alertType.toUpperCase()} alert | recipients: ${eligible.length} | emails: ${eligible.filter(r=>r.email).map(r=>r.email).join(',')||'none'}`);
-        sendAlerts(server, eligible, alertType === 'recovered' ? 'recovered' : 'down', alertDetail)
+        sendAlerts(server, eligible, alertType === 'recovered' ? 'recovered' : 'down', alertDetail, result.code)
             .catch(e => console.error(`[Monitor] sendAlerts FAILED for ${server.name}:`, e.message));
-        fireIntegrations(server, intType, userId).catch(() => {});
+        fireIntegrations(server, intType, userId, result.code).catch(() => {});
     }
 }
 
@@ -372,18 +382,19 @@ async function checkAll() {
 }
 
 // Send email + WhatsApp AND save to DB
-async function sendAlerts(server, recipients, type, detail) {
+async function sendAlerts(server, recipients, type, detail, statusCode) {
     const isDown = type === 'down';
+    const codeLabel = statusCodeLabel(statusCode);
     const waMsg = isDown
-        ? `🚨 *Site Down Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Time:* ${now()}\n\nSite is currently *DOWN* ❌\nPlease check immediately!`
-        : `✅ *Site Recovered!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Time:* ${now()}\n\nSite is back *UP* and running! ✅`;
+        ? `🚨 *Site Down Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Status Code:* ${codeLabel}\n*Time:* ${now()}\n\nSite is currently *DOWN* ❌\nPlease check immediately!`
+        : `✅ *Site Recovered!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Status Code:* ${codeLabel}\n*Time:* ${now()}\n\nSite is back *UP* and running! ✅`;
 
     const emailSubject = isDown
         ? `[UptimeForge] Site Down: ${server.name}`
         : `[UptimeForge] Site Recovered: ${server.name}`;
     const emailHtml = isDown
-        ? downEmailHtml(server.name, server.url, now())
-        : recoveredEmailHtml(server.name, server.url, now());
+        ? downEmailHtml(server.name, server.url, now(), codeLabel)
+        : recoveredEmailHtml(server.name, server.url, now(), codeLabel);
 
     const sentTo = [];
     for (const r of recipients) {
