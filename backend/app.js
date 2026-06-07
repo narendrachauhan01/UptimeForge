@@ -49,6 +49,7 @@ app.use('/api/metrics',       require('./routes/metrics'));
 app.use('/api/ping',          require('./routes/ping'));
 app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/integrations',  require('./routes/integrations'));
+app.use('/api/telegram',      require('./routes/telegram'));
 app.use('/api/staff',         require('./routes/staff'));
 
 // Swagger Docs

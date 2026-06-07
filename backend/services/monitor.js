@@ -107,8 +107,9 @@ async function fireIntegrations(server, type, userId) {
                     axios.post(url, data, { headers, timeout: 10000 }).catch(() => {});
                 }
                 if (intg.type === 'telegram') {
-                    const { botToken, chatId } = intg.config || {};
-                    if (!botToken || !chatId) continue;
+                    const chatId   = intg.config?.chatId;
+                    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                    if (!chatId || !botToken) continue;
                     axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 }).catch(() => {});
                 }
             } catch (_) {}
@@ -188,8 +189,9 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
                     req.end();
                 }
                 if (intg.type === 'telegram') {
-                    const { botToken, chatId } = intg.config || {};
-                    if (!botToken || !chatId) continue;
+                    const chatId   = intg.config?.chatId;
+                    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                    if (!chatId || !botToken) continue;
                     const tUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
                     const b = JSON.stringify({ chat_id: chatId, text: tgText, parse_mode: 'Markdown' });
                     const req = https.request(tUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, () => {});

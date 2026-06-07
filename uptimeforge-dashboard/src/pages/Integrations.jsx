@@ -299,13 +299,17 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     const [rcSelected,  setRcSelected]  = useState([]);
     const [rcSearch,    setRcSearch]    = useState('');
 
-    const [tgModal,    setTgModal]    = useState(false);
-    const [tgForm,     setTgForm]     = useState({ botToken:'', chatId:'', events:'all' });
-    const [tgSaving,   setTgSaving]   = useState(false);
-    const [tgTesting,  setTgTesting]  = useState(false);
-    const [tgAllSites, setTgAllSites] = useState(true);
-    const [tgSelected, setTgSelected] = useState([]);
-    const [tgSearch,   setTgSearch]   = useState('');
+    const [tgModal,      setTgModal]      = useState(false);
+    const [tgConnected,  setTgConnected]  = useState(false);
+    const [tgLink,       setTgLink]       = useState('');
+    const [tgConnecting, setTgConnecting] = useState(false);
+    const [tgChecking,   setTgChecking]   = useState(false);
+    const [tgEvents,     setTgEvents]     = useState('all');
+    const [tgSaving,     setTgSaving]     = useState(false);
+    const [tgTesting,    setTgTesting]    = useState(false);
+    const [tgAllSites,   setTgAllSites]   = useState(true);
+    const [tgSelected,   setTgSelected]   = useState([]);
+    const [tgSearch,     setTgSearch]     = useState('');
 
     const validateWebhookUrl = (url) => {
         if (!url) return '⚠️ Webhook URL required';
@@ -365,26 +369,54 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     };
 
     const openTgModal = async () => {
+        setTgLink('');
         try {
             const r = await axios.get(`${API_URL}/api/integrations`, { withCredentials: true });
             const tg = r.data.find(i => i.type === 'telegram');
-            if (tg) {
-                setTgForm({ botToken: tg.config?.botToken||'', chatId: tg.config?.chatId||'', events: tg.events||'all' });
-                const srvs = tg.servers || [];
-                setTgAllSites(srvs.length === 0);
-                setTgSelected(srvs.map(s => s.toString()));
-            }
-        } catch {}
+            const connected = !!(tg?.active && tg?.config?.chatId);
+            setTgConnected(connected);
+            setTgEvents(tg?.events || 'all');
+            const srvs = tg?.servers || [];
+            setTgAllSites(srvs.length === 0);
+            setTgSelected(srvs.map(s => s.toString()));
+        } catch {
+            setTgConnected(false);
+        }
         setTgModal(true);
     };
 
-    const saveTg = async () => {
-        if (!tgForm.botToken || !tgForm.chatId) { showToast('⚠️ Bot Token and Chat ID required'); return; }
+    const generateTgLink = async () => {
+        setTgConnecting(true);
+        try {
+            const r = await axios.post(`${API_URL}/api/integrations/telegram/connect`, {}, { withCredentials: true });
+            setTgLink(r.data.link);
+            window.open(r.data.link, '_blank', 'noopener,noreferrer');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Could not generate link'));
+        }
+        setTgConnecting(false);
+    };
+
+    const checkTgConnection = async () => {
+        setTgChecking(true);
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations/telegram/status`, { withCredentials: true });
+            if (r.data?.connected) {
+                setTgConnected(true);
+                setSaved(p=>({...p, telegram:true}));
+                showToast('✅ Telegram connected!');
+            } else {
+                showToast('⏳ Not connected yet — open the link and tap Start in Telegram first');
+            }
+        } catch {}
+        setTgChecking(false);
+    };
+
+    const saveTgSettings = async () => {
         setTgSaving(true);
         try {
-            await axios.post(`${API_URL}/api/integrations/telegram`, { config: { botToken: tgForm.botToken, chatId: tgForm.chatId }, events: tgForm.events||'all', servers: tgAllSites ? [] : tgSelected }, { withCredentials: true });
-            setSaved(p=>({...p, telegram:true}));
-            showToast('✅ Telegram saved!');
+            await axios.post(`${API_URL}/api/integrations/telegram/settings`, { events: tgEvents, servers: tgAllSites ? [] : tgSelected }, { withCredentials: true });
+            showToast('✅ Telegram settings saved!');
             setTgModal(false);
         } catch (e) {
             showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Could not save'));
@@ -393,13 +425,12 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     };
 
     const testTg = async () => {
-        if (!tgForm.botToken || !tgForm.chatId) { showToast('⚠️ Enter Bot Token & Chat ID first'); return; }
         setTgTesting(true);
         try {
-            await axios.post(`${API_URL}/api/integrations/test-telegram`, { botToken: tgForm.botToken, chatId: tgForm.chatId }, { withCredentials: true });
+            await axios.post(`${API_URL}/api/integrations/telegram/test`, {}, { withCredentials: true });
             showToast('✅ Test message sent to Telegram!');
         } catch (e) {
-            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check Bot Token & Chat ID'));
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Could not send test'));
         }
         setTgTesting(false);
     };
@@ -1138,64 +1169,78 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                             <button onClick={()=>setTgModal(false)} className="modal-close">✕</button>
                             <div style={{ textAlign:'center', marginBottom:20 }}>
                                 <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoTelegram/></div>
-                                <h2 className="modal-title">Add <span style={{color:'#0088cc'}}>Telegram</span> Bot</h2>
-                                <p className="modal-subtitle">Get alerts straight to your phone via your own Telegram bot</p>
+                                <h2 className="modal-title">Connect <span style={{color:'#0088cc'}}>Telegram</span></h2>
+                                <p className="modal-subtitle">Get instant alerts via the official UptimeForge Telegram bot</p>
                             </div>
-                            <div style={{ background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:10, padding:'12px 14px', marginBottom:14, fontSize:12.5, color:'var(--text-muted)', lineHeight:1.6 }}>
-                                <b style={{ color:'var(--text-main)' }}>How to set up:</b><br/>
-                                1. Open Telegram, search <b>@BotFather</b> → send <code>/newbot</code> → copy the <b>Bot Token</b><br/>
-                                2. Search <b>@userinfobot</b> → send <code>/start</code> → copy your <b>Chat ID</b><br/>
-                                <span style={{ opacity:0.8 }}>(For a group: add your bot to the group, send a message, then open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> to find the group's chat id)</span>
-                            </div>
-                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-                                <div>
-                                    <label className="modal-label">Bot Token *</label>
-                                    <input value={tgForm.botToken} onChange={e=>setTgForm({...tgForm,botToken:e.target.value})} placeholder="123456789:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" className="modal-input" />
-                                </div>
-                                <div>
-                                    <label className="modal-label">Chat ID *</label>
-                                    <input value={tgForm.chatId} onChange={e=>setTgForm({...tgForm,chatId:e.target.value})} placeholder="e.g. 123456789 or -1001234567890" className="modal-input" />
-                                </div>
-                                <div>
-                                    <label className="modal-label">Events</label>
-                                    <select value={tgForm.events} onChange={e=>setTgForm({...tgForm,events:e.target.value})} className="modal-select">
-                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
-                                        <option value="down">Down events only</option>
-                                    </select>
-                                </div>
-                                {/* Site selector */}
-                                <div>
-                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
-                                    <div onClick={()=>setTgAllSites(p=>!p)} className="modal-checkbox-row">
-                                        <input type="checkbox" checked={tgAllSites} onChange={()=>{}} className="modal-checkbox" />
-                                        <span className="modal-checkbox-label">All sites (current + future)</span>
+
+                            {!tgConnected ? (
+                                <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                    <div style={{ background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:10, padding:'14px 16px', fontSize:13, color:'var(--text-muted)', lineHeight:1.8 }}>
+                                        <b style={{ color:'var(--text-main)' }}>How it works:</b><br/>
+                                        1. Tap <b>Connect with Telegram</b> — it opens our official bot in Telegram<br/>
+                                        2. Tap <b>Start</b> in the chat that opens<br/>
+                                        3. Come back and tap <b>I've started the bot</b> to confirm
                                     </div>
-                                    {!tgAllSites && (
-                                        <div className="modal-site-selector-card">
-                                            <div className="modal-site-selector-search">
-                                                <input value={tgSearch} onChange={e=>setTgSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
-                                            </div>
-                                            <div className="modal-site-list">
-                                                {servers.filter(s=>s.name.toLowerCase().includes(tgSearch.toLowerCase())).map(s => (
-                                                    <div key={s._id} onClick={()=>setTgSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
-                                                        <input type="checkbox" checked={tgSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
-                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
-                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                    <button onClick={generateTgLink} disabled={tgConnecting} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #0088cc, #006699)' }}>
+                                        {tgConnecting ? 'Generating link...' : '🔗 Connect with Telegram'}
+                                    </button>
+                                    {tgLink && (
+                                        <button onClick={checkTgConnection} disabled={tgChecking} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #10b981, #059669)' }}>
+                                            {tgChecking ? 'Checking...' : "✅ I've started the bot — check connection"}
+                                        </button>
                                     )}
                                 </div>
-                            </div>
+                            ) : (
+                                <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                    <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#10b981', fontWeight:600 }}>
+                                        ✅ Connected — alerts will be sent to your Telegram chat
+                                    </div>
+                                    <div>
+                                        <label className="modal-label">Events</label>
+                                        <select value={tgEvents} onChange={e=>setTgEvents(e.target.value)} className="modal-select">
+                                            <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                            <option value="down">Down events only</option>
+                                        </select>
+                                    </div>
+                                    {/* Site selector */}
+                                    <div>
+                                        <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                        <div onClick={()=>setTgAllSites(p=>!p)} className="modal-checkbox-row">
+                                            <input type="checkbox" checked={tgAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                            <span className="modal-checkbox-label">All sites (current + future)</span>
+                                        </div>
+                                        {!tgAllSites && (
+                                            <div className="modal-site-selector-card">
+                                                <div className="modal-site-selector-search">
+                                                    <input value={tgSearch} onChange={e=>setTgSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                                </div>
+                                                <div className="modal-site-list">
+                                                    {servers.filter(s=>s.name.toLowerCase().includes(tgSearch.toLowerCase())).map(s => (
+                                                        <div key={s._id} onClick={()=>setTgSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                            <input type="checkbox" checked={tgSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                            <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                            <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             <div style={{ display:'flex', gap:10, marginTop:20 }}>
-                                <button onClick={()=>setTgModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
-                                <button onClick={testTg} disabled={tgTesting||!tgForm.botToken||!tgForm.chatId} className="modal-btn-test" style={{ flex: 1 }}>
-                                    {tgTesting ? '...' : '📨 Test'}
-                                </button>
-                                <button onClick={saveTg} disabled={tgSaving||!tgForm.botToken||!tgForm.chatId} className="modal-btn-save" style={{ flex: 2 }}>
-                                    {tgSaving ? 'Saving...' : '💾 Save'}
-                                </button>
+                                <button onClick={()=>setTgModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>{tgConnected ? 'Cancel' : 'Close'}</button>
+                                {tgConnected && (
+                                    <>
+                                        <button onClick={testTg} disabled={tgTesting} className="modal-btn-test" style={{ flex: 1 }}>
+                                            {tgTesting ? '...' : '📨 Test'}
+                                        </button>
+                                        <button onClick={saveTgSettings} disabled={tgSaving} className="modal-btn-save" style={{ flex: 2 }}>
+                                            {tgSaving ? 'Saving...' : '💾 Save'}
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

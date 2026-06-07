@@ -1,7 +1,6 @@
 const Integration = require('../models/Integration');
 const https = require('https');
 const http = require('http');
-const axios = require('axios');
 
 // GET /api/integrations
 exports.getIntegrations = async (req, res) => {
@@ -47,24 +46,6 @@ exports.testWebhook = async (req, res) => {
         });
         res.json({ success: true });
     } catch (e) { res.status(400).json({ error: e.message }); }
-};
-
-// POST /api/integrations/test-telegram
-exports.testTelegram = async (req, res) => {
-    const { botToken, chatId } = req.body;
-    if (!botToken || !chatId) return res.status(400).json({ error: 'Bot Token and Chat ID required' });
-    try {
-        const r = await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            chat_id: chatId,
-            text: '🚨 *UptimeForge Test*\nYour Telegram integration is working! You will receive alerts here when your sites go down or recover.',
-            parse_mode: 'Markdown',
-        }, { timeout: 10000 });
-        if (r.data?.ok) return res.json({ success: true });
-        return res.status(400).json({ error: r.data?.description || 'Telegram rejected the request' });
-    } catch (e) {
-        const desc = e.response?.data?.description || e.message;
-        return res.status(400).json({ error: desc });
-    }
 };
 
 // POST /api/integrations/:type
