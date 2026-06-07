@@ -1200,7 +1200,7 @@ export default function Charts({ theme = 'light', user }) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false} />
                 <XAxis dataKey="time" tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} interval={4} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} unit="ms" tickLine={false} axisLine={false} width={50} />
+                <YAxis type="number" domain={[0, 'auto']} allowDecimals={false} tickFormatter={(v)=>`${Math.round(v)}ms`} tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} width={50} />
                 <Tooltip content={<RtTooltip />} />
                 {avgResponseTime > 0 && (
                   <ReferenceLine y={avgResponseTime} stroke={isDark ? 'rgba(167,139,250,0.4)' : '#a78bfa'} strokeDasharray="4 4"

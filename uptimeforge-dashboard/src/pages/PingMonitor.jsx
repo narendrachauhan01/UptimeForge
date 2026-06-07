@@ -320,7 +320,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                                     <defs><linearGradient id="pgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/><stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/></linearGradient></defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false}/>
                                     <XAxis dataKey="time" tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} interval={Math.floor(chartData.length/5)||1} tickLine={false} axisLine={false}/>
-                                    <YAxis tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} unit="ms" tickLine={false} axisLine={false} width={42}/>
+                                    <YAxis type="number" domain={[0, 'auto']} allowDecimals={false} tickFormatter={(v)=>`${Math.round(v)}ms`} tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} tickLine={false} axisLine={false} width={42}/>
                                     <Tooltip contentStyle={{borderRadius:12,fontSize:12,background: isDark ? '#1e293b' : '#ffffff', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)'}} formatter={v=>[`${v}ms`,'Latency']}/>
                                     <Area type="monotone" dataKey="ms" stroke="var(--primary)" strokeWidth={2.5} fill="url(#pgGrad)" dot={false}/>
                                 </AreaChart>
