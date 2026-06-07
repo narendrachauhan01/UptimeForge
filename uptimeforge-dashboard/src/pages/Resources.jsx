@@ -851,7 +851,7 @@ export default function Resources() {
                         <div key={key}>
                           <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 10 }}>{name}</div>
                           <ResponsiveContainer width="100%" height={140}>
-                            <LineChart data={history} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
+                            <LineChart data={history} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--recharts-grid)" />
                               <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--recharts-text)' }} interval="preserveStartEnd" />
                               <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--recharts-text)' }} unit="%" />

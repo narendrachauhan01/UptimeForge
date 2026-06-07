@@ -316,7 +316,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                         <div style={{ fontWeight:700, fontSize:13, color:'var(--text-main)', marginBottom:10 }}>📈 Response Time — Last 48 checks</div>
                         {chartData.length > 1 ? (
                             <ResponsiveContainer width="100%" height={150}>
-                                <AreaChart data={chartData} margin={{top:5,right:10,left:0,bottom:0}}>
+                                <AreaChart data={chartData} margin={{top:5,right:10,left:8,bottom:0}}>
                                     <defs><linearGradient id="pgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/><stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/></linearGradient></defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false}/>
                                     <XAxis dataKey="time" tick={{fontSize:10,fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600}} interval={Math.floor(chartData.length/5)||1} tickLine={false} axisLine={false}/>
