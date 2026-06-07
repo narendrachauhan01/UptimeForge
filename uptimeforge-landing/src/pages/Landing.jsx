@@ -713,40 +713,6 @@ export default function Landing() {
         ))}
       </div>
 
-      {/* ── MOBILE APP — COMING SOON ── */}
-      <section className="lp-mobile-app">
-        <div className="lp-mobile-app-wrap">
-          <div className="lp-mobile-app-text">
-            <span className="lp-mobile-app-badge">
-              <span className="lp-tag-dot" />
-              Coming Soon
-            </span>
-            <h3 className="lp-mobile-app-h3">UptimeForge is coming to your phone</h3>
-            <p className="lp-mobile-app-p">
-              Get real-time uptime alerts, check site status, and manage your monitors on the go — our Android &amp; iOS apps are in the works.
-            </p>
-          </div>
-          <div className="lp-mobile-app-stores">
-            <div className="lp-store-badge">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 20.5V3.5C3 2.91 3.34 2.39 3.84 2.15L13.69 12L3.84 21.85C3.34 21.6 3 21.09 3 20.5Z" fill="#00d4ff"/><path d="M16.81 15.12L6.05 21.34L14.54 12.85L16.81 15.12Z" fill="#ff3a44"/><path d="M20.16 10.81C20.5 11.08 20.75 11.5 20.75 12C20.75 12.5 20.53 12.9 20.18 13.18L17.89 14.5L15.39 12L17.89 9.5L20.16 10.81Z" fill="#ffcd00"/><path d="M6.05 2.66L16.81 8.88L14.54 11.15L6.05 2.66Z" fill="#3bc977"/></svg>
-              <div className="lp-store-text">
-                <span className="lp-store-sub">Coming soon on</span>
-                <span className="lp-store-main">Google Play</span>
-              </div>
-              <span className="lp-store-soon-pill">Soon</span>
-            </div>
-            <div className="lp-store-badge">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 16.4c-.03.07-.463 1.59-1.535 3.15-.93 1.36-1.9 2.71-3.41 2.74-1.49.03-1.97-.88-3.67-.88-1.71 0-2.24.85-3.65.91-1.46.06-2.58-1.47-3.51-2.82-1.91-2.76-3.37-7.79-1.41-11.19.97-1.69 2.71-2.76 4.6-2.79 1.43-.03 2.78.96 3.66.96.87 0 2.51-1.18 4.24-1.01.72.03 2.74.29 4.04 2.19-.1.07-2.41 1.41-2.39 4.2.03 3.34 2.93 4.45 2.96 4.46.04.01-.46 1.6-1.93 1.04z"/></svg>
-              <div className="lp-store-text">
-                <span className="lp-store-sub">Coming soon on</span>
-                <span className="lp-store-main">App Store</span>
-              </div>
-              <span className="lp-store-soon-pill">Soon</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── FEATURES ── */}
       <section className="lp-features" id="features">
         <div className="lp-section-wrap" style={{ textAlign: 'center' }}>
@@ -1587,6 +1553,40 @@ export default function Landing() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── MOBILE APP — COMING SOON ── */}
+      <section className="lp-mobile-app">
+        <div className="lp-mobile-app-wrap">
+          <div className="lp-mobile-app-text">
+            <span className="lp-mobile-app-badge">
+              <span className="lp-tag-dot" />
+              Coming Soon
+            </span>
+            <h3 className="lp-mobile-app-h3">UptimeForge is coming to your phone</h3>
+            <p className="lp-mobile-app-p">
+              Get real-time uptime alerts, check site status, and manage your monitors on the go — our Android &amp; iOS apps are in the works.
+            </p>
+          </div>
+          <div className="lp-mobile-app-stores">
+            <div className="lp-store-badge">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 20.5V3.5C3 2.91 3.34 2.39 3.84 2.15L13.69 12L3.84 21.85C3.34 21.6 3 21.09 3 20.5Z" fill="#00d4ff"/><path d="M16.81 15.12L6.05 21.34L14.54 12.85L16.81 15.12Z" fill="#ff3a44"/><path d="M20.16 10.81C20.5 11.08 20.75 11.5 20.75 12C20.75 12.5 20.53 12.9 20.18 13.18L17.89 14.5L15.39 12L17.89 9.5L20.16 10.81Z" fill="#ffcd00"/><path d="M6.05 2.66L16.81 8.88L14.54 11.15L6.05 2.66Z" fill="#3bc977"/></svg>
+              <div className="lp-store-text">
+                <span className="lp-store-sub">Coming soon on</span>
+                <span className="lp-store-main">Google Play</span>
+              </div>
+              <span className="lp-store-soon-pill">Soon</span>
+            </div>
+            <div className="lp-store-badge">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 16.4c-.03.07-.463 1.59-1.535 3.15-.93 1.36-1.9 2.71-3.41 2.74-1.49.03-1.97-.88-3.67-.88-1.71 0-2.24.85-3.65.91-1.46.06-2.58-1.47-3.51-2.82-1.91-2.76-3.37-7.79-1.41-11.19.97-1.69 2.71-2.76 4.6-2.79 1.43-.03 2.78.96 3.66.96.87 0 2.51-1.18 4.24-1.01.72.03 2.74.29 4.04 2.19-.1.07-2.41 1.41-2.39 4.2.03 3.34 2.93 4.45 2.96 4.46.04.01-.46 1.6-1.93 1.04z"/></svg>
+              <div className="lp-store-text">
+                <span className="lp-store-sub">Coming soon on</span>
+                <span className="lp-store-main">App Store</span>
+              </div>
+              <span className="lp-store-soon-pill">Soon</span>
             </div>
           </div>
         </div>
