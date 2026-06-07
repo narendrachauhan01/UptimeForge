@@ -6,6 +6,7 @@ router.use(auth);
 
 router.get('/',              ctrl.getIntegrations);
 router.post('/test-webhook', ctrl.testWebhook);
+router.post('/test-telegram', ctrl.testTelegram);
 router.post('/:type',        ctrl.saveIntegration);
 router.delete('/:type',      ctrl.deleteIntegration);
 

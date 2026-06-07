@@ -299,6 +299,14 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
     const [rcSelected,  setRcSelected]  = useState([]);
     const [rcSearch,    setRcSearch]    = useState('');
 
+    const [tgModal,    setTgModal]    = useState(false);
+    const [tgForm,     setTgForm]     = useState({ botToken:'', chatId:'', events:'all' });
+    const [tgSaving,   setTgSaving]   = useState(false);
+    const [tgTesting,  setTgTesting]  = useState(false);
+    const [tgAllSites, setTgAllSites] = useState(true);
+    const [tgSelected, setTgSelected] = useState([]);
+    const [tgSearch,   setTgSearch]   = useState('');
+
     const validateWebhookUrl = (url) => {
         if (!url) return '⚠️ Webhook URL required';
         try { new URL(url); } catch { return '⚠️ Invalid URL format'; }
@@ -354,6 +362,46 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
             showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
         }
         setRcTesting(false);
+    };
+
+    const openTgModal = async () => {
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations`, { withCredentials: true });
+            const tg = r.data.find(i => i.type === 'telegram');
+            if (tg) {
+                setTgForm({ botToken: tg.config?.botToken||'', chatId: tg.config?.chatId||'', events: tg.events||'all' });
+                const srvs = tg.servers || [];
+                setTgAllSites(srvs.length === 0);
+                setTgSelected(srvs.map(s => s.toString()));
+            }
+        } catch {}
+        setTgModal(true);
+    };
+
+    const saveTg = async () => {
+        if (!tgForm.botToken || !tgForm.chatId) { showToast('⚠️ Bot Token and Chat ID required'); return; }
+        setTgSaving(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/telegram`, { config: { botToken: tgForm.botToken, chatId: tgForm.chatId }, events: tgForm.events||'all', servers: tgAllSites ? [] : tgSelected }, { withCredentials: true });
+            setSaved(p=>({...p, telegram:true}));
+            showToast('✅ Telegram saved!');
+            setTgModal(false);
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Could not save'));
+        }
+        setTgSaving(false);
+    };
+
+    const testTg = async () => {
+        if (!tgForm.botToken || !tgForm.chatId) { showToast('⚠️ Enter Bot Token & Chat ID first'); return; }
+        setTgTesting(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/test-telegram`, { botToken: tgForm.botToken, chatId: tgForm.chatId }, { withCredentials: true });
+            showToast('✅ Test message sent to Telegram!');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check Bot Token & Chat ID'));
+        }
+        setTgTesting(false);
     };
 
     const openWebhookModal = async () => {
@@ -987,11 +1035,26 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                     </div>
                 </div>
 
+                {/* Telegram */}
+                <div className="integration-card">
+                    <div className="integration-icon" style={{ background:isDark ? 'rgba(0, 136, 204, 0.08)' : '#e8f6ff', borderColor: isDark ? 'rgba(0, 136, 204, 0.25)' : '#bfe7ff' }}>
+                        <IcoTelegram/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <div className="integration-name">Telegram</div>
+                        <div className="integration-desc">Get instant alerts via your own Telegram bot.</div>
+                    </div>
+                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                        {saved.telegram && <span className="badge-active">✓ Active</span>}
+                        {saved.telegram && <button onClick={()=>deleteIntegration('telegram')} className="btn-delete">🗑</button>}
+                        <button onClick={openTgModal} className="btn-add" style={{ background: saved.telegram ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>{saved.telegram ? '✏️ Edit' : '+ Add'}</button>
+                    </div>
+                </div>
+
                 {/* Coming Soon */}
                 <div className="section-title" style={{ marginTop:20 }}>Coming Soon</div>
                 {[
                     { iconEl:<IcoSlack/>,    name:'Slack',    desc:'Send alerts to your Slack channel via incoming webhook.' },
-                    { iconEl:<IcoTelegram/>, name:'Telegram', desc:'Get instant alerts via Telegram bot messages.' },
                     { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
                 ].map(intg => (
                     <div key={intg.name} className="coming-soon-card">
@@ -1062,6 +1125,76 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                                 </button>
                                 <button onClick={saveRc} disabled={rcSaving||!rcForm.url} className="modal-btn-save" style={{ flex: 2 }}>
                                     {rcSaving ? 'Saving...' : '💾 Save'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Telegram Modal */}
+                {tgModal && (
+                    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setTgModal(false)}>
+                        <div className="modal-card">
+                            <button onClick={()=>setTgModal(false)} className="modal-close">✕</button>
+                            <div style={{ textAlign:'center', marginBottom:20 }}>
+                                <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoTelegram/></div>
+                                <h2 className="modal-title">Add <span style={{color:'#0088cc'}}>Telegram</span> Bot</h2>
+                                <p className="modal-subtitle">Get alerts straight to your phone via your own Telegram bot</p>
+                            </div>
+                            <div style={{ background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:10, padding:'12px 14px', marginBottom:14, fontSize:12.5, color:'var(--text-muted)', lineHeight:1.6 }}>
+                                <b style={{ color:'var(--text-main)' }}>How to set up:</b><br/>
+                                1. Open Telegram, search <b>@BotFather</b> → send <code>/newbot</code> → copy the <b>Bot Token</b><br/>
+                                2. Search <b>@userinfobot</b> → send <code>/start</code> → copy your <b>Chat ID</b><br/>
+                                <span style={{ opacity:0.8 }}>(For a group: add your bot to the group, send a message, then open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> to find the group's chat id)</span>
+                            </div>
+                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                <div>
+                                    <label className="modal-label">Bot Token *</label>
+                                    <input value={tgForm.botToken} onChange={e=>setTgForm({...tgForm,botToken:e.target.value})} placeholder="123456789:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" className="modal-input" />
+                                </div>
+                                <div>
+                                    <label className="modal-label">Chat ID *</label>
+                                    <input value={tgForm.chatId} onChange={e=>setTgForm({...tgForm,chatId:e.target.value})} placeholder="e.g. 123456789 or -1001234567890" className="modal-input" />
+                                </div>
+                                <div>
+                                    <label className="modal-label">Events</label>
+                                    <select value={tgForm.events} onChange={e=>setTgForm({...tgForm,events:e.target.value})} className="modal-select">
+                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                        <option value="down">Down events only</option>
+                                    </select>
+                                </div>
+                                {/* Site selector */}
+                                <div>
+                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                    <div onClick={()=>setTgAllSites(p=>!p)} className="modal-checkbox-row">
+                                        <input type="checkbox" checked={tgAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                        <span className="modal-checkbox-label">All sites (current + future)</span>
+                                    </div>
+                                    {!tgAllSites && (
+                                        <div className="modal-site-selector-card">
+                                            <div className="modal-site-selector-search">
+                                                <input value={tgSearch} onChange={e=>setTgSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                            </div>
+                                            <div className="modal-site-list">
+                                                {servers.filter(s=>s.name.toLowerCase().includes(tgSearch.toLowerCase())).map(s => (
+                                                    <div key={s._id} onClick={()=>setTgSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                        <input type="checkbox" checked={tgSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                                <button onClick={()=>setTgModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
+                                <button onClick={testTg} disabled={tgTesting||!tgForm.botToken||!tgForm.chatId} className="modal-btn-test" style={{ flex: 1 }}>
+                                    {tgTesting ? '...' : '📨 Test'}
+                                </button>
+                                <button onClick={saveTg} disabled={tgSaving||!tgForm.botToken||!tgForm.chatId} className="modal-btn-save" style={{ flex: 2 }}>
+                                    {tgSaving ? 'Saving...' : '💾 Save'}
                                 </button>
                             </div>
                         </div>
