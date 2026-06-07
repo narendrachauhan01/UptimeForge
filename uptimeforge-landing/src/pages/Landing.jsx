@@ -1654,7 +1654,7 @@ export default function Landing() {
 
         {/* Bottom bar */}
         <div className="lp-footer-bottom">
-          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong style={{ color:'#e2e8f0' }}>Narendra Singh</strong></div>
+          <div className="lp-footer-copy">© 2026 UptimeForge.in – <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Privacy Policy</Link> | <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Terms &amp; Conditions</Link></div>
           <Link to="/staff-login" className="lp-staff-login-btn">
             🔐 Staff Login
           </Link>

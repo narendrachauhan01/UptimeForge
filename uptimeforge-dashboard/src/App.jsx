@@ -715,7 +715,7 @@ function AppInner() {
                 <span className="status-text">All systems operational</span>
               </div>
               <span className="footer-copyright">
-                © {new Date().getFullYear()} UptimeForge · Managed by <strong>Narendra Singh</strong>
+                © {new Date().getFullYear()} UptimeForge.in – <Link to="/terms">Privacy Policy</Link> | <Link to="/terms">Terms &amp; Conditions</Link>
               </span>
             </div>
             <div className="footer-right">
