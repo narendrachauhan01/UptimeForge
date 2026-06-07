@@ -390,7 +390,6 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
         try {
             const r = await axios.post(`${API_URL}/api/integrations/telegram/connect`, {}, { withCredentials: true });
             setTgLink(r.data.link);
-            window.open(r.data.link, '_blank', 'noopener,noreferrer');
         } catch (e) {
             showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Could not generate link'));
         }
@@ -1177,17 +1176,23 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                                     <div style={{ background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:10, padding:'14px 16px', fontSize:13, color:'var(--text-muted)', lineHeight:1.8 }}>
                                         <b style={{ color:'var(--text-main)' }}>How it works:</b><br/>
-                                        1. Tap <b>Connect with Telegram</b> — it opens our official bot in Telegram<br/>
-                                        2. Tap <b>Start</b> in the chat that opens<br/>
+                                        1. Tap <b>Connect with Telegram</b> to get your link<br/>
+                                        2. Tap <b>Open Telegram &amp; Tap Start</b> — works on mobile and desktop<br/>
                                         3. Come back and tap <b>I've started the bot</b> to confirm
                                     </div>
-                                    <button onClick={generateTgLink} disabled={tgConnecting} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #0088cc, #006699)' }}>
-                                        {tgConnecting ? 'Generating link...' : '🔗 Connect with Telegram'}
-                                    </button>
-                                    {tgLink && (
-                                        <button onClick={checkTgConnection} disabled={tgChecking} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #10b981, #059669)' }}>
-                                            {tgChecking ? 'Checking...' : "✅ I've started the bot — check connection"}
+                                    {!tgLink ? (
+                                        <button onClick={generateTgLink} disabled={tgConnecting} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #0088cc, #006699)' }}>
+                                            {tgConnecting ? 'Generating link...' : '🔗 Connect with Telegram'}
                                         </button>
+                                    ) : (
+                                        <>
+                                            <a href={tgLink} target="_blank" rel="noopener noreferrer" className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', textDecoration:'none', display:'block', boxSizing:'border-box', background:'linear-gradient(135deg, #0088cc, #006699)', color:'#fff' }}>
+                                                📲 Open Telegram &amp; Tap Start
+                                            </a>
+                                            <button onClick={checkTgConnection} disabled={tgChecking} className="btn-add" style={{ width:'100%', padding:'13px', fontSize:14, textAlign:'center', background:'linear-gradient(135deg, #10b981, #059669)' }}>
+                                                {tgChecking ? 'Checking...' : "✅ I've started the bot — check connection"}
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             ) : (
