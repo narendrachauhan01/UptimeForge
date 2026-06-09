@@ -503,6 +503,12 @@ export default function Reports() {
 
     useEffect(() => { load(); }, [load]);
 
+    // Auto-refresh every 30s to pick up cron-generated reports
+    useEffect(() => {
+        const iv = setInterval(load, 30000);
+        return () => clearInterval(iv);
+    }, [load]);
+
     const handleSchedule = async (val) => {
         if (val === schedule) return;
         setSavingSchedule(true);
