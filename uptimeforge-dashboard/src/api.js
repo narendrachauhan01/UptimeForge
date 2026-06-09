@@ -22,7 +22,7 @@ export const updateRecipient = (id, data) => api.put(`/recipients/${id}`, data);
 export const deleteRecipient = (id) => api.delete(`/recipients/${id}`);
 
 // Alerts
-export const getAlerts = () => api.get('/alerts');
+export const getAlerts = (params) => api.get('/alerts', { params });
 export const getWaStatus = () => api.get('/whatsapp/status');
 
 // Public config (Google Client ID from backend)
