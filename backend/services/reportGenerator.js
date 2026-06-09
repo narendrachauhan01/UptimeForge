@@ -46,6 +46,10 @@ async function buildReportData(userId, type) {
         const rtSamples       = recentHistory.filter(h => h.responseTime && h.status === 'up').map(h => h.responseTime);
         const avgResponseTime = rtSamples.length ? Math.round(rtSamples.reduce((a, b) => a + b, 0) / rtSamples.length) : (srv.responseTime || null);
 
+        const domainDaysLeft = srv.domainExpiry
+            ? Math.ceil((new Date(srv.domainExpiry) - now) / (1000 * 60 * 60 * 24))
+            : null;
+
         return {
             name: srv.name,
             url: srv.url,
@@ -55,6 +59,7 @@ async function buildReportData(userId, type) {
             incidents: downEvents.length,
             sslDaysLeft: srv.sslDaysLeft ?? null,
             domainExpiry: srv.domainExpiry ? new Date(srv.domainExpiry).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : null,
+            domainDaysLeft,
         };
     });
 
@@ -145,8 +150,15 @@ function generateHTML(data) {
                         : `<span class="ssl-badge ok">${m.sslDaysLeft}d</span>`
                     : '—'}
             </td>
+            <td class="tc">
+                ${m.domainExpiry
+                    ? m.domainDaysLeft !== null && m.domainDaysLeft < 30
+                        ? `<span class="ssl-badge warn">${m.domainExpiry}</span>`
+                        : `<span style="font-size:12px;color:var(--text-secondary)">${m.domainExpiry}</span>`
+                    : '<span style="color:var(--text-muted)">—</span>'}
+            </td>
         </tr>`).join('')
-        : '<tr><td colspan="6" class="empty">No monitors found</td></tr>';
+        : '<tr><td colspan="7" class="empty">No monitors found</td></tr>';
 
     const pingRows = data.pingTargets.length
         ? data.pingTargets.map(p => `
@@ -177,6 +189,16 @@ function generateHTML(data) {
             <td class="tc"><span class="inc-type-badge">${inc.source === 'ping' ? 'Ping' : 'HTTP'}</span></td>
         </tr>`).join('')
         : '<tr><td colspan="5" class="empty" style="color:var(--success)">No incidents during this period</td></tr>';
+
+    const domainWarnings = data.monitors.filter(m => m.domainDaysLeft !== null && m.domainDaysLeft < 30);
+    const domainSection  = domainWarnings.length ? `
+        <div class="ssl-box" style="background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2);">
+            <div class="ssl-title" style="color:var(--danger)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Domain Names Expiring Soon
+            </div>
+            ${domainWarnings.map(m => `<div class="ssl-row"><strong>${esc(m.name)}</strong> — expires on <span style="color:var(--danger);font-weight:700">${m.domainExpiry}</span> (${m.domainDaysLeft} days left)</div>`).join('')}
+        </div>` : '';
 
     const sslWarnings = data.monitors.filter(m => m.sslDaysLeft !== null && m.sslDaysLeft < 30);
     const sslSection  = sslWarnings.length ? `
@@ -1223,6 +1245,9 @@ tr.alt td {
       </div>
     </div>
 
+    <!-- Domain Expiry Warnings -->
+    ${domainSection}
+
     <!-- SSL Warnings section -->
     ${sslSection}
 
@@ -1245,6 +1270,7 @@ tr.alt td {
               <th class="tc">Avg Response</th>
               <th class="tc">Incidents</th>
               <th class="tc">SSL Expiry</th>
+              <th class="tc">Domain Expiry</th>
             </tr>
           </thead>
           <tbody>${monitorRows}</tbody>
