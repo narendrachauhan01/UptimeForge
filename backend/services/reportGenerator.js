@@ -95,7 +95,7 @@ async function buildReportData(userId, type) {
     const rtAll           = monitorData.map(m => m.avgResponseTime).filter(Boolean);
     const avgResponseTime = rtAll.length ? Math.round(rtAll.reduce((a, b) => a + b, 0) / rtAll.length) : null;
 
-    const incidentList = allIncidents.filter(a => a.type === 'down').slice(-20).reverse().map(a => ({
+    const incidentList = allIncidents.filter(a => a.type === 'down').reverse().map(a => ({
         serverName: a.serverName,
         serverUrl:  a.serverUrl,
         type:       a.type,
