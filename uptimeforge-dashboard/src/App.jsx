@@ -372,6 +372,8 @@ function AppInner() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, webhook: true, rocketChat: true });
   const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -395,6 +397,8 @@ function AppInner() {
     getPlans().then(r => {
       if (r.data.freeTrialAccess) setFreeAccess(r.data.freeTrialAccess);
       if (r.data.bronzeAccess)    setBronzeAccess(r.data.bronzeAccess);
+      if (r.data.silverAccess)    setSilverAccess(r.data.silverAccess);
+      if (r.data.goldAccess)      setGoldAccess(r.data.goldAccess);
     }).catch(() => {});
   }, []);
 
@@ -698,14 +702,13 @@ function AppInner() {
               {isAdmin && <Route path="/staff-management" element={<StaffManagement />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
               <Route path="/add-monitor" element={<AddMonitor user={user} />} />
-              <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} />} />
-              <Route path="/ping" element={
-                  !user ||
-                  (user.plan !== 'free_trial' && user.plan !== 'bronze') ||
-                  (user.plan === 'free_trial' ? freeAccess.pingMonitor !== false : bronzeAccess.pingMonitor !== false)
-                      ? <PingMonitor />
-                      : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>
-              } />
+              <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} silverAccess={silverAccess} goldAccess={goldAccess} />} />
+              <Route path="/ping" element={(() => {
+                  const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
+                  const acc = user?.plan ? planAcc[user.plan] : null;
+                  const blocked = acc && acc.pingMonitor === false;
+                  return blocked ? <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate> : <PingMonitor />;
+              })()} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
               <Route path="*" element={<Dashboard />} />

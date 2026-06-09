@@ -210,15 +210,15 @@ const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xml
 
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
-export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} }) {
+export default function Integrations({ user, freeAccess = {}, bronzeAccess = {}, silverAccess = {}, goldAccess = {} }) {
     const { confirm, Dialog: ConfirmDialog } = useConfirm();
     const navigate = useNavigate();
     const [currentPlan, setCurrentPlan] = useState(user?.plan || 'free_trial');
-    const isFree   = currentPlan === 'free_trial';
-    const isBronze = currentPlan === 'bronze';
-    const blocked  = (key) =>
-        (isFree   && freeAccess[key]   === false) ||
-        (isBronze && bronzeAccess[key] === false);
+    const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
+    const blocked  = (key) => {
+        const acc = planAcc[currentPlan];
+        return acc ? acc[key] === false : false;
+    };
 
     const [localTheme, setLocalTheme] = useState(() => {
         const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);

@@ -74,6 +74,20 @@ const settingsSchema = new mongoose.Schema({
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
     },
+    silverAccess: {
+        pingMonitor: { type: Boolean, default: true },
+        whatsapp:    { type: Boolean, default: true },
+        telegram:    { type: Boolean, default: true },
+        webhook:     { type: Boolean, default: true },
+        rocketChat:  { type: Boolean, default: true },
+    },
+    goldAccess: {
+        pingMonitor: { type: Boolean, default: true },
+        whatsapp:    { type: Boolean, default: true },
+        telegram:    { type: Boolean, default: true },
+        webhook:     { type: Boolean, default: true },
+        rocketChat:  { type: Boolean, default: true },
+    },
     annualDiscount: { type: Number, default: 20 },
     annualPlans: {
         enabled:  { type: Boolean, default: true },
@@ -157,6 +171,8 @@ settingsSchema.statics.get = async function () {
     if (!s.bronzeAccess) { s.bronzeAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
     if (s.bronzeAccess && s.bronzeAccess.telegram    === undefined) { s.bronzeAccess.telegram    = true; s.markModified('bronzeAccess'); dirty = true; }
     if (s.bronzeAccess && s.bronzeAccess.pingMonitor === undefined) { s.bronzeAccess.pingMonitor = true; s.markModified('bronzeAccess'); dirty = true; }
+    if (!s.silverAccess) { s.silverAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('silverAccess'); dirty = true; }
+    if (!s.goldAccess)   { s.goldAccess   = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('goldAccess');   dirty = true; }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
@@ -192,6 +208,14 @@ settingsSchema.statics.update = async function (data) {
     if (data.bronzeAccess !== undefined) {
         s.bronzeAccess = { ...s.bronzeAccess, ...data.bronzeAccess };
         s.markModified('bronzeAccess');
+    }
+    if (data.silverAccess !== undefined) {
+        s.silverAccess = { ...s.silverAccess, ...data.silverAccess };
+        s.markModified('silverAccess');
+    }
+    if (data.goldAccess !== undefined) {
+        s.goldAccess = { ...s.goldAccess, ...data.goldAccess };
+        s.markModified('goldAccess');
     }
     if (data.freeTrialFeatures !== undefined) {
         const f = sanitizeFeatures(data.freeTrialFeatures);

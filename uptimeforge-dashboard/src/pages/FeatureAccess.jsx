@@ -25,13 +25,16 @@ const FEATURES = [
     { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
 ];
 
-const BRONZE_FEATURES = [
+const PLAN_FEATURES = [
     { key: 'pingMonitor', label: 'Ping Monitor',             desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: '📡' },
     { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: '💬' },
     { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: '✈️' },
     { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: '🔗' },
     { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
 ];
+const BRONZE_FEATURES = PLAN_FEATURES;
+const SILVER_FEATURES = PLAN_FEATURES;
+const GOLD_FEATURES   = PLAN_FEATURES;
 
 const FEATURE_ACCESS_STYLES = `
   .perf-page-container {
@@ -332,8 +335,11 @@ const FEATURE_ACCESS_STYLES = `
 `;
 
 export default function FeatureAccess({ readOnly = false }) {
-    const [access, setAccess]       = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
-    const [bronzeAcc, setBronzeAcc] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
+    const DEFAULT_ACC = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true };
+    const [access,     setAccess]     = useState({ domainSsl: true, charts: true, ...DEFAULT_ACC });
+    const [bronzeAcc,  setBronzeAcc]  = useState({ ...DEFAULT_ACC });
+    const [silverAcc,  setSilverAcc]  = useState({ ...DEFAULT_ACC });
+    const [goldAcc,    setGoldAcc]    = useState({ ...DEFAULT_ACC });
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState('');
 
@@ -348,6 +354,8 @@ export default function FeatureAccess({ readOnly = false }) {
         adminGetSettings().then(r => {
             if (r.data.freeTrialAccess) setAccess(r.data.freeTrialAccess);
             if (r.data.bronzeAccess)    setBronzeAcc(r.data.bronzeAccess);
+            if (r.data.silverAccess)    setSilverAcc(r.data.silverAccess);
+            if (r.data.goldAccess)      setGoldAcc(r.data.goldAccess);
         }).catch(() => showToast('Failed to load settings'));
     }, []);
 
@@ -377,11 +385,13 @@ export default function FeatureAccess({ readOnly = false }) {
 
     const toggle       = (key) => { if (!readOnly) setAccess(prev => ({ ...prev, [key]: !prev[key] })); };
     const toggleBronze = (key) => { if (!readOnly) setBronzeAcc(prev => ({ ...prev, [key]: !prev[key] })); };
+    const toggleSilver = (key) => { if (!readOnly) setSilverAcc(prev => ({ ...prev, [key]: !prev[key] })); };
+    const toggleGold   = (key) => { if (!readOnly) setGoldAcc(prev => ({ ...prev, [key]: !prev[key] })); };
 
     const save = async () => {
         setSaving(true);
         try {
-            await adminUpdateSettings({ freeTrialAccess: access, bronzeAccess: bronzeAcc });
+            await adminUpdateSettings({ freeTrialAccess: access, bronzeAccess: bronzeAcc, silverAccess: silverAcc, goldAccess: goldAcc });
             showToast('✅ Saved!');
         } catch { showToast('❌ Save failed'); }
         setSaving(false);
@@ -549,6 +559,48 @@ export default function FeatureAccess({ readOnly = false }) {
                         Changes take effect immediately for all Bronze plan users.
                     </div>
                 </div>
+
+                {/* ── Silver Plan Access ── */}
+                {[
+                    { label: '🥈 Silver Plan Feature Access', sub: 'Control which features Silver plan users can access', acc: silverAcc, toggle: toggleSilver, banner: 'Changes take effect immediately for all Silver plan users.' },
+                    { label: '🥇 Gold Plan Feature Access',   sub: 'Control which features Gold plan users can access',   acc: goldAcc,   toggle: toggleGold,   banner: 'Changes take effect immediately for all Gold plan users.' },
+                ].map(({ label, sub, acc, toggle: tog, banner }) => (
+                    <div key={label} style={{ marginTop: 32 }}>
+                        <div style={{ marginBottom: 16 }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px', fontFamily: 'Outfit, sans-serif' }}>{label}</h2>
+                            <p style={{ fontSize: 13.5, color: 'var(--text-muted)', margin: 0 }}>{sub}</p>
+                        </div>
+                        <div className="form-card">
+                            <div className="form-card-title-row">
+                                <span className="form-card-title-lbl">Feature</span>
+                                <span className="form-card-title-lbl">Access</span>
+                            </div>
+                            {PLAN_FEATURES.map((f) => {
+                                const allowed = !!acc[f.key];
+                                return (
+                                    <div key={f.key} className="feature-row">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                            <div className="feature-icon-box" style={{ background: allowed ? 'var(--allowed-bg)' : 'var(--blocked-bg)', border: `1px solid ${allowed ? 'var(--allowed-border)' : 'var(--blocked-border)'}` }}>
+                                                {f.icon}
+                                            </div>
+                                            <div>
+                                                <div className="feature-label">{f.label}</div>
+                                                <div className="feature-desc">{f.desc}</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                                            <span className="status-badge" style={{ background: allowed ? 'var(--allowed-bg)' : 'var(--blocked-bg)', color: allowed ? 'var(--allowed-text)' : 'var(--blocked-text)', borderColor: allowed ? 'var(--allowed-border)' : 'var(--blocked-border)' }}>
+                                                {allowed ? 'Allowed' : 'Blocked'}
+                                            </span>
+                                            <Toggle checked={allowed} onChange={() => tog(f.key)} disabled={readOnly} />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="warning-banner">{banner}</div>
+                    </div>
+                ))}
             </div>
         </div>
     );
