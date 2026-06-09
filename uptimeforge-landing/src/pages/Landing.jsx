@@ -31,6 +31,7 @@ export default function Landing() {
   const navigate = (path) => { window.location.assign(`${DASHBOARD}${path}`); };
   const [menuOpen, setMenuOpen] = useState(false);
   const [navDrop, setNavDrop] = useState(false);
+  const navDropTimer = React.useRef(null);
   const [planData, setPlanData] = useState(null);
   const [billing, setBilling] = useState('monthly');
 
@@ -629,7 +630,10 @@ export default function Landing() {
           </a>
           <div className="lp-nav-center">
             <a href="#">Home</a>
-            <div className="lp-nav-dropdown" onMouseEnter={() => setNavDrop(true)} onMouseLeave={() => setNavDrop(false)}>
+            <div className="lp-nav-dropdown"
+              onMouseEnter={() => { clearTimeout(navDropTimer.current); setNavDrop(true); }}
+              onMouseLeave={() => { navDropTimer.current = setTimeout(() => setNavDrop(false), 150); }}
+            >
               <button className="lp-nav-drop-btn">
                 Explore
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginLeft: 5, transition: 'transform 0.2s', transform: navDrop ? 'rotate(180deg)' : 'rotate(0deg)' }}><polyline points="6 9 12 15 18 9"/></svg>
