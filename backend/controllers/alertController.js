@@ -15,9 +15,7 @@ exports.getAlerts = async (req, res) => {
             ]};
         }
         if (req.query.server) filter.server = req.query.server;
-        // Only return last 30 days (auto-delete cron already purges older ones)
-        filter.createdAt = { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) };
-        const alerts = await Alert.find(filter).sort('-createdAt');
+        const alerts = await Alert.find(filter).sort('-createdAt').limit(50);
         res.json(alerts);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };

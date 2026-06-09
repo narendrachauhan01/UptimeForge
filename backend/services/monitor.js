@@ -653,13 +653,21 @@ function start() {
         require('../controllers/reportController').autoGenerate('monthly').catch(() => {});
     }, { timezone: 'Asia/Kolkata' });
 
-    // Daily cleanup: delete incidents (alerts) older than 30 days
+    // Daily cleanup: keep only latest 50 incidents per user
     cron.schedule('0 1 * * *', async () => {
         try {
-            const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-            const result = await require('../models/Alert').deleteMany({ createdAt: { $lt: cutoff } });
-            if (result.deletedCount > 0)
-                console.log(`[Cleanup] Deleted ${result.deletedCount} incidents older than 30 days`);
+            const Alert = require('../models/Alert');
+            const users = await Alert.distinct('userId');
+            let total = 0;
+            for (const userId of users) {
+                const old = await Alert.find({ userId }).sort('-createdAt').skip(50).select('_id');
+                if (old.length) {
+                    const r = await Alert.deleteMany({ _id: { $in: old.map(a => a._id) } });
+                    total += r.deletedCount;
+                }
+            }
+            if (total > 0)
+                console.log(`[Cleanup] Deleted ${total} excess incidents (kept 50 per user)`);
         } catch (e) {
             console.error('[Cleanup] Incident cleanup failed:', e.message);
         }
