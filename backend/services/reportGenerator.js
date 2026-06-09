@@ -411,7 +411,8 @@ tr.alt td { background: rgba(255,255,255,0.01); }
   body { background: #ffffff !important; color: #0f172a !important; padding: 0 !important; font-size: 12px; }
   body::before, body::after { display: none !important; }
   .pdf-btn { display: none !important; }
-  .report-wrap { max-width: 100%; gap: 0; }
+  .report-wrap { max-width: 100%; gap: 0; background: #ffffff !important; }
+  .data-pages { background: #ffffff !important; }
   .cover {
     min-height: 297mm; height: 297mm;
     page-break-after: always; break-after: page;
@@ -426,14 +427,14 @@ tr.alt td { background: rgba(255,255,255,0.01); }
   .stats-grid { grid-template-columns: repeat(5,1fr) !important; gap: 10px !important; margin-bottom: 24px !important; page-break-inside: avoid; break-inside: avoid; }
   .stat-card { padding: 12px 8px !important; border-radius: 8px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; }
   .stat-value { font-size: 20px !important; }
-  .sec { border-radius: 12px !important; margin-bottom: 20px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; page-break-inside: avoid; break-inside: avoid; }
+  .sec { border-radius: 12px !important; margin-bottom: 20px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; }
   th, td { padding: 10px 16px !important; }
   .nu { max-width: 240px !important; }
   tr:hover td { background: transparent !important; }
   tr.alt td { background: #fcfcfc !important; }
   .ssl-box { border-radius: 12px !important; border: 1px solid #fde68a !important; box-shadow: none !important; background: #fffbeb !important; padding: 16px !important; page-break-inside: avoid; break-inside: avoid; }
   .ftr { border-top: 1px solid #e2e8f0 !important; padding-top: 20px !important; }
-  .domain-page { page-break-before: always; break-before: page; padding-top: 14mm; }
+
 }
 </style>
 </head>
@@ -577,23 +578,6 @@ tr.alt td { background: rgba(255,255,255,0.01); }
         </tr></thead>
         <tbody>${incidentRows}</tbody>
       </table></div>
-    </div>
-
-    <!-- Domain Expiry Details — new page in PDF -->
-    <div class="domain-page">
-    <div class="sec">
-      <div class="sec-hd">
-        <span class="sec-title-icon ${domainWarnings.length > 0 ? 'danger' : ''}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
-        <h2>Domain Expiry Details</h2>
-        ${domainWarnings.length > 0 ? `<span class="sec-badge danger">${domainWarnings.length} expiring soon</span>` : ''}
-      </div>
-      <div class="tw"><table>
-        <thead><tr>
-          <th>Site / URL</th><th class="tc">Domain Expiry Date</th><th class="tc">Status</th>
-        </tr></thead>
-        <tbody>${domainRows}</tbody>
-      </table></div>
-    </div>
     </div>
 
     <!-- Footer -->
