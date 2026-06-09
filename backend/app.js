@@ -16,9 +16,11 @@ const httpServer = http.createServer(app);
 const allowedOrigins = [
     process.env.DASHBOARD_URL,
     process.env.LANDING_URL,
+    process.env.STATUS_URL,
     ...(process.env.NODE_ENV !== 'production' ? [
         'http://localhost:3000', 'http://localhost:3001',
         'http://localhost:5173', 'http://localhost:5174',
+        'http://localhost:3002',
     ] : []),
 ].filter(Boolean);
 
