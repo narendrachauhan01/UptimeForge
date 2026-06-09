@@ -357,6 +357,103 @@ const STYLES = `
     font-size: 13px;
     border: 1px solid transparent;
   }
+
+  /* Delete Confirm Modal */
+  .del-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+  .del-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 32px 28px 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: slideUp 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(18px) scale(0.97) } to { opacity:1; transform:translateY(0) scale(1) } }
+
+  .del-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(239,68,68,0.1);
+    border: 1.5px solid rgba(239,68,68,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+  }
+
+  .del-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .del-modal-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+
+  .del-modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .del-btn-cancel {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-input);
+    color: var(--text-main);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .del-btn-cancel:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .del-btn-confirm {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.25);
+  }
+  .del-btn-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(239,68,68,0.35);
+  }
 `;
 
 export default function Reports() {
@@ -367,6 +464,7 @@ export default function Reports() {
     const [savingSchedule, setSavingSchedule] = useState(false);
     const [downloading, setDownloading] = useState(null);
     const [toast,    setToast]    = useState('');
+    const [delConfirm, setDelConfirm] = useState(null); // report id to delete
 
     const [localTheme, setLocalTheme] = useState(() => {
         const m = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -451,7 +549,6 @@ export default function Reports() {
     };
 
     const remove = async (id) => {
-        if (!window.confirm('Delete this report? This cannot be undone.')) return;
         try {
             await axios.delete(`${API_URL}/api/reports/${id}`, { withCredentials: true });
             setReports(p => p.filter(r => r._id !== id));
@@ -513,6 +610,28 @@ export default function Reports() {
     return (
         <div className={`rpt-page ${localTheme}`}>
             <style>{STYLES}</style>
+
+            {delConfirm && (
+                <div className="del-overlay" onClick={() => setDelConfirm(null)}>
+                    <div className="del-modal" onClick={e => e.stopPropagation()}>
+                        <div className="del-icon-wrap">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
+                            </svg>
+                        </div>
+                        <h3 className="del-modal-title">Delete Report?</h3>
+                        <p className="del-modal-sub">This report will be permanently deleted.<br />This action cannot be undone.</p>
+                        <div className="del-modal-actions">
+                            <button className="del-btn-cancel" onClick={() => setDelConfirm(null)}>Cancel</button>
+                            <button className="del-btn-confirm" onClick={() => { remove(delConfirm); setDelConfirm(null); }}>Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="rpt-wrap">
                 <div className="rpt-head">
                     <h1 className="rpt-title" style={{ color: 'var(--text-main)' }}>Reports <span style={{ color:'#7c3aed' }}>.</span></h1>
@@ -657,7 +776,7 @@ export default function Reports() {
                                                 </>
                                             )}
                                         </button>
-                                        <button className="btn-del" onClick={() => remove(r._id)} aria-label="Delete report">
+                                        <button className="btn-del" onClick={() => setDelConfirm(r._id)} aria-label="Delete report">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                                 <polyline points="3 6 5 6 21 6" />
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
