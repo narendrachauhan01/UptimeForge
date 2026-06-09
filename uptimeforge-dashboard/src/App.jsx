@@ -43,6 +43,8 @@ const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
 const AdminLogin        = lazy(() => import('./pages/AdminLogin'));
 const AccountSuspended  = lazy(() => import('./pages/AccountSuspended'));
 const ConfirmDelete     = lazy(() => import('./pages/ConfirmDelete'));
+const StatusPagesManager = lazy(() => import('./pages/StatusPages'));
+const PublicStatus      = lazy(() => import('./pages/PublicStatus'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -73,6 +75,7 @@ const IcoMenu    = () => <svg width="20" height="20" fill="none" stroke="current
 const IcoDatabase = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>;
 const IcoHeadset  = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>;
 const IcoLink     = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
+const IcoStatus   = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>;
 
 function PlanBadge({ user }) {
   if (!user) return null;
@@ -216,7 +219,8 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
-    { to: '/reports',      label: 'Reports',      icon: <IcoReport /> },
+    { to: '/reports',       label: 'Reports',       icon: <IcoReport /> },
+    { to: '/status-pages', label: 'Status Pages',  icon: <IcoStatus /> },
     { to: '/account',      label: 'My Account',   icon: <IcoPlan /> },
     { to: '/support',      label: 'Support',      icon: <IcoHeadset /> },
   ];
@@ -717,6 +721,7 @@ function AppInner() {
                   const blocked = acc && acc.pingMonitor === false;
                   return blocked ? <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate> : <PingMonitor />;
               })()} />
+              <Route path="/status-pages" element={<StatusPagesManager />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
               <Route path="*" element={<Dashboard />} />
@@ -758,6 +763,7 @@ export default function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/confirm-delete" element={<ConfirmDelete />} />
           <Route path="/staff/*" element={<StaffDashboard />} />
+          <Route path="/status/:slug" element={<PublicStatus />} />
           <Route path="/*" element={<><AppInner /><CookieConsent /></>} />
         </Routes>
       </Suspense>
