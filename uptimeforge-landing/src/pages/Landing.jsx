@@ -30,6 +30,7 @@ const PLAN_META = {
 export default function Landing() {
   const navigate = (path) => { window.location.assign(`${DASHBOARD}${path}`); };
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navDrop, setNavDrop] = useState(false);
   const [planData, setPlanData] = useState(null);
   const [billing, setBilling] = useState('monthly');
 
@@ -628,10 +629,29 @@ export default function Landing() {
           </a>
           <div className="lp-nav-center">
             <a href="#">Home</a>
-            <a href="#features">Features</a>
-            <a href="#how">How it works</a>
+            <div className="lp-nav-dropdown" onMouseEnter={() => setNavDrop(true)} onMouseLeave={() => setNavDrop(false)}>
+              <button className="lp-nav-drop-btn">
+                Explore
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginLeft: 5, transition: 'transform 0.2s', transform: navDrop ? 'rotate(180deg)' : 'rotate(0deg)' }}><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              {navDrop && (
+                <div className="lp-nav-drop-menu">
+                  <a href="#features" onClick={() => setNavDrop(false)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Features
+                  </a>
+                  <a href="#how" onClick={() => setNavDrop(false)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    How it works
+                  </a>
+                  <a href="#reviews" onClick={() => setNavDrop(false)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Reviews
+                  </a>
+                </div>
+              )}
+            </div>
             <a href="#pricing">Pricing</a>
-            <a href="#reviews">Reviews</a>
           </div>
           <div className="lp-nav-right">
             <Link to="/login" className="lp-nav-login">Login</Link>
@@ -646,8 +666,8 @@ export default function Landing() {
             <a href="#" onClick={() => setMenuOpen(false)}>Home</a>
             <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
             <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
-            <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
             <a href="#reviews" onClick={() => setMenuOpen(false)}>Reviews</a>
+            <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
             <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
             <Link to="/register" className="lp-nav-cta" onClick={() => setMenuOpen(false)} style={{ textAlign: 'center' }}>Get Started Free</Link>
           </div>
