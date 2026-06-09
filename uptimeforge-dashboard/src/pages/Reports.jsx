@@ -501,6 +501,29 @@ export default function Reports() {
 
                 {toast && <div className="toast-box" style={toastStyle}>{toast}</div>}
 
+                {/* How it works */}
+                <div className="rpt-card" style={{ marginBottom: 24 }}>
+                    <div className="rpt-card-head"><span className="rpt-card-title">How Reports Work</span></div>
+                    <div className="rpt-body" style={{ padding: '18px 20px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                            {[
+                                { icon: '1️⃣', title: 'Choose a schedule', desc: 'Select Weekly or Monthly below. Your preference is saved automatically.' },
+                                { icon: '2️⃣', title: 'Auto-generates for you', desc: 'Weekly → every Monday at 8:00 AM. Monthly → 1st of every month at 8:00 AM.' },
+                                { icon: '3️⃣', title: 'Always fresh', desc: 'Only the latest 1 report per type is kept. Old report is replaced automatically.' },
+                                { icon: '4️⃣', title: 'Generate anytime', desc: 'Click "Generate Now" to create a report instantly without waiting for the schedule.' },
+                            ].map(s => (
+                                <div key={s.title} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', borderRadius:10, background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', border:`1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
+                                    <span style={{ fontSize:18, lineHeight:1, marginTop:1 }}>{s.icon}</span>
+                                    <div>
+                                        <div style={{ fontSize:13, fontWeight:700, color:'var(--text-main)', marginBottom:3 }}>{s.title}</div>
+                                        <div style={{ fontSize:12, color:'var(--text-muted)', lineHeight:1.5 }}>{s.desc}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 {/* Schedule selector */}
                 <div className="rpt-card">
                     <div className="rpt-card-head"><span className="rpt-card-title">Report Schedule</span></div>
