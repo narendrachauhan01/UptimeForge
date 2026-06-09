@@ -121,44 +121,44 @@ async function buildReportData(userId, type) {
 function generateHTML(data) {
     const up   = (u) => u >= 99 ? '#16a34a' : u >= 95 ? '#ca8a04' : '#dc2626';
     const rt   = (r) => r === null ? '—' : `${r} ms`;
-    const stat = (s) => s === 'up' ? '<span style="color:#16a34a;font-weight:700">● UP</span>' : s === 'down' ? '<span style="color:#dc2626;font-weight:700">● DOWN</span>' : '<span style="color:#64748b">● —</span>';
-    const pct  = (u) => `<span style="font-weight:700;color:${up(u)}">${u}%</span>`;
+    const stat = (s) => s === 'up' ? '<span style="background:rgba(22,163,74,0.08);color:#16a34a;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap">● UP</span>' : s === 'down' ? '<span style="background:rgba(220,38,38,0.08);color:#dc2626;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap">● DOWN</span>' : '<span style="background:rgba(100,116,139,0.08);color:#64748b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap">● —</span>';
+    const pct  = (u) => `<span style="font-weight:700;color:${up(u)};font-family:'JetBrains Mono',monospace">${u}%</span>`;
 
     const monitorRows = data.monitors.length ? data.monitors.map((m, i) => `
         <tr style="border-bottom:1px solid #e2e8f0;${i%2===0?'background:#f8fafc':''}">
-            <td style="padding:10px 12px;font-weight:600;color:#1e293b">${m.name}</td>
-            <td style="padding:10px 12px;color:#64748b;font-size:12px;word-break:break-all">${m.url}</td>
-            <td style="padding:10px 12px;text-align:center">${stat(m.status)}</td>
-            <td style="padding:10px 12px;text-align:center">${pct(m.uptime)}</td>
-            <td style="padding:10px 12px;text-align:center;color:#475569">${rt(m.avgResponseTime)}</td>
-            <td style="padding:10px 12px;text-align:center;color:${m.incidents>0?'#dc2626':'#16a34a'};font-weight:700">${m.incidents}</td>
-            <td style="padding:10px 12px;text-align:center;color:${m.sslDaysLeft!==null&&m.sslDaysLeft<30?'#dc2626':'#16a34a'};font-size:12px">${m.sslDaysLeft !== null ? `${m.sslDaysLeft}d` : '—'}</td>
-        </tr>`).join('') : '<tr><td colspan="7" style="padding:20px;text-align:center;color:#94a3b8">No monitors found</td></tr>';
+            <td style="padding:12px 14px;font-weight:700;color:#0f172a">${m.name}</td>
+            <td style="padding:12px 14px;color:#64748b;font-size:12px;word-break:break-all;font-family:'JetBrains Mono',monospace">${m.url}</td>
+            <td style="padding:12px 14px;text-align:center">${stat(m.status)}</td>
+            <td style="padding:12px 14px;text-align:center">${pct(m.uptime)}</td>
+            <td style="padding:12px 14px;text-align:center;color:#334155;font-weight:600;font-family:'JetBrains Mono',monospace">${rt(m.avgResponseTime)}</td>
+            <td style="padding:12px 14px;text-align:center;color:${m.incidents>0?'#dc2626':'#16a34a'};font-weight:700">${m.incidents}</td>
+            <td style="padding:12px 14px;text-align:center;color:${m.sslDaysLeft!==null&&m.sslDaysLeft<30?'#dc2626':'#16a34a'};font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace">${m.sslDaysLeft !== null ? `${m.sslDaysLeft}d` : '—'}</td>
+        </tr>`).join('') : '<tr><td colspan="7" style="padding:24px;text-align:center;color:#94a3b8;font-weight:500">No monitors found</td></tr>';
 
     const pingRows = data.pingTargets.length ? data.pingTargets.map((p, i) => `
         <tr style="border-bottom:1px solid #e2e8f0;${i%2===0?'background:#f8fafc':''}">
-            <td style="padding:10px 12px;font-weight:600;color:#1e293b">${p.name}</td>
-            <td style="padding:10px 12px;color:#64748b;font-family:monospace">${p.host}</td>
-            <td style="padding:10px 12px;text-align:center">${stat(p.status)}</td>
-            <td style="padding:10px 12px;text-align:center">${pct(p.uptime)}</td>
-            <td style="padding:10px 12px;text-align:center;color:#475569">${rt(p.avgResponseTime)}</td>
-            <td style="padding:10px 12px;text-align:center;color:${p.incidents>0?'#dc2626':'#16a34a'};font-weight:700">${p.incidents}</td>
-        </tr>`).join('') : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#94a3b8">No ping targets configured</td></tr>';
+            <td style="padding:12px 14px;font-weight:700;color:#0f172a">${p.name}</td>
+            <td style="padding:12px 14px;color:#64748b;font-family:'JetBrains Mono',monospace">${p.host}</td>
+            <td style="padding:12px 14px;text-align:center">${stat(p.status)}</td>
+            <td style="padding:12px 14px;text-align:center">${pct(p.uptime)}</td>
+            <td style="padding:12px 14px;text-align:center;color:#334155;font-weight:600;font-family:'JetBrains Mono',monospace">${rt(p.avgResponseTime)}</td>
+            <td style="padding:12px 14px;text-align:center;color:${p.incidents>0?'#dc2626':'#16a34a'};font-weight:700">${p.incidents}</td>
+        </tr>`).join('') : '<tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8;font-weight:500">No ping targets configured</td></tr>';
 
     const incidentRows = data.incidents.length ? data.incidents.map((inc, i) => `
         <tr style="border-bottom:1px solid #e2e8f0;${i%2===0?'background:#fff8f8':''}">
-            <td style="padding:10px 12px;font-weight:600;color:#1e293b">${inc.serverName}</td>
-            <td style="padding:10px 12px;color:#64748b;font-size:12px">${inc.serverUrl || '—'}</td>
-            <td style="padding:10px 12px;text-align:center"><span style="background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">DOWN</span></td>
-            <td style="padding:10px 12px;color:#64748b;font-size:12px">${inc.at}</td>
-            <td style="padding:10px 12px;text-align:center;font-size:12px;color:#64748b">${inc.source === 'ping' ? '📡 Ping' : '🌐 HTTP'}</td>
-        </tr>`).join('') : '<tr><td colspan="5" style="padding:20px;text-align:center;color:#16a34a;font-weight:600">✅ No incidents during this period</td></tr>';
+            <td style="padding:12px 14px;font-weight:700;color:#0f172a">${inc.serverName}</td>
+            <td style="padding:12px 14px;color:#64748b;font-size:12px;font-family:'JetBrains Mono',monospace">${inc.serverUrl || '—'}</td>
+            <td style="padding:12px 14px;text-align:center"><span style="background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700;display:inline-block">DOWN</span></td>
+            <td style="padding:12px 14px;color:#64748b;font-size:12.5px">${inc.at}</td>
+            <td style="padding:12px 14px;text-align:center;font-size:11.5px;font-weight:600;color:#64748b">${inc.source === 'ping' ? '📡 Ping' : '🌐 HTTP'}</td>
+        </tr>`).join('') : '<tr><td colspan="5" style="padding:24px;text-align:center;color:#16a34a;font-weight:600;font-size:14px">No incidents during this period</td></tr>';
 
     const sslWarnings = data.monitors.filter(m => m.sslDaysLeft !== null && m.sslDaysLeft < 30);
     const sslSection = sslWarnings.length ? `
-        <div style="margin:28px 0;padding:16px 20px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px">
-            <div style="font-weight:700;color:#92400e;margin-bottom:8px">⚠️ SSL Certificates Expiring Soon</div>
-            ${sslWarnings.map(m => `<div style="color:#b45309;font-size:13px;margin:4px 0">• <strong>${m.name}</strong> — SSL expires in <strong>${m.sslDaysLeft} days</strong></div>`).join('')}
+        <div style="margin:28px 0;padding:20px;background:#fffbeb;border:1px solid #fde68a;border-radius:16px;box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05)">
+            <div style="font-weight:800;color:#92400e;margin-bottom:12px;font-size:14.5px;display:flex;align-items:center;gap:6px">⚠️ SSL Certificates Expiring Soon</div>
+            ${sslWarnings.map(m => `<div style="color:#b45309;font-size:13.5px;margin:6px 0;font-weight:500">• <strong>${m.name}</strong> — SSL expires in <strong style="color:#dc2626">${m.sslDaysLeft} days</strong></div>`).join('')}
         </div>` : '';
 
     return `<!DOCTYPE html>
@@ -167,45 +167,98 @@ function generateHTML(data) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${data.title} — UptimeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
-  .print-btn { position:fixed; top:18px; right:20px; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; border:none; padding:10px 22px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(124,58,237,.3); z-index:999; }
-  .print-btn:hover { transform:translateY(-1px); }
-  .page { max-width:960px; margin:0 auto; padding:32px 24px 60px; }
-  .header { background:linear-gradient(135deg,#1e1b4b,#312e81); border-radius:16px; padding:32px 36px; margin-bottom:28px; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; }
-  .brand { font-size:26px; font-weight:900; letter-spacing:-0.5px; }
-  .brand span { color:#a78bfa; }
-  .brand-sub { font-size:12px; color:#c4b5fd; margin-top:3px; }
-  .report-title { font-size:18px; font-weight:700; margin-top:12px; color:#e0e7ff; }
-  .report-meta { font-size:12px; color:#a5b4fc; margin-top:4px; }
-  .header-right { text-align:right; }
-  .user-name { font-size:15px; font-weight:700; }
-  .user-meta { font-size:12px; color:#a5b4fc; margin-top:4px; line-height:1.8; }
-  .section { background:#fff; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:22px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.04); }
-  .section-head { padding:14px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#64748b; display:flex; align-items:center; gap:8px; }
-  .summary-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0; }
-  .stat-box { padding:22px 20px; text-align:center; border-right:1px solid #e2e8f0; }
-  .stat-box:last-child { border-right:none; }
-  .stat-val { font-size:28px; font-weight:900; color:#1e1b4b; line-height:1; }
-  .stat-lbl { font-size:11px; color:#94a3b8; margin-top:6px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; }
-  table { width:100%; border-collapse:collapse; }
-  th { padding:11px 12px; background:#f8fafc; color:#64748b; font-size:11.5px; font-weight:700; text-align:left; text-transform:uppercase; letter-spacing:.3px; border-bottom:2px solid #e2e8f0; }
-  th.center { text-align:center; }
-  .footer { text-align:center; padding:28px 0 0; color:#94a3b8; font-size:12px; }
-  .footer strong { color:#7c3aed; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; -webkit-font-smoothing: antialiased; }
+  
+  .print-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+  }
+  .print-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+  }
+  
+  .page { max-width: 1000px; margin: 0 auto; padding: 40px 24px 60px; }
+  
+  .header {
+    background: linear-gradient(135deg, #090d16 0%, #111827 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  .brand { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+  .brand span { color: #a78bfa; }
+  .brand-sub { font-size: 12px; color: #94a3b8; margin-top: 3px; font-weight: 500; }
+  .report-title { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; margin-top: 14px; color: #fff; }
+  .report-meta { font-size: 12.5px; color: #94a3b8; margin-top: 5px; font-weight: 500; }
+  .header-right { text-align: right; }
+  .user-name { font-size: 15px; font-weight: 700; color: #fff; }
+  .user-meta { font-size: 12px; color: #94a3b8; margin-top: 5px; line-height: 1.8; font-weight: 500; }
+  
+  .section { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.05); }
+  .section-head { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; display: flex; align-items: center; gap: 8px; }
+  
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; padding: 20px; }
+  .stat-box { background: #f8fafc; border-radius: 12px; padding: 22px 14px; text-align: center; border: 1px solid #e2e8f0; transition: transform 0.2s; }
+  .stat-box:hover { transform: translateY(-2px); }
+  .stat-val { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 900; color: #0f172a; line-height: 1; }
+  .stat-lbl { font-size: 10.5px; color: #64748b; margin-top: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 12px 14px; background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 700; text-align: left; text-transform: uppercase; letter-spacing: .5px; border-bottom: 2px solid #e2e8f0; }
+  th.center { text-align: center; }
+  td { padding: 12px 14px; font-size: 13.5px; color: #1e293b; }
+  
+  .footer { text-align: center; padding: 32px 0 0; color: #94a3b8; font-size: 12px; line-height: 1.6; }
+  .footer strong { color: #7c3aed; }
+  
   @media print {
-    .print-btn { display:none !important; }
-    body { background:#fff; }
-    .page { padding:0; }
-    .header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-    .section { box-shadow:none; border:1px solid #e2e8f0; }
-    .summary-grid { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .print-btn { display: none !important; }
+    body { background: #fff; }
+    .page { padding: 0; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: none; }
+    .section { box-shadow: none; border: 1px solid #e2e8f0; page-break-inside: avoid; }
+    .stat-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #f8fafc !important; }
   }
 </style>
 </head>
 <body>
-<button class="print-btn" onclick="window.print()">🖨️ Save as PDF</button>
+<button class="print-btn" onclick="window.print()">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px">
+    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+    <rect x="6" y="14" width="12" height="8"></rect>
+  </svg>
+  Save as PDF
+</button>
 <div class="page">
 
   <!-- Header -->
@@ -321,3 +374,4 @@ function generateHTML(data) {
 }
 
 module.exports = { buildReportData, generateHTML };
+
