@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import UWLogo from '../components/UWLogo';
 
 const DASHBOARD = import.meta.env.VITE_DASHBOARD_URL || 'https://servermonitor.narendrasingh.site';
@@ -31,7 +31,7 @@ export default function Landing() {
   const navigate = (path) => { window.location.assign(`${DASHBOARD}${path}`); };
   const [menuOpen, setMenuOpen] = useState(false);
   const [navDrop, setNavDrop] = useState(false);
-  const navDropTimer = React.useRef(null);
+  const navDropTimer = useRef(null);
   const [planData, setPlanData] = useState(null);
   const [billing, setBilling] = useState('monthly');
 
