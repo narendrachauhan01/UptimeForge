@@ -15,7 +15,7 @@ exports.getAlerts = async (req, res) => {
             ]};
         }
         if (req.query.server) filter.server = req.query.server;
-        const alerts = await Alert.find(filter).sort('-createdAt').limit(50);
+        const alerts = await Alert.find(filter).sort('-createdAt').limit(100);
         res.json(alerts);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };

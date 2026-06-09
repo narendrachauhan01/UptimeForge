@@ -660,7 +660,7 @@ function start() {
             const users = await Alert.distinct('userId');
             let total = 0;
             for (const userId of users) {
-                const old = await Alert.find({ userId }).sort('-createdAt').skip(50).select('_id');
+                const old = await Alert.find({ userId }).sort('-createdAt').skip(100).select('_id');
                 if (old.length) {
                     const r = await Alert.deleteMany({ _id: { $in: old.map(a => a._id) } });
                     total += r.deletedCount;
