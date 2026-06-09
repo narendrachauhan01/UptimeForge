@@ -26,10 +26,11 @@ const FEATURES = [
 ];
 
 const BRONZE_FEATURES = [
-    { key: 'whatsapp',   label: 'WhatsApp Alerts',         desc: 'Send downtime and recovery alerts via WhatsApp', icon: '💬' },
-    { key: 'telegram',   label: 'Telegram Alerts',         desc: 'Send downtime and recovery alerts via Telegram bot', icon: '✈️' },
-    { key: 'webhook',    label: 'Webhook Integration',     desc: 'Send alert payloads to custom webhook URLs', icon: '🔗' },
-    { key: 'rocketChat', label: 'Rocket.Chat Integration', desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
+    { key: 'pingMonitor', label: 'Ping Monitor',             desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: '📡' },
+    { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: '💬' },
+    { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: '✈️' },
+    { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: '🔗' },
+    { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
 ];
 
 const FEATURE_ACCESS_STYLES = `
@@ -332,7 +333,7 @@ const FEATURE_ACCESS_STYLES = `
 
 export default function FeatureAccess({ readOnly = false }) {
     const [access, setAccess]       = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
-    const [bronzeAcc, setBronzeAcc] = useState({ whatsapp: true, telegram: true, webhook: true, rocketChat: true });
+    const [bronzeAcc, setBronzeAcc] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState('');
 

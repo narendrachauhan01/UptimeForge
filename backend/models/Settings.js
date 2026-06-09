@@ -68,6 +68,7 @@ const settingsSchema = new mongoose.Schema({
         rocketChat:  { type: Boolean, default: true },
     },
     bronzeAccess: {
+        pingMonitor: { type: Boolean, default: true },
         whatsapp:    { type: Boolean, default: true },
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
@@ -153,8 +154,9 @@ settingsSchema.statics.get = async function () {
     if (s.freeTrialAccess && s.freeTrialAccess.telegram   === undefined) { s.freeTrialAccess.telegram = true;   s.markModified('freeTrialAccess'); dirty = true; }
     if (s.freeTrialAccess && s.freeTrialAccess.webhook    === undefined) { s.freeTrialAccess.webhook = true;    s.markModified('freeTrialAccess'); dirty = true; }
     if (s.freeTrialAccess && s.freeTrialAccess.rocketChat === undefined) { s.freeTrialAccess.rocketChat = true; s.markModified('freeTrialAccess'); dirty = true; }
-    if (!s.bronzeAccess) { s.bronzeAccess = { whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
-    if (s.bronzeAccess && s.bronzeAccess.telegram === undefined) { s.bronzeAccess.telegram = true; s.markModified('bronzeAccess'); dirty = true; }
+    if (!s.bronzeAccess) { s.bronzeAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.bronzeAccess && s.bronzeAccess.telegram    === undefined) { s.bronzeAccess.telegram    = true; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.bronzeAccess && s.bronzeAccess.pingMonitor === undefined) { s.bronzeAccess.pingMonitor = true; s.markModified('bronzeAccess'); dirty = true; }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
