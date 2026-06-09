@@ -44,7 +44,6 @@ const AdminLogin        = lazy(() => import('./pages/AdminLogin'));
 const AccountSuspended  = lazy(() => import('./pages/AccountSuspended'));
 const ConfirmDelete     = lazy(() => import('./pages/ConfirmDelete'));
 const StatusPagesManager = lazy(() => import('./pages/StatusPages'));
-const PublicStatus      = lazy(() => import('./pages/PublicStatus'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -763,7 +762,6 @@ export default function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/confirm-delete" element={<ConfirmDelete />} />
           <Route path="/staff/*" element={<StaffDashboard />} />
-          <Route path="/status/:slug" element={<PublicStatus />} />
           <Route path="/*" element={<><AppInner /><CookieConsent /></>} />
         </Routes>
       </Suspense>
