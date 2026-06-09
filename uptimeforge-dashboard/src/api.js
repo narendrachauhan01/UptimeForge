@@ -74,6 +74,14 @@ export const adminRefundPayment  = (id)       => api.post(`/payment/${id}/refund
 export const adminRefundStatus   = (id)       => api.get(`/payment/${id}/refund-status`);
 export const clearNotifications = () => api.delete('/notifications/clear');
 
+// Status Pages (admin only)
+export const getStatusPages      = ()         => api.get('/status-pages');
+export const createStatusPage    = (data)     => api.post('/status-pages', data);
+export const updateStatusPage    = (id, data) => api.put(`/status-pages/${id}`, data);
+export const deleteStatusPage    = (id)       => api.delete(`/status-pages/${id}`);
+export const getStatusPageUsers  = ()         => api.get('/status-pages/users');
+export const getStatusPageServers= (uid)      => api.get(`/status-pages/servers/${uid}`);
+
 // Staff management (admin)
 export const staffList         = ()         => api.get('/staff');
 export const staffCreate       = (data)     => api.post('/staff', data);
