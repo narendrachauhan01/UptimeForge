@@ -79,8 +79,7 @@ export const getStatusPages      = ()         => api.get('/status-pages');
 export const createStatusPage    = (data)     => api.post('/status-pages', data);
 export const updateStatusPage    = (id, data) => api.put(`/status-pages/${id}`, data);
 export const deleteStatusPage    = (id)       => api.delete(`/status-pages/${id}`);
-export const getStatusPageUsers  = ()         => api.get('/status-pages/users');
-export const getStatusPageServers= (uid)      => api.get(`/status-pages/servers/${uid}`);
+export const getAllStatusServers  = ()         => api.get('/status-pages/all-servers');
 
 // Staff management (admin)
 export const staffList         = ()         => api.get('/staff');

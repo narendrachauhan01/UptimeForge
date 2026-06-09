@@ -11,7 +11,6 @@ router.get('/',                    auth, adminOnly, ctrl.list);
 router.post('/',                   auth, adminOnly, ctrl.create);
 router.put('/:id',                 auth, adminOnly, ctrl.update);
 router.delete('/:id',              auth, adminOnly, ctrl.remove);
-router.get('/users',               auth, adminOnly, ctrl.getUsers);
-router.get('/servers/:userId',     auth, adminOnly, ctrl.getUserServers);
+router.get('/all-servers',         auth, adminOnly, ctrl.getAllServers);
 
 module.exports = router;

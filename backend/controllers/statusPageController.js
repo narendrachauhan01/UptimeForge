@@ -6,7 +6,7 @@ const User       = require('../models/User');
 // GET /api/status-pages  — list all pages (admin)
 exports.list = async (req, res) => {
     try {
-        const pages = await StatusPage.find().populate('userId', 'name email').lean();
+        const pages = await StatusPage.find().lean();
         res.json(pages);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
@@ -14,10 +14,10 @@ exports.list = async (req, res) => {
 // POST /api/status-pages
 exports.create = async (req, res) => {
     try {
-        const { userId, slug, title, description, monitors, isPublic } = req.body;
+        const { slug, title, description, monitors, isPublic } = req.body;
         const exists = await StatusPage.findOne({ slug });
         if (exists) return res.status(400).json({ error: 'This URL slug is already taken.' });
-        const page = await StatusPage.create({ userId, slug, title, description, monitors: monitors || [], isPublic: isPublic !== false });
+        const page = await StatusPage.create({ slug, title, description, monitors: monitors || [], isPublic: isPublic !== false });
         res.json(page);
     } catch (e) {
         if (e.code === 11000) return res.status(400).json({ error: 'Slug already taken.' });
@@ -47,18 +47,10 @@ exports.remove = async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
-// GET /api/status-pages/users — get all users for dropdown
-exports.getUsers = async (req, res) => {
+// GET /api/status-pages/all-servers — all servers across all users (admin)
+exports.getAllServers = async (req, res) => {
     try {
-        const users = await User.find({}, 'name email _id').lean();
-        res.json(users);
-    } catch (e) { res.status(500).json({ error: e.message }); }
-};
-
-// GET /api/status-pages/servers/:userId — get servers for a user
-exports.getUserServers = async (req, res) => {
-    try {
-        const servers = await Server.find({ userId: req.params.userId }, 'name url status _id').lean();
+        const servers = await Server.find({}, 'name url status userId _id').lean();
         res.json(servers);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
