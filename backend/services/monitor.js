@@ -2,6 +2,7 @@ const https = require('https');
 const http = require('http');
 const net = require('net');
 const axios = require('axios');
+const cron = require('node-cron');
 const Server = require('../models/Server');
 const PingTarget = require('../models/PingTarget');
 const Recipient = require('../models/Recipient');
@@ -636,8 +637,21 @@ function start() {
     checkPingTargets();
     setInterval(checkAll, 30 * 1000);
     setInterval(checkExpiry, 6 * 60 * 60 * 1000);
-    setInterval(checkPingTargets, 30 * 1000); // ticker 30s, each target checked per plan interval
+    setInterval(checkPingTargets, 30 * 1000);
     console.log('[Monitor] Started - ticker every 30s | Ping plan-based | Expiry check every 6h');
+
+    // ── Report cron jobs ─────────────────────────────────────────────────────
+    // Weekly: every Monday 8:00 AM IST (UTC+5:30 → 02:30 UTC)
+    cron.schedule('30 2 * * 1', () => {
+        console.log('[Report] Running weekly auto-generation...');
+        require('../controllers/reportController').autoGenerate('weekly').catch(() => {});
+    }, { timezone: 'Asia/Kolkata' });
+
+    // Monthly: 1st of every month at 8:00 AM IST
+    cron.schedule('0 8 1 * *', () => {
+        console.log('[Report] Running monthly auto-generation...');
+        require('../controllers/reportController').autoGenerate('monthly').catch(() => {});
+    }, { timezone: 'Asia/Kolkata' });
 }
 
 module.exports = { start, checkAll };

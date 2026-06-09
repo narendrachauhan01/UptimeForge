@@ -51,6 +51,7 @@ app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/integrations',  require('./routes/integrations'));
 app.use('/api/telegram',      require('./routes/telegram'));
 app.use('/api/staff',         require('./routes/staff'));
+app.use('/api/reports',       require('./routes/reports'));
 
 // Swagger Docs
 const swaggerUi   = require('swagger-ui-express');

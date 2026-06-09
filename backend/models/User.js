@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     abandonReason:      { type: String, enum: ['payment_failed', 'payment_cancelled', 'profile_only', null], default: null },
     deleteToken:        { type: String, select: false },
     deleteTokenExpires: { type: Date,   select: false },
+    reportSchedule:     { type: String, enum: ['none', 'weekly', 'monthly'], default: 'none' },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

@@ -66,6 +66,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        reports:     { type: Boolean, default: true },
     },
     bronzeAccess: {
         pingMonitor: { type: Boolean, default: true },
@@ -73,6 +74,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        reports:     { type: Boolean, default: true },
     },
     silverAccess: {
         pingMonitor: { type: Boolean, default: true },
@@ -80,6 +82,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        reports:     { type: Boolean, default: true },
     },
     goldAccess: {
         pingMonitor: { type: Boolean, default: true },
@@ -87,6 +90,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        reports:     { type: Boolean, default: true },
     },
     annualDiscount: { type: Number, default: 20 },
     annualPlans: {
@@ -171,8 +175,11 @@ settingsSchema.statics.get = async function () {
     if (!s.bronzeAccess) { s.bronzeAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
     if (s.bronzeAccess && s.bronzeAccess.telegram    === undefined) { s.bronzeAccess.telegram    = true; s.markModified('bronzeAccess'); dirty = true; }
     if (s.bronzeAccess && s.bronzeAccess.pingMonitor === undefined) { s.bronzeAccess.pingMonitor = true; s.markModified('bronzeAccess'); dirty = true; }
-    if (!s.silverAccess) { s.silverAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('silverAccess'); dirty = true; }
-    if (!s.goldAccess)   { s.goldAccess   = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('goldAccess');   dirty = true; }
+    if (!s.silverAccess) { s.silverAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true }; s.markModified('silverAccess'); dirty = true; }
+    if (!s.goldAccess)   { s.goldAccess   = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true }; s.markModified('goldAccess');   dirty = true; }
+    for (const [key, obj] of [['freeTrialAccess', s.freeTrialAccess], ['bronzeAccess', s.bronzeAccess], ['silverAccess', s.silverAccess], ['goldAccess', s.goldAccess]]) {
+        if (obj && obj.reports === undefined) { obj.reports = true; s.markModified(key); dirty = true; }
+    }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
