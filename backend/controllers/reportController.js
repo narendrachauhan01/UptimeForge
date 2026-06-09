@@ -2,7 +2,7 @@ const Report   = require('../models/Report');
 const User     = require('../models/User');
 const { buildReportData, generateHTML } = require('../services/reportGenerator');
 
-const MAX_REPORTS = 2;
+const MAX_REPORTS = 1;
 
 // GET /api/reports
 exports.list = async (req, res) => {

@@ -540,8 +540,8 @@ export default function Reports() {
                             <div className="info-banner" style={{ background: isDark ? 'rgba(124,58,237,.07)' : 'rgba(124,58,237,.06)', border:'1px solid rgba(124,58,237,.15)', color: isDark ? '#a78bfa' : '#6d28d9' }}>
                                 <div>
                                     {schedule === 'weekly'
-                                        ? '📅 Weekly reports auto-generate every Monday at 8:00 AM. Only the 2 most recent reports are kept.'
-                                        : '🗓️ Monthly reports auto-generate on the 1st of each month at 8:00 AM. Only the 2 most recent reports are kept.'}
+                                        ? '📅 Weekly reports auto-generate every Monday at 8:00 AM. Only the latest 1 report is kept.'
+                                        : '🗓️ Monthly reports auto-generate on the 1st of each month at 8:00 AM. Only the latest 1 report is kept.'}
                                 </div>
                                 <div style={{ fontSize:11.5, opacity:.8, marginTop: 4 }}>
                                     Note: Weekly and Monthly reports cannot be enabled simultaneously. Switching clears the other schedule.
@@ -555,7 +555,7 @@ export default function Reports() {
                 <div className="rpt-card">
                     <div className="rpt-card-head">
                         <span className="rpt-card-title">Report History</span>
-                        <span style={{ fontSize:12, color:'var(--text-muted)', fontWeight:600 }}>Max 2 reports kept</span>
+                        <span style={{ fontSize:12, color:'var(--text-muted)', fontWeight:600 }}>Max 1 report per type</span>
                     </div>
 
                     {loading ? (
