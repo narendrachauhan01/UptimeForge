@@ -115,15 +115,16 @@ async function buildReportData(userId, type) {
 }
 
 function generateHTML(data) {
-    const upColor = (u) => u >= 99 ? '#059669' : u >= 95 ? '#b45309' : '#dc2626';
-    const rt      = (r) => r === null ? '—' : `${r} ms`;
+    const upColor = (u) => u >= 99 ? '#10b981' : u >= 95 ? '#f59e0b' : '#ef4444';
+    const rt      = (r) => r === null ? '—' : `${r}&nbsp;ms`;
     const badge   = (s) => s === 'up'
         ? '<span class="b-up">UP</span>'
         : s === 'down'
             ? '<span class="b-dn">DOWN</span>'
             : '<span class="b-uk">—</span>';
-    const pct     = (u) => `<span style="font-weight:700;color:${upColor(u)}">${u}%</span>`;
+    const pct     = (u) => `<span class="uptime-pct" style="color:${upColor(u)}">${u}%</span>`;
     const esc     = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 
     const monitorRows = data.monitors.length
         ? data.monitors.map(m => `
@@ -135,9 +136,21 @@ function generateHTML(data) {
             <td class="tc">${badge(m.status)}</td>
             <td class="tc">${pct(m.uptime)}</td>
             <td class="tc mo">${rt(m.avgResponseTime)}</td>
-            <td class="tc" style="color:${m.incidents > 0 ? '#dc2626' : '#059669'};font-weight:700">${m.incidents}</td>
-            <td class="tc mo" style="color:${m.sslDaysLeft !== null && m.sslDaysLeft < 30 ? '#dc2626' : '#475569'}">${m.sslDaysLeft !== null ? `${m.sslDaysLeft}d` : '—'}</td>
-            <td class="tc" style="color:${m.domainDaysLeft !== null && m.domainDaysLeft < 30 ? '#dc2626' : '#475569'};font-size:12px">${m.domainExpiry || '—'}</td>
+            <td class="tc">
+                ${m.incidents > 0
+                    ? `<span class="inc-badge active">${m.incidents}</span>`
+                    : `<span class="inc-badge none">0</span>`}
+            </td>
+            <td class="tc mo">
+                ${m.sslDaysLeft !== null
+                    ? m.sslDaysLeft < 30
+                        ? `<span class="ssl-badge warn">${m.sslDaysLeft}d</span>`
+                        : `<span class="ssl-badge ok">${m.sslDaysLeft}d</span>`
+                    : '—'}
+            </td>
+            <td class="tc" style="font-size:12px;color:${m.domainDaysLeft !== null && m.domainDaysLeft < 30 ? 'var(--danger)' : 'var(--text-secondary)'}">
+                ${m.domainExpiry || '—'}
+            </td>
         </tr>`).join('')
         : '<tr><td colspan="7" class="empty">No monitors found</td></tr>';
 
@@ -151,7 +164,11 @@ function generateHTML(data) {
             <td class="tc">${badge(p.status)}</td>
             <td class="tc">${pct(p.uptime)}</td>
             <td class="tc mo">${rt(p.avgResponseTime)}</td>
-            <td class="tc" style="color:${p.incidents > 0 ? '#dc2626' : '#059669'};font-weight:700">${p.incidents}</td>
+            <td class="tc">
+                ${p.incidents > 0
+                    ? `<span class="inc-badge active">${p.incidents}</span>`
+                    : `<span class="inc-badge none">0</span>`}
+            </td>
         </tr>`).join('')
         : '<tr><td colspan="5" class="empty">No ping targets configured</td></tr>';
 
@@ -161,12 +178,11 @@ function generateHTML(data) {
             <td><div class="nm">${esc(inc.serverName)}</div></td>
             <td class="mo url-td">${esc(inc.serverUrl || '—')}</td>
             <td class="tc"><span class="b-dn">DOWN</span></td>
-            <td style="font-size:12px;color:#475569">${inc.at}</td>
-            <td class="tc" style="font-size:11.5px;color:#64748b;font-weight:600">${inc.source === 'ping' ? 'Ping' : 'HTTP'}</td>
+            <td style="font-size:12px;color:var(--text-secondary)">${inc.at}</td>
+            <td class="tc"><span class="inc-type-badge">${inc.source === 'ping' ? 'Ping' : 'HTTP'}</span></td>
         </tr>`).join('')
-        : '<tr><td colspan="5" class="empty" style="color:#059669">No incidents during this period</td></tr>';
+        : '<tr><td colspan="5" class="empty" style="color:var(--success)">No incidents during this period</td></tr>';
 
-    // Domain expiry rows — all monitors sorted by days left ascending
     const domainRows = data.monitors.length
         ? [...data.monitors]
             .sort((a, b) => {
@@ -175,26 +191,26 @@ function generateHTML(data) {
                 return a.domainDaysLeft - b.domainDaysLeft;
             })
             .map((m, i) => {
-                const daysLeft = m.domainDaysLeft;
-                const statusColor = daysLeft === null ? '#94a3b8'
-                    : daysLeft < 14  ? '#dc2626'
-                    : daysLeft < 30  ? '#d97706'
-                    : daysLeft < 90  ? '#b45309'
-                    : '#059669';
-                const statusLabel = daysLeft === null ? '—'
-                    : daysLeft < 0   ? 'Expired'
-                    : daysLeft < 14  ? `${daysLeft}d — Critical`
-                    : daysLeft < 30  ? `${daysLeft}d — Expiring Soon`
-                    : daysLeft < 90  ? `${daysLeft}d — Renew Soon`
-                    : `${daysLeft}d — OK`;
+                const d = m.domainDaysLeft;
+                const color = d === null ? 'var(--text-muted)'
+                    : d < 0   ? 'var(--danger)'
+                    : d < 14  ? 'var(--danger)'
+                    : d < 30  ? 'var(--warning)'
+                    : 'var(--success)';
+                const label = d === null ? '—'
+                    : d < 0   ? 'Expired'
+                    : d < 14  ? `${d}d — Critical`
+                    : d < 30  ? `${d}d — Expiring Soon`
+                    : d < 90  ? `${d}d — Renew Soon`
+                    : `${d}d — OK`;
                 return `
-        <tr${i % 2 !== 0 ? ' class="alt"' : ''}>
+        <tr${i % 2 === 0 ? ' class="alt"' : ''}>
             <td>
                 <div class="nm">${esc(m.name)}</div>
                 <div class="nu">${esc(m.url)}</div>
             </td>
-            <td class="tc mo" style="font-size:12px;color:#334155">${m.domainExpiry || '—'}</td>
-            <td class="tc" style="font-weight:700;color:${statusColor}">${statusLabel}</td>
+            <td class="tc mo" style="font-size:12px">${m.domainExpiry || '—'}</td>
+            <td class="tc" style="font-weight:700;color:${color}">${label}</td>
         </tr>`;
             }).join('')
         : '<tr><td colspan="3" class="empty">No monitors found</td></tr>';
@@ -203,19 +219,26 @@ function generateHTML(data) {
     const domainWarnings = data.monitors.filter(m => m.domainDaysLeft !== null && m.domainDaysLeft < 30);
 
     const sslSection = sslWarnings.length ? `
-        <div class="alert-box warn">
-            <div class="alert-title">&#9888; SSL Certificates Expiring Soon</div>
-            ${sslWarnings.map(m => `<div class="alert-row">&bull; <strong>${esc(m.name)}</strong> — expires in <span style="color:#dc2626;font-weight:700">${m.sslDaysLeft} days</span></div>`).join('')}
+        <div class="ssl-box">
+            <div class="ssl-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                SSL Certificates Expiring Soon
+            </div>
+            ${sslWarnings.map(m => `<div class="ssl-row"><strong>${esc(m.name)}</strong> — expires in <span style="color:var(--danger);font-weight:700">${m.sslDaysLeft} days</span></div>`).join('')}
         </div>` : '';
 
     const domainWarnSection = domainWarnings.length ? `
-        <div class="alert-box danger">
-            <div class="alert-title" style="color:#991b1b">&#128683; Domain Names Expiring Soon</div>
-            ${domainWarnings.map(m => `<div class="alert-row" style="color:#7f1d1d">&bull; <strong>${esc(m.name)}</strong> (${esc(m.url)}) — expires on <span style="color:#dc2626;font-weight:700">${m.domainExpiry}</span> (${m.domainDaysLeft} days left)</div>`).join('')}
+        <div class="ssl-box" style="background:var(--danger-glow);border-color:rgba(239,68,68,0.2);">
+            <div class="ssl-title" style="color:var(--danger)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Domain Names Expiring Soon
+            </div>
+            ${domainWarnings.map(m => `<div class="ssl-row" style="color:var(--text-primary)"><strong>${esc(m.name)}</strong> (${esc(m.url)}) — expires on <span style="color:var(--danger);font-weight:700">${m.domainExpiry}</span> (${m.domainDaysLeft} days left)</div>`).join('')}
         </div>` : '';
 
     const avgUptimeColor = upColor(data.summary.avgUptime);
-    const incColor       = data.summary.totalIncidents > 0 ? '#dc2626' : '#059669';
+    const incColor       = data.summary.totalIncidents > 0 ? '#ef4444' : '#10b981';
+    const typeLabel      = data.type === 'weekly' ? 'WEEKLY REPORT' : 'MONTHLY REPORT';
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -225,190 +248,198 @@ function generateHTML(data) {
 <title>${esc(data.title)} — UptimeForge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-@page { size: A4; margin: 12mm 14mm; }
+:root {
+  --bg-primary: #090d16;
+  --bg-gradient: radial-gradient(ellipse at top, #0f172a, #090d16);
+  --card-bg: rgba(13, 18, 31, 0.75);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --primary: #8b5cf6;
+  --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+  --success: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.1);
+  --danger: #ef4444;
+  --danger-glow: rgba(239, 68, 68, 0.1);
+  --warning: #f59e0b;
+  --warning-glow: rgba(245, 158, 11, 0.1);
+  --border-color: rgba(255, 255, 255, 0.05);
+  --table-hdr-bg: rgba(19, 26, 38, 0.6);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  --glass-blur: blur(16px);
+}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: #f1f5f9;
-  color: #1e293b;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-primary);
+  background-image: var(--bg-gradient);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   font-size: 13.5px;
   line-height: 1.5;
+  min-height: 100vh;
+  padding: 40px 20px;
 }
-
+.report-wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
 .pdf-btn {
-  position: fixed; top: 18px; right: 18px; z-index: 999;
-  background: #4f46e5; color: #fff; border: none;
-  padding: 9px 18px; border-radius: 8px; font-size: 13px;
-  font-weight: 700; cursor: pointer; font-family: inherit;
-  display: inline-flex; align-items: center; gap: 7px;
-  box-shadow: 0 4px 14px rgba(79,70,229,.3);
-  transition: background .2s;
-}
-.pdf-btn:hover { background: #4338ca; }
-
-.page { max-width: 1020px; margin: 0 auto; padding: 28px 20px 56px; }
-
-/* Header */
-.hdr {
-  background: #0f172a;
-  border-radius: 14px;
-  padding: 24px 28px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.brand-ico {
-  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
-  background: linear-gradient(135deg,#6366f1,#8b5cf6);
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.brand-txt { font-size: 20px; font-weight: 900; color: #f8fafc; letter-spacing: -0.4px; line-height: 1; }
-.brand-txt em { color: #a5b4fc; font-style: normal; }
-.brand-sub { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
-.rpt-badge {
-  display: inline-block; padding: 3px 10px; border-radius: 20px; margin-bottom: 7px;
-  background: rgba(99,102,241,.18); border: 1px solid rgba(165,180,252,.3);
-  color: #a5b4fc; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.2px;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.rpt-title { font-size: 18px; font-weight: 800; color: #f8fafc; letter-spacing: -0.3px; }
-.rpt-time  { font-size: 11.5px; color: #94a3b8; margin-top: 5px; }
-.user-box {
-  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
-  border-radius: 10px; padding: 12px 16px; text-align: right; min-width: 200px; flex-shrink: 0;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.user-name  { font-size: 13px; font-weight: 800; color: #f1f5f9; }
-.user-email { font-size: 11.5px; color: #94a3b8; margin-top: 4px; }
-.user-id    { font-size: 11px; color: #64748b; margin-top: 3px; font-weight: 600; }
-
-/* Stats */
-.stats {
-  display: grid; grid-template-columns: repeat(5,1fr); gap: 10px;
-  margin-bottom: 20px;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sc {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-  padding: 16px 10px; text-align: center;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sc-icon {
-  width: 30px; height: 30px; border-radius: 8px; margin: 0 auto 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: #f1f5f9; color: #6366f1;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sc-icon.g { background: #f0fdf4; color: #059669; }
-.sc-icon.r { background: #fff1f2; color: #dc2626; }
-.sc-num { font-size: 26px; font-weight: 900; color: #0f172a; letter-spacing: -1px; line-height: 1; }
-.sc-lbl { font-size: 10px; color: #64748b; margin-top: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-
-/* Section */
-.sec {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-  margin-bottom: 18px; overflow: hidden;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sec-hd {
-  padding: 11px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
-  font-size: 10.5px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.8px; color: #475569;
-  display: flex; align-items: center; gap: 8px;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sec-cnt {
-  margin-left: auto; background: #fff1f2; color: #dc2626;
-  border: 1px solid #fecdd3; padding: 1px 8px; border-radius: 20px;
-  font-size: 10.5px; font-weight: 700; text-transform: none; letter-spacing: 0;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.sec-cnt.ok {
-  background: #f0fdf4; color: #059669; border-color: #bbf7d0;
+  position: fixed; top: 24px; right: 24px; z-index: 1000;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff; border: none; padding: 11px 22px; border-radius: 30px;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.4);
 }
 
-/* Tables */
+/* COVER */
+.cover {
+  width: 100%; min-height: 80vh;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px;
+  display: flex; flex-direction: column; padding: 64px 80px;
+  box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); overflow: hidden;
+}
+.cover-logo { margin-bottom: 40px; }
+.cover-logo-inner { display: flex; align-items: center; gap: 12px; }
+.cover-logo-icon {
+  width: 38px; height: 38px; padding: 8px; border-radius: 10px;
+  background: var(--primary-gradient); color: #fff;
+}
+.cover-logo-name { font-size: 19px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif; }
+.cover-logo-name span { background: linear-gradient(135deg, #a78bfa, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cover-logo-sub { font-size: 10.5px; color: var(--text-secondary); margin-top: 2px; }
+.cover-main-grid { display: flex; align-items: center; justify-content: space-between; gap: 60px; flex: 1; padding: 30px 0; }
+.cover-info-col { flex: 1; }
+.cover-badge {
+  display: inline-block; padding: 6px 16px;
+  background: rgba(139,92,246,0.1); color: #a78bfa;
+  border: 1px solid rgba(139,92,246,0.2); border-radius: 30px;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 24px;
+  text-transform: uppercase; font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.cover-title { font-size: 48px; font-weight: 900; line-height: 1.15; letter-spacing: -1.8px; margin-bottom: 12px; font-family: 'Plus Jakarta Sans', sans-serif; color: #ffffff; }
+.cover-period { font-size: 20px; font-weight: 500; color: var(--text-secondary); }
+.cover-chart-col { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.uptime-ring-container { position: relative; width: 160px; height: 160px; }
+.uptime-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 8; }
+.ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; }
+.uptime-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; display: flex; flex-direction: column; }
+.uptime-ring-val { font-size: 30px; font-weight: 900; color: #ffffff; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif; }
+.uptime-ring-lbl { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; font-weight: 700; }
+.cover-footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--border-color); padding-top: 40px; margin-top: 20px; }
+.cover-footer-meta { display: flex; gap: 48px; }
+.meta-item { display: flex; flex-direction: column; }
+.meta-lbl { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-family: 'Plus Jakarta Sans', sans-serif; }
+.meta-val { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+.cover-user-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 12px 18px; border-radius: 14px; }
+.user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
+.user-name  { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.user-email { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+.user-id    { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); }
+.stat-icon-wrapper { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.stat-icon-wrapper.success { color: var(--success); }
+.stat-icon-wrapper.danger  { color: var(--danger); }
+.stat-icon  { width: 20px; height: 20px; }
+.stat-value { font-size: 26px; font-weight: 800; color: var(--text-primary); line-height: 1.1; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.5px; }
+.stat-label { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* SECTIONS */
+.sec { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; margin-bottom: 24px; box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); overflow: hidden; }
+.sec-hd { padding: 18px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.01); }
+.sec-title-icon { display: flex; align-items: center; justify-content: center; color: var(--primary); }
+.sec-title-icon.danger { color: var(--danger); }
+.sec-hd h2 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+.sec-badge { margin-left: auto; font-size: 10.5px; font-weight: 700; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+.sec-badge.danger { background: var(--danger-glow); color: var(--danger); border-color: rgba(239,68,68,0.15); }
+
+/* TABLES */
 .tw { width: 100%; overflow-x: auto; }
-table  { width: 100%; border-collapse: collapse; }
-th {
-  padding: 9px 14px; background: #f8fafc; color: #64748b;
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.6px; border-bottom: 1.5px solid #e2e8f0; white-space: nowrap;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; padding: 14px 24px; border-bottom: 1.5px solid var(--border-color); background: var(--table-hdr-bg); }
 th.tc { text-align: center; }
-td { padding: 9px 14px; font-size: 12.5px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+td { padding: 14px 24px; font-size: 13px; color: var(--text-primary); border-bottom: 1px solid var(--border-color); vertical-align: middle; }
 td.tc { text-align: center; }
-td.mo { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #475569; }
-td.url-td { font-size: 11px; color: #64748b; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+td.mo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+td.url-td { font-size: 11.5px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: #fafafa; }
-tr.alt td { background: #fef9f0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.nm { font-weight: 700; color: #0f172a; font-size: 12.5px; }
-.nu { font-size: 10.5px; color: #94a3b8; margin-top: 1px; font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
-.empty { padding: 20px; text-align: center; color: #94a3b8; font-weight: 500; }
+tr.alt td { background: rgba(255,255,255,0.01); }
+.nm { font-weight: 700; color: var(--text-primary); font-size: 13.5px; font-family: 'Plus Jakarta Sans', sans-serif; }
+.nu { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty { padding: 32px; text-align: center; color: var(--text-secondary); font-weight: 500; }
+.b-up, .b-dn, .b-uk { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; }
+.b-up { background: var(--success-glow); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+.b-dn { background: var(--danger-glow);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.2); }
+.b-uk { background: rgba(255,255,255,0.04); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.06); }
+.uptime-pct { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.inc-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.inc-badge.none   { color: var(--text-muted); }
+.inc-badge.active { background: var(--danger-glow); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+.ssl-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.ssl-badge.ok   { background: rgba(255,255,255,0.04); color: var(--text-secondary); }
+.ssl-badge.warn { background: var(--warning-glow); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+.inc-type-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; background: rgba(255,255,255,0.03); color: var(--text-secondary); border: 1px solid var(--border-color); }
 
-/* Badges */
-.b-up, .b-dn, .b-uk {
-  display: inline-block; padding: 3px 8px; border-radius: 20px;
-  font-size: 10px; font-weight: 800;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.b-up { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.b-dn { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
-.b-uk { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+/* ALERT BOXES */
+.ssl-box { background: var(--warning-glow); border: 1px solid rgba(245,158,11,0.2); border-radius: 18px; padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); }
+.ssl-title { font-size: 14px; font-weight: 800; color: var(--warning); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: 'Plus Jakarta Sans', sans-serif; }
+.ssl-row { font-size: 13px; color: var(--text-primary); margin-top: 6px; padding-left: 12px; }
+.ssl-row::before { content: "•"; color: var(--warning); font-weight: bold; display: inline-block; width: 12px; margin-left: -12px; }
 
-/* Alert boxes */
-.alert-box {
-  border-radius: 10px; padding: 14px 18px; margin-bottom: 18px;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
-}
-.alert-box.warn   { background: #fffbeb; border: 1px solid #fde68a; }
-.alert-box.danger { background: #fff1f2; border: 1px solid #fecdd3; }
-.alert-title { font-size: 12.5px; font-weight: 800; color: #92400e; margin-bottom: 7px; }
-.alert-row   { font-size: 12px; color: #a16207; margin-top: 4px; }
+/* FOOTER */
+.ftr { text-align: center; padding: 32px 0 16px; color: var(--text-muted); font-size: 12px; line-height: 1.6; border-top: 1px solid var(--border-color); }
+.ftr strong { color: var(--primary); font-weight: 700; }
 
-/* Footer */
-.ftr { text-align: center; padding: 24px 0 0; color: #94a3b8; font-size: 11.5px; line-height: 1.6; }
-.ftr strong { color: #4f46e5; }
-
-@media (max-width: 700px) {
-  .hdr { flex-direction: column; }
-  .user-box { text-align: left; min-width: unset; width: 100%; }
-  .stats { grid-template-columns: repeat(3,1fr); }
-}
-
+/* PRINT */
 @media print {
+  :root {
+    --bg-primary: #ffffff; --bg-gradient: none;
+    --card-bg: #ffffff; --card-border: #e2e8f0;
+    --text-primary: #0f172a; --text-secondary: #334155; --text-muted: #64748b;
+    --primary: #4f46e5;
+    --success: #059669; --success-glow: rgba(5,150,105,0.08);
+    --danger: #dc2626;  --danger-glow: rgba(220,38,38,0.08);
+    --warning: #d97706; --warning-glow: rgba(217,119,6,0.08);
+    --border-color: #e2e8f0; --table-hdr-bg: #f8fafc;
+    --shadow: none; --glass-blur: none;
+  }
+  body { background: #ffffff !important; color: #0f172a !important; padding: 0 !important; font-size: 12px; }
+  body::before, body::after { display: none !important; }
   .pdf-btn { display: none !important; }
-  body { background: #fff !important; }
-  .page { padding: 0; max-width: 100%; }
-  .hdr { border-radius: 8px; margin-bottom: 14px; padding: 18px 22px; }
-  .stats { gap: 7px; margin-bottom: 14px; grid-template-columns: repeat(5,1fr) !important; }
-  .sc { padding: 12px 8px; border-radius: 8px; }
-  .sc-num { font-size: 22px; }
-  .sec { margin-bottom: 12px; border-radius: 8px; page-break-inside: avoid; break-inside: avoid; }
-  th, td { padding: 7px 11px; }
-  .nu { max-width: 220px; }
+  .report-wrap { max-width: 100%; gap: 0; }
+  .cover {
+    min-height: 297mm; height: 297mm;
+    page-break-after: always; break-after: page;
+    padding: 40mm 20mm;
+    border: none !important; border-radius: 0 !important;
+    box-shadow: none !important; background: #ffffff !important; margin-bottom: 0 !important;
+  }
+  .cover-title { color: #0f172a !important; }
+  .uptime-ring-val { color: #0f172a !important; }
+  .ring-bg { stroke: #f1f5f9; }
+  .cover-user-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+  .stats-grid { grid-template-columns: repeat(5,1fr) !important; gap: 10px !important; margin-bottom: 24px !important; page-break-inside: avoid; break-inside: avoid; }
+  .stat-card { padding: 12px 8px !important; border-radius: 8px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; }
+  .stat-value { font-size: 20px !important; }
+  .sec { border-radius: 12px !important; margin-bottom: 20px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; page-break-inside: avoid; break-inside: avoid; }
+  th, td { padding: 10px 16px !important; }
+  .nu { max-width: 240px !important; }
   tr:hover td { background: transparent !important; }
-  tr.alt td { background: #fef9f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr.alt td { background: #fcfcfc !important; }
+  .ssl-box { border-radius: 12px !important; border: 1px solid #fde68a !important; box-shadow: none !important; background: #fffbeb !important; padding: 16px !important; page-break-inside: avoid; break-inside: avoid; }
+  .ftr { border-top: 1px solid #e2e8f0 !important; padding-top: 20px !important; }
 }
 </style>
 </head>
 <body>
 
 <button class="pdf-btn" onclick="window.print()">
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <polyline points="6 9 6 2 18 2 18 9"/>
     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
     <rect x="6" y="14" width="12" height="8"/>
@@ -416,162 +447,159 @@ tr.alt td { background: #fef9f0; -webkit-print-color-adjust: exact; print-color-
   Save as PDF
 </button>
 
-<div class="page">
+<div class="report-wrap">
 
-  <!-- Header -->
-  <div class="hdr">
-    <div style="flex:1;min-width:0">
-      <div class="brand-row">
-        <div class="brand-ico">&#9889;</div>
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="cover-logo">
+      <div class="cover-logo-inner">
+        <svg class="cover-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         <div>
-          <div class="brand-txt">Uptime<em>Forge</em><span style="font-size:11px;color:#818cf8;font-weight:600">.in</span></div>
-          <div class="brand-sub">Professional Uptime Monitoring</div>
+          <div class="cover-logo-name">Uptime<span>Forge</span></div>
+          <div class="cover-logo-sub">Professional Uptime Monitoring</div>
         </div>
       </div>
-      <span class="rpt-badge">${esc(data.type)} report</span>
-      <div class="rpt-title">${esc(data.title)}</div>
-      <div class="rpt-time">Generated: ${data.generatedAt} IST</div>
     </div>
-    <div class="user-box">
-      <div class="user-name">${esc(data.user.name)}</div>
-      <div class="user-email">${esc(data.user.email)}</div>
-      <div class="user-id">Account&nbsp;ID: ${esc(data.user.accountId)}</div>
+    <div class="cover-main-grid">
+      <div class="cover-info-col">
+        <div class="cover-badge">${typeLabel}</div>
+        <h1 class="cover-title">${esc(data.type === 'weekly' ? 'Weekly Status\nReport' : 'Monthly Status\nReport')}</h1>
+        <p class="cover-period">${esc(data.type === 'weekly'
+            ? fmtDate(data.periodStart) + ' – ' + fmtDate(data.periodEnd)
+            : new Date(data.periodStart).toLocaleDateString('en-IN', { month:'long', year:'numeric' }))}</p>
+      </div>
+      <div class="cover-chart-col">
+        <div class="uptime-ring-container">
+          <svg class="uptime-ring" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="40"/>
+            <circle class="ring-fill" cx="50" cy="50" r="40" style="stroke-dasharray:251.2;stroke-dashoffset:${251.2 - (251.2 * data.summary.avgUptime) / 100};stroke:${upColor(data.summary.avgUptime)};"/>
+          </svg>
+          <div class="uptime-ring-text">
+            <span class="uptime-ring-val">${data.summary.avgUptime}%</span>
+            <span class="uptime-ring-lbl">Avg Uptime</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cover-footer">
+      <div class="cover-footer-meta">
+        <div class="meta-item"><span class="meta-lbl">Generated At</span><span class="meta-val">${data.generatedAt} IST</span></div>
+        <div class="meta-item"><span class="meta-lbl">HTTP Monitors</span><span class="meta-val">${data.summary.totalMonitors} Active</span></div>
+        <div class="meta-item"><span class="meta-lbl">Ping Targets</span><span class="meta-val">${data.summary.totalPingTargets} Active</span></div>
+        <div class="meta-item"><span class="meta-lbl">Incidents</span><span class="meta-val" style="color:${data.summary.totalIncidents > 0 ? 'var(--danger)' : 'var(--success)'}">${data.summary.totalIncidents} Event${data.summary.totalIncidents !== 1 ? 's' : ''}</span></div>
+      </div>
+      <div class="cover-user-card">
+        <div class="user-avatar">${data.user.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div>
+          <div class="user-name">${esc(data.user.name)}</div>
+          <div class="user-email">${esc(data.user.email)}</div>
+          <div class="user-id">ID: ${esc(data.user.accountId)}</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Summary Stats -->
-  <div class="stats">
-    <div class="sc">
-      <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg></div>
-      <div class="sc-num">${data.summary.totalMonitors}</div>
-      <div class="sc-lbl">Monitors</div>
-    </div>
-    <div class="sc">
-      <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>
-      <div class="sc-num">${data.summary.totalPingTargets}</div>
-      <div class="sc-lbl">Ping Targets</div>
-    </div>
-    <div class="sc">
-      <div class="sc-icon g"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div class="sc-num" style="color:${avgUptimeColor}">${data.summary.avgUptime}%</div>
-      <div class="sc-lbl">Avg Uptime</div>
-    </div>
-    <div class="sc">
-      <div class="sc-icon r"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-      <div class="sc-num" style="color:${incColor}">${data.summary.totalIncidents}</div>
-      <div class="sc-lbl">Incidents</div>
-    </div>
-    <div class="sc">
-      <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="sc-num" style="font-size:${data.summary.avgResponseTime && data.summary.avgResponseTime > 999 ? '19px' : '24px'}">${data.summary.avgResponseTime ? data.summary.avgResponseTime + '&nbsp;ms' : '—'}</div>
-      <div class="sc-lbl">Avg Response</div>
-    </div>
-  </div>
+  <!-- DATA PAGES -->
+  <div class="data-pages">
 
-  ${domainWarnSection}
-  ${sslSection}
-
-  <!-- Monitor Performance -->
-  <div class="sec">
-    <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      Monitor Performance
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg></div>
+        <div class="stat-value">${data.summary.totalMonitors}</div><div class="stat-label">HTTP Monitors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>
+        <div class="stat-value">${data.summary.totalPingTargets}</div><div class="stat-label">Ping Targets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper success"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div class="stat-value" style="color:var(--success)">${data.summary.avgUptime}%</div><div class="stat-label">Avg Uptime</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper danger"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="stat-value" style="color:${incColor}">${data.summary.totalIncidents}</div><div class="stat-label">Incidents</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-value">${data.summary.avgResponseTime ? data.summary.avgResponseTime + ' <span style="font-size:14px;font-weight:600;color:var(--text-secondary)">ms</span>' : '—'}</div><div class="stat-label">Avg Response</div>
+      </div>
     </div>
-    <div class="tw">
-      <table>
-        <thead>
-          <tr>
-            <th>Monitor / URL</th>
-            <th class="tc">Status</th>
-            <th class="tc">Uptime</th>
-            <th class="tc">Avg Response</th>
-            <th class="tc">Incidents</th>
-            <th class="tc">SSL</th>
-            <th class="tc">Domain Expiry</th>
-          </tr>
-        </thead>
+
+    ${domainWarnSection}
+    ${sslSection}
+
+    <!-- HTTP Monitor Table -->
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <h2>HTTP Monitor Performance</h2>
+        <span class="sec-badge">${data.monitors.length} Monitors</span>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Monitor / URL</th><th class="tc">Status</th><th class="tc">Uptime</th>
+          <th class="tc">Avg Response</th><th class="tc">Incidents</th>
+          <th class="tc">SSL Expiry</th><th class="tc">Domain Expiry</th>
+        </tr></thead>
         <tbody>${monitorRows}</tbody>
-      </table>
+      </table></div>
     </div>
-  </div>
 
-  <!-- Ping Monitor -->
-  ${data.pingTargets.length > 0 ? `
-  <div class="sec">
-    <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-      Ping Monitor
-    </div>
-    <div class="tw">
-      <table>
-        <thead>
-          <tr>
-            <th>Name / Host</th>
-            <th class="tc">Status</th>
-            <th class="tc">Uptime</th>
-            <th class="tc">Avg Response</th>
-            <th class="tc">Incidents</th>
-          </tr>
-        </thead>
+    <!-- Ping Targets -->
+    ${data.pingTargets.length > 0 ? `
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></span>
+        <h2>Ping Targets Performance</h2>
+        <span class="sec-badge">${data.pingTargets.length} Targets</span>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Name / Host</th><th class="tc">Status</th><th class="tc">Uptime</th>
+          <th class="tc">Avg Response</th><th class="tc">Incidents</th>
+        </tr></thead>
         <tbody>${pingRows}</tbody>
-      </table>
-    </div>
-  </div>` : ''}
+      </table></div>
+    </div>` : ''}
 
-  <!-- Incidents -->
-  <div class="sec">
-    <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Incidents During Period
-      ${data.incidents.length > 0
-        ? `<span class="sec-cnt">${data.incidents.length} event${data.incidents.length > 1 ? 's' : ''}</span>`
-        : '<span class="sec-cnt ok">No Incidents</span>'}
-    </div>
-    <div class="tw">
-      <table>
-        <thead>
-          <tr>
-            <th>Monitor</th>
-            <th>URL / Host</th>
-            <th class="tc">Event</th>
-            <th>Time (IST)</th>
-            <th class="tc">Type</th>
-          </tr>
-        </thead>
+    <!-- Incidents -->
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title-icon ${data.incidents.length > 0 ? 'danger' : ''}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        <h2>Recent Down Incidents</h2>
+        ${data.incidents.length > 0 ? `<span class="sec-badge danger">${data.incidents.length} Event${data.incidents.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Monitor</th><th>URL / Host</th><th class="tc">Status</th><th>Time (IST)</th><th class="tc">Type</th>
+        </tr></thead>
         <tbody>${incidentRows}</tbody>
-      </table>
+      </table></div>
     </div>
-  </div>
 
-  <!-- Domain Expiry Details -->
-  <div class="sec">
-    <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Domain Expiry Details
-      ${domainWarnings.length > 0
-        ? `<span class="sec-cnt">${domainWarnings.length} expiring soon</span>`
-        : ''}
-    </div>
-    <div class="tw">
-      <table>
-        <thead>
-          <tr>
-            <th>Site / URL</th>
-            <th class="tc">Domain Expiry Date</th>
-            <th class="tc">Status</th>
-          </tr>
-        </thead>
+    <!-- Domain Expiry Details -->
+    <div class="sec">
+      <div class="sec-hd">
+        <span class="sec-title-icon ${domainWarnings.length > 0 ? 'danger' : ''}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+        <h2>Domain Expiry Details</h2>
+        ${domainWarnings.length > 0 ? `<span class="sec-badge danger">${domainWarnings.length} expiring soon</span>` : ''}
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Site / URL</th><th class="tc">Domain Expiry Date</th><th class="tc">Status</th>
+        </tr></thead>
         <tbody>${domainRows}</tbody>
-      </table>
+      </table></div>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="ftr">
-    <strong>UptimeForge.in</strong> — Professional Uptime Monitoring &nbsp;|&nbsp; &copy; 2026 UptimeForge.in<br>
-    <span style="font-size:10.5px;display:block;margin-top:3px">This report was automatically generated. Data is based on monitoring records for the selected period.</span>
-  </div>
+    <!-- Footer -->
+    <div class="ftr">
+      <strong>UptimeForge.in</strong> — Professional Uptime Monitoring &nbsp;|&nbsp; &copy; 2026 UptimeForge.in<br>
+      <span style="font-size:10.5px;display:block;margin-top:4.5px;opacity:0.7">This report was automatically generated from monitoring data logs for the selected period.</span>
+    </div>
 
+  </div>
 </div>
 </body>
 </html>`;
