@@ -365,6 +365,7 @@ export default function Reports() {
     const [loading,  setLoading]  = useState(true);
     const [genLoading, setGenLoading] = useState(false);
     const [savingSchedule, setSavingSchedule] = useState(false);
+    const [downloading, setDownloading] = useState(null);
     const [toast,    setToast]    = useState('');
 
     const [localTheme, setLocalTheme] = useState(() => {
@@ -427,8 +428,37 @@ export default function Reports() {
         setGenLoading(false);
     };
 
-    const download = (id) => {
-        window.open(`${API_URL}/api/reports/${id}/view?autoprint=1`, '_blank');
+    const download = async (id) => {
+        setDownloading(id);
+        try {
+            const res = await axios.get(`${API_URL}/api/reports/${id}/view`, { withCredentials: true });
+            const blob = new Blob([res.data], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;border:none;left:-9999px;top:-9999px;';
+            document.body.appendChild(iframe);
+
+            iframe.onload = () => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch {
+                    window.open(blobUrl, '_blank');
+                }
+                const cleanup = () => {
+                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                    URL.revokeObjectURL(blobUrl);
+                    setDownloading(null);
+                };
+                window.addEventListener('afterprint', cleanup, { once: true });
+                setTimeout(cleanup, 60000);
+            };
+            iframe.src = blobUrl;
+        } catch {
+            showToast('❌ Failed to prepare PDF');
+            setDownloading(null);
+        }
     };
 
     const remove = async (id) => {
@@ -620,13 +650,22 @@ export default function Reports() {
                                         </div>
                                     </div>
                                     <div className="report-actions">
-                                        <button className="btn-download" onClick={() => download(r._id)}>
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 2 }}>
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                <polyline points="7 10 12 15 17 10" />
-                                                <line x1="12" y1="15" x2="12" y2="3" />
-                                            </svg>
-                                            Download PDF
+                                        <button className="btn-download" onClick={() => download(r._id)} disabled={downloading === r._id}>
+                                            {downloading === r._id ? (
+                                                <>
+                                                    <div className="spinner" style={{ width:11, height:11, borderWidth:2, borderColor:'rgba(0,0,0,0.15)', borderTopColor:'currentColor' }} />
+                                                    Preparing...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 2 }}>
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="7 10 12 15 17 10" />
+                                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                                    </svg>
+                                                    Download PDF
+                                                </>
+                                            )}
                                         </button>
                                         <button className="btn-del" onClick={() => remove(r._id)} aria-label="Delete report">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
