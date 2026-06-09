@@ -14,10 +14,9 @@ async function buildReportData(userId, type) {
         const fmt = (d) => d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
         title = `Weekly Report: ${fmt(periodStart)} – ${fmt(periodEnd)}`;
     } else {
-        const y = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-        const m = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-        periodStart = new Date(y, m, 1);
-        periodEnd   = new Date(y, m + 1, 0, 23, 59, 59, 999);
+        // Current month: 1st of this month → now
+        periodStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        periodEnd   = new Date(now);
         title = `Monthly Report: ${periodStart.toLocaleDateString('en-IN', { month:'long', year:'numeric' })}`;
     }
 
