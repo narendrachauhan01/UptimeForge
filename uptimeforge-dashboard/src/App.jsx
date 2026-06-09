@@ -371,7 +371,7 @@ function AppInner() {
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, webhook: true, rocketChat: true });
-  const [bronzeAccess, setBronzeAccess] = useState({ whatsapp: true, webhook: true, rocketChat: true });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -699,7 +699,13 @@ function AppInner() {
               <Route path="/site/:id" element={<SiteDetail />} />
               <Route path="/add-monitor" element={<AddMonitor user={user} />} />
               <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} />} />
-              <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
+              <Route path="/ping" element={
+                  !user ||
+                  (user.plan !== 'free_trial' && user.plan !== 'bronze') ||
+                  (user.plan === 'free_trial' ? freeAccess.pingMonitor !== false : bronzeAccess.pingMonitor !== false)
+                      ? <PingMonitor />
+                      : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>
+              } />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
               <Route path="*" element={<Dashboard />} />

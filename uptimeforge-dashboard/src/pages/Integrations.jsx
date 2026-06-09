@@ -1085,8 +1085,11 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {} 
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         {saved.telegram && <span className="badge-active">✓ Active</span>}
-                        {saved.telegram && <button onClick={()=>deleteIntegration('telegram')} className="btn-delete">🗑</button>}
-                        <button onClick={openTgModal} className="btn-add" style={{ background: saved.telegram ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>{saved.telegram ? '✏️ Edit' : '+ Add'}</button>
+                        {saved.telegram && !blocked('telegram') && <button onClick={()=>deleteIntegration('telegram')} className="btn-delete">🗑</button>}
+                        {blocked('telegram')
+                            ? <UpgradeBtn />
+                            : <button onClick={openTgModal} className="btn-add" style={{ background: saved.telegram ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>{saved.telegram ? '✏️ Edit' : '+ Add'}</button>
+                        }
                     </div>
                 </div>
 
