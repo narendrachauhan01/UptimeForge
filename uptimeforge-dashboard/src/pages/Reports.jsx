@@ -428,7 +428,7 @@ export default function Reports() {
     };
 
     const download = (id) => {
-        window.open(`${API_URL}/api/reports/${id}/view`, '_blank');
+        window.open(`${API_URL}/api/reports/${id}/view?autoprint=1`, '_blank');
     };
 
     const remove = async (id) => {

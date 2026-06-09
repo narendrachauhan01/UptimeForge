@@ -416,6 +416,31 @@ tr.alt td { background: #fff8f8; -webkit-print-color-adjust: exact; print-color-
   tr:hover td { background: transparent !important; }
 }
 </style>
+<script>
+  // If ?autoprint=1 is in the URL, trigger print dialog automatically after fonts load
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('autoprint') === '1') {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait for fonts to render, then print
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function() {
+            setTimeout(function() {
+              window.print();
+              // Close tab after print dialog is dismissed
+              window.addEventListener('afterprint', function() { window.close(); });
+            }, 800);
+          });
+        } else {
+          setTimeout(function() {
+            window.print();
+            window.addEventListener('afterprint', function() { window.close(); });
+          }, 1200);
+        }
+      });
+    }
+  })();
+</script>
 </head>
 <body>
 
