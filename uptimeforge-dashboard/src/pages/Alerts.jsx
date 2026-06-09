@@ -14,10 +14,13 @@ function fmt(d) {
     return new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
+const PER_PAGE = 20;
+
 export default function Alerts() {
   const [alerts, setAlerts]         = useState([]);
   const [search, setSearch]         = useState('');
   const [filter, setFilter]         = useState('all');
+  const [page, setPage]             = useState(1);
   const [pageLoading, setPageLoading] = useState(!_loaded_Alerts);
 
   const [localTheme, setLocalTheme] = useState(() => {
@@ -67,6 +70,13 @@ export default function Alerts() {
     const mf = filter==='all' || a.type===filter;
     return ms && mf;
   });
+
+  const totalPages  = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage    = Math.min(page, totalPages);
+  const pageItems   = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  // Reset to page 1 when search or filter changes
+  useEffect(() => { setPage(1); }, [search, filter]);
 
   const downCount      = alerts.filter(a=>a.type==='down').length;
   const recoveredCount = alerts.filter(a=>a.type==='recovered').length;
@@ -430,6 +440,53 @@ export default function Alerts() {
           margin-top: 2px;
         }
 
+        /* Pagination */
+        .perf-page-container .pg-controls {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 20px;
+          border-top: 1px solid var(--border-color);
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .perf-page-container .pg-info {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 13px;
+          color: var(--text-muted);
+          font-weight: 600;
+        }
+        .perf-page-container .pg-btns {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .perf-page-container .pg-btn {
+          padding: 6px 14px !important;
+          border: 1.5px solid var(--border-color) !important;
+          border-radius: 10px !important;
+          background: var(--bg-input) !important;
+          color: var(--text-main) !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          cursor: pointer !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          transition: all 0.2s !important;
+        }
+        .perf-page-container .pg-btn:hover:not(:disabled) {
+          border-color: var(--primary) !important;
+          color: var(--primary) !important;
+        }
+        .perf-page-container .pg-btn:disabled {
+          opacity: 0.35 !important;
+          cursor: not-allowed !important;
+        }
+        .perf-page-container .pg-btn.active {
+          background: var(--primary) !important;
+          border-color: var(--primary) !important;
+          color: #fff !important;
+        }
+
         /* Empty State */
         .perf-page-container .empty-box {
           padding: 60px 20px;
@@ -527,49 +584,75 @@ export default function Alerts() {
               </div>
             </div>
           ) : (
-            <div>
-              {filtered.map((a, i) => {
-                const isDown = a.type==='down';
-                return (
-                  <div key={a._id} className="incident-row">
-                    {/* Status icon */}
-                    <div className={`status-icon ${isDown ? 'down' : 'recovered'}`}>
-                      {isDown ? '↓' : '↑'}
-                    </div>
+            <>
+              <div>
+                {pageItems.map((a) => {
+                  const isDown = a.type==='down';
+                  return (
+                    <div key={a._id} className="incident-row">
+                      {/* Status icon */}
+                      <div className={`status-icon ${isDown ? 'down' : 'recovered'}`}>
+                        {isDown ? '↓' : '↑'}
+                      </div>
 
-                    {/* Content */}
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
-                        <span className="incident-title">{a.serverName}</span>
-                        <span className={`badge ${isDown ? 'down' : 'recovered'}`}>
-                          {isDown ? '↓ Down' : '↑ Recovered'}
-                        </span>
-                        {a.source === 'ping' && (
-                          <span className="badge ping">
-                            📡 Ping
+                      {/* Content */}
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
+                          <span className="incident-title">{a.serverName}</span>
+                          <span className={`badge ${isDown ? 'down' : 'recovered'}`}>
+                            {isDown ? '↓ Down' : '↑ Recovered'}
                           </span>
+                          {a.source === 'ping' && (
+                            <span className="badge ping">
+                              📡 Ping
+                            </span>
+                          )}
+                        </div>
+                        <div className="incident-url" style={{ marginBottom: a.sentTo?.length?6:0 }}>{a.serverUrl}</div>
+                        {a.sentTo?.length > 0 && (
+                          <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
+                            <span className="notified-label">📨 Notified:</span>
+                            {a.sentTo.map((r,i) => (
+                              <span key={i} className="recipient-tag">{r.name}</span>
+                            ))}
+                          </div>
                         )}
                       </div>
-                      <div className="incident-url" style={{ marginBottom: a.sentTo?.length?6:0 }}>{a.serverUrl}</div>
-                      {a.sentTo?.length > 0 && (
-                        <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
-                          <span className="notified-label">📨 Notified:</span>
-                          {a.sentTo.map((r,i) => (
-                            <span key={i} className="recipient-tag">{r.name}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Time */}
-                    <div style={{ textAlign:'right', flexShrink:0 }}>
-                      <div className="incident-time">{fmt(a.createdAt)}</div>
-                      <div className="incident-ago">{timeAgo(a.createdAt)}</div>
+                      {/* Time */}
+                      <div style={{ textAlign:'right', flexShrink:0 }}>
+                        <div className="incident-time">{fmt(a.createdAt)}</div>
+                        <div className="incident-ago">{timeAgo(a.createdAt)}</div>
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="pg-controls">
+                  <span className="pg-info">
+                    Showing {(safePage - 1) * PER_PAGE + 1}–{Math.min(safePage * PER_PAGE, filtered.length)} of {filtered.length}
+                  </span>
+                  <div className="pg-btns">
+                    <button className="pg-btn" disabled={safePage === 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                      .reduce((acc, p, idx, arr) => {
+                        if (idx > 0 && p - arr[idx - 1] > 1) acc.push('…');
+                        acc.push(p);
+                        return acc;
+                      }, [])
+                      .map((p, i) => p === '…'
+                        ? <span key={`e${i}`} style={{ padding:'0 4px', color:'var(--text-muted)', fontSize:13 }}>…</span>
+                        : <button key={p} className={`pg-btn${safePage === p ? ' active' : ''}`} onClick={() => setPage(p)}>{p}</button>
+                      )}
+                    <button className="pg-btn" disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)}>Next →</button>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
