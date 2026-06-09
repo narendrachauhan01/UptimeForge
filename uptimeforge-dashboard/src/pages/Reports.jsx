@@ -4,6 +4,9 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const STYLES = `
+  body.charts-dark-theme {
+    background-color: #0b0f19 !important;
+  }
   body.charts-dark-theme .app-main,
   body.charts-dark-theme .content {
     background-color: #0b0f19 !important;
@@ -16,40 +19,78 @@ const STYLES = `
     background-color: var(--bg-primary);
     color: var(--text-main);
     transition: background-color 0.3s ease, color 0.3s ease;
+    position: relative;
+  }
+
+  /* Ambient background glow */
+  .perf-bg-glow-1 {
+    position: absolute;
+    top: -150px;
+    right: 5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .rpt-page.dark .perf-bg-glow-1 {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0) 70%);
   }
 
   /* Light Theme */
   .rpt-page.light {
     --bg-primary: #f8fafc;
     --bg-card: #ffffff;
+    --bg-card-sub: #f1f5f9;
     --bg-input: #f1f5f9;
     --border-color: rgba(226, 232, 240, 0.8);
     --text-main: #0f172a;
     --text-muted: #64748b;
     --table-header-bg: #f8fafc;
-    --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06);
+    --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+    --card-hover-shadow: 0 12px 30px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
     --primary: #7c3aed;
     --primary-hover: #6d28d9;
+    --primary-glow: rgba(124, 58, 237, 0.05);
+    --primary-glow-30: rgba(124, 58, 237, 0.2);
+    --primary-glow-border: rgba(124, 58, 237, 0.3);
+    --active-bg: rgba(124, 58, 237, 0.04);
+    --active-shadow: 0 4px 15px rgba(124, 58, 237, 0.08);
+    --icon-bg: #f8fafc;
+    --icon-active-bg: rgba(124, 58, 237, 0.05);
+    --modal-shadow: 0 24px 60px rgba(15, 23, 42, 0.15);
   }
 
   /* Dark Theme */
   .rpt-page.dark {
     --bg-primary: #0b0f19;
     --bg-card: #0d121f;
+    --bg-card-sub: #131a26;
     --bg-input: #1b2535;
     --border-color: rgba(255, 255, 255, 0.06);
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --table-header-bg: #131a26;
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
     --primary: #a78bfa;
     --primary-hover: #8b5cf6;
+    --primary-glow: rgba(139, 92, 246, 0.1);
+    --primary-glow-30: rgba(139, 92, 246, 0.3);
+    --primary-glow-border: rgba(139, 92, 246, 0.4);
+    --active-bg: rgba(139, 92, 246, 0.06);
+    --active-shadow: 0 4px 25px rgba(139, 92, 246, 0.15);
+    --icon-bg: #0b0f19;
+    --icon-active-bg: rgba(139, 92, 246, 0.08);
+    --modal-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
   }
 
   .rpt-wrap {
     padding: 28px 24px;
     max-width: 960px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .rpt-head {
@@ -58,16 +99,17 @@ const STYLES = `
 
   .rpt-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 900;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.8px;
     margin: 0;
   }
 
   .rpt-sub {
-    font-size: 13.5px;
+    font-size: 14px;
     color: var(--text-muted);
-    margin: 6px 0 0;
+    margin: 8px 0 0;
+    line-height: 1.5;
   }
 
   .rpt-card {
@@ -77,10 +119,14 @@ const STYLES = `
     overflow: hidden;
     margin-bottom: 24px;
     box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  }
+  .rpt-card:hover {
+    box-shadow: var(--card-hover-shadow);
   }
 
   .rpt-card-head {
-    padding: 14px 20px;
+    padding: 18px 24px;
     background: var(--table-header-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -89,72 +135,141 @@ const STYLES = `
   }
 
   .rpt-card-title {
-    font-size: 11px;
-    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     color: var(--text-muted);
   }
 
   .rpt-body {
+    padding: 24px;
+  }
+
+  /* How it works grid */
+  .how-work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  
+  .how-work-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     padding: 20px;
+    border-radius: 14px;
+    background: var(--bg-card-sub);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .how-work-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: var(--card-hover-shadow);
+  }
+  .how-work-num-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    color: var(--primary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .how-work-card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 6px 0;
+  }
+  .how-work-card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
   }
 
   .schedule-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
   }
 
   .sch-btn {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 20px 16px;
-    border-radius: 12px;
+    align-items: flex-start;
+    padding: 24px 20px;
+    border-radius: 16px;
     border: 1.5px solid var(--border-color);
     background: var(--bg-card);
     cursor: pointer;
-    text-align: center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
   }
-  .sch-btn:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
+  .sch-btn:hover:not(:disabled) {
+    border-color: var(--primary-glow-border);
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover-shadow);
   }
   .sch-btn.active {
     border-color: var(--primary);
-    background: rgba(124, 58, 237, 0.04);
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.08);
+    background: var(--active-bg);
+    box-shadow: var(--active-shadow);
   }
 
   .sch-icon-svg {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     stroke: var(--text-muted);
-    margin-bottom: 10px;
-    transition: stroke 0.25s, transform 0.25s;
+    margin-bottom: 16px;
+    transition: stroke 0.3s, transform 0.3s;
   }
   .sch-btn:hover .sch-icon-svg {
-    transform: scale(1.08);
+    transform: scale(1.08) rotate(2deg);
   }
   .sch-btn.active .sch-icon-svg {
-    stroke: #7c3aed;
+    stroke: var(--primary);
   }
 
   .sch-btn-label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--text-main);
   }
   .sch-btn-desc {
-    font-size: 12px;
+    font-size: 12.5px;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 6px;
+    line-height: 1.4;
   }
   .sch-btn.active .sch-btn-label {
-    color: #7c3aed;
+    color: var(--primary);
+  }
+
+  .sch-active-dot {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px var(--primary-glow-30);
   }
 
   .gen-row {
@@ -168,24 +283,29 @@ const STYLES = `
     background: linear-gradient(135deg, #7c3aed, #6d28d9);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
+    border-radius: 10px;
+    padding: 12px 24px;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 13.5px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: all 0.25s;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);
   }
   .btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
   }
   .btn-primary:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   .spinner {
@@ -201,46 +321,80 @@ const STYLES = `
   }
 
   .info-banner {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 12.5px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 13px;
     font-weight: 500;
-    line-height: 1.5;
-    margin-top: 16px;
+    line-height: 1.6;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    transition: all 0.3s;
   }
 
   .report-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 20px;
+    gap: 16px;
+    padding: 24px;
   }
 
   .report-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 18px;
-    border-radius: 12px;
+    padding: 16px 20px;
+    border-radius: 14px;
     border: 1px solid var(--border-color);
-    background: var(--bg-input);
-    gap: 12px;
+    background: var(--bg-card-sub);
+    gap: 16px;
     flex-wrap: wrap;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .report-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    transition: all 0.3s;
+  }
+  .report-item.weekly::before {
+    background: #3b82f6;
+  }
+  .report-item.monthly::before {
+    background: #a78bfa;
   }
   .report-item:hover {
-    border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border-color: var(--primary-glow-border);
+    transform: translateX(3px);
+    box-shadow: var(--card-hover-shadow);
+  }
+  .report-item:hover::before {
+    top: 0;
+    bottom: 0;
+    border-radius: 0;
   }
 
   .report-doc-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke: var(--text-muted);
     flex-shrink: 0;
+    background: var(--icon-bg);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s;
+  }
+  .report-item:hover .report-doc-icon {
+    stroke: var(--primary);
+    background: var(--icon-active-bg);
+    border-color: var(--primary-glow-30);
   }
 
   .report-info {
@@ -249,42 +403,55 @@ const STYLES = `
   }
 
   .report-title-txt {
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 700;
     color: var(--text-main);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
   }
 
   .report-meta-txt {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 6px;
+    line-height: 1.4;
   }
 
   .badge-type {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 20px;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   .badge-weekly {
-    background: rgba(59, 130, 246, 0.08);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.15);
+    background: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
   }
   .badge-monthly {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(167, 139, 250, 0.1);
+    color: #c084fc;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+  }
+  .rpt-page.light .badge-weekly {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+  }
+  .rpt-page.light .badge-monthly {
+    background: #f5f3ff;
     color: #7c3aed;
-    border: 1px solid rgba(124, 58, 237, 0.15);
+    border: 1px solid #ddd6fe;
   }
 
   .report-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-shrink: 0;
   }
 
@@ -292,28 +459,33 @@ const STYLES = `
     background: var(--bg-card);
     color: var(--text-main);
     border: 1.5px solid var(--border-color);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 12.5px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     transition: all 0.2s;
   }
-  .btn-download:hover {
+  .btn-download:hover:not(:disabled) {
     border-color: var(--primary);
     color: var(--primary);
+    background: var(--icon-active-bg);
+  }
+  .btn-download:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .btn-del {
     background: rgba(239, 68, 68, 0.05);
     color: #ef4444;
     border: 1.5px solid rgba(239, 68, 68, 0.15);
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 10px;
+    padding: 10px;
     font-size: 13px;
     cursor: pointer;
     font-family: inherit;
@@ -325,107 +497,135 @@ const STYLES = `
   .btn-del:hover {
     background: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.35);
+    transform: scale(1.05);
   }
 
   .empty-state {
     text-align: center;
-    padding: 40px 20px;
+    padding: 60px 24px;
     color: var(--text-muted);
   }
   .empty-icon-svg {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     stroke: var(--text-muted);
-    opacity: 0.6;
-    margin-bottom: 12px;
+    opacity: 0.5;
+    margin-bottom: 16px;
   }
   .empty-txt {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--text-main);
   }
   .empty-sub {
-    font-size: 12.5px;
-    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
   }
 
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
   .toast-box {
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-bottom: 20px;
-    font-weight: 700;
-    font-size: 13px;
+    pointer-events: auto;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 13.5px;
     border: 1px solid transparent;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideInRight {
+    from { transform: translateX(100%) translateY(-10px); opacity: 0; }
+    to { transform: translateX(0) translateY(0); opacity: 1; }
   }
 
   /* Delete Confirm Modal */
   .del-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(4px);
+    background: rgba(11, 15, 25, 0.65);
+    backdrop-filter: blur(8px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.15s ease;
+    animation: fadeIn 0.2s ease;
   }
   @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
   .del-modal {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 32px 28px 24px;
+    border-radius: 24px;
+    padding: 36px 32px 28px;
     width: 100%;
-    max-width: 360px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    max-width: 400px;
+    box-shadow: var(--modal-shadow);
     text-align: center;
-    animation: slideUp 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    animation: slideUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
   }
   @keyframes slideUp { from { opacity:0; transform:translateY(18px) scale(0.97) } to { opacity:1; transform:translateY(0) scale(1) } }
 
   .del-icon-wrap {
     width: 56px;
     height: 56px;
-    border-radius: 16px;
-    background: rgba(239,68,68,0.1);
-    border: 1.5px solid rgba(239,68,68,0.2);
+    border-radius: 18px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1.5px solid rgba(239, 68, 68, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 18px;
+    margin: 0 auto 20px;
   }
 
   .del-modal-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
     color: var(--text-main);
-    margin: 0 0 8px;
+    margin: 0 0 10px;
     letter-spacing: -0.3px;
   }
 
   .del-modal-sub {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-muted);
-    margin: 0 0 24px;
+    margin: 0 0 28px;
     line-height: 1.5;
   }
 
   .del-modal-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
   }
 
   .del-btn-cancel {
     flex: 1;
-    padding: 11px;
-    border-radius: 10px;
+    padding: 12px;
+    border-radius: 12px;
     border: 1.5px solid var(--border-color);
-    background: var(--bg-input);
+    background: var(--bg-card-sub);
     color: var(--text-main);
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
@@ -438,12 +638,12 @@ const STYLES = `
 
   .del-btn-confirm {
     flex: 1;
-    padding: 11px;
-    border-radius: 10px;
+    padding: 12px;
+    border-radius: 12px;
     border: none;
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
@@ -483,9 +683,18 @@ export default function Reports() {
     }, [localTheme]);
 
     useEffect(() => {
-        if (localTheme === 'dark') document.body.classList.add('charts-dark-theme');
-        else document.body.classList.remove('charts-dark-theme');
-        return () => document.body.classList.remove('charts-dark-theme');
+        if (localTheme === 'dark') {
+            document.body.classList.add('charts-dark-theme');
+        } else {
+            document.body.classList.remove('charts-dark-theme');
+        }
+        return () => {
+            const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+            const currentTheme = match ? match[1] : 'dark';
+            if (currentTheme !== 'dark') {
+                document.body.classList.remove('charts-dark-theme');
+            }
+        };
     }, [localTheme]);
 
     const isDark = localTheme === 'dark';
@@ -564,8 +773,8 @@ export default function Reports() {
 
     const toastOk = toast.startsWith('✅') || toast.startsWith('🗑️');
     const toastStyle = toast ? (isDark
-        ? { background: toastOk ? 'rgba(16,185,129,.08)' : 'rgba(239,68,68,.08)', border: `1px solid ${toastOk ? 'rgba(16,185,129,.25)' : 'rgba(239,68,68,.25)'}`, color: toastOk ? '#10b981' : '#ef4444' }
-        : { background: toastOk ? '#f0fdf4' : '#fef2f2', border: `1px solid ${toastOk ? '#bbf7d0' : '#fecdd3'}`, color: toastOk ? '#15803d' : '#dc2626' }
+        ? { background: toastOk ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.12)', border: `1px solid ${toastOk ? 'rgba(16,185,129,.25)' : 'rgba(239,68,68,.25)'}`, color: toastOk ? '#34d399' : '#f87171' }
+        : { background: toastOk ? '#f0fdf4' : '#fef2f2', border: `1px solid ${toastOk ? '#bbf7d0' : '#fecdd3'}`, color: toastOk ? '#16a34a' : '#dc2626' }
     ) : {};
 
     const SCHEDULE_OPTIONS = [
@@ -616,6 +825,9 @@ export default function Reports() {
     return (
         <div className={`rpt-page ${localTheme}`}>
             <style>{STYLES}</style>
+            
+            {/* Background glows for premium ambient feel */}
+            <div className="perf-bg-glow-1" />
 
             {delConfirm && (
                 <div className="del-overlay" onClick={() => setDelConfirm(null)}>
@@ -638,30 +850,32 @@ export default function Reports() {
                 </div>
             )}
 
+            <div className="toast-container">
+                {toast && <div className="toast-box" style={toastStyle}>{toast}</div>}
+            </div>
+
             <div className="rpt-wrap">
                 <div className="rpt-head">
-                    <h1 className="rpt-title" style={{ color: 'var(--text-main)' }}>Reports <span style={{ color:'#7c3aed' }}>.</span></h1>
+                    <h1 className="rpt-title" style={{ color: 'var(--text-main)' }}>Reports<span style={{ color:'#7c3aed' }}>.</span></h1>
                     <p className="rpt-sub">Generate and download weekly or monthly monitoring reports</p>
                 </div>
-
-                {toast && <div className="toast-box" style={toastStyle}>{toast}</div>}
 
                 {/* How it works */}
                 <div className="rpt-card" style={{ marginBottom: 24 }}>
                     <div className="rpt-card-head"><span className="rpt-card-title">How Reports Work</span></div>
-                    <div className="rpt-body" style={{ padding: '18px 20px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                    <div className="rpt-body">
+                        <div className="how-work-grid">
                             {[
-                                { icon: '1️⃣', title: 'Choose a schedule', desc: 'Select Weekly or Monthly below. Your preference is saved automatically.' },
-                                { icon: '2️⃣', title: 'Auto-generates for you', desc: 'Weekly → every Monday at 8:00 AM. Monthly → 1st of every month at 8:00 AM.' },
-                                { icon: '3️⃣', title: 'Always fresh', desc: 'Only the latest 1 report per type is kept. Old report is replaced automatically.' },
-                                { icon: '4️⃣', title: 'Generate anytime', desc: 'Click "Generate Now" to create a report instantly without waiting for the schedule.' },
+                                { num: '01', title: 'Choose a Schedule', desc: 'Select Weekly or Monthly. Your choice is saved instantly.' },
+                                { num: '02', title: 'Auto-Generates', desc: 'Weekly on Mondays at 8:00 AM. Monthly on the 1st at 8:00 AM.' },
+                                { num: '03', title: 'Always Fresh', desc: 'Keeps only the latest report per type, replacing the old one automatically.' },
+                                { num: '04', title: 'Generate Anytime', desc: 'Click "Generate Now" to instantly create a new report on-demand.' },
                             ].map(s => (
-                                <div key={s.title} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', borderRadius:10, background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', border:`1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
-                                    <span style={{ fontSize:18, lineHeight:1, marginTop:1 }}>{s.icon}</span>
-                                    <div>
-                                        <div style={{ fontSize:13, fontWeight:700, color:'var(--text-main)', marginBottom:3 }}>{s.title}</div>
-                                        <div style={{ fontSize:12, color:'var(--text-muted)', lineHeight:1.5 }}>{s.desc}</div>
+                                <div key={s.title} className="how-work-card">
+                                    <div className="how-work-num-badge">{s.num}</div>
+                                    <div className="how-work-content">
+                                        <h4 className="how-work-card-title">{s.title}</h4>
+                                        <p className="how-work-card-desc">{s.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -676,6 +890,13 @@ export default function Reports() {
                         <div className="schedule-row">
                             {SCHEDULE_OPTIONS.map(opt => (
                                 <button key={opt.key} className={`sch-btn${schedule === opt.key ? ' active' : ''}`} onClick={() => handleSchedule(opt.key)} disabled={savingSchedule}>
+                                    {schedule === opt.key && (
+                                        <div className="sch-active-dot">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                        </div>
+                                    )}
                                     {opt.icon}
                                     <div className="sch-btn-label">{opt.label}</div>
                                     <div className="sch-btn-desc">{opt.desc}</div>
@@ -700,7 +921,7 @@ export default function Reports() {
                                 )}
                             </button>
                             {schedule === 'none' && (
-                                <span style={{ fontSize:13, color:'var(--text-muted)' }}>Select Weekly or Monthly to enable</span>
+                                <span style={{ fontSize:13.5, color:'var(--text-muted)', fontWeight: 500 }}>Select Weekly or Monthly schedule to enable</span>
                             )}
                         </div>
 
@@ -711,7 +932,7 @@ export default function Reports() {
                                         ? '📅 Weekly reports auto-generate every Monday at 8:00 AM. Only the latest 1 report is kept.'
                                         : '🗓️ Monthly reports auto-generate on the 1st of each month at 8:00 AM. Only the latest 1 report is kept.'}
                                 </div>
-                                <div style={{ fontSize:11.5, opacity:.8, marginTop: 4 }}>
+                                <div style={{ fontSize:12, opacity:.8, marginTop: 4, fontWeight: 500 }}>
                                     Note: Weekly and Monthly reports cannot be enabled simultaneously. Switching clears the other schedule.
                                 </div>
                             </div>
@@ -728,8 +949,8 @@ export default function Reports() {
 
                     {loading ? (
                         <div className="empty-state">
-                            <div className="spinner" style={{ borderColor: 'var(--border-color)', borderTopColor: 'var(--primary)', width: 20, height: 20, margin: '0 auto 10px' }} />
-                            <div style={{ fontSize:13, color:'var(--text-muted)' }}>Loading reports...</div>
+                            <div className="spinner" style={{ borderColor: 'var(--border-color)', borderTopColor: 'var(--primary)', width: 24, height: 24, margin: '0 auto 16px' }} />
+                            <div style={{ fontSize:13.5, color:'var(--text-muted)' }}>Loading reports...</div>
                         </div>
                     ) : reports.length === 0 ? (
                         <div className="empty-state">
@@ -746,7 +967,7 @@ export default function Reports() {
                     ) : (
                         <div className="report-list">
                             {reports.map(r => (
-                                <div key={r._id} className="report-item">
+                                <div key={r._id} className={`report-item ${r.type}`}>
                                     <svg className="report-doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                         <polyline points="14 2 14 8 20 8" />
@@ -768,7 +989,7 @@ export default function Reports() {
                                         <button className="btn-download" onClick={() => download(r._id, r.title)} disabled={downloading === r._id}>
                                             {downloading === r._id ? (
                                                 <>
-                                                    <div className="spinner" style={{ width:11, height:11, borderWidth:2, borderColor:'rgba(0,0,0,0.15)', borderTopColor:'currentColor' }} />
+                                                    <div className="spinner" style={{ width:12, height:12, borderWidth:2, borderColor:'rgba(0,0,0,0.15)', borderTopColor:'currentColor' }} />
                                                     Generating...
                                                 </>
                                             ) : (
