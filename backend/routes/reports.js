@@ -7,6 +7,8 @@ router.get('/:id/view',     ctrl.view);
 
 router.use(auth);
 
+router.get('/:id/pdf',      ctrl.pdf);
+
 router.get('/',             ctrl.list);
 router.post('/generate',    ctrl.generate);
 router.put('/schedule',     ctrl.setSchedule);

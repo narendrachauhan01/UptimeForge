@@ -428,48 +428,30 @@ export default function Reports() {
         setGenLoading(false);
     };
 
-    const download = async (id) => {
+    const download = async (id, title) => {
         setDownloading(id);
         try {
-            const res = await axios.get(`${API_URL}/api/reports/${id}/view`, { withCredentials: true });
-            const html = res.data;
-
-            // Open a small popup (not a full tab) — Chrome treats width+height as popup
-            const win = window.open('', '_blank', 'width=900,height=650,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes');
-            if (!win) {
-                showToast('⚠️ Allow popups for this site, then try again');
-                setDownloading(null);
-                return;
-            }
-
-            win.document.open();
-            win.document.write(html);
-            win.document.close();
-
-            // Wait for fonts/images to render then auto-print
-            const doPrint = () => {
-                win.focus();
-                win.print();
-                win.addEventListener('afterprint', () => {
-                    win.close();
-                    setDownloading(null);
-                }, { once: true });
-                // Safety: if afterprint never fires, clean up after 2 min
-                setTimeout(() => { try { win.close(); } catch {} setDownloading(null); }, 120000);
-            };
-
-            if (win.document.fonts && win.document.fonts.ready) {
-                win.document.fonts.ready.then(() => setTimeout(doPrint, 600));
-            } else {
-                setTimeout(doPrint, 1400);
-            }
+            const res = await axios.get(`${API_URL}/api/reports/${id}/pdf`, {
+                withCredentials: true,
+                responseType: 'blob',
+            });
+            const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title || 'report'}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✅ PDF downloaded!');
         } catch {
-            showToast('❌ Failed to prepare PDF');
-            setDownloading(null);
+            showToast('❌ PDF generation failed. Please try again.');
         }
+        setDownloading(null);
     };
 
     const remove = async (id) => {
+        if (!window.confirm('Delete this report? This cannot be undone.')) return;
         try {
             await axios.delete(`${API_URL}/api/reports/${id}`, { withCredentials: true });
             setReports(p => p.filter(r => r._id !== id));
@@ -658,11 +640,11 @@ export default function Reports() {
                                         </div>
                                     </div>
                                     <div className="report-actions">
-                                        <button className="btn-download" onClick={() => download(r._id)} disabled={downloading === r._id}>
+                                        <button className="btn-download" onClick={() => download(r._id, r.title)} disabled={downloading === r._id}>
                                             {downloading === r._id ? (
                                                 <>
                                                     <div className="spinner" style={{ width:11, height:11, borderWidth:2, borderColor:'rgba(0,0,0,0.15)', borderTopColor:'currentColor' }} />
-                                                    Preparing...
+                                                    Generating...
                                                 </>
                                             ) : (
                                                 <>

@@ -1,6 +1,7 @@
 const Report   = require('../models/Report');
 const User     = require('../models/User');
 const { buildReportData, generateHTML } = require('../services/reportGenerator');
+const puppeteer = require('puppeteer-core');
 
 const MAX_REPORTS = 1;
 
@@ -45,6 +46,35 @@ exports.generate = async (req, res) => {
         res.json({ report });
     } catch (e) {
         res.status(500).json({ error: e.message });
+    }
+};
+
+// GET /api/reports/:id/pdf  — returns PDF binary download
+exports.pdf = async (req, res) => {
+    let browser;
+    try {
+        const report = await Report.findById(req.params.id).lean();
+        if (!report) return res.status(404).json({ error: 'Report not found' });
+        const html = generateHTML(report.data);
+
+        browser = await puppeteer.launch({
+            executablePath: '/usr/bin/chromium-browser',
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+            headless: true,
+        });
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
+        const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+
+        const filename = `${report.title || 'report'}.pdf`.replace(/[^a-z0-9.\- ]/gi, '_');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(pdfBuffer);
+    } catch (e) {
+        console.error('[Report PDF]', e.message);
+        res.status(500).json({ error: 'PDF generation failed: ' + e.message });
+    } finally {
+        if (browser) await browser.close().catch(() => {});
     }
 };
 
