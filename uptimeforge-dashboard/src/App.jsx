@@ -43,7 +43,6 @@ const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
 const AdminLogin        = lazy(() => import('./pages/AdminLogin'));
 const AccountSuspended  = lazy(() => import('./pages/AccountSuspended'));
 const ConfirmDelete     = lazy(() => import('./pages/ConfirmDelete'));
-const StatusPagesManager = lazy(() => import('./pages/StatusPages'));
 import { API_URL, getNotifications, markNotificationsRead, getPlans, clearNotifications } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
@@ -218,8 +217,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
-    { to: '/reports',       label: 'Reports',       icon: <IcoReport /> },
-    { to: '/status-pages', label: 'Status Pages',  icon: <IcoStatus /> },
+    { to: '/reports',      label: 'Reports',      icon: <IcoReport /> },
     { to: '/account',      label: 'My Account',   icon: <IcoPlan /> },
     { to: '/support',      label: 'Support',      icon: <IcoHeadset /> },
   ];
@@ -720,7 +718,6 @@ function AppInner() {
                   const blocked = acc && acc.pingMonitor === false;
                   return blocked ? <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate> : <PingMonitor />;
               })()} />
-              <Route path="/status-pages" element={<StatusPagesManager />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
               <Route path="*" element={<Dashboard />} />
