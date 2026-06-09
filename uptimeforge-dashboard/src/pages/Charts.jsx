@@ -59,7 +59,7 @@ export default function Charts({ theme = 'light', user }) {
       if (r.data.length > 0) setSelectedId(r.data[0]._id);
       setPageLoading(false); _loaded_Charts = true;
     }).catch(()=>setPageLoading(false));
-    getAlerts().then(r => setAlerts(r.data));
+    getAlerts().then(r => setAlerts(r.data.alerts || []));
     // Fetch actual plan interval using user's plan
     getPlans().then(r => {
       const s = r.data;

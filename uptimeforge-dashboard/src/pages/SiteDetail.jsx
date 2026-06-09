@@ -91,7 +91,7 @@ export default function SiteDetail() {
                 axios.get(`${API_URL}/api/alerts?server=${id}&limit=10`, authCfg),
                 getExpiry(id),
             ]);
-            if (alertsRes.status === 'fulfilled') setIncidents(alertsRes.value.data.slice(0, 10));
+            if (alertsRes.status === 'fulfilled') setIncidents((alertsRes.value.data.alerts || alertsRes.value.data).slice(0, 10));
             if (expiryRes.status === 'fulfilled') setExpiry(expiryRes.value.data);
         } catch {}
     };
