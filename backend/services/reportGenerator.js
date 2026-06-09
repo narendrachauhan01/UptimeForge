@@ -42,8 +42,8 @@ async function buildReportData(userId, type) {
         }
         const uptime = Math.max(0, Math.min(100, ((periodMs - downtimeMs) / periodMs) * 100));
 
-        const recentHistory  = (srv.history || []).slice(-100);
-        const rtSamples      = recentHistory.filter(h => h.responseTime && h.status === 'up').map(h => h.responseTime);
+        const recentHistory   = (srv.history || []).slice(-100);
+        const rtSamples       = recentHistory.filter(h => h.responseTime && h.status === 'up').map(h => h.responseTime);
         const avgResponseTime = rtSamples.length ? Math.round(rtSamples.reduce((a, b) => a + b, 0) / rtSamples.length) : (srv.responseTime || null);
 
         return {
@@ -70,8 +70,8 @@ async function buildReportData(userId, type) {
             downtimeMs += Math.min(recTime - new Date(evt.createdAt), periodMs);
         }
         const uptime = Math.max(0, Math.min(100, ((periodMs - downtimeMs) / periodMs) * 100));
-        const recentHistory  = (pt.history || []).slice(-100);
-        const rtSamples      = recentHistory.filter(h => h.responseTime && h.status === 'up').map(h => h.responseTime);
+        const recentHistory   = (pt.history || []).slice(-100);
+        const rtSamples       = recentHistory.filter(h => h.responseTime && h.status === 'up').map(h => h.responseTime);
         const avgResponseTime = rtSamples.length ? Math.round(rtSamples.reduce((a, b) => a + b, 0) / rtSamples.length) : (pt.responseTime || null);
 
         return {
@@ -107,20 +107,24 @@ async function buildReportData(userId, type) {
         pingTargets: pingData,
         incidents: incidentList,
     };
-}function generateHTML(data) {
-    const upColor = (u) => u >= 99 ? '#10b981' : u >= 95 ? '#d97706' : '#f43f5e';
-    const rt      = (r) => r === null ? '—' : `${r} ms`;
+}
+
+function generateHTML(data) {
+    const upColor = (u) => u >= 99 ? '#059669' : u >= 95 ? '#b45309' : '#dc2626';
+    const rt      = (r) => r === null ? '—' : `${r}&nbsp;ms`;
     const badge   = (s) => s === 'up'
-        ? '<span class="b-up"><span class="dot-pulse"></span>UP</span>'
+        ? '<span class="b-up">UP</span>'
         : s === 'down'
-            ? '<span class="b-dn"><span class="dot-pulse"></span>DOWN</span>'
+            ? '<span class="b-dn">DOWN</span>'
             : '<span class="b-uk">—</span>';
-    const pct     = (u) => `<span class="pct-val" style="color:${upColor(u)}">${u}%</span>`;
+    const pct     = (u) => `<span style="font-weight:700;color:${upColor(u)}">${u}%</span>`;
     const esc     = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 
     const monitorRows = data.monitors.length
         ? data.monitors.map(m => `
-        <tr class="row-hover">
+        <tr>
             <td>
                 <div class="nm">${esc(m.name)}</div>
                 <div class="nu">${esc(m.url)}</div>
@@ -128,14 +132,14 @@ async function buildReportData(userId, type) {
             <td class="tc">${badge(m.status)}</td>
             <td class="tc">${pct(m.uptime)}</td>
             <td class="tc mo">${rt(m.avgResponseTime)}</td>
-            <td class="tc" style="color:${m.incidents > 0 ? '#f43f5e' : '#10b981'};font-weight:700">${m.incidents}</td>
-            <td class="tc mo" style="color:${m.sslDaysLeft !== null && m.sslDaysLeft < 30 ? '#f43f5e' : '#94a3b8'}">${m.sslDaysLeft !== null ? `${m.sslDaysLeft}d` : '—'}</td>
+            <td class="tc" style="color:${m.incidents > 0 ? '#dc2626' : '#059669'};font-weight:700">${m.incidents}</td>
+            <td class="tc mo" style="color:${m.sslDaysLeft !== null && m.sslDaysLeft < 30 ? '#dc2626' : '#475569'}">${m.sslDaysLeft !== null ? `${m.sslDaysLeft}d` : '—'}</td>
         </tr>`).join('')
         : '<tr><td colspan="6" class="empty">No monitors found</td></tr>';
 
     const pingRows = data.pingTargets.length
         ? data.pingTargets.map(p => `
-        <tr class="row-hover">
+        <tr>
             <td>
                 <div class="nm">${esc(p.name)}</div>
                 <div class="nu">${esc(p.host)}</div>
@@ -143,30 +147,31 @@ async function buildReportData(userId, type) {
             <td class="tc">${badge(p.status)}</td>
             <td class="tc">${pct(p.uptime)}</td>
             <td class="tc mo">${rt(p.avgResponseTime)}</td>
-            <td class="tc" style="color:${p.incidents > 0 ? '#f43f5e' : '#10b981'};font-weight:700">${p.incidents}</td>
+            <td class="tc" style="color:${p.incidents > 0 ? '#dc2626' : '#059669'};font-weight:700">${p.incidents}</td>
         </tr>`).join('')
         : '<tr><td colspan="5" class="empty">No ping targets configured</td></tr>';
 
     const incidentRows = data.incidents.length
         ? data.incidents.map((inc, i) => `
-        <tr class="row-hover${i % 2 === 0 ? ' alt' : ''}">
+        <tr${i % 2 === 0 ? ' class="alt"' : ''}>
             <td><div class="nm">${esc(inc.serverName)}</div></td>
             <td class="mo url-td">${esc(inc.serverUrl || '—')}</td>
             <td class="tc"><span class="b-dn">DOWN</span></td>
-            <td style="font-size:12px;color:#94a3b8" class="inc-time">${inc.at}</td>
-            <td class="tc" style="font-size:11.5px;color:#cbd5e1;font-weight:600">${inc.source === 'ping' ? 'Ping' : 'HTTP'}</td>
+            <td style="font-size:12px;color:#475569">${inc.at}</td>
+            <td class="tc" style="font-size:11.5px;color:#64748b;font-weight:600">${inc.source === 'ping' ? 'Ping' : 'HTTP'}</td>
         </tr>`).join('')
-        : '<tr><td colspan="5" class="empty" style="color:#10b981">No incidents during this period</td></tr>';
+        : '<tr><td colspan="5" class="empty" style="color:#059669">No incidents during this period</td></tr>';
 
     const sslWarnings = data.monitors.filter(m => m.sslDaysLeft !== null && m.sslDaysLeft < 30);
     const sslSection  = sslWarnings.length ? `
         <div class="ssl-box">
-            <div class="ssl-title">&#9888; SSL Certificates Expiring Soon</div>
-            ${sslWarnings.map(m => `<div class="ssl-row">&bull; <strong>${esc(m.name)}</strong> — expires in <span style="color:#f43f5e;font-weight:700">${m.sslDaysLeft} days</span> &nbsp; ${esc(m.url)}</div>`).join('')}
+            <div class="ssl-title">&#9888;&nbsp; SSL Certificates Expiring Soon</div>
+            ${sslWarnings.map(m => `<div class="ssl-row">&bull; <strong>${esc(m.name)}</strong> — expires in <span style="color:#dc2626;font-weight:700">${m.sslDaysLeft} days</span></div>`).join('')}
         </div>` : '';
 
     const avgUptimeColor = upColor(data.summary.avgUptime);
-    const incColor       = data.summary.totalIncidents > 0 ? '#f43f5e' : '#10b981';
+    const incColor       = data.summary.totalIncidents > 0 ? '#dc2626' : '#059669';
+    const typeLabel      = data.type === 'weekly' ? 'WEEKLY REPORT' : 'MONTHLY REPORT';
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -176,345 +181,239 @@ async function buildReportData(userId, type) {
 <title>${esc(data.title)} — UptimeForge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-@page { size: A4; margin: 12mm 14mm; }
+@page { size: A4; margin: 0; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  background-color: #0b0f19;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%), 
-    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.05) 0px, transparent 50%);
-  color: #cbd5e1;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  font-size: 13.5px;
+  line-height: 1.5;
 }
 
-/* Print button */
+/* ── Print button ─────────────────────────── */
 .pdf-btn {
   position: fixed; top: 18px; right: 18px; z-index: 999;
-  background: linear-gradient(135deg, #7c3aed, #6366f1);
-  color: #fff; border: none;
-  padding: 10px 20px; border-radius: 9999px; font-size: 13px;
+  background: #4f46e5; color: #fff; border: none;
+  padding: 9px 18px; border-radius: 8px; font-size: 13px;
   font-weight: 700; cursor: pointer; font-family: inherit;
   display: inline-flex; align-items: center; gap: 7px;
-  box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(79,70,229,.3);
+  transition: background .2s;
 }
-.pdf-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 35px -5px rgba(124, 58, 237, 0.6);
-  background: linear-gradient(135deg, #6d28d9, #4f46e5);
+.pdf-btn:hover { background: #4338ca; }
+
+/* ── COVER PAGE ───────────────────────────── */
+.cover {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 56px 56px;
+  position: relative;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
-/* Page */
-.page { max-width: 1020px; margin: 0 auto; padding: 28px 20px 56px; }
+.cover-logo {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0;
+}
+.cover-logo-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cover-logo-icon {
+  width: 44px; height: 44px; border-radius: 11px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.cover-logo-text { text-align: right; }
+.cover-logo-name { font-size: 18px; font-weight: 900; color: #0f172a; letter-spacing: -0.4px; line-height: 1; }
+.cover-logo-name em { color: #6366f1; font-style: normal; }
+.cover-logo-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 500; }
 
-/* Header */
-.hdr {
-  background: linear-gradient(135deg, #0d121f 0%, #151c2e 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 24px;
-  padding: 30px 36px;
-  margin-bottom: 24px;
+.cover-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0 20px;
+}
+
+.cover-type {
+  font-size: 13px; font-weight: 700; color: #6366f1;
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 18px;
+}
+.cover-title {
+  font-size: 52px; font-weight: 900; color: #0f172a;
+  letter-spacing: -2px; line-height: 1.05;
+  margin-bottom: 10px;
+}
+.cover-period {
+  font-size: 22px; font-weight: 500; color: #475569;
+  letter-spacing: -0.3px; margin-bottom: 32px;
+}
+.cover-divider {
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 40%, #06b6d4 100%);
+  border-radius: 3px;
+  margin-bottom: 36px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+.cover-meta { display: flex; gap: 56px; }
+.cover-meta-item {}
+.cover-meta-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.cover-meta-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+
+.cover-footer {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  align-items: flex-end;
+  padding-top: 40px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 20px;
 }
-.hdr::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
-  pointer-events: none;
+.cover-user-name  { font-size: 15px; font-weight: 800; color: #0f172a; }
+.cover-user-email { font-size: 12px; color: #64748b; margin-top: 3px; }
+.cover-user-id    { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.cover-uptime-big {
+  text-align: right;
 }
-.brand-row { display: flex; align-items: center; gap: 12px; }
-.brand-ico {
-  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
-  background: linear-gradient(135deg,#7c3aed,#06b6d4);
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-  box-shadow: 0 8px 20px -4px rgba(124, 58, 237, 0.5);
+.cover-uptime-num { font-size: 42px; font-weight: 900; letter-spacing: -2px; line-height: 1; color: ${upColor(data.summary.avgUptime)}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cover-uptime-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-top: 4px; }
+
+/* ── DATA PAGES ───────────────────────────── */
+.data-pages {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
 }
-.brand-txt { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 900; color: #f8fafc; letter-spacing: -0.5px; line-height: 1; }
-.brand-txt em { color: #a78bfa; font-style: normal; }
-.brand-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-.rpt-badge {
-  display: inline-block; padding: 4px 12px; border-radius: 9999px; margin-bottom: 10px;
-  background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3);
-  color: #c084fc; font-size: 10px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 1.5px;
-}
-.rpt-title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: #f8fafc; letter-spacing: -0.3px; line-height: 1.2; margin-top: 8px; }
-.rpt-time  { font-size: 12px; color: #94a3b8; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
-.user-box {
-  background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
-  border-radius: 16px; padding: 16px 20px; text-align: right; min-width: 200px; flex-shrink: 0;
-  backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.user-name { font-size: 14px; font-weight: 800; color: #f1f5f9; }
-.user-email { font-size: 12px; color: #94a3b8; margin-top: 6px; }
-.user-id    { font-size: 11px; color: #cbd5e1; margin-top: 5px; font-weight: 600; }
 
 /* Stats row */
 .stats {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 20px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 .sc {
-  background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 18px;
-  padding: 20px 10px; text-align: center; position: relative; overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sc::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: transparent; transition: background-color 0.3s;
-}
-.sc:nth-child(1)::after { background: #6366f1; }
-.sc:nth-child(2)::after { background: #06b6d4; }
-.sc:nth-child(3)::after { background: #10b981; }
-.sc:nth-child(4)::after { background: #f43f5e; }
-.sc:nth-child(5)::after { background: #a855f7; }
-
-.sc:hover {
-  transform: translateY(-4px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 16px 10px; text-align: center;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 .sc-icon {
-  width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 10px;
+  width: 30px; height: 30px; border-radius: 8px; margin: 0 auto 9px;
   display: flex; align-items: center; justify-content: center;
+  background: #f1f5f9; color: #6366f1;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.sc:nth-child(1) .sc-icon { color: #818cf8; background: rgba(99, 102, 241, 0.1); }
-.sc:nth-child(2) .sc-icon { color: #22d3ee; background: rgba(6, 182, 212, 0.1); }
-.sc:nth-child(3) .sc-icon { color: #34d399; background: rgba(16, 185, 129, 0.1); }
-.sc:nth-child(4) .sc-icon { color: #fb7185; background: rgba(244, 63, 94, 0.1); }
-.sc:nth-child(5) .sc-icon { color: #c084fc; background: rgba(168, 85, 247, 0.1); }
-
-.sc-num   { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; line-height: 1; }
-.sc-lbl   { font-size: 10px; color: #94a3b8; margin-top: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
+.sc-icon.g { background: #f0fdf4; color: #059669; }
+.sc-icon.r { background: #fff1f2; color: #dc2626; }
+.sc-num { font-size: 26px; font-weight: 900; color: #0f172a; letter-spacing: -1px; line-height: 1; }
+.sc-lbl { font-size: 10px; color: #64748b; margin-top: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* Section card */
 .sec {
-  background: #0d121f; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px;
-  margin-bottom: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  margin-bottom: 18px; overflow: hidden;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.sec:hover { border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); }
-
 .sec-hd {
-  padding: 16px 22px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 11px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 1px; color: #cbd5e1;
+  padding: 11px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #475569;
   display: flex; align-items: center; gap: 8px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.sec-hd svg { color: #a78bfa; }
-
 .sec-cnt {
-  margin-left: auto; background: rgba(244, 63, 94, 0.15); color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.25); padding: 2px 10px; border-radius: 20px;
-  font-size: 10px; font-weight: 700; text-transform: none; letter-spacing: 0;
+  margin-left: auto; background: #fff1f2; color: #dc2626;
+  border: 1px solid #fecdd3; padding: 1px 8px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 700; text-transform: none; letter-spacing: 0;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 
 /* Tables */
-.tw { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table  { width: 100%; border-collapse: collapse; text-align: left; }
+.tw { width: 100%; overflow-x: auto; }
+table  { width: 100%; border-collapse: collapse; }
 th {
-  padding: 14px 18px; background: rgba(255, 255, 255, 0.02); color: #94a3b8;
-  font-size: 10px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 1px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); white-space: nowrap;
+  padding: 9px 14px; background: #f8fafc; color: #64748b;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; border-bottom: 1.5px solid #e2e8f0; white-space: nowrap;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 th.tc { text-align: center; }
-td { padding: 14px 18px; font-size: 13.5px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); vertical-align: middle; color: #cbd5e1; }
+td { padding: 9px 14px; font-size: 12.5px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
 td.tc { text-align: center; }
-td.mo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #cbd5e1; }
-td.url-td { font-size: 11.5px; color: #94a3b8; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+td.mo { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #475569; }
+td.url-td { font-size: 11px; color: #64748b; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
-tr.row-hover { transition: background-color 0.2s; }
-tr.row-hover:hover td { background-color: rgba(255, 255, 255, 0.02); color: #fff; }
-tr.row-hover.alt td { background: rgba(244, 63, 94, 0.02); }
-tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
-
-.nm { font-weight: 700; color: #f8fafc; font-size: 13.5px; }
-.nu { font-size: 11px; color: #94a3b8; margin-top: 2px; font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 350px; }
-.pct-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-.empty { padding: 24px; text-align: center; color: #94a3b8; font-weight: 500; }
+tr:hover td { background: #fafafa; }
+tr.alt td { background: #fff8f8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.nm { font-weight: 700; color: #0f172a; font-size: 12.5px; }
+.nu { font-size: 10.5px; color: #94a3b8; margin-top: 1px; font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+.empty { padding: 20px; text-align: center; color: #94a3b8; font-weight: 500; }
 
 /* Badges */
 .b-up, .b-dn, .b-uk {
-  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px;
+  display: inline-block; padding: 3px 8px; border-radius: 20px;
   font-size: 10px; font-weight: 800; white-space: nowrap;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.b-up { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 0 10px rgba(16, 185, 129, 0.08); }
-.b-dn { background: rgba(244, 63, 94, 0.1); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.2); box-shadow: 0 0 10px rgba(244, 63, 94, 0.08); }
-.b-uk { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08); }
-
-.dot-pulse {
-  width: 6px; height: 6px; border-radius: 50%; display: inline-block;
-}
-.b-up .dot-pulse { background-color: #10b981; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: pulse-green 2s infinite; }
-.b-dn .dot-pulse { background-color: #f43f5e; box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); animation: pulse-red 2s infinite; }
-
-@keyframes pulse-green {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-@keyframes pulse-red {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
-  70% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(244, 63, 94, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
-}
+.b-up { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.b-dn { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+.b-uk { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
 
 /* SSL warning */
 .ssl-box {
-  background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 18px;
-  padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 18px;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.ssl-title { font-size: 13.5px; font-weight: 800; color: #f59e0b; margin-bottom: 8px; }
-.ssl-row   { font-size: 12.5px; color: #fbbf24; margin-top: 5px; }
+.ssl-title { font-size: 12.5px; font-weight: 800; color: #92400e; margin-bottom: 7px; }
+.ssl-row   { font-size: 12px; color: #a16207; margin-top: 4px; }
 
 /* Footer */
-.ftr { text-align: center; padding: 24px 0 0; color: #64748b; font-size: 12.5px; line-height: 1.6; }
-.ftr strong { color: #a78bfa; }
+.ftr { text-align: center; padding: 24px 0 0; color: #94a3b8; font-size: 11.5px; line-height: 1.6; }
+.ftr strong { color: #4f46e5; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #0b0f19; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #334155; }
-
-/* Responsive */
-@media (max-width: 700px) {
-  .hdr { flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px; }
-  .user-box { text-align: left; min-width: unset; width: 100%; }
-  .stats { grid-template-columns: repeat(3,1fr); }
-}
-@media (max-width: 480px) {
-  .stats { grid-template-columns: repeat(2,1fr); }
-}
-
-/* Print Overrides */
+/* Print */
 @media print {
+  @page { size: A4; margin: 0; }
   .pdf-btn { display: none !important; }
-  body {
-    background-color: #ffffff !important;
-    background-image: none !important;
-    color: #0f172a !important;
+  body { background: #fff !important; }
+
+  .cover {
+    min-height: 297mm;
+    height: 297mm;
+    page-break-after: always;
+    break-after: page;
+    padding: 44px 52px 52px;
   }
-  .page { padding: 0; max-width: 100%; }
-  .hdr {
-    background: #0f172a !important;
-    color: #ffffff !important;
-    border: none;
-    box-shadow: none;
-    border-radius: 8px; margin-bottom: 14px; padding: 18px 22px;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .hdr * { color: #ffffff !important; }
-  .hdr .brand-txt em { color: #818cf8 !important; }
-  
+
+  .data-pages { padding: 14mm 14mm 14mm; max-width: 100%; }
+
   .stats { gap: 7px; margin-bottom: 14px; grid-template-columns: repeat(5,1fr) !important; }
-  .sc {
-    background: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px;
-    padding: 12px 8px;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .sc::after { display: none !important; }
-  .sc-num { color: #0f172a !important; font-size: 22px; }
-  .sc-lbl { color: #475569 !important; }
-  .sc-icon { background: #f1f5f9 !important; color: #475569 !important; }
-  .sc:nth-child(1) .sc-icon { background: #f1f5f9 !important; color: #4f46e5 !important; }
-  .sc:nth-child(2) .sc-icon { background: #e0f7fa !important; color: #0891b2 !important; }
-  .sc:nth-child(3) .sc-icon { background: #e2fbf0 !important; color: #15803d !important; }
-  .sc:nth-child(4) .sc-icon { background: #fee2e2 !important; color: #b91c1c !important; }
-  .sc:nth-child(5) .sc-icon { background: #f3e8ff !important; color: #7e22ce !important; }
-  
-  .sec {
-    background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
-    box-shadow: none !important;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .sec-hd {
-    background: #f8fafc !important;
-    border-bottom: 1px solid #cbd5e1 !important;
-    color: #334155 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .sec-hd svg { color: #4f46e5 !important; }
-  
-  th {
-    background: #f8fafc !important;
-    color: #475569 !important;
-    border-bottom: 2px solid #cbd5e1 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  td {
-    color: #334155 !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-  }
-  tr.row-hover:hover td { background-color: transparent !important; color: #334155 !important; }
-  tr.row-hover.alt td { background: #fff8f8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .nm { color: #0f172a !important; }
-  .nu { color: #64748b !important; max-width: 220px; }
-  
-  .b-up {
-    background: #dcfce7 !important;
-    color: #15803d !important;
-    border: 1px solid #bbf7d0 !important;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .b-dn {
-    background: #fee2e2 !important;
-    color: #b91c1c !important;
-    border: 1px solid #fecaca !important;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .b-uk {
-    background: #f1f5f9 !important;
-    color: #64748b !important;
-    border: 1px solid #e2e8f0 !important;
-  }
-  .b-up .dot-pulse { background-color: #16a34a !important; animation: none !important; }
-  .b-dn .dot-pulse { background-color: #dc2626 !important; animation: none !important; }
-  
-  .ssl-box {
-    background: #fffbeb !important;
-    border: 1px solid #fde68a !important;
-    color: #a16207 !important;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .ssl-title { color: #92400e !important; }
-  .ssl-row   { color: #a16207 !important; }
-  
-  .ftr { color: #475569 !important; }
-  .ftr strong { color: #4f46e5 !important; }
+  .sc { padding: 12px 8px; border-radius: 8px; }
+  .sc-num { font-size: 22px; }
+  .sec { margin-bottom: 12px; border-radius: 8px; page-break-inside: avoid; break-inside: avoid; }
+  th, td { padding: 7px 11px; }
+  .nu { max-width: 220px; }
+  tr:hover td { background: transparent !important; }
 }
 </style>
 </head>
@@ -529,33 +428,69 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
   Save as PDF
 </button>
 
-<div class="page">
+<!-- ═══════════════════════════════════════════════════
+     COVER PAGE
+════════════════════════════════════════════════════ -->
+<div class="cover">
 
-  <!-- Header -->
-  <div class="hdr">
-    <div style="flex:1;min-width:0">
-      <div class="brand-row">
-        <div class="brand-ico">&#9889;</div>
-        <div>
-          <div class="brand-txt">Uptime<em>Forge</em><span style="font-size:11px;color:#818cf8;font-weight:600">.in</span></div>
-          <div class="brand-sub">Professional Uptime Monitoring</div>
-        </div>
+  <!-- Logo top-right -->
+  <div class="cover-logo">
+    <div class="cover-logo-inner">
+      <div class="cover-logo-text">
+        <div class="cover-logo-name">Uptime<em>Forge</em><span style="font-size:11px;color:#6366f1;font-weight:600">.in</span></div>
+        <div class="cover-logo-sub">Professional Uptime Monitoring</div>
       </div>
-      <span class="rpt-badge">${esc(data.type)} report</span>
-      <div class="rpt-title">${esc(data.title)}</div>
-      <div class="rpt-time">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Generated: ${data.generatedAt} IST
-      </div>
-    </div>
-    <div class="user-box">
-      <div class="user-name">${esc(data.user.name)}</div>
-      <div class="user-email">${esc(data.user.email)}</div>
-      <div class="user-id">Account&nbsp;ID: <strong>${esc(data.user.accountId)}</strong></div>
+      <div class="cover-logo-icon">&#9889;</div>
     </div>
   </div>
 
-  <!-- Summary -->
+  <!-- Main cover body -->
+  <div class="cover-body">
+    <div class="cover-type">${typeLabel}</div>
+    <div class="cover-title">${esc(data.type === 'weekly' ? 'Weekly\nReport' : 'Monthly\nReport')}</div>
+    <div class="cover-period">${esc(data.type === 'weekly'
+        ? fmtDate(data.periodStart) + ' – ' + fmtDate(data.periodEnd)
+        : new Date(data.periodStart).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }))}</div>
+
+    <div class="cover-divider"></div>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Generated</div>
+        <div class="cover-meta-value">${data.generatedAt} IST</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Monitors</div>
+        <div class="cover-meta-value">${data.summary.totalMonitors} active</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Incidents</div>
+        <div class="cover-meta-value" style="color:${incColor}">${data.summary.totalIncidents} event${data.summary.totalIncidents !== 1 ? 's' : ''}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cover footer: user info + uptime big number -->
+  <div class="cover-footer">
+    <div>
+      <div class="cover-user-name">${esc(data.user.name)}</div>
+      <div class="cover-user-email">${esc(data.user.email)}</div>
+      <div class="cover-user-id">Account ID: ${esc(data.user.accountId)}</div>
+    </div>
+    <div class="cover-uptime-big">
+      <div class="cover-uptime-num">${data.summary.avgUptime}%</div>
+      <div class="cover-uptime-lbl">Avg Uptime</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DATA PAGES
+════════════════════════════════════════════════════ -->
+<div class="data-pages">
+
+  <!-- Summary Stats -->
   <div class="stats">
     <div class="sc">
       <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg></div>
@@ -568,12 +503,12 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
       <div class="sc-lbl">Ping Targets</div>
     </div>
     <div class="sc">
-      <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="sc-icon g"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
       <div class="sc-num" style="color:${avgUptimeColor}">${data.summary.avgUptime}%</div>
       <div class="sc-lbl">Avg Uptime</div>
     </div>
     <div class="sc">
-      <div class="sc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="sc-icon r"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
       <div class="sc-num" style="color:${incColor}">${data.summary.totalIncidents}</div>
       <div class="sc-lbl">Incidents</div>
     </div>
@@ -589,7 +524,7 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
   <!-- Monitor Performance -->
   <div class="sec">
     <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       Monitor Performance
     </div>
     <div class="tw">
@@ -613,7 +548,7 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
   ${data.pingTargets.length > 0 ? `
   <div class="sec">
     <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.58 16.14a6 6 0 0 1 6.84 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
       Ping Monitor
     </div>
     <div class="tw">
@@ -635,7 +570,7 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
   <!-- Incidents -->
   <div class="sec">
     <div class="sec-hd">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Incidents During Period
       ${data.incidents.length > 0 ? `<span class="sec-cnt">${data.incidents.length} event${data.incidents.length > 1 ? 's' : ''}</span>` : ''}
     </div>
@@ -660,6 +595,7 @@ tr.row-hover.alt:hover td { background: rgba(244, 63, 94, 0.04); }
     <strong>UptimeForge.in</strong> — Professional Uptime Monitoring &nbsp;|&nbsp; &copy; 2026 UptimeForge.in<br>
     <span style="font-size:10.5px;display:block;margin-top:3px">This report was automatically generated. Data is based on monitoring records for the selected period.</span>
   </div>
+
 </div>
 </body>
 </html>`;
