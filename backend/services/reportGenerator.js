@@ -489,8 +489,7 @@ tr.alt td { background: rgba(255,255,255,0.01); }
         <div class="meta-item"><span class="meta-lbl">Generated At</span><span class="meta-val">${data.generatedAt} IST</span></div>
         <div class="meta-item"><span class="meta-lbl">HTTP Monitors</span><span class="meta-val">${data.summary.totalMonitors} Active</span></div>
         <div class="meta-item"><span class="meta-lbl">Ping Targets</span><span class="meta-val">${data.summary.totalPingTargets} Active</span></div>
-        <div class="meta-item"><span class="meta-lbl">Down Events</span><span class="meta-val" style="color:${data.summary.totalIncidents > 0 ? 'var(--danger)' : 'var(--success)'}">${data.summary.totalIncidents} Times</span></div>
-        <div class="meta-item"><span class="meta-lbl">Recovered</span><span class="meta-val" style="color:var(--success)">${data.summary.totalRecovered} Times</span></div>
+        <div class="meta-item"><span class="meta-lbl">Incidents</span><span class="meta-val" style="color:${data.summary.totalIncidents > 0 ? 'var(--danger)' : 'var(--success)'}">${data.summary.totalIncidents} Down · ${data.summary.totalRecovered} Up</span></div>
       </div>
       <div class="cover-user-card">
         <div class="user-avatar">${data.user.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}</div>
