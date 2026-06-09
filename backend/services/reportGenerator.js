@@ -90,6 +90,7 @@ async function buildReportData(userId, type) {
     });
 
     const totalIncidents  = allIncidents.filter(a => a.type === 'down').length;
+    const totalRecovered  = allIncidents.filter(a => a.type === 'recovered').length;
     const uptimeValues    = monitorData.map(m => m.uptime);
     const avgUptime       = uptimeValues.length ? Math.round((uptimeValues.reduce((a, b) => a + b, 0) / uptimeValues.length) * 100) / 100 : 100;
     const rtAll           = monitorData.map(m => m.avgResponseTime).filter(Boolean);
@@ -107,7 +108,7 @@ async function buildReportData(userId, type) {
         type, title, periodStart, periodEnd,
         generatedAt: new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true }),
         user: { name: user?.name || 'N/A', accountId: user?.accountId || 'N/A', email: user?.email || 'N/A' },
-        summary: { totalMonitors: servers.length, totalPingTargets: pings.length, totalIncidents, avgUptime, avgResponseTime },
+        summary: { totalMonitors: servers.length, totalPingTargets: pings.length, totalIncidents, totalRecovered, avgUptime, avgResponseTime },
         monitors: monitorData,
         pingTargets: pingData,
         incidents: incidentList,
@@ -340,7 +341,7 @@ body {
 .user-id    { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
 
 /* STATS */
-.stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 24px; }
+.stats-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 16px; margin-bottom: 24px; }
 .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); }
 .stat-icon-wrapper { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
 .stat-icon-wrapper.success { color: var(--success); }
@@ -424,7 +425,7 @@ tr.alt td { background: rgba(255,255,255,0.01); }
   .uptime-ring-val { color: #0f172a !important; }
   .ring-bg { stroke: #f1f5f9; }
   .cover-user-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
-  .stats-grid { grid-template-columns: repeat(5,1fr) !important; gap: 10px !important; margin-bottom: 24px !important; page-break-inside: avoid; break-inside: avoid; }
+  .stats-grid { grid-template-columns: repeat(6,1fr) !important; gap: 8px !important; margin-bottom: 24px !important; page-break-inside: avoid; break-inside: avoid; }
   .stat-card { padding: 12px 8px !important; border-radius: 8px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; }
   .stat-value { font-size: 20px !important; }
   .sec { border-radius: 12px !important; margin-bottom: 20px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background: #ffffff !important; }
@@ -488,7 +489,8 @@ tr.alt td { background: rgba(255,255,255,0.01); }
         <div class="meta-item"><span class="meta-lbl">Generated At</span><span class="meta-val">${data.generatedAt} IST</span></div>
         <div class="meta-item"><span class="meta-lbl">HTTP Monitors</span><span class="meta-val">${data.summary.totalMonitors} Active</span></div>
         <div class="meta-item"><span class="meta-lbl">Ping Targets</span><span class="meta-val">${data.summary.totalPingTargets} Active</span></div>
-        <div class="meta-item"><span class="meta-lbl">Incidents</span><span class="meta-val" style="color:${data.summary.totalIncidents > 0 ? 'var(--danger)' : 'var(--success)'}">${data.summary.totalIncidents} Event${data.summary.totalIncidents !== 1 ? 's' : ''}</span></div>
+        <div class="meta-item"><span class="meta-lbl">Down Events</span><span class="meta-val" style="color:${data.summary.totalIncidents > 0 ? 'var(--danger)' : 'var(--success)'}">${data.summary.totalIncidents} Times</span></div>
+        <div class="meta-item"><span class="meta-lbl">Recovered</span><span class="meta-val" style="color:var(--success)">${data.summary.totalRecovered} Times</span></div>
       </div>
       <div class="cover-user-card">
         <div class="user-avatar">${data.user.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}</div>
@@ -520,7 +522,11 @@ tr.alt td { background: rgba(255,255,255,0.01); }
       </div>
       <div class="stat-card">
         <div class="stat-icon-wrapper danger"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stat-value" style="color:${incColor}">${data.summary.totalIncidents}</div><div class="stat-label">Incidents</div>
+        <div class="stat-value" style="color:${incColor}">${data.summary.totalIncidents}</div><div class="stat-label">Down Events</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper success"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="stat-value" style="color:${data.summary.totalRecovered > 0 ? 'var(--success)' : 'var(--text-secondary)'}">${data.summary.totalRecovered}</div><div class="stat-label">Recovered</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon-wrapper"><svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
