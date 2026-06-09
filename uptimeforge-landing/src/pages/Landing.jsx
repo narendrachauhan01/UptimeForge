@@ -892,6 +892,40 @@ export default function Landing() {
                       </div>
                     )
                   },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                      </svg>
+                    ),
+                    color: '#10b981',
+                    title: 'Weekly & Monthly Reports',
+                    desc: 'Auto-generate beautiful PDF reports with uptime stats, response times, down/recovery counts, SSL & domain expiry — delivered weekly or monthly.',
+                    preview: (
+                      <div className="lp-feat-preview report-preview" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#10b981', letterSpacing: 1, textTransform: 'uppercase' }}>Monthly Report</span>
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>PDF</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+                          {[['100%','Avg Uptime','#10b981'],['0','Down Events','#f43f5e'],['14','Monitors','#8b5cf6']].map(([v,l,c]) => (
+                            <div key={l} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: c, lineHeight: 1 }}>{v}</div>
+                              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', marginTop: 3, fontWeight: 600 }}>{l}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
+                          <div style={{ flex: 1, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 8, padding: '5px 8px', fontSize: 10, color: '#10b981', fontWeight: 700, textAlign: 'center' }}>Weekly PDF</div>
+                          <div style={{ flex: 1, background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 8, padding: '5px 8px', fontSize: 10, color: '#a78bfa', fontWeight: 700, textAlign: 'center' }}>Monthly PDF</div>
+                        </div>
+                      </div>
+                    )
+                  },
                 ];
                 return [...list, ...list].map((f, i) => (
                   <div key={`${f.title}-${i}`} className="lp-feat4-card" style={{ '--feat-color': f.color, '--feat-glow': `${f.color}18` }}>
