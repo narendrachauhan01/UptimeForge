@@ -466,9 +466,9 @@ tr.alt td { background: rgba(255,255,255,0.01); }
       <div class="cover-info-col">
         <div class="cover-badge">${typeLabel}</div>
         <h1 class="cover-title">${esc(data.type === 'weekly' ? 'Weekly Status\nReport' : 'Monthly Status\nReport')}</h1>
-        <p class="cover-period">${esc(data.type === 'weekly'
-            ? fmtDate(data.periodStart) + ' – ' + fmtDate(data.periodEnd)
-            : new Date(data.periodStart).toLocaleDateString('en-IN', { month:'long', year:'numeric' }))}</p>
+        <p class="cover-period">${data.type === 'weekly'
+            ? esc(fmtDate(data.periodStart) + ' – ' + fmtDate(data.periodEnd))
+            : `${esc(new Date(data.periodStart).toLocaleDateString('en-IN', { month:'long', year:'numeric' }))}<br><span style="font-size:14px;font-weight:400;opacity:0.7">${esc(fmtDate(data.periodStart))} – ${esc(fmtDate(data.periodEnd))}</span>`}</p>
       </div>
       <div class="cover-chart-col">
         <div class="uptime-ring-container">
