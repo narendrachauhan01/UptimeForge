@@ -432,29 +432,37 @@ export default function Reports() {
         setDownloading(id);
         try {
             const res = await axios.get(`${API_URL}/api/reports/${id}/view`, { withCredentials: true });
-            const blob = new Blob([res.data], { type: 'text/html' });
-            const blobUrl = URL.createObjectURL(blob);
+            const html = res.data;
 
-            const iframe = document.createElement('iframe');
-            iframe.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;border:none;left:-9999px;top:-9999px;';
-            document.body.appendChild(iframe);
+            // Open a small popup (not a full tab) — Chrome treats width+height as popup
+            const win = window.open('', '_blank', 'width=900,height=650,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes');
+            if (!win) {
+                showToast('⚠️ Allow popups for this site, then try again');
+                setDownloading(null);
+                return;
+            }
 
-            iframe.onload = () => {
-                try {
-                    iframe.contentWindow.focus();
-                    iframe.contentWindow.print();
-                } catch {
-                    window.open(blobUrl, '_blank');
-                }
-                const cleanup = () => {
-                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
-                    URL.revokeObjectURL(blobUrl);
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+
+            // Wait for fonts/images to render then auto-print
+            const doPrint = () => {
+                win.focus();
+                win.print();
+                win.addEventListener('afterprint', () => {
+                    win.close();
                     setDownloading(null);
-                };
-                window.addEventListener('afterprint', cleanup, { once: true });
-                setTimeout(cleanup, 60000);
+                }, { once: true });
+                // Safety: if afterprint never fires, clean up after 2 min
+                setTimeout(() => { try { win.close(); } catch {} setDownloading(null); }, 120000);
             };
-            iframe.src = blobUrl;
+
+            if (win.document.fonts && win.document.fonts.ready) {
+                win.document.fonts.ready.then(() => setTimeout(doPrint, 600));
+            } else {
+                setTimeout(doPrint, 1400);
+            }
         } catch {
             showToast('❌ Failed to prepare PDF');
             setDownloading(null);
