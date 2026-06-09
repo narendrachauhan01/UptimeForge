@@ -20,6 +20,7 @@ export default function Alerts() {
   const [alerts, setAlerts]         = useState([]);
   const [search, setSearch]         = useState('');
   const [filter, setFilter]         = useState('all');
+  const [month, setMonth]           = useState('all');
   const [page, setPage]             = useState(1);
   const [pageLoading, setPageLoading] = useState(!_loaded_Alerts);
 
@@ -64,19 +65,25 @@ export default function Alerts() {
     }).catch(() => setPageLoading(false));
   }, []);
 
+  // Build sorted list of months available in the data e.g. ["2026-06", "2026-05"]
+  const monthOptions = [...new Set(alerts.map(a =>
+    new Date(a.createdAt).toISOString().slice(0, 7)
+  ))].sort((a, b) => b.localeCompare(a));
+
   const filtered = alerts.filter(a => {
     const q = search.toLowerCase();
     const ms = a.serverName?.toLowerCase().includes(q) || a.serverUrl?.toLowerCase().includes(q) || a.sentTo?.some(r=>r.name.toLowerCase().includes(q));
     const mf = filter==='all' || a.type===filter;
-    return ms && mf;
+    const mm = month==='all' || new Date(a.createdAt).toISOString().slice(0, 7) === month;
+    return ms && mf && mm;
   });
 
   const totalPages  = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const safePage    = Math.min(page, totalPages);
   const pageItems   = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
-  // Reset to page 1 when search or filter changes
-  useEffect(() => { setPage(1); }, [search, filter]);
+  // Reset to page 1 when search, filter or month changes
+  useEffect(() => { setPage(1); }, [search, filter, month]);
 
   const downCount      = alerts.filter(a=>a.type==='down').length;
   const recoveredCount = alerts.filter(a=>a.type==='recovered').length;
@@ -487,6 +494,31 @@ export default function Alerts() {
           color: #fff !important;
         }
 
+        /* Month select */
+        .perf-page-container .month-select {
+          padding: 8px 32px 8px 12px !important;
+          border: 1.5px solid var(--border-color) !important;
+          border-radius: 12px !important;
+          background: var(--bg-input) !important;
+          color: var(--text-main) !important;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          cursor: pointer !important;
+          outline: none !important;
+          appearance: none !important;
+          -webkit-appearance: none !important;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 10px center !important;
+          transition: all 0.2s !important;
+          white-space: nowrap;
+        }
+        .perf-page-container .month-select:focus {
+          border-color: var(--primary) !important;
+          box-shadow: 0 0 0 4px var(--input-focus-shadow) !important;
+        }
+
         /* Empty State */
         .perf-page-container .empty-box {
           padding: 60px 20px;
@@ -564,6 +596,15 @@ export default function Alerts() {
                 </button>
               ))}
             </div>
+            {/* Month filter */}
+            <select className="month-select" value={month} onChange={e => setMonth(e.target.value)}>
+              <option value="all">All Months</option>
+              {monthOptions.map(m => (
+                <option key={m} value={m}>
+                  {new Date(m + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* List */}
