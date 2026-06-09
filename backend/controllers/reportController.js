@@ -51,8 +51,7 @@ exports.generate = async (req, res) => {
 // GET /api/reports/:id/view  — returns HTML page
 exports.view = async (req, res) => {
     try {
-        const userId = req.user._id;
-        const report = await Report.findOne({ _id: req.params.id, userId }).lean();
+        const report = await Report.findById(req.params.id).lean();
         if (!report) return res.status(404).send('Report not found');
         const html = generateHTML(report.data);
         res.setHeader('Content-Type', 'text/html');
