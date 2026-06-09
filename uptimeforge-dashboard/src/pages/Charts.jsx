@@ -287,6 +287,8 @@ export default function Charts({ theme = 'light', user }) {
           --input-focus-shadow: rgba(124, 58, 237, 0.08);
           --site-dropdown-bg: #ffffff;
           --site-dropdown-border: #e2e8f0;
+          --search-option-hover: rgba(124, 58, 237, 0.05);
+          --search-option-active: rgba(124, 58, 237, 0.12);
           --pie-legend-border: rgba(0, 0, 0, 0.08);
         }
 
@@ -309,6 +311,8 @@ export default function Charts({ theme = 'light', user }) {
           --input-focus-shadow: rgba(139, 92, 246, 0.15);
           --site-dropdown-bg: #131a26;
           --site-dropdown-border: rgba(255, 255, 255, 0.1);
+          --search-option-hover: rgba(255, 255, 255, 0.04);
+          --search-option-active: rgba(139, 92, 246, 0.15);
           --pie-legend-border: rgba(255, 255, 255, 0.08);
         }
 
@@ -579,6 +583,9 @@ export default function Charts({ theme = 'light', user }) {
           cursor: text;
           transition: all 0.2s;
         }
+        .perf-page-container .site-search-input-box:hover {
+          border-color: var(--primary);
+        }
         .perf-page-container .site-search-input-box:focus-within {
           border-color: var(--primary);
           background: var(--bg-card);
@@ -617,6 +624,12 @@ export default function Charts({ theme = 'light', user }) {
           border-radius: 10px;
           cursor: pointer;
           transition: all 0.15s;
+        }
+        .perf-page-container .site-search-option:hover {
+          background: var(--search-option-hover);
+        }
+        .perf-page-container .site-search-option.active {
+          background: var(--search-option-active);
         }
         .perf-page-container .site-search-dot {
           width: 8px;
@@ -825,6 +838,10 @@ export default function Charts({ theme = 'light', user }) {
           border-radius: 12px;
           background: var(--bg-input);
           min-width: 250px;
+          transition: all 0.2s;
+        }
+        .perf-page-container .uptime-search-wrap:hover {
+          border-color: var(--primary);
         }
         .perf-page-container .uptime-search-wrap:focus-within {
           border-color: var(--primary);
