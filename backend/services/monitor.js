@@ -652,6 +652,18 @@ function start() {
         console.log('[Report] Running monthly auto-generation...');
         require('../controllers/reportController').autoGenerate('monthly').catch(() => {});
     }, { timezone: 'Asia/Kolkata' });
+
+    // Daily cleanup: delete incidents (alerts) older than 30 days
+    cron.schedule('0 1 * * *', async () => {
+        try {
+            const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const result = await require('../models/Alert').deleteMany({ createdAt: { $lt: cutoff } });
+            if (result.deletedCount > 0)
+                console.log(`[Cleanup] Deleted ${result.deletedCount} incidents older than 30 days`);
+        } catch (e) {
+            console.error('[Cleanup] Incident cleanup failed:', e.message);
+        }
+    }, { timezone: 'Asia/Kolkata' });
 }
 
 module.exports = { start, checkAll };
