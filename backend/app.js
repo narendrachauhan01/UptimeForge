@@ -55,6 +55,7 @@ app.use('/api/telegram',      require('./routes/telegram'));
 app.use('/api/staff',         require('./routes/staff'));
 app.use('/api/reports',       require('./routes/reports'));
 app.use('/api/status-pages',  require('./routes/statusPages'));
+app.get('/api/public/statuses',      require('./controllers/statusPageController').publicIndex);
 app.get('/api/public/status/:slug', require('./controllers/statusPageController').publicView);
 
 // Swagger Docs

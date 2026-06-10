@@ -55,6 +55,32 @@ exports.getAllServers = async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
+// GET /api/public/statuses — NO AUTH, index of all public pages
+exports.publicIndex = async (req, res) => {
+    try {
+        const pages = await StatusPage.find({ isPublic: true }).lean();
+
+        const result = await Promise.all(pages.map(async (page) => {
+            const servers = await Server.find({ _id: { $in: page.monitors } }, 'name status uptime').lean();
+            const downCount = servers.filter(s => s.status === 'down').length;
+            const overallStatus = servers.length === 0 ? 'operational'
+                : downCount === 0 ? 'operational'
+                : downCount === servers.length ? 'outage'
+                : 'degraded';
+            return {
+                title: page.title,
+                slug: page.slug,
+                description: page.description,
+                overallStatus,
+                monitorCount: servers.length,
+                updatedAt: page.updatedAt,
+            };
+        }));
+
+        res.json(result);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // GET /api/public/status/:slug — NO AUTH, public view
 exports.publicView = async (req, res) => {
     try {

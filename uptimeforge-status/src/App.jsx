@@ -24,15 +24,33 @@ export default function App() {
   const [data, setData]         = useState(null);
   const [loading, setLoading]   = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const slug = getSlug();
 
   useEffect(() => {
-    if (!slug) { setNotFound(true); setLoading(false); return; }
-    axios.get(`${BASE_URL}/api/public/status/${slug}`)
-      .then(r => setData(r.data))
-      .catch(e => { if (e.response?.status === 404) setNotFound(true); })
-      .finally(() => setLoading(false));
-  }, [slug]);
+    const slug = getSlug();
+
+    const fetchPage = (s) =>
+      axios.get(`${BASE_URL}/api/public/status/${s}`)
+        .then(r => setData(r.data))
+        .catch(e => { if (e.response?.status === 404) setNotFound(true); })
+        .finally(() => setLoading(false));
+
+    if (slug) {
+      // Direct slug URL like /sas
+      fetchPage(slug);
+    } else {
+      // Root domain — auto-load the first public status page
+      axios.get(`${BASE_URL}/api/public/statuses`)
+        .then(r => {
+          if (r.data?.length) {
+            fetchPage(r.data[0].slug);
+          } else {
+            setNotFound(true);
+            setLoading(false);
+          }
+        })
+        .catch(() => { setNotFound(true); setLoading(false); });
+    }
+  }, []);
 
   useEffect(() => { if (data) document.title = `${data.title} — Status`; }, [data]);
 
@@ -49,11 +67,11 @@ export default function App() {
     </div>
   );
 
-  if (notFound || !slug) return (
+  if (notFound) return (
     <div style={{ minHeight: '100vh', background: '#0b0b14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif' }}>
       <div style={{ fontSize: 60, marginBottom: 16 }}>📡</div>
-      <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, margin: '0 0 8px' }}>Status Page Not Found</h1>
-      <p style={{ color: '#6b7280', fontSize: 13 }}>This page doesn't exist or has been removed.</p>
+      <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, margin: '0 0 8px' }}>No Status Page Found</h1>
+      <p style={{ color: '#6b7280', fontSize: 13 }}>No public status pages have been published yet.</p>
     </div>
   );
 
