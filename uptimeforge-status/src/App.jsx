@@ -205,31 +205,40 @@ export default function App() {
 
         {/* ── Incidents ── */}
         <section>
-          <p className="section-label">Past Incidents — 30 Days</p>
+          <p className="section-label">Incidents</p>
 
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 22px' }}>
             {!data.incidents?.length ? (
               <div style={{ padding: '40px 0', textAlign: 'center' }}>
                 <div style={{ fontSize: 36, marginBottom: 10 }}>🎉</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#3ecf8e', marginBottom: 4 }}>No incidents reported</div>
-                <div style={{ fontSize: 13, color: '#9ca3af' }}>All systems have been running smoothly for the last 30 days.</div>
+                <div style={{ fontSize: 13, color: '#9ca3af' }}>All systems have been running smoothly.</div>
               </div>
             ) : (
-              data.incidents.map((inc, i) => (
-                <div key={i} className="inc-row">
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                    <div style={{ marginTop: 5, width: 8, height: 8, borderRadius: '50%', background: '#f87171', flexShrink: 0 }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 3 }}>{inc.name}</div>
-                      {inc.url && <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 3 }}>{inc.url}</div>}
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: 'rgba(248,113,113,.1)', color: '#ef4444' }}>Outage</span>
-                        <span style={{ fontSize: 12, color: '#9ca3af' }}>{inc.at}</span>
+              data.incidents.map((inc, i) => {
+                const sc = {
+                  investigating: { color: '#ef4444', bg: 'rgba(239,68,68,.1)',  label: 'Investigating' },
+                  identified:    { color: '#f59e0b', bg: 'rgba(245,158,11,.1)', label: 'Identified'    },
+                  monitoring:    { color: '#3b82f6', bg: 'rgba(59,130,246,.1)', label: 'Monitoring'    },
+                  resolved:      { color: '#10b981', bg: 'rgba(16,185,129,.1)', label: 'Resolved'      },
+                };
+                const s = sc[inc.status] || sc.investigating;
+                return (
+                  <div key={inc._id || i} className="inc-row">
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ marginTop: 5, width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{inc.title}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: s.bg, color: s.color }}>{s.label}</span>
+                        </div>
+                        {inc.body && <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.6, marginBottom: 6 }}>{inc.body}</div>}
+                        <div style={{ fontSize: 12, color: '#9ca3af' }}>{inc.at}</div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </section>

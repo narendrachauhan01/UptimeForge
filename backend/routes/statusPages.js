@@ -11,6 +11,10 @@ router.get('/',                    auth, adminOnly, ctrl.list);
 router.post('/',                   auth, adminOnly, ctrl.create);
 router.put('/:id',                 auth, adminOnly, ctrl.update);
 router.delete('/:id',              auth, adminOnly, ctrl.remove);
-router.get('/all-servers',         auth, adminOnly, ctrl.getAllServers);
+router.get('/all-servers',                      auth, adminOnly, ctrl.getAllServers);
+
+router.post('/:id/incidents',                   auth, adminOnly, ctrl.createIncident);
+router.put('/:id/incidents/:incId',             auth, adminOnly, ctrl.updateIncident);
+router.delete('/:id/incidents/:incId',          auth, adminOnly, ctrl.deleteIncident);
 
 module.exports = router;

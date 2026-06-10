@@ -81,6 +81,11 @@ export const updateStatusPage    = (id, data) => api.put(`/status-pages/${id}`, 
 export const deleteStatusPage    = (id)       => api.delete(`/status-pages/${id}`);
 export const getAllStatusServers  = ()         => api.get('/status-pages/all-servers');
 
+// Incidents (admin only)
+export const createIncident  = (pageId, data)        => api.post(`/status-pages/${pageId}/incidents`, data);
+export const updateIncident  = (pageId, incId, data) => api.put(`/status-pages/${pageId}/incidents/${incId}`, data);
+export const deleteIncident  = (pageId, incId)       => api.delete(`/status-pages/${pageId}/incidents/${incId}`);
+
 // Staff management (admin)
 export const staffList         = ()         => api.get('/staff');
 export const staffCreate       = (data)     => api.post('/staff', data);

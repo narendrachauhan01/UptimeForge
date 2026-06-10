@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { getStatusPages, createStatusPage, updateStatusPage, deleteStatusPage, getAllStatusServers } from '../api';
+import { getStatusPages, createStatusPage, updateStatusPage, deleteStatusPage, getAllStatusServers, createIncident, updateIncident, deleteIncident } from '../api';
 
 const BASE = 'https://status.narendrasingh.site';
 
@@ -15,6 +15,13 @@ export default function AdminStatusPages() {
   const [search, setSearch]   = useState('');
 
   const [form, setForm] = useState({ slug: '', title: '', description: '', monitors: [], isPublic: true });
+
+  // Incident modal state
+  const [incModal, setIncModal]   = useState(null); // { pageId, incident|null }
+  const [incForm, setIncForm]     = useState({ title: '', body: '', status: 'investigating' });
+  const [incSaving, setIncSaving] = useState(false);
+  const [incErr, setIncErr]       = useState('');
+  const [delIncConfirm, setDelIncConfirm] = useState(null); // { pageId, incId }
 
   const [localTheme, setLocalTheme] = useState(() => {
     const m = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -119,6 +126,32 @@ export default function AdminStatusPages() {
   };
 
   const del = async (id) => { await deleteStatusPage(id); setDelConfirm(null); load(); };
+
+  const openNewIncident = (pageId) => {
+    setIncForm({ title: '', body: '', status: 'investigating' });
+    setIncErr(''); setIncModal({ pageId, incident: null });
+  };
+  const openEditIncident = (pageId, inc) => {
+    setIncForm({ title: inc.title, body: inc.body || '', status: inc.status });
+    setIncErr(''); setIncModal({ pageId, incident: inc });
+  };
+  const saveIncident = async () => {
+    if (!incForm.title.trim()) return setIncErr('Title is required.');
+    setIncSaving(true); setIncErr('');
+    try {
+      if (incModal.incident) {
+        await updateIncident(incModal.pageId, incModal.incident._id, incForm);
+      } else {
+        await createIncident(incModal.pageId, incForm);
+      }
+      setIncModal(null); load();
+    } catch (e) { setIncErr(e.response?.data?.error || 'Something went wrong.'); }
+    finally { setIncSaving(false); }
+  };
+  const delIncident = async (pageId, incId) => {
+    await deleteIncident(pageId, incId);
+    setDelIncConfirm(null); load();
+  };
 
   const copy = (text, key) => {
     navigator.clipboard.writeText(text); setCopied(key);
@@ -1142,6 +1175,52 @@ export default function AdminStatusPages() {
       box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
     }
 
+    /* Incident styles */
+    .asp-inc-list { margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; }
+    .asp-inc-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: var(--bg-card-sub); border: 1px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+    .asp-inc-item:last-child { margin-bottom: 0; }
+    .asp-inc-badge {
+      font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    }
+    .asp-inc-badge.investigating { background: rgba(239,68,68,.12); color: #ef4444; }
+    .asp-inc-badge.identified    { background: rgba(245,158,11,.12); color: #f59e0b; }
+    .asp-inc-badge.monitoring    { background: rgba(59,130,246,.12);  color: #3b82f6; }
+    .asp-inc-badge.resolved      { background: rgba(16,185,129,.12); color: #10b981; }
+    .asp-inc-title { font-size: 12.5px; font-weight: 700; color: var(--text-main); flex: 1; line-height: 1.4; }
+    .asp-inc-body  { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+    .asp-inc-time  { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .asp-inc-acts  { display: flex; gap: 4px; flex-shrink: 0; }
+    .asp-inc-act   { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all .15s; }
+    .asp-inc-act:hover { background: var(--active-bg); color: var(--primary); border-color: var(--primary); }
+    .asp-inc-act.del:hover { background: rgba(239,68,68,.08); color: #ef4444; border-color: #ef4444; }
+    .asp-post-inc-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all .2s;
+      background: rgba(239,68,68,.08); color: #ef4444; border: 1.5px solid rgba(239,68,68,.2);
+    }
+    .asp-post-inc-btn:hover { background: rgba(239,68,68,.14); border-color: #ef4444; }
+
+    /* Incident status select */
+    .asp-status-sel {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .asp-status-opt {
+      flex: 1; min-width: 100px; padding: 10px 6px; border-radius: 10px; border: 1.5px solid var(--border-color);
+      background: var(--bg-card-sub); color: var(--text-muted); font-size: 12px; font-weight: 700;
+      cursor: pointer; text-align: center; transition: all .2s; font-family: inherit;
+    }
+    .asp-status-opt.active-investigating { border-color: #ef4444; background: rgba(239,68,68,.08); color: #ef4444; }
+    .asp-status-opt.active-identified    { border-color: #f59e0b; background: rgba(245,158,11,.08); color: #f59e0b; }
+    .asp-status-opt.active-monitoring    { border-color: #3b82f6; background: rgba(59,130,246,.08);  color: #3b82f6; }
+    .asp-status-opt.active-resolved      { border-color: #10b981; background: rgba(16,185,129,.08); color: #10b981; }
+
     .spinner {
       width: 14px;
       height: 14px;
@@ -1286,8 +1365,35 @@ export default function AdminStatusPages() {
                     </div>
                   </div>
 
+                  {/* Incidents section */}
+                  {(page.incidents || []).length > 0 && (
+                    <div className="asp-inc-list">
+                      {[...(page.incidents || [])].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3).map(inc => (
+                        <div key={inc._id} className="asp-inc-item">
+                          <span className={`asp-inc-badge ${inc.status}`}>{inc.status}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="asp-inc-title">{inc.title}</div>
+                            {inc.body && <div className="asp-inc-body">{inc.body}</div>}
+                          </div>
+                          <div className="asp-inc-acts">
+                            <button className="asp-inc-act" title="Edit" onClick={() => openEditIncident(page._id, inc)}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button className="asp-inc-act del" title="Delete" onClick={() => setDelIncConfirm({ pageId: page._id, incId: inc._id })}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Actions */}
                   <div className="asp-card-actions">
+                    <button className="asp-post-inc-btn" onClick={() => openNewIncident(page._id)}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      Post Incident
+                    </button>
                     <button className="asp-act-btn" onClick={() => openEdit(page)}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       Edit Page
@@ -1405,6 +1511,79 @@ export default function AdminStatusPages() {
             <div className="del-btns">
               <button className="del-cancel" onClick={() => setDelConfirm(null)}>Cancel</button>
               <button className="del-confirm" onClick={() => del(delConfirm)}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Incident Post / Edit Modal ── */}
+      {incModal && (
+        <div className="asp-overlay" onClick={e => e.target === e.currentTarget && setIncModal(null)}>
+          <div className="asp-drawer" onClick={e => e.stopPropagation()}>
+            <div className="asp-dhead">
+              <h3 className="asp-dtitle">{incModal.incident ? 'Edit Incident' : 'Post Incident Update'}</h3>
+              <button className="asp-dclose" onClick={() => setIncModal(null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            <div className="asp-dbody">
+              {incErr && <div className="asp-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{incErr}</div>}
+
+              <div className="asp-field">
+                <label className="asp-label">Incident Title</label>
+                <input className="asp-input" placeholder="e.g. API response time elevated" value={incForm.title} onChange={e => setIncForm(f => ({ ...f, title: e.target.value }))} />
+              </div>
+
+              <div className="asp-field">
+                <label className="asp-label">Details <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+                <textarea
+                  className="asp-input"
+                  rows={4}
+                  placeholder="Describe the issue, what's affected, and any steps being taken..."
+                  value={incForm.body}
+                  onChange={e => setIncForm(f => ({ ...f, body: e.target.value }))}
+                  style={{ resize: 'vertical', lineHeight: 1.6 }}
+                />
+              </div>
+
+              <p className="asp-sec-lbl">Status</p>
+              <div className="asp-status-sel">
+                {['investigating', 'identified', 'monitoring', 'resolved'].map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    className={`asp-status-opt ${incForm.status === s ? `active-${s}` : ''}`}
+                    onClick={() => setIncForm(f => ({ ...f, status: s }))}
+                  >
+                    {s === 'investigating' ? '🔴 Investigating' : s === 'identified' ? '🟡 Identified' : s === 'monitoring' ? '🔵 Monitoring' : '✅ Resolved'}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 10, background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                <strong style={{ color: 'var(--text-main)' }}>Tip:</strong> Once the issue is resolved, change status to <strong style={{ color: '#10b981' }}>Resolved</strong> — it will still show on the public page so visitors know it was handled.
+              </div>
+            </div>
+
+            <div className="asp-dfoot">
+              <button className="asp-btn-cancel" onClick={() => setIncModal(null)}>Cancel</button>
+              <button className="asp-btn-save" onClick={saveIncident} disabled={incSaving}>{incSaving ? 'Saving...' : incModal.incident ? 'Update Incident' : 'Post Incident'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Incident Confirm ── */}
+      {delIncConfirm && (
+        <div className="del-overlay" onClick={e => e.target === e.currentTarget && setDelIncConfirm(null)}>
+          <div className="del-box">
+            <div className="del-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <h3>Delete Incident?</h3>
+            <p>This incident will be removed from the public status page immediately.</p>
+            <div className="del-btns">
+              <button className="del-cancel" onClick={() => setDelIncConfirm(null)}>Cancel</button>
+              <button className="del-confirm" onClick={() => delIncident(delIncConfirm.pageId, delIncConfirm.incId)}>Delete</button>
             </div>
           </div>
         </div>

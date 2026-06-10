@@ -1,7 +1,5 @@
 const StatusPage = require('../models/StatusPage');
 const Server     = require('../models/Server');
-const Alert      = require('../models/Alert');
-const User       = require('../models/User');
 
 // GET /api/status-pages  — list all pages (admin)
 exports.list = async (req, res) => {
@@ -55,6 +53,46 @@ exports.getAllServers = async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
+// POST /api/status-pages/:id/incidents
+exports.createIncident = async (req, res) => {
+    try {
+        const { title, body, status } = req.body;
+        if (!title) return res.status(400).json({ error: 'Title is required.' });
+        const page = await StatusPage.findById(req.params.id);
+        if (!page) return res.status(404).json({ error: 'Not found' });
+        page.incidents.push({ title, body: body || '', status: status || 'investigating' });
+        await page.save();
+        res.json(page);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
+// PUT /api/status-pages/:id/incidents/:incId
+exports.updateIncident = async (req, res) => {
+    try {
+        const { title, body, status } = req.body;
+        const page = await StatusPage.findById(req.params.id);
+        if (!page) return res.status(404).json({ error: 'Not found' });
+        const inc = page.incidents.id(req.params.incId);
+        if (!inc) return res.status(404).json({ error: 'Incident not found' });
+        if (title  !== undefined) inc.title  = title;
+        if (body   !== undefined) inc.body   = body;
+        if (status !== undefined) inc.status = status;
+        await page.save();
+        res.json(page);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
+// DELETE /api/status-pages/:id/incidents/:incId
+exports.deleteIncident = async (req, res) => {
+    try {
+        const page = await StatusPage.findById(req.params.id);
+        if (!page) return res.status(404).json({ error: 'Not found' });
+        page.incidents.pull({ _id: req.params.incId });
+        await page.save();
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // GET /api/public/statuses — NO AUTH, index of all public pages
 exports.publicIndex = async (req, res) => {
     try {
@@ -89,13 +127,6 @@ exports.publicView = async (req, res) => {
 
         const servers = await Server.find({ _id: { $in: page.monitors } }).lean();
 
-        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        const incidents = await Alert.find({
-            server: { $in: servers.map(s => s._id) },
-            type: 'down',
-            createdAt: { $gte: cutoff },
-        }).sort('-createdAt').limit(20).lean();
-
         const monitorList = servers.map(s => {
             const hist = (s.history || []).slice(-90);
             return {
@@ -113,18 +144,25 @@ exports.publicView = async (req, res) => {
         const downCount = monitorList.filter(m => m.status === 'down').length;
         const overallStatus = downCount === 0 ? 'operational' : downCount === monitorList.length ? 'outage' : 'degraded';
 
+        const fmt = (d) => new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+
+        const incidents = (page.incidents || [])
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map(i => ({
+                _id: i._id,
+                title: i.title,
+                body: i.body,
+                status: i.status,
+                at: fmt(i.createdAt),
+            }));
+
         res.json({
             title: page.title,
             description: page.description,
             overallStatus,
             monitors: monitorList,
-            pingTargets: [],
-            incidents: incidents.map(a => ({
-                name: a.serverName,
-                url: a.serverUrl,
-                at: new Date(a.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
-            })),
-            lastUpdated: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }),
+            incidents,
+            lastUpdated: fmt(new Date()),
         });
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
