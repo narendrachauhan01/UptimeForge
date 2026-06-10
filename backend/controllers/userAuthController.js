@@ -91,7 +91,7 @@ exports.sendOtp = async (req, res) => {
                 otp, otpExpiry, createdAt: new Date(),
                 referredBy: referredBy || null,
             },
-            { upsert: true, new: true, setDefaultsOnInsert: true }
+            { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
         );
 
         await sendEmail(email, 'Verify your email — ServerMonitor', otpEmailHtml(name, otp));
@@ -287,7 +287,7 @@ exports.updateProfile = async (req, res) => {
                 ...(gender !== undefined && { gender: gender || null }),
                 ...(purpose !== undefined && { purpose: purpose || null }),
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json({ user: userPayload(user) });

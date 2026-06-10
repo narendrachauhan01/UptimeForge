@@ -89,7 +89,7 @@ router.get('/support-tickets',              auth, allow('supportTickets','read')
 router.put('/support-tickets/:id',            auth, allow('supportTickets','write'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     const { status, priority } = req.body;
-    const t = await SupportTicket.findByIdAndUpdate(req.params.id, { status, priority, adminUnread: false }, { new: true });
+    const t = await SupportTicket.findByIdAndUpdate(req.params.id, { status, priority, adminUnread: false }, { returnDocument: 'after' });
     res.json(t);
 });
 router.post('/support-tickets/:id/mark-read', auth, allow('supportTickets','read'), async (req, res) => {

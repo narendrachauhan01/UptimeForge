@@ -22,7 +22,7 @@ exports.ingestMetrics = async (req, res) => {
                 localIp, publicIp, networkRoutes, activeSessions, lastSsh,
                 timestamp: new Date(),
             },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
         res.json({ success: true });
     } catch (e) {

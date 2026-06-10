@@ -21,7 +21,7 @@ exports.connect = async (req, res) => {
         await Integration.findOneAndUpdate(
             { userId: req.userId, type: 'telegram' },
             { config: { linkCode: code, linkExpires: new Date(Date.now() + LINK_TTL_MS) }, active: false },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
         res.json({ link: `https://t.me/${BOT_USERNAME()}?start=${code}`, expiresInMinutes: LINK_TTL_MS / 60000 });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -63,7 +63,7 @@ exports.updateSettings = async (req, res) => {
         const doc = await Integration.findOneAndUpdate(
             { userId: req.userId, type: 'telegram', active: true },
             { events: events || 'all', servers: servers || [] },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!doc) return res.status(404).json({ error: 'Connect Telegram first' });
         res.json(doc);

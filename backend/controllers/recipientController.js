@@ -50,7 +50,7 @@ exports.createRecipient = async (req, res) => {
 exports.updateRecipient = async (req, res) => {
     try {
         const filter = { _id: req.params.id, ...userFilter(req) };
-        const r = await Recipient.findOneAndUpdate(filter, req.body, { new: true });
+        const r = await Recipient.findOneAndUpdate(filter, req.body, { returnDocument: 'after' });
         if (!r) return res.status(404).json({ error: 'Not found' });
         res.json(r);
     } catch (e) { res.status(500).json({ error: e.message }); }

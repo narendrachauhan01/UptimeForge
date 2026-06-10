@@ -56,7 +56,7 @@ exports.saveIntegration = async (req, res) => {
         const doc = await Integration.findOneAndUpdate(
             { userId: req.userId, type },
             { config, events: events || 'all', servers: servers || [], active: active !== false },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
         res.json(doc);
     } catch (e) { res.status(400).json({ error: e.message }); }

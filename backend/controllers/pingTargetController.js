@@ -43,7 +43,7 @@ exports.createTarget = async (req, res) => {
 exports.updateTarget = async (req, res) => {
     try {
         const filter = { _id: req.params.id, ...userFilter(req) };
-        const t = await PingTarget.findOneAndUpdate(filter, req.body, { new: true });
+        const t = await PingTarget.findOneAndUpdate(filter, req.body, { returnDocument: 'after' });
         if (!t) return res.status(404).json({ error: 'Not found' });
         res.json(t);
     } catch (e) { res.status(500).json({ error: e.message }); }
