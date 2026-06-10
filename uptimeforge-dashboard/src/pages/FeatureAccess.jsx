@@ -356,10 +356,10 @@ export default function FeatureAccess({ readOnly = false }) {
 
     useEffect(() => {
         adminGetSettings().then(r => {
-            if (r.data.freeTrialAccess) setAccess(r.data.freeTrialAccess);
-            if (r.data.bronzeAccess)    setBronzeAcc(r.data.bronzeAccess);
-            if (r.data.silverAccess)    setSilverAcc(r.data.silverAccess);
-            if (r.data.goldAccess)      setGoldAcc(r.data.goldAccess);
+            if (r.data.freeTrialAccess) setAccess(prev => ({ ...prev, ...r.data.freeTrialAccess }));
+            if (r.data.bronzeAccess)    setBronzeAcc(prev => ({ ...prev, ...r.data.bronzeAccess }));
+            if (r.data.silverAccess)    setSilverAcc(prev => ({ ...prev, ...r.data.silverAccess }));
+            if (r.data.goldAccess)      setGoldAcc(prev => ({ ...prev, ...r.data.goldAccess }));
         }).catch(() => showToast('Failed to load settings'));
     }, []);
 

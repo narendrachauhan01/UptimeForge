@@ -70,18 +70,20 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
 exports.getPlans = async (req, res) => {
     try {
         const settings = await Settings.get();
+        const FREE_DEFAULT = { domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true };
+        const PLAN_DEFAULT = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true };
         res.json({
             plans: settings.plans,
             verificationFee: settings.verificationFee || 2,
             trialDays: settings.trialDays || 5,
             freeTrialFeatures: settings.freeTrialFeatures || [],
-            freeTrialAccess: settings.freeTrialAccess || { domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, webhook: true, rocketChat: true },
+            freeTrialAccess: { ...FREE_DEFAULT, ...(settings.freeTrialAccess || {}) },
             freeTrialInterval: settings.freeTrialInterval || 300,
             freeTrialSiteLimit: settings.freeTrialSiteLimit || 2,
             freeTrialPingLimit: settings.freeTrialPingLimit ?? 2,
-            bronzeAccess: settings.bronzeAccess || { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true },
-            silverAccess: settings.silverAccess || { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true },
-            goldAccess:   settings.goldAccess   || { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true },
+            bronzeAccess: { ...PLAN_DEFAULT, ...(settings.bronzeAccess || {}) },
+            silverAccess: { ...PLAN_DEFAULT, ...(settings.silverAccess || {}) },
+            goldAccess:   { ...PLAN_DEFAULT, ...(settings.goldAccess   || {}) },
             annualDiscount: settings.annualDiscount ?? 20,
             annualPlans: settings.annualPlans,
             customPlans: settings.customPlans,
