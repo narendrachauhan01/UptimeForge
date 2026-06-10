@@ -348,14 +348,13 @@ function TrialBanner({ user }) {
   return null;
 }
 
-function UpgradeGate({ user, feature, children }) {
-  if (!user || user.plan !== 'free_trial') return children;
+function UpgradeGate({ user, feature }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:320, padding:40, textAlign:'center' }}>
       <div style={{ fontSize:48, marginBottom:16 }}>🔒</div>
-      <h2 style={{ fontSize:20, fontWeight:800, color:'#1e1b4b', margin:'0 0 8px' }}>{feature} — Paid Plans Only</h2>
+      <h2 style={{ fontSize:20, fontWeight:800, color:'#1e1b4b', margin:'0 0 8px' }}>{feature} — Not Available</h2>
       <p style={{ fontSize:14, color:'#64748b', maxWidth:360, lineHeight:1.7, margin:'0 0 24px' }}>
-        This feature is not available on the Free Trial. Upgrade to Bronze, Silver, or Gold to unlock it.
+        This feature is not available on your current plan. Contact support or upgrade your plan to unlock it.
       </p>
       <Link to="/account" style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', padding:'12px 28px', borderRadius:12, fontWeight:700, fontSize:14, textDecoration:'none' }}>
         Upgrade Plan →
@@ -686,8 +685,8 @@ function AppInner() {
               <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} readOnly={planExpired} />} />
               <Route path="/incidents" element={<Alerts />} />
               <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
-              <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />
-              <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts theme={theme} user={user} />   : <UpgradeGate user={user} feature="Performance Charts"><Charts theme={theme} user={user} /></UpgradeGate>} />
+              <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring" />} />
+              <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts theme={theme} user={user} />   : <UpgradeGate user={user} feature="Performance Charts" />} />
               <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
               <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
               <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
@@ -709,13 +708,13 @@ function AppInner() {
               <Route path="/reports" element={(() => {
                   const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
                   const acc = user?.plan ? planAcc[user.plan] : null;
-                  return acc && acc.reports === false ? <UpgradeGate user={user} feature="Weekly / Monthly Reports"><Reports /></UpgradeGate> : <Reports />;
+                  return acc && acc.reports === false ? <UpgradeGate user={user} feature="Weekly / Monthly Reports" /> : <Reports />;
               })()} />
               <Route path="/ping" element={(() => {
                   const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   const blocked = acc && acc.pingMonitor === false;
-                  return blocked ? <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate> : <PingMonitor />;
+                  return blocked ? <UpgradeGate user={user} feature="Ping Monitor" /> : <PingMonitor />;
               })()} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
