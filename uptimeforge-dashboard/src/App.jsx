@@ -373,10 +373,10 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true });
-  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true });
-  const [silverAccess, setSilverAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true });
-  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -398,10 +398,10 @@ function AppInner() {
 
   useEffect(() => {
     getPlans().then(r => {
-      if (r.data.freeTrialAccess) setFreeAccess(r.data.freeTrialAccess);
-      if (r.data.bronzeAccess)    setBronzeAccess(r.data.bronzeAccess);
-      if (r.data.silverAccess)    setSilverAccess(r.data.silverAccess);
-      if (r.data.goldAccess)      setGoldAccess(r.data.goldAccess);
+      if (r.data.freeTrialAccess) setFreeAccess(prev => ({ ...prev, ...r.data.freeTrialAccess }));
+      if (r.data.bronzeAccess)    setBronzeAccess(prev => ({ ...prev, ...r.data.bronzeAccess }));
+      if (r.data.silverAccess)    setSilverAccess(prev => ({ ...prev, ...r.data.silverAccess }));
+      if (r.data.goldAccess)      setGoldAccess(prev => ({ ...prev, ...r.data.goldAccess }));
     }).catch(() => {});
   }, []);
 
