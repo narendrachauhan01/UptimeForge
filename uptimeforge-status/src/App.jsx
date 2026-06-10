@@ -8,21 +8,70 @@ function getSlug() {
   return parts[0] || '';
 }
 
-function UptimeBar({ bars }) {
-  const show = (bars || []).slice(-90);
-  if (!show.length) return null;
+/* ── 90-day uptime grid (squares like Cloudflare) ── */
+function UptimeGrid({ bars, uptime }) {
+  const cells = (bars || []).slice(-90);
+  const padded = cells.length < 90
+    ? [...Array(90 - cells.length).fill(null), ...cells]
+    : cells;
+
   return (
-    <div style={{ display: 'flex', gap: 2, height: 28, alignItems: 'center' }}>
-      {show.map((v, i) => (
-        <div key={i} title={v === 1 ? 'Up' : 'Down'} style={{ flex: 1, height: '100%', borderRadius: 2, minWidth: 3, background: v === 1 ? '#10b981' : '#ef4444', opacity: 0.6 + (i / show.length) * 0.4 }} />
-      ))}
+    <div style={{ marginTop: 10 }}>
+      <div style={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'nowrap' }}>
+        {padded.map((v, i) => (
+          <div
+            key={i}
+            title={v === null ? 'No data' : v === 1 ? 'Up' : 'Down'}
+            style={{
+              flex: 1,
+              height: 28,
+              borderRadius: 3,
+              minWidth: 6,
+              background: v === null ? 'rgba(255,255,255,0.05)' : v === 1 ? '#3ecf8e' : '#f87171',
+              transition: 'opacity .15s',
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
+        <span style={{ fontSize: 11, color: '#6b7280' }}>90 days ago</span>
+        <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 600 }}>
+          {uptime != null ? `${uptime.toFixed(2)}% uptime` : ''}
+        </span>
+        <span style={{ fontSize: 11, color: '#6b7280' }}>Today</span>
+      </div>
     </div>
   );
 }
 
+/* ── Status badge ── */
+function StatusBadge({ status }) {
+  const cfg = {
+    up:   { label: 'Operational',    color: '#3ecf8e', bg: 'rgba(62,207,142,0.1)'  },
+    down: { label: 'Outage',         color: '#f87171', bg: 'rgba(248,113,113,0.1)' },
+  };
+  const c = cfg[status] || cfg.up;
+  return (
+    <span style={{ fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: c.bg, color: c.color, whiteSpace: 'nowrap' }}>
+      {c.label}
+    </span>
+  );
+}
+
+/* ── Spinner ── */
+function Spinner() {
+  return (
+    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 36, height: 36, border: '3px solid #e5e7eb', borderTopColor: '#f6821f', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
+
+/* ── Main App ── */
 export default function App() {
-  const [data, setData]         = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [data, setData]       = useState(null);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -35,18 +84,12 @@ export default function App() {
         .finally(() => setLoading(false));
 
     if (slug) {
-      // Direct slug URL like /sas
       fetchPage(slug);
     } else {
-      // Root domain — auto-load the first public status page
       axios.get(`${BASE_URL}/api/public/statuses`)
         .then(r => {
-          if (r.data?.length) {
-            fetchPage(r.data[0].slug);
-          } else {
-            setNotFound(true);
-            setLoading(false);
-          }
+          if (r.data?.length) fetchPage(r.data[0].slug);
+          else { setNotFound(true); setLoading(false); }
         })
         .catch(() => { setNotFound(true); setLoading(false); });
     }
@@ -54,128 +97,151 @@ export default function App() {
 
   useEffect(() => { if (data) document.title = `${data.title} — Status`; }, [data]);
 
-  const sm = {
-    operational: { label: 'All Systems Operational', color: '#10b981', bg: 'rgba(16,185,129,0.1)', icon: '✓' },
-    degraded:    { label: 'Partial Outage',           color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  icon: '!' },
-    outage:      { label: 'Major Outage',             color: '#ef4444', bg: 'rgba(239,68,68,0.1)',   icon: '✕' },
-  };
-
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#0b0b14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 40, height: 40, border: '3px solid rgba(139,92,246,0.3)', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-    </div>
-  );
+  if (loading) return <Spinner />;
 
   if (notFound) return (
-    <div style={{ minHeight: '100vh', background: '#0b0b14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif' }}>
-      <div style={{ fontSize: 60, marginBottom: 16 }}>📡</div>
-      <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, margin: '0 0 8px' }}>No Status Page Found</h1>
+    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif' }}>
+      <div style={{ fontSize: 52, marginBottom: 12 }}>📡</div>
+      <h2 style={{ color: '#111', fontSize: 20, fontWeight: 700, margin: '0 0 6px' }}>No Status Page Found</h2>
       <p style={{ color: '#6b7280', fontSize: 13 }}>No public status pages have been published yet.</p>
     </div>
   );
 
-  const s = sm[data.overallStatus] || sm.operational;
+  const overall = data.overallStatus || 'operational';
+  const hasOutage   = overall === 'outage';
+  const hasDegraded = overall === 'degraded';
+  const bannerColor = hasOutage ? '#ef4444' : hasDegraded ? '#f59e0b' : '#3ecf8e';
+  const bannerBg    = hasOutage ? '#fef2f2' : hasDegraded ? '#fffbeb' : '#f0fdf4';
+  const bannerText  = hasOutage ? 'Major System Outage' : hasDegraded ? 'Partial System Degradation' : 'All Systems Operational';
+  const bannerIcon  = hasOutage ? '✕' : hasDegraded ? '!' : '✓';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b0b14', fontFamily: "'Plus Jakarta Sans',system-ui,sans-serif", color: '#e2e8f0' }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: "'Inter',system-ui,sans-serif", color: '#111827' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap');
-        *{box-sizing:border-box}
-        .ps-card{background:#13131f;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px 22px;margin-bottom:12px}
-        .ps-card:last-child{margin-bottom:0}
-        .ps-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-        .ps-name{font-size:14px;font-weight:800;color:#f1f5f9;flex:1}
-        .ps-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
-        .ps-up{background:rgba(16,185,129,.12);color:#10b981}
-        .ps-down{background:rgba(239,68,68,.12);color:#ef4444}
-        .ps-meta{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
-        .ps-mi{font-size:12px;color:#6b7280}
-        .ps-mi span{color:#94a3b8;font-weight:700}
-        .ps-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-        .ps-inc-row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-        .ps-inc-row:last-child{border-bottom:none;padding-bottom:0}
-        .ps-sec{font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;color:#4b5563;letter-spacing:1px;text-transform:uppercase;margin:0 0 14px}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0}
+        a{text-decoration:none;color:inherit}
+        .comp-row{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 22px;margin-bottom:10px;transition:box-shadow .2s}
+        .comp-row:hover{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+        .inc-row{padding:14px 0;border-bottom:1px solid #f3f4f6}
+        .inc-row:last-child{border-bottom:none;padding-bottom:0}
+        .section-label{font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
       `}</style>
 
-      {/* Header */}
-      <div style={{ background: '#0f0f1a', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '28px 20px 22px' }}>
-        <div style={{ maxWidth: 780, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      {/* ── Top nav ── */}
+      <header style={{ background: '#fff', borderBottom: '1px solid #e5e7eb', padding: '0 24px' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: 'linear-gradient(135deg,#f6821f,#e34c26)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <h1 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 22, fontWeight: 800, margin: 0, color: '#f1f5f9' }}>{data.title}</h1>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{data.title}</span>
           </div>
-          {data.description && <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 0 42px' }}>{data.description}</p>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <a href="https://uptimeapi.narendrasingh.site/api-docs" target="_blank" rel="noopener" style={{ fontSize: 13, color: '#6b7280', fontWeight: 500 }}>API</a>
+            <span style={{ fontSize: 13, color: '#d1d5db' }}>|</span>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Updated: {data.lastUpdated}</span>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div style={{ maxWidth: 780, margin: '0 auto', padding: '30px 20px 60px' }}>
-
-        {/* Status banner */}
-        <div style={{ background: s.bg, border: `1px solid ${s.color}40`, borderRadius: 16, padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 32 }}>
-          <div style={{ width: 38, height: 38, borderRadius: '50%', background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>{s.icon}</span>
+      {/* ── Overall status banner ── */}
+      <div style={{ background: bannerBg, borderBottom: `3px solid ${bannerColor}` }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: bannerColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#fff', fontWeight: 900, fontSize: 18 }}>{bannerIcon}</span>
           </div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: s.color, marginBottom: 2 }}>{s.label}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>Last updated: {data.lastUpdated}</div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: hasOutage ? '#991b1b' : hasDegraded ? '#92400e' : '#14532d', lineHeight: 1.2 }}>
+              {bannerText}
+            </h1>
+            {data.description && (
+              <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{data.description}</p>
+            )}
           </div>
-        </div>
-
-        {/* Monitors */}
-        {data.monitors?.length > 0 && (
-          <div style={{ marginBottom: 32 }}>
-            <p className="ps-sec">Services</p>
-            {data.monitors.map(m => (
-              <div key={m._id} className="ps-card">
-                <div className="ps-row">
-                  <div className="ps-dot" style={{ background: m.status === 'up' ? '#10b981' : '#ef4444', boxShadow: m.status === 'up' ? '0 0 0 3px rgba(16,185,129,.2)' : '0 0 0 3px rgba(239,68,68,.2)' }} />
-                  <span className="ps-name">{m.name}</span>
-                  {m.url && <span style={{ fontSize: 11, color: '#374151', fontWeight: 600, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.url}</span>}
-                  <span className={`ps-status ${m.status === 'up' ? 'ps-up' : 'ps-down'}`}>{m.status === 'up' ? 'Operational' : 'Outage'}</span>
-                </div>
-                {m.uptimeBars?.length > 0 && <UptimeBar bars={m.uptimeBars} />}
-                <div className="ps-meta">
-                  <div className="ps-mi">Uptime <span>{m.uptime?.toFixed(2) ?? '—'}%</span></div>
-                  {m.responseTime && <div className="ps-mi">Response <span>{m.responseTime}ms</span></div>}
-                  {m.sslDaysLeft != null && <div className="ps-mi">SSL <span>{m.sslDaysLeft}d left</span></div>}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Incidents */}
-        <div>
-          <p className="ps-sec">Recent Incidents (30 days)</p>
-          {!data.incidents?.length ? (
-            <div className="ps-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🎉</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#10b981', marginBottom: 4 }}>No incidents reported</div>
-              <div style={{ fontSize: 12, color: '#4b5563' }}>All systems have been running smoothly for the last 30 days.</div>
-            </div>
-          ) : (
-            <div className="ps-card">
-              {data.incidents.map((inc, i) => (
-                <div key={i} className="ps-inc-row">
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', flexShrink: 0, marginTop: 5 }} />
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginBottom: 2 }}>{inc.name}</div>
-                    {inc.url && <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 2 }}>{inc.url}</div>}
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>{inc.at}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginTop: 48, textAlign: 'center', fontSize: 12, color: '#374151' }}>
-          Powered by <span style={{ color: '#7c3aed', fontWeight: 700 }}>UptimeForge</span>
         </div>
       </div>
+
+      {/* ── Main content ── */}
+      <main style={{ maxWidth: 860, margin: '0 auto', padding: '36px 24px 80px' }}>
+
+        {/* Components / Services */}
+        {data.monitors?.length > 0 && (
+          <section style={{ marginBottom: 48 }}>
+            <p className="section-label">Current Status</p>
+
+            {data.monitors.map(m => (
+              <div key={m._id} className="comp-row">
+                {/* Row: name + response + status */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 10, height: 10, borderRadius: '50%', flexShrink: 0,
+                    background: m.status === 'up' ? '#3ecf8e' : '#f87171',
+                    boxShadow: m.status === 'up' ? '0 0 0 3px rgba(62,207,142,.2)' : '0 0 0 3px rgba(248,113,113,.2)',
+                  }} />
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#111827', flex: 1 }}>{m.name}</span>
+                  {m.url && (
+                    <span style={{ fontSize: 12, color: '#d1d5db', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.url}
+                    </span>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {m.responseTime && (
+                      <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 500 }}>{m.responseTime}ms</span>
+                    )}
+                    {m.sslDaysLeft != null && (
+                      <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 500 }}>SSL {m.sslDaysLeft}d</span>
+                    )}
+                    <StatusBadge status={m.status} />
+                  </div>
+                </div>
+
+                {/* Uptime history grid */}
+                <UptimeGrid bars={m.uptimeBars} uptime={m.uptime} />
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* ── Incidents ── */}
+        <section>
+          <p className="section-label">Past Incidents — 30 Days</p>
+
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '0 22px' }}>
+            {!data.incidents?.length ? (
+              <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: 36, marginBottom: 10 }}>🎉</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#3ecf8e', marginBottom: 4 }}>No incidents reported</div>
+                <div style={{ fontSize: 13, color: '#9ca3af' }}>All systems have been running smoothly for the last 30 days.</div>
+              </div>
+            ) : (
+              data.incidents.map((inc, i) => (
+                <div key={i} className="inc-row">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ marginTop: 5, width: 8, height: 8, borderRadius: '50%', background: '#f87171', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 3 }}>{inc.name}</div>
+                      {inc.url && <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 3 }}>{inc.url}</div>}
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: 'rgba(248,113,113,.1)', color: '#ef4444' }}>Outage</span>
+                        <span style={{ fontSize: 12, color: '#9ca3af' }}>{inc.at}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* Footer */}
+        <div style={{ marginTop: 56, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, color: '#d1d5db' }}>
+            Powered by{' '}
+            <a href="https://narendrasingh.site" style={{ color: '#f6821f', fontWeight: 700 }}>UptimeForge</a>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
