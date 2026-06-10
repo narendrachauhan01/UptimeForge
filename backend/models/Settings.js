@@ -66,6 +66,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        slack:       { type: Boolean, default: true },
         reports:     { type: Boolean, default: true },
     },
     bronzeAccess: {
@@ -74,6 +75,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        slack:       { type: Boolean, default: true },
         reports:     { type: Boolean, default: true },
     },
     silverAccess: {
@@ -82,6 +84,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        slack:       { type: Boolean, default: true },
         reports:     { type: Boolean, default: true },
     },
     goldAccess: {
@@ -90,6 +93,7 @@ const settingsSchema = new mongoose.Schema({
         telegram:    { type: Boolean, default: true },
         webhook:     { type: Boolean, default: true },
         rocketChat:  { type: Boolean, default: true },
+        slack:       { type: Boolean, default: true },
         reports:     { type: Boolean, default: true },
     },
     annualDiscount: { type: Number, default: 20 },
