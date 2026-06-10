@@ -299,6 +299,14 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
     const [rcSelected,  setRcSelected]  = useState([]);
     const [rcSearch,    setRcSearch]    = useState('');
 
+    const [slackModal,    setSlackModal]    = useState(false);
+    const [slackForm,     setSlackForm]     = useState({ url:'', events:'all' });
+    const [slackSaving,   setSlackSaving]   = useState(false);
+    const [slackTesting,  setSlackTesting]  = useState(false);
+    const [slackAllSites, setSlackAllSites] = useState(true);
+    const [slackSelected, setSlackSelected] = useState([]);
+    const [slackSearch,   setSlackSearch]   = useState('');
+
     const [tgModal,      setTgModal]      = useState(false);
     const [tgConnected,  setTgConnected]  = useState(false);
     const [tgLink,       setTgLink]       = useState('');
@@ -366,6 +374,45 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
             showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
         }
         setRcTesting(false);
+    };
+
+    const openSlackModal = async () => {
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations`, { withCredentials: true });
+            const sl = r.data.find(i => i.type === 'slack');
+            if (sl) {
+                setSlackForm({ url: sl.config?.url||'', events: sl.events||'all' });
+                const srvs = sl.servers || [];
+                setSlackAllSites(srvs.length === 0);
+                setSlackSelected(srvs.map(s => s.toString()));
+            }
+        } catch {}
+        setSlackModal(true);
+    };
+
+    const saveSlack = async () => {
+        const err = validateWebhookUrl(slackForm.url);
+        if (err) { showToast(err); return; }
+        setSlackSaving(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/slack`, { config: { url: slackForm.url }, events: slackForm.events||'all', servers: slackAllSites ? [] : slackSelected }, { withCredentials: true });
+            setSaved(p=>({...p, slack:true}));
+            showToast('✅ Slack saved!');
+            setSlackModal(false);
+        } catch {}
+        setSlackSaving(false);
+    };
+
+    const testSlack = async () => {
+        if (!slackForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
+        setSlackTesting(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: slackForm.url, body: { text: '🚨 *UptimeForge Test* — Slack integration is working!' } }, { withCredentials: true });
+            showToast('✅ Test message sent to Slack!');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
+        }
+        setSlackTesting(false);
     };
 
     const openTgModal = async () => {
@@ -1093,10 +1140,25 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
                     </div>
                 </div>
 
+                {/* Slack */}
+                <div className="integration-card">
+                    <div className="integration-icon" style={{ background:isDark ? 'rgba(74, 21, 75, 0.12)' : '#f5f0f5', borderColor: isDark ? 'rgba(74, 21, 75, 0.35)' : '#e8d5e8' }}>
+                        <IcoSlack/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <div className="integration-name">Slack</div>
+                        <div className="integration-desc">Send alerts to your Slack channel via incoming webhook.</div>
+                    </div>
+                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                        {saved.slack && <span className="badge-active">✓ Active</span>}
+                        {saved.slack && <button onClick={()=>deleteIntegration('slack')} className="btn-delete">🗑</button>}
+                        <button onClick={openSlackModal} className="btn-add" style={{ background: saved.slack ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #4a154b, #611f69)' }}>{saved.slack ? '✏️ Edit' : '+ Add'}</button>
+                    </div>
+                </div>
+
                 {/* Coming Soon */}
                 <div className="section-title" style={{ marginTop:20 }}>Coming Soon</div>
                 {[
-                    { iconEl:<IcoSlack/>,    name:'Slack',    desc:'Send alerts to your Slack channel via incoming webhook.' },
                     { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
                 ].map(intg => (
                     <div key={intg.name} className="coming-soon-card">
@@ -1167,6 +1229,65 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
                                 </button>
                                 <button onClick={saveRc} disabled={rcSaving||!rcForm.url} className="modal-btn-save" style={{ flex: 2 }}>
                                     {rcSaving ? 'Saving...' : '💾 Save'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Slack Modal */}
+                {slackModal && (
+                    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setSlackModal(false)}>
+                        <div className="modal-card">
+                            <button onClick={()=>setSlackModal(false)} className="modal-close">✕</button>
+                            <div style={{ textAlign:'center', marginBottom:20 }}>
+                                <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoSlack/></div>
+                                <h2 className="modal-title">Add <span style={{color:'#4a154b'}}>Slack</span> Webhook</h2>
+                                <p className="modal-subtitle">Slack App → Incoming Webhooks → Add New Webhook → copy URL</p>
+                            </div>
+                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                <div>
+                                    <label className="modal-label">Webhook URL *</label>
+                                    <input value={slackForm.url} onChange={e=>setSlackForm({...slackForm,url:e.target.value})} placeholder="https://hooks.slack.com/services/..." className="modal-input" />
+                                </div>
+                                <div>
+                                    <label className="modal-label">Events</label>
+                                    <select value={slackForm.events} onChange={e=>setSlackForm({...slackForm,events:e.target.value})} className="modal-select">
+                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                        <option value="down">Down events only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                    <div onClick={()=>setSlackAllSites(p=>!p)} className="modal-checkbox-row">
+                                        <input type="checkbox" checked={slackAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                        <span className="modal-checkbox-label">All sites (current + future)</span>
+                                    </div>
+                                    {!slackAllSites && (
+                                        <div className="modal-site-selector-card">
+                                            <div className="modal-site-selector-search">
+                                                <input value={slackSearch} onChange={e=>setSlackSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                            </div>
+                                            <div className="modal-site-list">
+                                                {servers.filter(s=>s.name.toLowerCase().includes(slackSearch.toLowerCase())).map(s => (
+                                                    <div key={s._id} onClick={()=>setSlackSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                        <input type="checkbox" checked={slackSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                                <button onClick={()=>setSlackModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
+                                <button onClick={testSlack} disabled={slackTesting||!slackForm.url} className="modal-btn-test" style={{ flex: 1 }}>
+                                    {slackTesting ? '...' : '📨 Test'}
+                                </button>
+                                <button onClick={saveSlack} disabled={slackSaving||!slackForm.url} className="modal-btn-save" style={{ flex: 2 }}>
+                                    {slackSaving ? 'Saving...' : '💾 Save'}
                                 </button>
                             </div>
                         </div>
