@@ -903,22 +903,28 @@ export default function Charts({ theme = 'light', user }) {
           border-radius: 14px;
           margin-top: 14px;
         }
-        .uptime-mob-stat {
+        .perf-page-container .uptime-mob-stat {
+          background: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 8px 10px;
+          text-align: center;
           display: flex;
           flex-direction: column;
           gap: 4px;
+          transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        .uptime-mob-stat-label {
+        .perf-page-container .uptime-mob-stat-label {
           font-size: 10px;
           font-weight: 700;
           color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.4px;
         }
-        .uptime-mob-stat-val {
+        .perf-page-container .uptime-mob-stat-val {
           font-size: 13px;
           font-weight: 700;
-          color: var(--text-main);
+          color: var(--text-main) !important;
           font-family: 'Outfit', sans-serif;
         }
 
