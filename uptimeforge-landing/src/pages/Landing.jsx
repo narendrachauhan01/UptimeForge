@@ -52,6 +52,7 @@ export default function Landing() {
     email: '',
     webhook: '',
     rocketchat: '',
+    slack: '',
   });
   const [showAddIntegration, setShowAddIntegration] = useState(null);
   const [integrationValue, setIntegrationValue] = useState('');
@@ -420,9 +421,9 @@ export default function Landing() {
     const customWebhooks = [
       { id: 'webhook', name: 'Webhook', desc: 'POST to any URL when a monitor status changes.', icon: '🔗', color: '#7c3aed', status: integrations.webhook },
       { id: 'rocketchat', name: 'Rocket.Chat', desc: 'Send alerts to your Rocket.Chat workspace via incoming webhook.', icon: '🚀', color: '#f5455c', status: integrations.rocketchat },
+      { id: 'slack', name: 'Slack', desc: 'Send alerts to your Slack channel via incoming webhook.', icon: '💜', color: '#4a154b', status: integrations.slack },
     ];
     const comingSoon = [
-      { name: 'Slack', desc: 'Send alerts to your Slack channel via incoming webhook.', icon: '💬' },
       { name: 'Telegram', desc: 'Get instant alerts via Telegram bot messages.', icon: '✈' },
       { name: 'Discord', desc: 'Post status updates to your Discord server.', icon: '👾' },
     ];
