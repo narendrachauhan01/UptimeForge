@@ -53,6 +53,7 @@ export default function Landing() {
     webhook: '',
     rocketchat: '',
     slack: '',
+    telegram: '',
   });
   const [showAddIntegration, setShowAddIntegration] = useState(null);
   const [integrationValue, setIntegrationValue] = useState('');
@@ -417,6 +418,7 @@ export default function Landing() {
     const platformAlerts = [
       { id: 'whatsapp', name: 'WhatsApp', desc: 'Receive WhatsApp alerts when your site goes down or recovers.', icon: '💬', color: '#25d366', status: integrations.whatsapp },
       { id: 'email', name: 'Email', desc: 'Receive email alerts when your site goes down or recovers.', icon: '✉', color: '#ea4335', status: integrations.email },
+      { id: 'telegram', name: 'Telegram', desc: 'Get instant alerts via your own Telegram bot.', icon: '✈️', color: '#0088cc', status: integrations.telegram },
     ];
     const customWebhooks = [
       { id: 'webhook', name: 'Webhook', desc: 'POST to any URL when a monitor status changes.', icon: '🔗', color: '#7c3aed', status: integrations.webhook },
@@ -424,7 +426,6 @@ export default function Landing() {
       { id: 'slack', name: 'Slack', desc: 'Send alerts to your Slack channel via incoming webhook.', icon: '💜', color: '#4a154b', status: integrations.slack },
     ];
     const comingSoon = [
-      { name: 'Telegram', desc: 'Get instant alerts via Telegram bot messages.', icon: '✈' },
       { name: 'Discord', desc: 'Post status updates to your Discord server.', icon: '👾' },
     ];
     
@@ -1112,6 +1113,17 @@ export default function Landing() {
                     ),
                     badge: '+ Add',
                     actionType: 'add'
+                  },
+                  {
+                    name: 'Telegram',
+                    desc: 'Get instant alerts via your own Telegram bot.',
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="lp-integ-logo" style={{ color: '#0088cc' }}>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-.97.53-1.34.52-.41-.01-1.2-.23-1.79-.42-.72-.24-1.29-.36-1.24-.76.03-.2.31-.4.85-.62 3.32-1.44 5.53-2.4 6.63-2.87 3.16-1.35 3.82-1.59 4.25-1.59.09 0 .31.02.45.14.12.1.15.24.17.34-.02.1-.01.2-.02.26z"/>
+                      </svg>
+                    ),
+                    badge: '+ Add',
+                    actionType: 'add'
                   }
                 ]
               },
@@ -1140,12 +1152,7 @@ export default function Landing() {
                     ),
                     badge: '+ Add',
                     actionType: 'add'
-                  }
-                ]
-              },
-              {
-                category: 'Coming Soon',
-                items: [
+                  },
                   {
                     name: 'Slack',
                     desc: 'Send alerts to your Slack channel via incoming webhook.',
@@ -1154,20 +1161,14 @@ export default function Landing() {
                         <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523 2.528 2.528 0 0 1-2.522-2.523 2.528 2.528 0 0 1 2.522-2.52h2.52v2.52zm1.261 0a2.528 2.528 0 0 1 2.52-2.52h5.043a2.528 2.528 0 0 1 2.522 2.52v5.042a2.528 2.528 0 0 1-2.522 2.52H8.823a2.528 2.528 0 0 1-2.52-2.52v-5.042zM8.823 5.043a2.528 2.528 0 0 1 2.52-2.522 2.528 2.528 0 0 1 2.522 2.522v2.52h-2.522a2.528 2.528 0 0 1-2.52-2.52zm0 1.261a2.528 2.528 0 0 1 2.52 2.52v5.043a2.528 2.528 0 0 1-2.52 2.522H3.78a2.528 2.528 0 0 1-2.522-2.522V8.824a2.528 2.528 0 0 1 2.522-2.52h5.043zm10.135 3.738a2.528 2.528 0 0 1 2.52-2.522 2.528 2.528 0 0 1 2.522 2.522 2.528 2.528 0 0 1-2.522 2.52h-2.52v-2.52zm-1.262 0a2.528 2.528 0 0 1-2.52 2.52h-5.043a2.528 2.528 0 0 1-2.522-2.52V3.78a2.528 2.528 0 0 1 2.522-2.52h5.043a2.528 2.528 0 0 1 2.52 2.52v5.043zm-3.782 10.135a2.528 2.528 0 0 1-2.52 2.522 2.528 2.528 0 0 1-2.522-2.522v-2.52h2.522a2.528 2.528 0 0 1 2.52 2.52zm0-1.262a2.528 2.528 0 0 1-2.52-2.52v-5.043a2.528 2.528 0 0 1 2.52-2.522h5.043a2.528 2.528 0 0 1 2.522 2.522v5.043a2.528 2.528 0 0 1-2.522 2.52h-5.043z"/>
                       </svg>
                     ),
-                    badge: 'Coming Soon',
-                    actionType: 'coming'
-                  },
-                  {
-                    name: 'Telegram',
-                    desc: 'Get instant alerts via Telegram bot messages.',
-                    icon: (
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="lp-integ-logo" style={{ color: '#0088cc' }}>
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-.97.53-1.34.52-.41-.01-1.2-.23-1.79-.42-.72-.24-1.29-.36-1.24-.76.03-.2.31-.4.85-.62 3.32-1.44 5.53-2.4 6.63-2.87 3.16-1.35 3.82-1.59 4.25-1.59.09 0 .31.02.45.14.12.1.15.24.17.34-.02.1-.01.2-.02.26z"/>
-                      </svg>
-                    ),
-                    badge: 'Coming Soon',
-                    actionType: 'coming'
-                  },
+                    badge: '+ Add',
+                    actionType: 'add'
+                  }
+                ]
+              },
+              {
+                category: 'Coming Soon',
+                items: [
                   {
                     name: 'Discord',
                     desc: 'Post status updates to your Discord server.',
