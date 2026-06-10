@@ -353,8 +353,13 @@ async function checkOne(server, settings, recipients) {
     // 3. Fire alerts & integrations in background (only if plan active)
     const uObj = server.userId;
     const planActive = uObj ? (() => {
-        if (uObj.plan === 'free_trial') return uObj.trialEndsAt && new Date() < new Date(uObj.trialEndsAt);
-        return !uObj.planEndsAt || new Date() < new Date(uObj.planEndsAt);
+        if (uObj.plan === 'free_trial') {
+            if (!uObj.trialVerified) return false;
+            if (uObj.trialEndsAt && new Date() > new Date(uObj.trialEndsAt)) return false;
+            return true;
+        }
+        if (uObj.planEndsAt && new Date() > new Date(uObj.planEndsAt)) return false;
+        return true;
     })() : false;
 
     if (alertType && planActive) {
@@ -412,6 +417,7 @@ async function sendAlerts(server, recipients, type, detail, statusCode) {
 
     await Alert.create({
         server:     server._id,
+        userId:     server.userId?._id || server.userId,
         serverName: server.name,
         serverUrl:  server.url,
         type,
