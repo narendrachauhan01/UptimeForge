@@ -498,7 +498,7 @@ export default function AddMonitor({ user }) {
                                 <div style={{padding:'10px 16px', background:'var(--bg-input)', borderBottom:'1px solid var(--border-color)', display:'flex', alignItems:'center', gap:8 }}>
                                     <span style={{fontSize:14}}>✉️💬</span>
                                     <span style={{fontSize:12, color:'var(--text-muted)'}}>
-                                        <strong style={{color:'var(--text-main)'}}>Email & WhatsApp recipients</strong> — Add by name + email/phone below. Use <strong>🌐 Sites</strong> to assign specific sites.
+                                        <strong style={{color:'var(--text-main)'}}>Email recipients</strong> — Add by name + email below. Use <strong>🌐 Sites</strong> to assign specific sites.
                                     </span>
                                 </div>
 
