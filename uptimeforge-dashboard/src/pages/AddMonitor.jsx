@@ -29,14 +29,14 @@ export default function AddMonitor({ user }) {
     const [recipients, setRecipients] = useState([]);
     const [recipientLimit, setRecipientLimit] = useState(null);
     const [selectedRecipients, setSelectedRecipients] = useState([]);
-    const [allRecipients,      setAllRecipients]      = useState(false);
-    const [savedIntegrations,  setSavedIntegrations]  = useState([]);
-    const [integSiteExpanded,  setIntegSiteExpanded]  = useState(null); // integration _id
-    const [integSiteMap,       setIntegSiteMap]       = useState({}); // {intgId: [serverIds]}
+    const [allRecipients, setAllRecipients] = useState(false);
+    const [savedIntegrations, setSavedIntegrations] = useState([]);
+    const [integSiteExpanded, setIntegSiteExpanded] = useState(null); // integration _id
+    const [integSiteMap, setIntegSiteMap] = useState({}); // {intgId: [serverIds]}
     const [editRecipId, setEditRecipId] = useState(null);
-    const [editRecipForm, setEditRecipForm] = useState({ name:'', email:'', phone:'' });
+    const [editRecipForm, setEditRecipForm] = useState({ name: '', email: '', phone: '' });
     const [showAddRecip, setShowAddRecip] = useState(false);
-    const [newRecip, setNewRecip] = useState({ name:'', email:'', phone:'', channel:'' });
+    const [newRecip, setNewRecip] = useState({ name: '', email: '', phone: '', channel: '' });
     const [expandedSites, setExpandedSites] = useState(null); // recipient id whose sites are expanded
     const [servers, setServers] = useState([]);
     const [recipSiteMap, setRecipSiteMap] = useState({}); // {recipId: [siteIds]}
@@ -81,7 +81,7 @@ export default function AddMonitor({ user }) {
             const s = r.data;
             const iv = p === 'free_trial' ? (s.freeTrialInterval || 300) : (s.plans?.[p]?.interval || 60);
             setPlanInterval(iv);
-        }).catch(() => {});
+        }).catch(() => { });
         getRecipients().then(r => {
             const data = r.data.recipients ?? r.data;
             if (r.data.limit !== undefined) setRecipientLimit({ limit: r.data.limit, count: r.data.count });
@@ -90,8 +90,8 @@ export default function AddMonitor({ user }) {
             const map = {};
             data.forEach(rec => { map[rec._id] = (rec.servers || []).map(s => s._id || s); });
             setRecipSiteMap(map);
-        }).catch(() => {});
-        getServers().then(r => setServers(r.data)).catch(() => {});
+        }).catch(() => { });
+        getServers().then(r => setServers(r.data)).catch(() => { });
         // Fetch saved integrations (webhook etc.)
         axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
             .then(r => {
@@ -99,7 +99,7 @@ export default function AddMonitor({ user }) {
                 const map = {};
                 r.data.forEach(i => { map[i._id] = (i.servers || []).map(s => s._id || s); });
                 setIntegSiteMap(map);
-            }).catch(() => {});
+            }).catch(() => { });
     }, []);
 
     const intervalLabel = planInterval
@@ -454,7 +454,7 @@ export default function AddMonitor({ user }) {
                 </div>
 
                 <div className="am-wrap">
-                    <h1 className="am-title">{isEdit ? 'Edit monitor' : 'Add single monitor'} <span style={{color:'var(--primary)'}}>.</span></h1>
+                    <h1 className="am-title">{isEdit ? 'Edit monitor' : 'Add single monitor'} <span style={{ color: 'var(--primary)' }}>.</span></h1>
 
                     <form onSubmit={handleSubmit}>
 
@@ -462,7 +462,7 @@ export default function AddMonitor({ user }) {
                         <div className="am-section">
                             <div className="am-section-label">Monitor type</div>
                             <div className="am-type-box">
-                                <span style={{background:'var(--success)',color:'#fff',padding:'5px 8px',borderRadius:5,fontSize:11,fontWeight:800,fontFamily:'monospace',flexShrink:0}}>HTTP</span>
+                                <span style={{ background: 'var(--success)', color: '#fff', padding: '5px 8px', borderRadius: 5, fontSize: 11, fontWeight: 800, fontFamily: 'monospace', flexShrink: 0 }}>HTTP</span>
                                 <div>
                                     <div className="am-type-name">HTTP / website monitoring</div>
                                     <div className="am-type-desc">Monitor your website, API endpoint, or anything running on HTTP(S).</div>
@@ -474,42 +474,42 @@ export default function AddMonitor({ user }) {
                         <div className="am-section">
                             <div className="am-section-label">Friendly name</div>
                             <input className="am-input" type="text" placeholder="e.g. My Website"
-                                value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
+                                value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} autoFocus />
                         </div>
 
                         {/* URL */}
                         <div className="am-section">
                             <div className="am-section-label">URL to monitor</div>
                             <input className="am-input" type="url" placeholder="https://yoursite.com"
-                                value={form.url} onChange={e => setForm({...form, url: e.target.value})} />
+                                value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} />
                         </div>
 
                         {/* Recipients */}
                         <div className="am-section">
-                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
-                                <div className="am-section-label" style={{marginBottom:0}}>How will we notify you?</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                <div className="am-section-label" style={{ marginBottom: 0 }}>How will we notify you?</div>
                                 {recipientLimit && (
-                                    <span style={{fontSize:12, color: recipientLimit.count >= recipientLimit.limit ? 'var(--danger)' : 'var(--primary)', fontWeight:700, background: recipientLimit.count >= recipientLimit.limit ? 'rgba(244,63,94,0.1)' : 'var(--primary-glow)', padding:'3px 10px', borderRadius:20}}>
+                                    <span style={{ fontSize: 12, color: recipientLimit.count >= recipientLimit.limit ? 'var(--danger)' : 'var(--primary)', fontWeight: 700, background: recipientLimit.count >= recipientLimit.limit ? 'rgba(244,63,94,0.1)' : 'var(--primary-glow)', padding: '3px 10px', borderRadius: 20 }}>
                                         {recipientLimit.count} / {recipientLimit.limit} recipients used
                                     </span>
                                 )}
                             </div>
                             <div className="am-recip-box">
-                                <div style={{padding:'10px 16px', background:'var(--bg-input)', borderBottom:'1px solid var(--border-color)', display:'flex', alignItems:'center', gap:8 }}>
-                                    <span style={{fontSize:14}}>✉️💬</span>
-                                    <span style={{fontSize:12, color:'var(--text-muted)'}}>
-                                        <strong style={{color:'var(--text-main)'}}>Email recipients</strong> — Add by name + email below. Use <strong>🌐 Sites</strong> to assign specific sites.
+                                <div style={{ padding: '10px 16px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: 14 }}>✉️💬</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                                        <strong style={{ color: 'var(--text-main)' }}>Email recipients</strong> — Add by name + email below. Use <strong>🌐 Sites</strong> to assign specific sites.
                                     </span>
                                 </div>
 
                                 {/* Individual recipients — scrollable */}
                                 <div className="am-recip-list" style={{ maxHeight: 320, overflowY: 'auto' }}>
                                     {recipients.length === 0 && !showAddRecip ? (
-                                        <div style={{fontSize:13,color:'var(--text-muted)',padding:'16px 18px',textAlign:'center'}}>
+                                        <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '16px 18px', textAlign: 'center' }}>
                                             No recipients yet
                                         </div>
                                     ) : recipients.map(r => {
-                                        const avatarColor = `hsl(${(r.name||'').charCodeAt(0)*37 % 360},55%,48%)`;
+                                        const avatarColor = `hsl(${(r.name || '').charCodeAt(0) * 37 % 360},55%,48%)`;
                                         const isSelected = selectedRecipients.includes(r._id);
                                         const sitesExpanded = expandedSites === r._id;
                                         const recipSites = recipSiteMap[r._id] || [];
@@ -517,70 +517,70 @@ export default function AddMonitor({ user }) {
                                             <div key={r._id}>
                                                 {/* Recipient row */}
                                                 {editRecipId === r._id ? (
-                                                    <div style={{padding:'14px 16px', background:'var(--bg-input)', borderBottom:'1px solid var(--border-color)'}}>
-                                                        <div style={{display:'flex',gap:8,marginBottom:8,flexWrap:'wrap'}}>
-                                                            <input value={editRecipForm.name} onChange={e=>setEditRecipForm({...editRecipForm,name:e.target.value})} placeholder="Name *" style={{flex:'1 1 100px',padding:'8px 10px',border:'1.5px solid var(--border-color)',borderRadius:7,fontSize:13,outline:'none',background:'var(--bg-card)',color:'var(--text-main)'}} />
-                                                            <input value={editRecipForm.email} onChange={e=>setEditRecipForm({...editRecipForm,email:e.target.value})} placeholder="Email" style={{flex:'2 1 140px',padding:'8px 10px',border:'1.5px solid var(--border-color)',borderRadius:7,fontSize:13,outline:'none',background:'var(--bg-card)',color:'var(--text-main)'}} />
-                                                            <div style={{display:'flex',flex:'1 1 130px',alignItems:'center',border:'1.5px solid var(--border-color)',borderRadius:7,overflow:'hidden',background:'var(--bg-card)'}}>
-                                                                <span style={{padding:'0 8px',fontSize:12,color:'var(--text-muted)',background:'var(--bg-input)',borderRight:'1px solid var(--border-color)',height:'100%',display:'flex',alignItems:'center'}}>💬 +91</span>
-                                                                <input value={(editRecipForm.phone||'').replace(/^91/,'')} onChange={e=>setEditRecipForm({...editRecipForm,phone:e.target.value.replace(/\D/g,'').slice(0,10)})} placeholder="WhatsApp" maxLength={10} style={{flex:1,padding:'8px 8px',border:'none',fontSize:13,outline:'none',background:'transparent',color:'var(--text-main)'}} />
+                                                    <div style={{ padding: '14px 16px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)' }}>
+                                                        <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                                                            <input value={editRecipForm.name} onChange={e => setEditRecipForm({ ...editRecipForm, name: e.target.value })} placeholder="Name *" style={{ flex: '1 1 100px', padding: '8px 10px', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 13, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-main)' }} />
+                                                            <input value={editRecipForm.email} onChange={e => setEditRecipForm({ ...editRecipForm, email: e.target.value })} placeholder="Email" style={{ flex: '2 1 140px', padding: '8px 10px', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 13, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-main)' }} />
+                                                            <div style={{ display: 'flex', flex: '1 1 130px', alignItems: 'center', border: '1.5px solid var(--border-color)', borderRadius: 7, overflow: 'hidden', background: 'var(--bg-card)' }}>
+                                                                <span style={{ padding: '0 8px', fontSize: 12, color: 'var(--text-muted)', background: 'var(--bg-input)', borderRight: '1px solid var(--border-color)', height: '100%', display: 'flex', alignItems: 'center' }}>💬 +91</span>
+                                                                <input value={(editRecipForm.phone || '').replace(/^91/, '')} onChange={e => setEditRecipForm({ ...editRecipForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} placeholder="WhatsApp" maxLength={10} style={{ flex: 1, padding: '8px 8px', border: 'none', fontSize: 13, outline: 'none', background: 'transparent', color: 'var(--text-main)' }} />
                                                             </div>
                                                         </div>
-                                                        <div style={{display:'flex',gap:8}}>
-                                                            <button type="button" onClick={async()=>{
-                                                                const phone = (editRecipForm.phone||'').length>=10 ? '91'+(editRecipForm.phone||'').replace(/^91/,'') : null;
-                                                                await axios.put(`${API_URL}/api/recipients/${r._id}`,{name:editRecipForm.name,email:editRecipForm.email||null,phone}, { withCredentials: true });
+                                                        <div style={{ display: 'flex', gap: 8 }}>
+                                                            <button type="button" onClick={async () => {
+                                                                const phone = (editRecipForm.phone || '').length >= 10 ? '91' + (editRecipForm.phone || '').replace(/^91/, '') : null;
+                                                                await axios.put(`${API_URL}/api/recipients/${r._id}`, { name: editRecipForm.name, email: editRecipForm.email || null, phone }, { withCredentials: true });
                                                                 setEditRecipId(null);
                                                                 const res = await getRecipients();
-                                                                setRecipients(res.data.recipients??res.data);
-                                                            }} style={{padding:'7px 18px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:7,fontSize:13,fontWeight:700,cursor:'pointer'}}>Save</button>
-                                                            <button type="button" onClick={()=>setEditRecipId(null)} style={{padding:'7px 14px',background:'var(--bg-card)',border:'1.5px solid var(--border-color)',borderRadius:7,fontSize:13,cursor:'pointer',color:'var(--text-muted)'}}>Cancel</button>
+                                                                setRecipients(res.data.recipients ?? res.data);
+                                                            }} style={{ padding: '7px 18px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Save</button>
+                                                            <button type="button" onClick={() => setEditRecipId(null)} style={{ padding: '7px 14px', background: 'var(--bg-card)', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 13, cursor: 'pointer', color: 'var(--text-muted)' }}>Cancel</button>
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="am-recip-item" style={{cursor:'default'}}>
-                                                        <div className="am-recip-avatar" style={{background:avatarColor}}>{(r.name||'?')[0].toUpperCase()}</div>
-                                                        <div style={{flex:1,minWidth:0}}>
-                                                            <div style={{fontWeight:600,fontSize:13,color:'var(--text-main)'}}>{r.name}</div>
-                                                            <div style={{fontSize:11,color:'var(--text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.email||r.phone||'—'}</div>
+                                                    <div className="am-recip-item" style={{ cursor: 'default' }}>
+                                                        <div className="am-recip-avatar" style={{ background: avatarColor }}>{(r.name || '?')[0].toUpperCase()}</div>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-main)' }}>{r.name}</div>
+                                                            <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.email || r.phone || '—'}</div>
                                                         </div>
-                                                        <div style={{display:'flex',gap:5,alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
-                                                            {r.email && <span style={{fontSize:12,background:'var(--bg-input)',color:'var(--text-muted)',padding:'4px 8px',borderRadius:6,fontWeight:600,border:'1px solid var(--border-color)'}}>✉️ Email</span>}
-                                                            {r.phone && <span style={{fontSize:12,background:'rgba(16,185,129,0.08)',color:'var(--success)',padding:'4px 8px',borderRadius:6,fontWeight:600,border:'1px solid rgba(16,185,129,0.15)'}}>💬 WA</span>}
-                                                            <button type="button" title="Edit" onClick={()=>{setEditRecipId(r._id);setEditRecipForm({name:r.name,email:r.email||'',phone:r.phone||''});}}
-                                                                style={{padding:'5px 10px',background:'var(--primary-glow)',border:'1.5px solid var(--border-color)',borderRadius:7,fontSize:12,color:'var(--primary)',cursor:'pointer',fontWeight:700}}>✏️ Edit</button>
-                                                            <button type="button" title="Sites" onClick={()=>setExpandedSites(sitesExpanded?null:r._id)}
-                                                                style={{padding:'5px 10px',background:'rgba(3,105,161,0.08)',border:'1.5px solid var(--border-color)',borderRadius:7,fontSize:12,color:'#0369a1',cursor:'pointer',fontWeight:700}}>
-                                                                🌐 {recipSites.length===0?'All':recipSites.length} {sitesExpanded?'▲':'▼'}
+                                                        <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
+                                                            {r.email && <span style={{ fontSize: 12, background: 'var(--bg-input)', color: 'var(--text-muted)', padding: '4px 8px', borderRadius: 6, fontWeight: 600, border: '1px solid var(--border-color)' }}>✉️ Email</span>}
+                                                            {r.phone && <span style={{ fontSize: 12, background: 'rgba(16,185,129,0.08)', color: 'var(--success)', padding: '4px 8px', borderRadius: 6, fontWeight: 600, border: '1px solid rgba(16,185,129,0.15)' }}>💬 WA</span>}
+                                                            <button type="button" title="Edit" onClick={() => { setEditRecipId(r._id); setEditRecipForm({ name: r.name, email: r.email || '', phone: r.phone || '' }); }}
+                                                                style={{ padding: '5px 10px', background: 'var(--primary-glow)', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 12, color: 'var(--primary)', cursor: 'pointer', fontWeight: 700 }}>✏️ Edit</button>
+                                                            <button type="button" title="Sites" onClick={() => setExpandedSites(sitesExpanded ? null : r._id)}
+                                                                style={{ padding: '5px 10px', background: 'rgba(3,105,161,0.08)', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 12, color: '#0369a1', cursor: 'pointer', fontWeight: 700 }}>
+                                                                🌐 {recipSites.length === 0 ? 'All' : recipSites.length} {sitesExpanded ? '▲' : '▼'}
                                                             </button>
                                                             <button type="button" title="Delete recipient"
-                                                                onClick={async()=>{
-                                                                    const _ok = await confirm(`Delete ${r.name}?`, {title:'Delete Recipient',confirmText:'Delete',danger:true}); if(!_ok) return;
+                                                                onClick={async () => {
+                                                                    const _ok = await confirm(`Delete ${r.name}?`, { title: 'Delete Recipient', confirmText: 'Delete', danger: true }); if (!_ok) return;
                                                                     await axios.delete(`${API_URL}/api/recipients/${r._id}`, { withCredentials: true });
-                                                                    setRecipients(prev=>prev.filter(x=>x._id!==r._id));
-                                                                    setSelectedRecipients(prev=>prev.filter(x=>x!==r._id));
+                                                                    setRecipients(prev => prev.filter(x => x._id !== r._id));
+                                                                    setSelectedRecipients(prev => prev.filter(x => x !== r._id));
                                                                 }}
-                                                                style={{padding:'5px 8px',background:'rgba(244,63,94,0.08)',border:'1.5px solid rgba(244,63,94,0.2)',borderRadius:7,fontSize:13,color:'var(--danger)',cursor:'pointer'}}>🗑</button>
+                                                                style={{ padding: '5px 8px', background: 'rgba(244,63,94,0.08)', border: '1.5px solid rgba(244,63,94,0.2)', borderRadius: 7, fontSize: 13, color: 'var(--danger)', cursor: 'pointer' }}>🗑</button>
                                                         </div>
                                                     </div>
                                                 )}
                                                 {/* Site selector for this recipient */}
                                                 {sitesExpanded && (
-                                                    <div style={{padding:'10px 16px 12px',background:'var(--bg-input)',borderBottom:'1px solid var(--border-color)'}}>
-                                                        <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:8,fontWeight:600}}>Select sites for {r.name} (empty = all sites):</div>
-                                                        <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-                                                            {servers.map(s=>{
+                                                    <div style={{ padding: '10px 16px 12px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)' }}>
+                                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>Select sites for {r.name} (empty = all sites):</div>
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                                                            {servers.map(s => {
                                                                 const sel = recipSites.includes(s._id);
                                                                 return (
                                                                     <button key={s._id} type="button"
-                                                                        onClick={()=>setRecipSiteMap(prev=>({...prev,[r._id]:sel?recipSites.filter(x=>x!==s._id):[...recipSites,s._id]}))}
-                                                                        style={{padding:'3px 10px',borderRadius:20,border:`1.5px solid ${sel?'var(--primary)':'var(--border-color)'}`,background:sel?'var(--primary-glow)':'var(--bg-card)',color:sel?'var(--primary)':'var(--text-muted)',fontSize:11,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
-                                                                        <span style={{width:6,height:6,borderRadius:'50%',background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b',flexShrink:0}} />
-                                                                        {s.name} {sel&&'✓'}
+                                                                        onClick={() => setRecipSiteMap(prev => ({ ...prev, [r._id]: sel ? recipSites.filter(x => x !== s._id) : [...recipSites, s._id] }))}
+                                                                        style={{ padding: '3px 10px', borderRadius: 20, border: `1.5px solid ${sel ? 'var(--primary)' : 'var(--border-color)'}`, background: sel ? 'var(--primary-glow)' : 'var(--bg-card)', color: sel ? 'var(--primary)' : 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.status === 'up' ? '#10b981' : s.status === 'down' ? '#ef4444' : '#f59e0b', flexShrink: 0 }} />
+                                                                        {s.name} {sel && '✓'}
                                                                     </button>
                                                                 );
                                                             })}
-                                                            {recipSites.length>0 && <button type="button" onClick={()=>setRecipSiteMap(prev=>({...prev,[r._id]:[]}))} style={{padding:'3px 10px',borderRadius:20,border:'1px dashed var(--border-color)',background:'transparent',color:'var(--text-muted)',fontSize:11,cursor:'pointer'}}>✕ All sites</button>}
+                                                            {recipSites.length > 0 && <button type="button" onClick={() => setRecipSiteMap(prev => ({ ...prev, [r._id]: [] }))} style={{ padding: '3px 10px', borderRadius: 20, border: '1px dashed var(--border-color)', background: 'transparent', color: 'var(--text-muted)', fontSize: 11, cursor: 'pointer' }}>✕ All sites</button>}
                                                         </div>
                                                     </div>
                                                 )}
@@ -590,99 +590,99 @@ export default function AddMonitor({ user }) {
 
                                     {/* Add recipient inline */}
                                     {showAddRecip ? (
-                                        <div style={{padding:'16px',background:'var(--bg-input)',borderTop:'1px solid var(--border-color)'}}>
-                                            <div style={{fontSize:13,fontWeight:700,color:'var(--text-main)',marginBottom:12}}>➕ Add New Recipient</div>
+                                        <div style={{ padding: '16px', background: 'var(--bg-input)', borderTop: '1px solid var(--border-color)' }}>
+                                            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', marginBottom: 12 }}>➕ Add New Recipient</div>
 
                                             {/* Step 1: choose channel */}
                                             {!newRecip.channel ? (
                                                 <div>
-                                                    <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:8}}>How would you like to receive alerts?</div>
-                                                    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                                                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>How would you like to receive alerts?</div>
+                                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                                         {[
-                                                            {ch:'email',    icon:'✉️', label:'Email',             color:'var(--primary)', bg:'var(--primary-glow)', border:'var(--border-color)'},
+                                                            { ch: 'email', icon: '✉️', label: 'Email', color: 'var(--primary)', bg: 'var(--primary-glow)', border: 'var(--border-color)' },
                                                         ].map(o => (
                                                             <button key={o.ch} type="button"
-                                                                onClick={()=>!o.disabled && setNewRecip({...newRecip,channel:o.ch})}
+                                                                onClick={() => !o.disabled && setNewRecip({ ...newRecip, channel: o.ch })}
                                                                 disabled={o.disabled}
-                                                                style={{padding:'10px 18px',borderRadius:10,border:`1.5px solid ${o.border}`,background:o.bg,color:o.color,fontWeight:700,fontSize:13,cursor:o.disabled?'not-allowed':'pointer',display:'flex',alignItems:'center',gap:7,opacity:o.disabled?0.6:1}}>
+                                                                style={{ padding: '10px 18px', borderRadius: 10, border: `1.5px solid ${o.border}`, background: o.bg, color: o.color, fontWeight: 700, fontSize: 13, cursor: o.disabled ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 7, opacity: o.disabled ? 0.6 : 1 }}>
                                                                 {o.icon} {o.label}
                                                             </button>
                                                         ))}
                                                     </div>
-                                                    <button type="button" onClick={()=>{setShowAddRecip(false);setNewRecip({name:'',email:'',phone:'',channel:''}); }} style={{marginTop:10,padding:'7px 18px',background:'var(--bg-card)',border:'1.5px solid var(--border-color)',borderRadius:8,color:'var(--text-muted)',fontSize:13,fontWeight:600,cursor:'pointer'}}>✕ Cancel</button>
+                                                    <button type="button" onClick={() => { setShowAddRecip(false); setNewRecip({ name: '', email: '', phone: '', channel: '' }); }} style={{ marginTop: 10, padding: '7px 18px', background: 'var(--bg-card)', border: '1.5px solid var(--border-color)', borderRadius: 8, color: 'var(--text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>✕ Cancel</button>
                                                 </div>
                                             ) : (
                                                 /* Step 2: fill in details */
                                                 <div>
-                                                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                                                        <span style={{fontSize:12,color:'var(--text-muted)'}}>
-                                                            {newRecip.channel==='email'?'✉️ Email':newRecip.channel==='whatsapp'?'💬 WhatsApp':'🔔 Email & WhatsApp'}
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                                        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                                                            {newRecip.channel === 'email' ? '✉️ Email' : newRecip.channel === 'whatsapp' ? '💬 WhatsApp' : '🔔 Email & WhatsApp'}
                                                         </span>
-                                                        <button type="button" onClick={()=>setNewRecip({...newRecip,channel:''})} style={{fontSize:11,color:'var(--primary)',background:'none',border:'none',cursor:'pointer'}}>← Change</button>
+                                                        <button type="button" onClick={() => setNewRecip({ ...newRecip, channel: '' })} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>← Change</button>
                                                     </div>
-                                                    <div style={{display:'flex',gap:8,marginBottom:10,flexWrap:'wrap'}}>
-                                                        <input value={newRecip.name} onChange={e=>setNewRecip({...newRecip,name:e.target.value})} placeholder="Full Name *" autoFocus
-                                                            style={{flex:'2 1 120px',padding:'9px 12px',border:'1.5px solid var(--border-color)',borderRadius:8,fontSize:13,outline:'none',background:'var(--bg-card)',color:'var(--text-main)'}} />
-                                                        {(newRecip.channel==='email'||newRecip.channel==='both') && (
-                                                            <input value={newRecip.email} onChange={e=>setNewRecip({...newRecip,email:e.target.value})} placeholder="Email address *" type="email"
-                                                                style={{flex:'3 1 160px',padding:'9px 12px',border:'1.5px solid var(--border-color)',borderRadius:8,fontSize:13,outline:'none',background:'var(--bg-card)',color:'var(--text-main)'}} />
+                                                    <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                                                        <input value={newRecip.name} onChange={e => setNewRecip({ ...newRecip, name: e.target.value })} placeholder="Full Name *" autoFocus
+                                                            style={{ flex: '2 1 120px', padding: '9px 12px', border: '1.5px solid var(--border-color)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-main)' }} />
+                                                        {(newRecip.channel === 'email' || newRecip.channel === 'both') && (
+                                                            <input value={newRecip.email} onChange={e => setNewRecip({ ...newRecip, email: e.target.value })} placeholder="Email address *" type="email"
+                                                                style={{ flex: '3 1 160px', padding: '9px 12px', border: '1.5px solid var(--border-color)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-main)' }} />
                                                         )}
-                                                        {(newRecip.channel==='whatsapp'||newRecip.channel==='both') && (
-                                                            <div style={{flex:'2 1 130px',display:'flex',alignItems:'center',border:'1.5px solid var(--border-color)',borderRadius:8,overflow:'hidden',background:'var(--bg-card)'}}>
-                                                                <span style={{padding:'0 10px',fontSize:12,color:'var(--text-muted)',background:'var(--bg-input)',borderRight:'1px solid var(--border-color)',height:'100%',display:'flex',alignItems:'center',whiteSpace:'nowrap'}}>💬 +91</span>
-                                                                <input value={newRecip.phone} onChange={e=>setNewRecip({...newRecip,phone:e.target.value.replace(/\D/g,'').slice(0,10)})} placeholder="WhatsApp number *" maxLength={10}
-                                                                    style={{flex:1,padding:'9px 10px',border:'none',fontSize:13,outline:'none',background:'transparent',color:'var(--text-main)'}} />
+                                                        {(newRecip.channel === 'whatsapp' || newRecip.channel === 'both') && (
+                                                            <div style={{ flex: '2 1 130px', display: 'flex', alignItems: 'center', border: '1.5px solid var(--border-color)', borderRadius: 8, overflow: 'hidden', background: 'var(--bg-card)' }}>
+                                                                <span style={{ padding: '0 10px', fontSize: 12, color: 'var(--text-muted)', background: 'var(--bg-input)', borderRight: '1px solid var(--border-color)', height: '100%', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>💬 +91</span>
+                                                                <input value={newRecip.phone} onChange={e => setNewRecip({ ...newRecip, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} placeholder="WhatsApp number *" maxLength={10}
+                                                                    style={{ flex: 1, padding: '9px 10px', border: 'none', fontSize: 13, outline: 'none', background: 'transparent', color: 'var(--text-main)' }} />
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div style={{display:'flex',gap:8}}>
-                                                        <button type="button" onClick={async()=>{
-                                                            if(!newRecip.name.trim()) return;
-                                                            const phone = newRecip.phone.length===10 ? '91'+newRecip.phone : null;
-                                                            const email = newRecip.email||null;
-                                                            const res = await axios.post(`${API_URL}/api/recipients`,{name:newRecip.name.trim(),email,phone,servers:[]}, { withCredentials: true });
+                                                    <div style={{ display: 'flex', gap: 8 }}>
+                                                        <button type="button" onClick={async () => {
+                                                            if (!newRecip.name.trim()) return;
+                                                            const phone = newRecip.phone.length === 10 ? '91' + newRecip.phone : null;
+                                                            const email = newRecip.email || null;
+                                                            const res = await axios.post(`${API_URL}/api/recipients`, { name: newRecip.name.trim(), email, phone, servers: [] }, { withCredentials: true });
                                                             const recipObj = res.data;
-                                                            setRecipients(prev=>[...prev,recipObj]);
-                                                            setRecipSiteMap(prev=>({...prev,[recipObj._id]:[]}));
-                                                            setNewRecip({name:'',email:'',phone:'',channel:''});
+                                                            setRecipients(prev => [...prev, recipObj]);
+                                                            setRecipSiteMap(prev => ({ ...prev, [recipObj._id]: [] }));
+                                                            setNewRecip({ name: '', email: '', phone: '', channel: '' });
                                                             setShowAddRecip(false);
-                                                        }} style={{padding:'8px 20px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer'}}>Add Recipient</button>
-                                                        <button type="button" onClick={()=>{setShowAddRecip(false);setNewRecip({name:'',email:'',phone:'',channel:''}); }} style={{padding:'8px 18px',background:'var(--bg-card)',border:'1.5px solid var(--border-color)',borderRadius:8,fontSize:13,cursor:'pointer',color:'var(--text-muted)',fontWeight:600}}>✕ Cancel</button>
+                                                        }} style={{ padding: '8px 20px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Add Recipient</button>
+                                                        <button type="button" onClick={() => { setShowAddRecip(false); setNewRecip({ name: '', email: '', phone: '', channel: '' }); }} style={{ padding: '8px 18px', background: 'var(--bg-card)', border: '1.5px solid var(--border-color)', borderRadius: 8, fontSize: 13, cursor: 'pointer', color: 'var(--text-muted)', fontWeight: 600 }}>✕ Cancel</button>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
                                     ) : recipientLimit && recipients.length >= recipientLimit.limit ? (
-                                        <div style={{padding:'12px 16px', borderTop:'1px solid var(--border-color)', background:'rgba(245,158,11,0.08)', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, borderRadius:'0 0 20px 20px'}}>
-                                            <div style={{display:'flex', alignItems:'center', gap:8}}>
-                                                <span style={{fontSize:16}}>⚠️</span>
+                                        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)', background: 'rgba(245,158,11,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderRadius: '0 0 20px 20px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <span style={{ fontSize: 16 }}>⚠️</span>
                                                 <div>
-                                                    <div style={{fontSize:13, fontWeight:700, color:'var(--warning)'}}>Recipient limit reached ({recipientLimit.count}/{recipientLimit.limit})</div>
-                                                    <div style={{fontSize:12, color:'var(--text-muted)', marginTop:1}}>Upgrade your plan to add more recipients</div>
+                                                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warning)' }}>Recipient limit reached ({recipientLimit.count}/{recipientLimit.limit})</div>
+                                                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>Upgrade your plan to add more recipients</div>
                                                 </div>
                                             </div>
-                                            <a href="/account" style={{padding:'6px 14px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', whiteSpace:'nowrap'}}>
+                                            <a href="/account" style={{ padding: '6px 14px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                                                 Upgrade →
                                             </a>
                                         </div>
                                     ) : (
-                                        <button type="button" onClick={()=>setShowAddRecip(true)}
-                                            style={{width:'100%',padding:'10px',background:'transparent',border:'none',color:'var(--primary)',fontSize:13,fontWeight:600,cursor:'pointer',textAlign:'left',paddingLeft:18,borderTop:'1px solid var(--border-color)'}}>
+                                        <button type="button" onClick={() => setShowAddRecip(true)}
+                                            style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: 'var(--primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'left', paddingLeft: 18, borderTop: '1px solid var(--border-color)' }}>
                                             ➕ Add new recipient
                                         </button>
                                     )}
                                 </div>
                             </div>
-                            <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
                                 Use the <strong>🌐 Sites</strong> button per recipient to assign specific sites. Leave empty = all sites.
                             </div>
 
                             {/* Saved Integrations (Webhook etc.) */}
                             {savedIntegrations.length > 0 && (
-                                <div style={{ marginTop:10 }}>
-                                    <div style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', marginBottom:6 }}>🔗 Active Integrations <span style={{fontWeight:400, color:'var(--text-muted)'}}>(from Integrations page)</span></div>
+                                <div style={{ marginTop: 10 }}>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', marginBottom: 6 }}>🔗 Active Integrations <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(from Integrations page)</span></div>
                                     {savedIntegrations.map(intg => {
-                                        const icons = { webhook:'🔗', slack:'', discord:'🎮', telegram:'✈️' };
+                                        const icons = { webhook: '🔗', slack: '', discord: '🎮', telegram: '✈️' };
                                         const siteSel = integSiteMap[intg._id] || [];
                                         const isExpanded = integSiteExpanded === intg._id;
                                         const saveIntgSites = async (newSites) => {
@@ -691,44 +691,44 @@ export default function AddMonitor({ user }) {
                                                 { withCredentials: true });
                                         };
                                         return (
-                                            <div key={intg._id} style={{ marginBottom:6 }}>
-                                                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', background:'var(--primary-glow)', border:'1px solid var(--border-color)', borderRadius:10 }}>
-                                                    <span style={{ fontSize:16 }}>{icons[intg.type]||'🔗'}</span>
-                                                    <div style={{ flex:1 }}>
-                                                        <div style={{ fontWeight:700, fontSize:13, color:'var(--text-main)', textTransform:'capitalize' }}>{intg.type}</div>
-                                                        <div style={{ fontSize:11, color:'var(--text-muted)' }}>{intg.config?.url ? intg.config.url.slice(0,35)+'...' : 'Configured'}</div>
+                                            <div key={intg._id} style={{ marginBottom: 6 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 14px', background: 'var(--primary-glow)', border: '1px solid var(--border-color)', borderRadius: 10 }}>
+                                                    <span style={{ fontSize: 16 }}>{icons[intg.type] || '🔗'}</span>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main)', textTransform: 'capitalize' }}>{intg.type}</div>
+                                                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{intg.config?.url ? intg.config.url.slice(0, 35) + '...' : 'Configured'}</div>
                                                     </div>
-                                                    <span style={{ fontSize:11, fontWeight:700, background:'rgba(16,185,129,0.08)', color:'var(--success)', padding:'2px 8px', borderRadius:20, border:'1px solid rgba(16,185,129,0.15)' }}>✓ Active</span>
-                                                    <button type="button" onClick={()=>setIntegSiteExpanded(isExpanded?null:intg._id)}
-                                                        style={{ padding:'4px 10px', background:'rgba(3,105,161,0.08)', border:'1.5px solid var(--border-color)', borderRadius:7, fontSize:11, color:'#0369a1', cursor:'pointer', fontWeight:700 }}>
-                                                        🌐 {siteSel.length===0?'All':siteSel.length} {isExpanded?'▲':'▼'}
+                                                    <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,0.08)', color: 'var(--success)', padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(16,185,129,0.15)' }}>✓ Active</span>
+                                                    <button type="button" onClick={() => setIntegSiteExpanded(isExpanded ? null : intg._id)}
+                                                        style={{ padding: '4px 10px', background: 'rgba(3,105,161,0.08)', border: '1.5px solid var(--border-color)', borderRadius: 7, fontSize: 11, color: '#0369a1', cursor: 'pointer', fontWeight: 700 }}>
+                                                        🌐 {siteSel.length === 0 ? 'All' : siteSel.length} {isExpanded ? '▲' : '▼'}
                                                     </button>
-                                                    <button type="button" onClick={async()=>{
-                                                        const _ok2 = await confirm(`Remove ${intg.type}?`, {title:'Remove Integration',confirmText:'Remove',danger:true}); if(!_ok2) return;
+                                                    <button type="button" onClick={async () => {
+                                                        const _ok2 = await confirm(`Remove ${intg.type}?`, { title: 'Remove Integration', confirmText: 'Remove', danger: true }); if (!_ok2) return;
                                                         await axios.delete(`${API_URL}/api/integrations/${intg.type}`, { withCredentials: true });
-                                                        setSavedIntegrations(p=>p.filter(x=>x._id!==intg._id));
-                                                    }} style={{ padding:'4px 8px', background:'rgba(244,63,94,0.08)', border:'1px solid rgba(244,63,94,0.2)', borderRadius:6, color:'var(--danger)', cursor:'pointer', fontSize:12 }}>🗑</button>
+                                                        setSavedIntegrations(p => p.filter(x => x._id !== intg._id));
+                                                    }} style={{ padding: '4px 8px', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)', borderRadius: 6, color: 'var(--danger)', cursor: 'pointer', fontSize: 12 }}>🗑</button>
                                                 </div>
                                                 {isExpanded && (
-                                                    <div style={{ background:'var(--bg-input)', border:'1px solid var(--border-color)', borderRadius:'0 0 10px 10px', padding:'10px 14px', marginTop:-4 }}>
-                                                        <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:8 }}>Sites for {intg.type} (empty = all sites):</div>
-                                                        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                                                    <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '0 0 10px 10px', padding: '10px 14px', marginTop: -4 }}>
+                                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>Sites for {intg.type} (empty = all sites):</div>
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                                                             {servers.map(s => {
                                                                 const sel = siteSel.includes(s._id);
                                                                 return (
                                                                     <button key={s._id} type="button"
-                                                                        onClick={async()=>{
-                                                                            const newSites = sel ? siteSel.filter(x=>x!==s._id) : [...siteSel, s._id];
-                                                                            setIntegSiteMap(p=>({...p,[intg._id]:newSites}));
+                                                                        onClick={async () => {
+                                                                            const newSites = sel ? siteSel.filter(x => x !== s._id) : [...siteSel, s._id];
+                                                                            setIntegSiteMap(p => ({ ...p, [intg._id]: newSites }));
                                                                             await saveIntgSites(newSites);
                                                                         }}
-                                                                        style={{ padding:'3px 10px', borderRadius:20, border:`1.5px solid ${sel?'var(--primary)':'var(--border-color)'}`, background:sel?'var(--primary-glow)':'var(--bg-card)', color:sel?'var(--primary)':'var(--text-muted)', fontSize:11, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>
-                                                                        <span style={{ width:6, height:6, borderRadius:'50%', background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b', flexShrink:0 }}/>
-                                                                        {s.name} {sel&&'✓'}
+                                                                        style={{ padding: '3px 10px', borderRadius: 20, border: `1.5px solid ${sel ? 'var(--primary)' : 'var(--border-color)'}`, background: sel ? 'var(--primary-glow)' : 'var(--bg-card)', color: sel ? 'var(--primary)' : 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.status === 'up' ? '#10b981' : s.status === 'down' ? '#ef4444' : '#f59e0b', flexShrink: 0 }} />
+                                                                        {s.name} {sel && '✓'}
                                                                     </button>
                                                                 );
                                                             })}
-                                                            {siteSel.length>0 && <button type="button" onClick={async()=>{setIntegSiteMap(p=>({...p,[intg._id]:[]})); await saveIntgSites([]);}} style={{ padding:'3px 10px', borderRadius:20, border:'1px dashed var(--border-color)', background:'transparent', color:'var(--text-muted)', fontSize:11, cursor:'pointer' }}>✕ All sites</button>}
+                                                            {siteSel.length > 0 && <button type="button" onClick={async () => { setIntegSiteMap(p => ({ ...p, [intg._id]: [] })); await saveIntgSites([]); }} style={{ padding: '3px 10px', borderRadius: 20, border: '1px dashed var(--border-color)', background: 'transparent', color: 'var(--text-muted)', fontSize: 11, cursor: 'pointer' }}>✕ All sites</button>}
                                                         </div>
                                                     </div>
                                                 )}
@@ -739,31 +739,31 @@ export default function AddMonitor({ user }) {
                             )}
 
                             {/* Info note */}
-                            <div style={{ marginTop:12, borderRadius:12, overflow:'hidden', border:'1px solid var(--border-color)', boxShadow:'var(--card-shadow)' }}>
+                            <div style={{ marginTop: 12, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
                                 {/* Header */}
-                                <div style={{ background:'var(--primary)', padding:'10px 16px' }}>
-                                    <div style={{ fontSize:12, fontWeight:800, color:'#fff', letterSpacing:0.3 }}>📣 How alerts are sent</div>
+                                <div style={{ background: 'var(--primary)', padding: '10px 16px' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', letterSpacing: 0.3 }}>📣 How alerts are sent</div>
                                 </div>
                                 {/* Row 1 — Email & WhatsApp */}
-                                <div style={{ background:'rgba(16, 185, 129, 0.04)', padding:'10px 16px', borderBottom:'1px solid var(--border-color)', display:'flex', alignItems:'flex-start', gap:10 }}>
-                                    <div style={{ fontSize:18, marginTop:1 }}>✉️💬</div>
+                                <div style={{ background: 'rgba(16, 185, 129, 0.04)', padding: '10px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                                    <div style={{ fontSize: 18, marginTop: 1 }}>✉️💬</div>
                                     <div>
-                                        <div style={{ fontSize:12, fontWeight:700, color:'var(--success)', marginBottom:2 }}>Email & WhatsApp</div>
-                                        <div style={{ fontSize:11, color:'var(--text-muted)', lineHeight:1.6 }}>
-                                            Add recipients <strong>above</strong> using <strong>➕ Add new recipient</strong>.<br/>
-                                            Enter name + email / mobile number.
+                                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--success)', marginBottom: 2 }}>Email</div>
+                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                                            Add recipients <strong>above</strong> using <strong>➕ Add new recipient</strong>.<br />
+                                            Enter name + email.
                                         </div>
                                     </div>
                                 </div>
                                 {/* Row 2 — Webhook, RocketChat etc */}
-                                <div style={{ background:'rgba(245, 158, 11, 0.04)', padding:'10px 16px', display:'flex', alignItems:'flex-start', gap:10 }}>
-                                    <div style={{ fontSize:18, marginTop:1 }}>🔗</div>
-                                    <div style={{ flex:1 }}>
-                                        <div style={{ fontSize:12, fontWeight:700, color:'var(--warning)', marginBottom:4 }}>Webhook · Rocket.Chat · Slack · Telegram · Discord</div>
-                                        <div style={{ fontSize:11, color:'var(--text-muted)', lineHeight:1.6, marginBottom:6 }}>
-                                            Ye channels <strong>Integrations page</strong> se add karo — phir yahan automatically dikhenge.
+                                <div style={{ background: 'rgba(245, 158, 11, 0.04)', padding: '10px 16px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                                    <div style={{ fontSize: 18, marginTop: 1 }}>🔗</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warning)', marginBottom: 4 }}>Webhook · Rocket.Chat · Slack · Telegram · WhatsApp . Discord</div>
+                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 6 }}>
+                                        Add these channels from the <strong>Integrations page</strong> they will then appear here automatically.
                                         </div>
-                                        <a href="/integrations" style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:7, fontSize:11, fontWeight:700, textDecoration:'none', boxShadow:'0 2px 8px rgba(124,58,237,0.2)' }}>
+                                        <a href="/integrations" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', color: '#fff', borderRadius: 7, fontSize: 11, fontWeight: 700, textDecoration: 'none', boxShadow: '0 2px 8px rgba(124,58,237,0.2)' }}>
                                             Go to Integrations →
                                         </a>
                                     </div>
@@ -783,9 +783,9 @@ export default function AddMonitor({ user }) {
                                 </div>
                                 <div className="am-interval-sub">Interval is set by your plan and managed by admin.</div>
                                 <div className="am-interval-track">
-                                    <div className="am-interval-bar" style={{ width: planInterval ? `${Math.min(100, Math.max(5, (1 - planInterval/1440)*100))}%` : '30%' }} />
+                                    <div className="am-interval-bar" style={{ width: planInterval ? `${Math.min(100, Math.max(5, (1 - planInterval / 1440) * 100))}%` : '30%' }} />
                                     <div className="am-interval-labels">
-                                        {['30s','1m','5m','30m','1h','12h','24h'].map(l => <span key={l}>{l}</span>)}
+                                        {['30s', '1m', '5m', '30m', '1h', '12h', '24h'].map(l => <span key={l}>{l}</span>)}
                                     </div>
                                 </div>
                             </div>
@@ -793,8 +793,8 @@ export default function AddMonitor({ user }) {
 
                         {/* Advanced settings */}
                         <div className="am-section">
-                            <button type="button" className="am-adv-toggle" onClick={() => setShowAdvanced(s=>!s)}>
-                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{transform: showAdvanced?'rotate(90deg)':'none', transition:'0.2s'}}><polyline points="9 18 15 12 9 6"/></svg>
+                            <button type="button" className="am-adv-toggle" onClick={() => setShowAdvanced(s => !s)}>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ transform: showAdvanced ? 'rotate(90deg)' : 'none', transition: '0.2s' }}><polyline points="9 18 15 12 9 6" /></svg>
                                 Advanced settings
                             </button>
 
@@ -808,10 +808,10 @@ export default function AddMonitor({ user }) {
                                         </div>
                                         <div className="am-adv-sub">Mark site as down if no response within {form.timeout} seconds.</div>
                                         <input type="range" min="5" max="60" step="5" value={form.timeout}
-                                            onChange={e => setForm({...form, timeout: Number(e.target.value)})}
+                                            onChange={e => setForm({ ...form, timeout: Number(e.target.value) })}
                                             className="am-slider" />
                                         <div className="am-slider-labels">
-                                            {['5s','10s','15s','20s','30s','45s','60s'].map(l=><span key={l}>{l}</span>)}
+                                            {['5s', '10s', '15s', '20s', '30s', '45s', '60s'].map(l => <span key={l}>{l}</span>)}
                                         </div>
                                     </div>
 
@@ -820,7 +820,7 @@ export default function AddMonitor({ user }) {
                                         <div className="am-adv-label">
                                             <span>Follow redirections</span>
                                             <label className="am-toggle">
-                                                <input type="checkbox" checked={form.followRedirects} onChange={e=>setForm({...form, followRedirects: e.target.checked})} />
+                                                <input type="checkbox" checked={form.followRedirects} onChange={e => setForm({ ...form, followRedirects: e.target.checked })} />
                                                 <span className="am-toggle-slider" />
                                             </label>
                                         </div>
@@ -834,10 +834,10 @@ export default function AddMonitor({ user }) {
                                         <div className="am-adv-label"><span>HTTP method</span></div>
                                         <div className="am-adv-sub">Method used when checking your site.</div>
                                         <div className="am-method-row">
-                                            {['GET','HEAD','POST','PUT','PATCH','DELETE'].map(m => (
+                                            {['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'].map(m => (
                                                 <button key={m} type="button"
-                                                    className={`am-method-btn ${form.httpMethod===m?'active':''}`}
-                                                    onClick={() => setForm({...form, httpMethod: m})}>
+                                                    className={`am-method-btn ${form.httpMethod === m ? 'active' : ''}`}
+                                                    onClick={() => setForm({ ...form, httpMethod: m })}>
                                                     {m}
                                                 </button>
                                             ))}
@@ -852,17 +852,17 @@ export default function AddMonitor({ user }) {
                                             {form.upCodes.map(c => (
                                                 <span key={c} className="am-code-tag">
                                                     {c}
-                                                    <button type="button" onClick={() => setForm({...form, upCodes: form.upCodes.filter(x=>x!==c)})}>×</button>
+                                                    <button type="button" onClick={() => setForm({ ...form, upCodes: form.upCodes.filter(x => x !== c) })}>×</button>
                                                 </span>
                                             ))}
                                             <input type="number" placeholder="Add code..." value={codeInput}
                                                 onChange={e => setCodeInput(e.target.value)}
                                                 onKeyDown={e => {
-                                                    if ((e.key==='Enter'||e.key===',') && codeInput) {
+                                                    if ((e.key === 'Enter' || e.key === ',') && codeInput) {
                                                         e.preventDefault();
                                                         const code = parseInt(codeInput);
                                                         if (code >= 100 && code < 600 && !form.upCodes.includes(code))
-                                                            setForm({...form, upCodes:[...form.upCodes, code]});
+                                                            setForm({ ...form, upCodes: [...form.upCodes, code] });
                                                         setCodeInput('');
                                                     }
                                                 }}
