@@ -59,42 +59,42 @@ const settingsSchema = new mongoose.Schema({
     freeTrialPingLimit:        { type: Number, default: 2 },
     freeTrialFeatures:         { type: [String], default: () => DEFAULT_FEATURES.free_trial },
     freeTrialAccess: {
-        domainSsl:   { type: Boolean, default: true },
-        charts:      { type: Boolean, default: true },
-        pingMonitor: { type: Boolean, default: true },
-        whatsapp:    { type: Boolean, default: true },
-        telegram:    { type: Boolean, default: true },
-        webhook:     { type: Boolean, default: true },
-        rocketChat:  { type: Boolean, default: true },
-        slack:       { type: Boolean, default: true },
-        reports:     { type: Boolean, default: true },
+        domainSsl:   { type: Boolean, default: false },
+        charts:      { type: Boolean, default: false },
+        pingMonitor: { type: Boolean, default: false },
+        whatsapp:    { type: Boolean, default: false },
+        telegram:    { type: Boolean, default: false },
+        webhook:     { type: Boolean, default: false },
+        rocketChat:  { type: Boolean, default: false },
+        slack:       { type: Boolean, default: false },
+        reports:     { type: Boolean, default: false },
     },
     bronzeAccess: {
-        pingMonitor: { type: Boolean, default: true },
-        whatsapp:    { type: Boolean, default: true },
-        telegram:    { type: Boolean, default: true },
-        webhook:     { type: Boolean, default: true },
-        rocketChat:  { type: Boolean, default: true },
-        slack:       { type: Boolean, default: true },
-        reports:     { type: Boolean, default: true },
+        pingMonitor: { type: Boolean, default: false },
+        whatsapp:    { type: Boolean, default: false },
+        telegram:    { type: Boolean, default: false },
+        webhook:     { type: Boolean, default: false },
+        rocketChat:  { type: Boolean, default: false },
+        slack:       { type: Boolean, default: false },
+        reports:     { type: Boolean, default: false },
     },
     silverAccess: {
-        pingMonitor: { type: Boolean, default: true },
-        whatsapp:    { type: Boolean, default: true },
-        telegram:    { type: Boolean, default: true },
-        webhook:     { type: Boolean, default: true },
-        rocketChat:  { type: Boolean, default: true },
-        slack:       { type: Boolean, default: true },
-        reports:     { type: Boolean, default: true },
+        pingMonitor: { type: Boolean, default: false },
+        whatsapp:    { type: Boolean, default: false },
+        telegram:    { type: Boolean, default: false },
+        webhook:     { type: Boolean, default: false },
+        rocketChat:  { type: Boolean, default: false },
+        slack:       { type: Boolean, default: false },
+        reports:     { type: Boolean, default: false },
     },
     goldAccess: {
-        pingMonitor: { type: Boolean, default: true },
-        whatsapp:    { type: Boolean, default: true },
-        telegram:    { type: Boolean, default: true },
-        webhook:     { type: Boolean, default: true },
-        rocketChat:  { type: Boolean, default: true },
-        slack:       { type: Boolean, default: true },
-        reports:     { type: Boolean, default: true },
+        pingMonitor: { type: Boolean, default: false },
+        whatsapp:    { type: Boolean, default: false },
+        telegram:    { type: Boolean, default: false },
+        webhook:     { type: Boolean, default: false },
+        rocketChat:  { type: Boolean, default: false },
+        slack:       { type: Boolean, default: false },
+        reports:     { type: Boolean, default: false },
     },
     annualDiscount: { type: Number, default: 20 },
     annualPlans: {
@@ -170,19 +170,23 @@ settingsSchema.statics.get = async function () {
     if (!s.freeTrialInterval)       { s.freeTrialInterval = 300;       dirty = true; }
     if (!s.freeTrialPingInterval)   { s.freeTrialPingInterval = 180;   dirty = true; }
     if (!s.freeTrialRecipientLimit) { s.freeTrialRecipientLimit = 2;   dirty = true; }
-    if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; dirty = true; }
-    if (s.freeTrialAccess && s.freeTrialAccess.pingMonitor === undefined) { s.freeTrialAccess.pingMonitor = true; s.markModified('freeTrialAccess'); dirty = true; }
-    if (s.freeTrialAccess && s.freeTrialAccess.whatsapp   === undefined) { s.freeTrialAccess.whatsapp = true;   s.markModified('freeTrialAccess'); dirty = true; }
-    if (s.freeTrialAccess && s.freeTrialAccess.telegram   === undefined) { s.freeTrialAccess.telegram = true;   s.markModified('freeTrialAccess'); dirty = true; }
-    if (s.freeTrialAccess && s.freeTrialAccess.webhook    === undefined) { s.freeTrialAccess.webhook = true;    s.markModified('freeTrialAccess'); dirty = true; }
-    if (s.freeTrialAccess && s.freeTrialAccess.rocketChat === undefined) { s.freeTrialAccess.rocketChat = true; s.markModified('freeTrialAccess'); dirty = true; }
-    if (!s.bronzeAccess) { s.bronzeAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true }; s.markModified('bronzeAccess'); dirty = true; }
-    if (s.bronzeAccess && s.bronzeAccess.telegram    === undefined) { s.bronzeAccess.telegram    = true; s.markModified('bronzeAccess'); dirty = true; }
-    if (s.bronzeAccess && s.bronzeAccess.pingMonitor === undefined) { s.bronzeAccess.pingMonitor = true; s.markModified('bronzeAccess'); dirty = true; }
-    if (!s.silverAccess) { s.silverAccess = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true }; s.markModified('silverAccess'); dirty = true; }
-    if (!s.goldAccess)   { s.goldAccess   = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true }; s.markModified('goldAccess');   dirty = true; }
+    if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: false, charts: false, pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false }; dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.pingMonitor === undefined) { s.freeTrialAccess.pingMonitor = false; s.markModified('freeTrialAccess'); dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.whatsapp   === undefined) { s.freeTrialAccess.whatsapp = false;   s.markModified('freeTrialAccess'); dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.telegram   === undefined) { s.freeTrialAccess.telegram = false;   s.markModified('freeTrialAccess'); dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.webhook    === undefined) { s.freeTrialAccess.webhook = false;    s.markModified('freeTrialAccess'); dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.rocketChat === undefined) { s.freeTrialAccess.rocketChat = false; s.markModified('freeTrialAccess'); dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.slack      === undefined) { s.freeTrialAccess.slack = false;      s.markModified('freeTrialAccess'); dirty = true; }
+    if (!s.bronzeAccess) { s.bronzeAccess = { pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false }; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.bronzeAccess && s.bronzeAccess.telegram    === undefined) { s.bronzeAccess.telegram    = false; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.bronzeAccess && s.bronzeAccess.pingMonitor === undefined) { s.bronzeAccess.pingMonitor = false; s.markModified('bronzeAccess'); dirty = true; }
+    if (s.bronzeAccess && s.bronzeAccess.slack       === undefined) { s.bronzeAccess.slack       = false; s.markModified('bronzeAccess'); dirty = true; }
+    if (!s.silverAccess) { s.silverAccess = { pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false }; s.markModified('silverAccess'); dirty = true; }
+    if (s.silverAccess && s.silverAccess.slack === undefined) { s.silverAccess.slack = false; s.markModified('silverAccess'); dirty = true; }
+    if (!s.goldAccess)   { s.goldAccess   = { pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false }; s.markModified('goldAccess');   dirty = true; }
+    if (s.goldAccess && s.goldAccess.slack === undefined) { s.goldAccess.slack = false; s.markModified('goldAccess'); dirty = true; }
     for (const [key, obj] of [['freeTrialAccess', s.freeTrialAccess], ['bronzeAccess', s.bronzeAccess], ['silverAccess', s.silverAccess], ['goldAccess', s.goldAccess]]) {
-        if (obj && obj.reports === undefined) { obj.reports = true; s.markModified(key); dirty = true; }
+        if (obj && obj.reports === undefined) { obj.reports = false; s.markModified(key); dirty = true; }
     }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }

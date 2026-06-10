@@ -339,8 +339,8 @@ const FEATURE_ACCESS_STYLES = `
 `;
 
 export default function FeatureAccess({ readOnly = false }) {
-    const DEFAULT_ACC = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true };
-    const [access,     setAccess]     = useState({ domainSsl: true, charts: true, ...DEFAULT_ACC });
+    const DEFAULT_ACC = { pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
+    const [access,     setAccess]     = useState({ domainSsl: false, charts: false, ...DEFAULT_ACC });
     const [bronzeAcc,  setBronzeAcc]  = useState({ ...DEFAULT_ACC });
     const [silverAcc,  setSilverAcc]  = useState({ ...DEFAULT_ACC });
     const [goldAcc,    setGoldAcc]    = useState({ ...DEFAULT_ACC });

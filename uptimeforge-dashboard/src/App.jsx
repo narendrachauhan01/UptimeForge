@@ -373,10 +373,10 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
-  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
-  const [silverAccess, setSilverAccess] = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
-  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
   const navigate = useNavigate();
   const location = useLocation();
 
