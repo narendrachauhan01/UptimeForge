@@ -23,6 +23,7 @@ const FEATURES = [
     { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: '✈️' },
     { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: '🔗' },
     { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
+    { key: 'slack',       label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: '💜' },
     { key: 'reports',     label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: '📋' },
 ];
 
@@ -32,6 +33,7 @@ const PLAN_FEATURES = [
     { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: '✈️' },
     { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: '🔗' },
     { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: '🚀' },
+    { key: 'slack',       label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: '💜' },
     { key: 'reports',     label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: '📋' },
 ];
 const BRONZE_FEATURES = PLAN_FEATURES;
@@ -337,7 +339,7 @@ const FEATURE_ACCESS_STYLES = `
 `;
 
 export default function FeatureAccess({ readOnly = false }) {
-    const DEFAULT_ACC = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, reports: true };
+    const DEFAULT_ACC = { pingMonitor: true, whatsapp: true, telegram: true, webhook: true, rocketChat: true, slack: true, reports: true };
     const [access,     setAccess]     = useState({ domainSsl: true, charts: true, ...DEFAULT_ACC });
     const [bronzeAcc,  setBronzeAcc]  = useState({ ...DEFAULT_ACC });
     const [silverAcc,  setSilverAcc]  = useState({ ...DEFAULT_ACC });

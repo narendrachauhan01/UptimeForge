@@ -1151,8 +1151,11 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         {saved.slack && <span className="badge-active">✓ Active</span>}
-                        {saved.slack && <button onClick={()=>deleteIntegration('slack')} className="btn-delete">🗑</button>}
-                        <button onClick={openSlackModal} className="btn-add" style={{ background: saved.slack ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #4a154b, #611f69)' }}>{saved.slack ? '✏️ Edit' : '+ Add'}</button>
+                        {saved.slack && !blocked('slack') && <button onClick={()=>deleteIntegration('slack')} className="btn-delete">🗑</button>}
+                        {blocked('slack')
+                            ? <UpgradeBtn />
+                            : <button onClick={openSlackModal} className="btn-add" style={{ background: saved.slack ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #4a154b, #611f69)' }}>{saved.slack ? '✏️ Edit' : '+ Add'}</button>
+                        }
                     </div>
                 </div>
 
