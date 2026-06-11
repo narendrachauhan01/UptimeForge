@@ -177,55 +177,6 @@ export default function Dashboard({ readOnly = false, user }) {
     );
   };
 
-  // Interval label with fixed-position hover tooltip
-  const IntervalLabel = ({ interval, plan, isDarkMode }) => {
-    const [tipPos, setTipPos] = useState(null);
-    const ref = useRef(null);
-    if (!interval) return null;
-    const label = interval >= 60 ? `${interval / 60} min` : `${interval}s`;
-    let tip = '';
-    if (plan === 'free_trial')  tip = 'Free Trial check interval. Upgrade to Bronze/Silver/Gold for faster checks.';
-    else if (plan === 'bronze') tip = 'Bronze plan: 2-min checks. Upgrade to Silver or Gold for faster detection.';
-    else if (plan === 'silver') tip = 'Silver plan: 1-min checks. Upgrade to Gold for 30-second checks.';
-    else                        tip = 'Gold plan: 30-second checks — fastest available.';
-    const show = (e) => {
-      e.stopPropagation();
-      const r = ref.current?.getBoundingClientRect();
-      if (r) setTipPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
-    };
-    return (
-      <>
-        <span
-          ref={ref}
-          onMouseEnter={show}
-          onMouseLeave={() => setTipPos(null)}
-          onClick={e => e.stopPropagation()}
-          style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDarkMode ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52, cursor:'default' }}
-        >
-          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-5.96"/></svg>
-          {label}
-        </span>
-        {tipPos && (
-          <div
-            onMouseLeave={() => setTipPos(null)}
-            style={{
-              position:'fixed', top: tipPos.top, left: tipPos.left, transform:'translateX(-50%)',
-              background: isDarkMode ? '#1a2332' : '#1e293b',
-              borderRadius:10, padding:'10px 14px', maxWidth:260,
-              boxShadow:'0 12px 32px rgba(0,0,0,0.35)', zIndex:99999, pointerEvents:'none',
-            }}
-          >
-            <div style={{ position:'absolute', top:-5, left:'50%', marginLeft:-5, width:10, height:10, background: isDarkMode ? '#1a2332' : '#1e293b', transform:'rotate(45deg)' }} />
-            <div style={{ fontSize:12, fontWeight:700, color:'#a78bfa', marginBottom:4 }}>
-              Checked every {label}
-            </div>
-            <div style={{ fontSize:11, color:'#94a3b8', lineHeight:1.6 }}>{tip}</div>
-          </div>
-        )}
-      </>
-    );
-  };
-
   // Overall uptime from all sites (using historyBar)
   const allHistory = servers.flatMap(s => s.historyBar || []);
   const overallUptime = allHistory.length ? Math.round((allHistory.filter(h=>h.status==='up').length/allHistory.length)*100*10)/10 : null;
@@ -859,7 +810,10 @@ export default function Dashboard({ readOnly = false, user }) {
                   </div>
                 </div>
                 {planInterval && !readOnly && (
-                  <IntervalLabel interval={planInterval} plan={user?.plan || 'free_trial'} isDarkMode={isDark} />
+                  <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDark ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52 }}>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-5.96"/></svg>
+                    {planInterval >= 60 ? `${planInterval / 60} min` : `${planInterval}s`}
+                  </span>
                 )}
                 <div className="mon-bar-wrap">
                   <UptimeBar history={s.historyBar||[]} />
