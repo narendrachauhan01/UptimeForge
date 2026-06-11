@@ -24,6 +24,7 @@ export const deleteRecipient = (id) => api.delete(`/recipients/${id}`);
 // Alerts
 export const getAlerts = (params) => api.get('/alerts', { params });
 export const getServerIncident = (serverId) => api.get(`/alerts/server/${serverId}`);
+export const endServerIncident  = (serverId) => api.post(`/alerts/server/${serverId}/end`);
 export const getWaStatus = () => api.get('/whatsapp/status');
 
 // Public config (Google Client ID from backend)

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAlerts } from '../api';
 
 function timeAgo(d) {
@@ -14,6 +15,7 @@ function fmt(d) {
 }
 
 export default function Alerts() {
+  const navigate = useNavigate();
   const [alerts, setAlerts]       = useState([]);
   const [summary, setSummary]     = useState({ total:0, down:0, recovered:0, months:[] });
   const [total, setTotal]         = useState(0);
@@ -237,7 +239,10 @@ export default function Alerts() {
                 {alerts.map(a => {
                   const isDown = a.type === 'down';
                   return (
-                    <div key={a._id} className="incident-row">
+                    <div key={a._id} className="incident-row"
+                      style={{ cursor: a.server && a.source !== 'ping' ? 'pointer' : 'default' }}
+                      onClick={() => { if (a.server && a.source !== 'ping') navigate(`/incidents/site/${a.server}`); }}
+                    >
                       <div className={`status-icon ${isDown ? 'down' : 'recovered'}`}>{isDown ? '↓' : '↑'}</div>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>

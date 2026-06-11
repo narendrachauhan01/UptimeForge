@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const ctrl = require('../controllers/alertController');
 
 router.get('/server/:serverId', auth, ctrl.getServerIncident);
+router.post('/server/:serverId/end', auth, ctrl.endIncident);
 router.get('/', auth, ctrl.getAlerts);
 
 module.exports = router;

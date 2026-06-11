@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getServerIncident } from '../api';
+import { getServerIncident, endServerIncident } from '../api';
 
 function fmtDuration(ms) {
     if (!ms || ms < 0) return '—';
@@ -25,12 +25,27 @@ export default function IncidentDetail() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [ending, setEnding] = useState(false);
 
-    useEffect(() => {
+    const loadData = () => {
+        setLoading(true);
         getServerIncident(serverId)
             .then(r => { setData(r.data); setLoading(false); })
             .catch(e => { setError(e.response?.data?.error || 'Failed to load'); setLoading(false); });
-    }, [serverId]);
+    };
+
+    useEffect(() => { loadData(); }, [serverId]);
+
+    const handleEndIncident = async () => {
+        if (!window.confirm('Mark this incident as resolved? This will reset alert state so future downtime triggers a fresh notification.')) return;
+        setEnding(true);
+        try {
+            await endServerIncident(serverId);
+            loadData();
+        } catch (e) {
+            alert(e.response?.data?.error || 'Failed to end incident');
+        } finally { setEnding(false); }
+    };
 
     const ongoing = data?.incident?.status === 'ongoing';
 
@@ -75,10 +90,18 @@ export default function IncidentDetail() {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => navigate(`/site/${data.server._id}`)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.3)', borderRadius:9, fontSize:13, fontWeight:600, color:'#a78bfa', cursor:'pointer' }}>
-                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
-                                Go to monitor
-                            </button>
+                            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                                {ongoing && (
+                                    <button onClick={handleEndIncident} disabled={ending} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:9, fontSize:13, fontWeight:600, color:'#10b981', cursor:'pointer', opacity: ending ? 0.6 : 1 }}>
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                        {ending ? 'Ending…' : 'End Incident'}
+                                    </button>
+                                )}
+                                <button onClick={() => navigate(`/site/${data.server._id}`)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.3)', borderRadius:9, fontSize:13, fontWeight:600, color:'#a78bfa', cursor:'pointer' }}>
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+                                    Go to monitor
+                                </button>
+                            </div>
                         </div>
 
                         {/* Root cause */}

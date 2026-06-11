@@ -102,7 +102,7 @@ async function fireIntegrations(server, type, userId, statusCode) {
             try {
                 if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
                     const url = intg.config?.url;
-                    if (!url) continue;
+                    if (!url) { console.warn(`[Integration] ${intg.type} skipped — no URL configured`); continue; }
                     const data = intg.type === 'rocketchat' || intg.type === 'slack'
                         ? JSON.parse(rcSlackBody)
                         : intg.type === 'discord'
@@ -110,17 +110,23 @@ async function fireIntegrations(server, type, userId, statusCode) {
                         : payload;
                     const headers = { 'Content-Type': 'application/json' };
                     if (intg.config?.secret) headers['X-UptimeForge-Secret'] = intg.config.secret;
-                    axios.post(url, data, { headers, timeout: 10000 }).catch(() => {});
+                    console.log(`[Integration] Firing ${intg.type} for ${server.name} (${type})`);
+                    axios.post(url, data, { headers, timeout: 10000 })
+                        .then(() => console.log(`[Integration] ${intg.type} OK for ${server.name}`))
+                        .catch(e => console.error(`[Integration] ${intg.type} FAILED for ${server.name}:`, e.message));
                 }
                 if (intg.type === 'telegram') {
                     const chatId   = intg.config?.chatId;
                     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-                    if (!chatId || !botToken) continue;
-                    axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 }).catch(() => {});
+                    if (!chatId || !botToken) { console.warn(`[Integration] Telegram skipped — missing chatId or TELEGRAM_BOT_TOKEN`); continue; }
+                    console.log(`[Integration] Firing Telegram for ${server.name} (${type})`);
+                    axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
+                        .then(() => console.log(`[Integration] Telegram OK for ${server.name}`))
+                        .catch(e => console.error(`[Integration] Telegram FAILED for ${server.name}:`, e.message));
                 }
-            } catch (_) {}
+            } catch (e) { console.error(`[Integration] Exception for ${intg.type}:`, e.message); }
         }
-    } catch (_) {}
+    } catch (e) { console.error(`[Integration] fireIntegrations error:`, e.message); }
 }
 
 async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, extra) {

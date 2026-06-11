@@ -1,6 +1,32 @@
 const Alert  = require('../models/Alert');
 const Server = require('../models/Server');
 
+// POST /api/alerts/server/:serverId/end — manually resolve/end an incident
+exports.endIncident = async (req, res) => {
+    try {
+        const server = await Server.findById(req.params.serverId);
+        if (!server) return res.status(404).json({ error: 'Server not found' });
+        if (!req.isAdmin && String(server.userId) !== String(req.userId))
+            return res.status(403).json({ error: 'Forbidden' });
+
+        // Reset downAlertSent so next detection can fire fresh alerts
+        await Server.findByIdAndUpdate(server._id, { downAlertSent: false });
+
+        // Create a manual "recovered" alert to mark the incident as ended
+        await Alert.create({
+            server:     server._id,
+            userId:     req.userId,
+            serverName: server.name,
+            serverUrl:  server.url,
+            type:       'recovered',
+            message:    'Incident manually resolved',
+            sentTo:     [],
+        });
+
+        res.json({ ok: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // GET /api/alerts/server/:serverId — current incident for a server
 exports.getServerIncident = async (req, res) => {
     try {
