@@ -181,71 +181,80 @@ export default function Dashboard({ readOnly = false, user }) {
     );
   };
 
-  // Interval badge with hover tooltip
-  const IntervalBadge = ({ interval, plan, settings, isDarkMode }) => {
-    const [hovered, setHovered] = useState(false);
-    const ref = useRef(null);
+  // Interval badge with fixed-position tooltip (escapes overflow-y:auto clipping)
+  const IntervalBadge = ({ interval, plan, isDarkMode }) => {
+    const [tipPos, setTipPos] = useState(null);
+    const badgeRef = useRef(null);
     if (!interval) return null;
     const label = interval >= 60 ? `${interval / 60} min` : `${interval}s`;
-    // Tooltip content based on plan
+
     let upgradeLine = null;
     if (plan === 'free_trial' || plan === 'bronze') {
       upgradeLine = (
-        <span>We recommend at least <strong style={{color:'#10b981'}}>1-min checks</strong> available in <strong style={{color:'#a78bfa'}}>Silver/Gold plans</strong> to spot incidents faster.</span>
+        <span>We recommend at least <strong style={{color:'#10b981'}}>1-min checks</strong> available in <strong style={{color:'#a78bfa'}}>Silver/Gold plans</strong> to catch incidents 5× faster.</span>
       );
     } else if (plan === 'silver') {
       upgradeLine = (
-        <span>Upgrade to <strong style={{color:'#a78bfa'}}>Gold plan</strong> for <strong style={{color:'#10b981'}}>30-second checks</strong> — 2x faster detection.</span>
+        <span>Upgrade to <strong style={{color:'#a78bfa'}}>Gold plan</strong> for <strong style={{color:'#10b981'}}>30-second checks</strong> — 2× faster incident detection.</span>
       );
-    } else if (plan === 'gold') {
+    } else {
       upgradeLine = <span style={{color:'#10b981'}}>✓ You have the fastest check interval available.</span>;
     }
+
+    const handleEnter = () => {
+      if (badgeRef.current) {
+        const r = badgeRef.current.getBoundingClientRect();
+        setTipPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
+      }
+    };
+
     return (
-      <span
-        ref={ref}
-        style={{ position:'relative', display:'inline-flex', alignItems:'center' }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <span style={{
-          display:'inline-flex', alignItems:'center', gap:4,
-          padding:'2px 8px', borderRadius:20,
-          background: isDarkMode ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.08)',
-          border:'1px solid rgba(124,58,237,0.2)',
-          fontSize:11, fontWeight:600, color:'#a78bfa', cursor:'default',
-          userSelect:'none',
-        }}>
+      <>
+        <span
+          ref={badgeRef}
+          onMouseEnter={handleEnter}
+          onMouseLeave={() => setTipPos(null)}
+          onClick={e => e.stopPropagation()}
+          style={{
+            display:'inline-flex', alignItems:'center', gap:4,
+            padding:'3px 9px', borderRadius:20,
+            background: isDarkMode ? 'rgba(124,58,237,0.18)' : 'rgba(124,58,237,0.08)',
+            border:'1px solid rgba(124,58,237,0.25)',
+            fontSize:11, fontWeight:600, color:'#a78bfa', cursor:'default',
+            userSelect:'none', flexShrink:0,
+          }}
+        >
           <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           {label}
         </span>
-        {hovered && (
+        {tipPos && (
           <div style={{
-            position:'absolute', bottom:'calc(100% + 8px)', left:'50%', transform:'translateX(-50%)',
-            background: isDarkMode ? '#1e2a3a' : '#fff',
-            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
-            borderRadius:12, padding:'12px 14px', minWidth:220, maxWidth:280,
-            boxShadow:'0 12px 32px rgba(0,0,0,0.25)', zIndex:99999,
+            position:'fixed', top: tipPos.top, left: tipPos.left,
+            transform:'translateX(-50%)',
+            background: isDarkMode ? '#1a2332' : '#fff',
+            border: isDarkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
+            borderRadius:12, padding:'12px 16px', width:260,
+            boxShadow:'0 16px 40px rgba(0,0,0,0.3)', zIndex:99999,
             pointerEvents:'none',
           }}>
+            {/* Arrow up */}
+            <div style={{
+              position:'absolute', top:-6, left:'50%', marginLeft:-5,
+              width:10, height:10,
+              background: isDarkMode ? '#1a2332' : '#fff',
+              border: isDarkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
+              borderBottom:'none', borderRight:'none',
+              transform:'rotate(45deg)',
+            }}/>
             <div style={{fontSize:13,fontWeight:700,color: isDarkMode?'#f8fafc':'#0f172a',marginBottom:6}}>
               Checked every <span style={{color:'#a78bfa'}}>{label}</span>
             </div>
-            {upgradeLine && (
-              <div style={{fontSize:12,color: isDarkMode?'#94a3b8':'#64748b',lineHeight:1.5}}>
-                {upgradeLine}
-              </div>
-            )}
-            {/* Arrow */}
-            <div style={{
-              position:'absolute', bottom:-6, left:'50%', transform:'translateX(-50%)',
-              width:10, height:10, background: isDarkMode?'#1e2a3a':'#fff',
-              border: isDarkMode?'1px solid rgba(255,255,255,0.1)':'1px solid #e2e8f0',
-              borderTop:'none', borderLeft:'none',
-              transform:'translateX(-50%) rotate(45deg)',
-            }}/>
+            <div style={{fontSize:12,color: isDarkMode?'#94a3b8':'#64748b',lineHeight:1.6}}>
+              {upgradeLine}
+            </div>
           </div>
         )}
-      </span>
+      </>
     );
   };
 
@@ -879,22 +888,18 @@ export default function Dashboard({ readOnly = false, user }) {
                         <span className="mon-resp" style={{color: s.responseTime<500?'#10b981':s.responseTime<1200?'#f59e0b':'#f43f5e'}}>{s.responseTime}ms</span>
                       </>
                     )}
-                    {planInterval && !readOnly && (
-                      <>
-                        <span className="mon-sep">·</span>
-                        <IntervalBadge
-                          interval={planInterval}
-                          plan={user?.plan || 'free_trial'}
-                          settings={planSettings}
-                          isDarkMode={isDark}
-                        />
-                      </>
-                    )}
                   </div>
                 </div>
                 <div className="mon-bar-wrap">
                   <UptimeBar history={s.historyBar||[]} />
                 </div>
+                {planInterval && !readOnly && (
+                  <IntervalBadge
+                    interval={planInterval}
+                    plan={user?.plan || 'free_trial'}
+                    isDarkMode={isDark}
+                  />
+                )}
                 {!readOnly && (
                   <button
                     className="mon-del-btn"
