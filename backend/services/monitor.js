@@ -117,7 +117,10 @@ async function fireIntegrations(server, type, userId, statusCode) {
                     notifLog('INFO', intg.type.toUpperCase(), server.name, userId, `firing (event:${type})`);
                     axios.post(url, data, { headers, timeout: 10000 })
                         .then(() => notifLog('INFO', intg.type.toUpperCase(), server.name, userId, `OK`))
-                        .catch(e => notifLog('ERROR', intg.type.toUpperCase(), server.name, userId, `FAILED: ${e.message}`));
+                        .catch(e => {
+                            const detail = e.response?.data?.message || e.response?.data?.error || e.response?.data?.description || e.message || String(e);
+                            notifLog('ERROR', intg.type.toUpperCase(), server.name, userId, `FAILED (HTTP ${e.response?.status || 'N/A'}): ${detail}`);
+                        });
                 }
                 if (intg.type === 'telegram') {
                     const chatId   = intg.config?.chatId;
@@ -129,11 +132,14 @@ async function fireIntegrations(server, type, userId, statusCode) {
                     notifLog('INFO', 'TELEGRAM', server.name, userId, `firing (event:${type})`);
                     axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
                         .then(() => notifLog('INFO', 'TELEGRAM', server.name, userId, `OK`))
-                        .catch(e => notifLog('ERROR', 'TELEGRAM', server.name, userId, `FAILED: ${e.message}`));
+                        .catch(e => {
+                            const detail = e.response?.data?.description || e.response?.data?.error || e.message || String(e);
+                            notifLog('ERROR', 'TELEGRAM', server.name, userId, `FAILED (HTTP ${e.response?.status || 'N/A'}): ${detail}`);
+                        });
                 }
             } catch (e) { notifLog('ERROR', intg.type?.toUpperCase() || 'UNKNOWN', server.name, userId, `Exception: ${e.message}`); }
         }
-    } catch (e) { console.error(`[Integration] fireIntegrations error:`, e.message); }
+    } catch (e) { notifLog('ERROR', 'SYSTEM', server.name, '', `fireIntegrations error: ${e.message}`); }
 }
 
 async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, extra) {
@@ -207,7 +213,10 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
                     notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `expiry firing (${expiryType}, ${daysLeft}d left)`);
                     axios.post(url, data, { headers, timeout: 10000 })
                         .then(() => notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `expiry OK`))
-                        .catch(e => notifLog('ERROR', intg.type.toUpperCase(), server.name, uid, `expiry FAILED: ${e.message}`));
+                        .catch(e => {
+                            const detail = e.response?.data?.message || e.response?.data?.error || e.message || String(e);
+                            notifLog('ERROR', intg.type.toUpperCase(), server.name, uid, `expiry FAILED (HTTP ${e.response?.status || 'N/A'}): ${detail}`);
+                        });
                 }
                 if (intg.type === 'telegram') {
                     const chatId   = intg.config?.chatId;
@@ -219,7 +228,10 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
                     notifLog('INFO', 'TELEGRAM', server.name, uid, `expiry firing (${expiryType}, ${daysLeft}d left)`);
                     axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
                         .then(() => notifLog('INFO', 'TELEGRAM', server.name, uid, `expiry OK`))
-                        .catch(e => notifLog('ERROR', 'TELEGRAM', server.name, uid, `expiry FAILED: ${e.message}`));
+                        .catch(e => {
+                            const detail = e.response?.data?.description || e.response?.data?.error || e.message || String(e);
+                            notifLog('ERROR', 'TELEGRAM', server.name, uid, `expiry FAILED (HTTP ${e.response?.status || 'N/A'}): ${detail}`);
+                        });
                 }
             } catch (e) { notifLog('ERROR', intg.type?.toUpperCase() || 'UNKNOWN', server.name, uid, `expiry Exception: ${e.message}`); }
         }
@@ -385,7 +397,7 @@ async function checkOne(server, settings, recipients) {
         console.log(`[Monitor] ${server.name} → ${alertType.toUpperCase()} alert | recipients: ${eligible.length} | emails: ${eligible.filter(r=>r.email).map(r=>r.email).join(',')||'none'}`);
         sendAlerts(server, eligible, alertType === 'recovered' ? 'recovered' : 'down', alertDetail, result.code)
             .catch(e => console.error(`[Monitor] sendAlerts FAILED for ${server.name}:`, e.message));
-        fireIntegrations(server, intType, userId, result.code).catch(() => {});
+        fireIntegrations(server, intType, userId, result.code).catch(e => notifLog('ERROR', 'SYSTEM', server.name, String(userId), `fireIntegrations unhandled: ${e.message}`));
     }
 }
 
