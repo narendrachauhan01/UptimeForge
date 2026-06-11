@@ -5028,3 +5028,17 @@ body.charts-dark-theme .pricing-card-popular {
     border-radius: 16px;
   }
 }
+
+/* ── Upgrade Gate Theme Compatibility ── */
+.upgrade-gate-title {
+  color: #1e1b4b;
+}
+.upgrade-gate-desc {
+  color: #64748b;
+}
+.charts-dark-theme .upgrade-gate-title {
+  color: #f8fafc !important;
+}
+.charts-dark-theme .upgrade-gate-desc {
+  color: #94a3b8 !important;
+}

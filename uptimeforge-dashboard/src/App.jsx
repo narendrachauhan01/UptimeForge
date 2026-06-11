@@ -352,8 +352,8 @@ function UpgradeGate({ user, feature }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:320, padding:40, textAlign:'center' }}>
       <div style={{ fontSize:48, marginBottom:16 }}>🔒</div>
-      <h2 style={{ fontSize:20, fontWeight:800, color:'#1e1b4b', margin:'0 0 8px' }}>{feature} — Not Available</h2>
-      <p style={{ fontSize:14, color:'#64748b', maxWidth:360, lineHeight:1.7, margin:'0 0 24px' }}>
+      <h2 className="upgrade-gate-title" style={{ fontSize:20, fontWeight:800, margin:'0 0 8px' }}>{feature} — Not Available</h2>
+      <p className="upgrade-gate-desc" style={{ fontSize:14, maxWidth:360, lineHeight:1.7, margin:'0 0 24px' }}>
         This feature is not available on your current plan. Contact support or upgrade your plan to unlock it.
       </p>
       <Link to="/account" style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', padding:'12px 28px', borderRadius:12, fontWeight:700, fontSize:14, textDecoration:'none' }}>
@@ -364,7 +364,29 @@ function UpgradeGate({ user, feature }) {
 }
 
 function AppInner() {
-  const theme = 'light';
+  const [theme, setTheme] = useState(() => {
+    const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+    return match ? match[1] : 'dark';
+  });
+
+  useEffect(() => {
+    const check = () => {
+      const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
+      const currentTheme = match ? match[1] : 'dark';
+      if (currentTheme !== theme) setTheme(currentTheme);
+    };
+    check();
+    const interval = setInterval(check, 1000);
+    return () => clearInterval(interval);
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('charts-dark-theme');
+    } else {
+      document.body.classList.remove('charts-dark-theme');
+    }
+  }, [theme]);
   const [authed, setAuthed] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
