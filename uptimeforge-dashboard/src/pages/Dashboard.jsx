@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useConfirm } from '../components/ConfirmDialog';
 let _loaded = false;
 import { useNavigate } from 'react-router-dom';
-import { getServers, checkNow, deleteServer, getPlans } from '../api';
+import { getServers, checkNow, deleteServer } from '../api';
 
 function NewDropdown({ onNavigate }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ function NewDropdown({ onNavigate }) {
   );
 }
 
-export default function Dashboard({ readOnly = false, user }) {
+export default function Dashboard({ readOnly = false }) {
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
@@ -50,8 +50,6 @@ export default function Dashboard({ readOnly = false, user }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
-  const [planInterval, setPlanInterval] = useState(null);
-  const [planSettings, setPlanSettings] = useState(null);
 
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -95,19 +93,6 @@ export default function Dashboard({ readOnly = false, user }) {
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    getPlans().then(r => {
-      const s = r.data;
-      setPlanSettings(s);
-      const plan = user.plan || 'free_trial';
-      const iv = plan === 'free_trial'
-        ? (s.freeTrialInterval || 300)
-        : (s.plans?.[plan]?.interval || 60);
-      setPlanInterval(iv);
-    }).catch(() => {});
-  }, [user?.plan]);
 
   const getExpiryClass = (days) => {
     if (days == null) return 'expiry-na';
@@ -178,83 +163,6 @@ export default function Dashboard({ readOnly = false, user }) {
           {upPct !== null ? `${upPct}%` : '—'}
         </span>
       </div>
-    );
-  };
-
-  // Interval badge with fixed-position tooltip (escapes overflow-y:auto clipping)
-  const IntervalBadge = ({ interval, plan, isDarkMode }) => {
-    const [tipPos, setTipPos] = useState(null);
-    const badgeRef = useRef(null);
-    if (!interval) return null;
-    const label = interval >= 60 ? `${interval / 60} min` : `${interval}s`;
-
-    let upgradeLine = null;
-    if (plan === 'free_trial' || plan === 'bronze') {
-      upgradeLine = (
-        <span>We recommend at least <strong style={{color:'#10b981'}}>1-min checks</strong> available in <strong style={{color:'#a78bfa'}}>Silver/Gold plans</strong> to catch incidents 5× faster.</span>
-      );
-    } else if (plan === 'silver') {
-      upgradeLine = (
-        <span>Upgrade to <strong style={{color:'#a78bfa'}}>Gold plan</strong> for <strong style={{color:'#10b981'}}>30-second checks</strong> — 2× faster incident detection.</span>
-      );
-    } else {
-      upgradeLine = <span style={{color:'#10b981'}}>✓ You have the fastest check interval available.</span>;
-    }
-
-    const handleEnter = () => {
-      if (badgeRef.current) {
-        const r = badgeRef.current.getBoundingClientRect();
-        setTipPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
-      }
-    };
-
-    return (
-      <>
-        <span
-          ref={badgeRef}
-          onMouseEnter={handleEnter}
-          onMouseLeave={() => setTipPos(null)}
-          onClick={e => e.stopPropagation()}
-          style={{
-            display:'inline-flex', alignItems:'center', gap:4,
-            padding:'3px 9px', borderRadius:20,
-            background: isDarkMode ? 'rgba(124,58,237,0.18)' : 'rgba(124,58,237,0.08)',
-            border:'1px solid rgba(124,58,237,0.25)',
-            fontSize:11, fontWeight:600, color:'#a78bfa', cursor:'default',
-            userSelect:'none', flexShrink:0,
-          }}
-        >
-          <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          {label}
-        </span>
-        {tipPos && (
-          <div style={{
-            position:'fixed', top: tipPos.top, left: tipPos.left,
-            transform:'translateX(-50%)',
-            background: isDarkMode ? '#1a2332' : '#fff',
-            border: isDarkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
-            borderRadius:12, padding:'12px 16px', width:260,
-            boxShadow:'0 16px 40px rgba(0,0,0,0.3)', zIndex:99999,
-            pointerEvents:'none',
-          }}>
-            {/* Arrow up */}
-            <div style={{
-              position:'absolute', top:-6, left:'50%', marginLeft:-5,
-              width:10, height:10,
-              background: isDarkMode ? '#1a2332' : '#fff',
-              border: isDarkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
-              borderBottom:'none', borderRight:'none',
-              transform:'rotate(45deg)',
-            }}/>
-            <div style={{fontSize:13,fontWeight:700,color: isDarkMode?'#f8fafc':'#0f172a',marginBottom:6}}>
-              Checked every <span style={{color:'#a78bfa'}}>{label}</span>
-            </div>
-            <div style={{fontSize:12,color: isDarkMode?'#94a3b8':'#64748b',lineHeight:1.6}}>
-              {upgradeLine}
-            </div>
-          </div>
-        )}
-      </>
     );
   };
 
@@ -893,13 +801,6 @@ export default function Dashboard({ readOnly = false, user }) {
                 <div className="mon-bar-wrap">
                   <UptimeBar history={s.historyBar||[]} />
                 </div>
-                {planInterval && !readOnly && (
-                  <IntervalBadge
-                    interval={planInterval}
-                    plan={user?.plan || 'free_trial'}
-                    isDarkMode={isDark}
-                  />
-                )}
                 {!readOnly && (
                   <button
                     className="mon-del-btn"
