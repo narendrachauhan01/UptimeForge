@@ -674,6 +674,18 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         } catch (e) { showToast(e.response?.data?.error || 'Failed to assign plan'); }
     };
 
+    const deletePlanHistoryRecord = async (recordId, userId) => {
+        const ok = await confirm('Delete this plan history record permanently?', { title:'Delete Record', confirmText:'Delete', danger:true });
+        if (!ok) return;
+        try {
+            await axios.delete(`${API_URL}/api/admin/plan-history/${recordId}`, { withCredentials: true });
+            showToast('Record deleted');
+            // Refresh modal records
+            const r = await axios.get(`${API_URL}/api/admin/plan-history/user/${userId}`, { withCredentials: true });
+            setUserHistoryModal(prev => ({ ...prev, records: r.data.records }));
+        } catch (e) { showToast(e.response?.data?.error || 'Delete failed'); }
+    };
+
     const deletePayment = async (id) => {
         const ok = await confirm('Delete this payment record permanently?', { title:'Delete Payment', confirmText:'Delete', danger:true });
         if (!ok) return;
@@ -2390,7 +2402,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
                                     <thead>
                                         <tr style={{ background: T.headerBg, position:'sticky', top:0, zIndex:1 }}>
-                                            {['#', 'Plan', 'Billing', 'Amount', 'Type', 'Payment ID', 'Purchase Date', 'Expires On'].map(h => (
+                                            {['#', 'Plan', 'Billing', 'Amount', 'Type', 'Payment ID', 'Purchase Date', 'Expires On', ''].map(h => (
                                                 <th key={h} style={{ padding:'10px 14px', textAlign:'left', fontSize:10, fontWeight:700, color:T.muted, textTransform:'uppercase', letterSpacing:'0.5px', borderBottom:`1px solid ${T.border}`, whiteSpace:'nowrap' }}>{h}</th>
                                             ))}
                                         </tr>
@@ -2437,6 +2449,12 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                                 <div style={{ fontSize:10, opacity:0.8 }}>{isExpired ? '✕ Expired' : '✓ Active'}</div>
                                                             </span>
                                                         ) : <span style={{ color:T.muted }}>—</span>}
+                                                    </td>
+                                                    <td style={{ padding:'10px 14px' }}>
+                                                        <button onClick={() => deletePlanHistoryRecord(r._id, userHistoryModal.user._id)}
+                                                            style={{ padding:'4px 10px', fontSize:11, fontWeight:700, background:'rgba(239,68,68,0.1)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)', borderRadius:6, cursor:'pointer' }}>
+                                                            🗑 Delete
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             );

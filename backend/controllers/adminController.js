@@ -522,6 +522,16 @@ exports.getUserPlanHistory = async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
+// DELETE /api/admin/plan-history/:id
+exports.deletePlanHistory = async (req, res) => {
+    try {
+        const PaymentRequest = require('../models/PaymentRequest');
+        const record = await PaymentRequest.findByIdAndDelete(req.params.id);
+        if (!record) return res.status(404).json({ error: 'Record not found' });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // POST /api/admin/clear-cache
 exports.clearCache = async (req, res) => {
     try {
