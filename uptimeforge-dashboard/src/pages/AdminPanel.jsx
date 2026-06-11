@@ -499,20 +499,24 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const startEdit = (u) => {
         setEditModal(u);
         setEditId(u._id?.toString());
-        setEditForm({
-            plan: u.plan,
-            isBlocked: u.isBlocked,
-            planEndsAt: u.planEndsAt ? new Date(u.planEndsAt).toISOString().split('T')[0] : '',
-        });
+        const dateVal = u.plan === 'free_trial'
+            ? (u.trialEndsAt ? new Date(u.trialEndsAt).toISOString().split('T')[0] : '')
+            : (u.planEndsAt  ? new Date(u.planEndsAt).toISOString().split('T')[0]  : '');
+        setEditForm({ plan: u.plan, isBlocked: u.isBlocked, planEndsAt: dateVal });
     };
 
     const saveEdit = async () => {
         try {
-            await adminUpdateUser(editId, { plan: editForm.plan, isBlocked: editForm.isBlocked, planEndsAt: editForm.planEndsAt || undefined });
+            await adminUpdateUser(editId, {
+                plan: editForm.plan,
+                isBlocked: editForm.isBlocked,
+                planEndsAt: editForm.planEndsAt || undefined,
+                trialEndsAt: editForm.plan === 'free_trial' && editForm.planEndsAt ? editForm.planEndsAt : undefined,
+            });
             setEditId(null);
-            showToast('User updated');
+            showToast('✅ User updated');
             load();
-        } catch (e) { showToast(e.response?.data?.error || 'Update failed'); }
+        } catch (e) { showToast('❌ ' + (e.response?.data?.error || 'Update failed')); }
     };
 
     const extendTrial = async (id, name) => {
@@ -2269,7 +2273,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 </select>
                             </div>
                             <div>
-                                <label style={{ fontSize:12, fontWeight:700, color:T.sub, display:'block', marginBottom:6 }}>Plan Ends At</label>
+                                <label style={{ fontSize:12, fontWeight:700, color:T.sub, display:'block', marginBottom:6 }}>{editForm.plan === 'free_trial' ? 'Trial Ends At' : 'Plan Ends At'}</label>
                                 <input type="date" style={inputSt} value={editForm.planEndsAt} onChange={e => setEditForm({ ...editForm, planEndsAt: e.target.value })} />
                             </div>
                             <label style={{ display:'flex', alignItems:'center', gap:8, cursor:'pointer', fontSize:13, fontWeight:600, color:T.text }}>

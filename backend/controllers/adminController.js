@@ -47,7 +47,11 @@ exports.updateUser = async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        if (plan !== undefined) user.plan = plan;
+        if (plan !== undefined) {
+            user.plan = plan;
+            // When assigning a paid plan, mark trial as verified so monitor runs
+            if (['bronze', 'silver', 'gold'].includes(plan)) user.trialVerified = true;
+        }
         if (billing !== undefined) user.billing = billing;
         if (planDuration !== undefined) user.planDuration = planDuration;
         if (planEndsAt !== undefined) user.planEndsAt = new Date(planEndsAt);
@@ -59,8 +63,7 @@ exports.updateUser = async (req, res) => {
             user.trialEndsAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
         }
 
-        user.$__.saveOptions = { validateModifiedOnly: true };
-        await user.save();
+        await user.save({ validateModifiedOnly: true });
 
         // Save plan history records for admin actions
         try {
