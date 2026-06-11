@@ -1,6 +1,47 @@
 const Alert  = require('../models/Alert');
 const Server = require('../models/Server');
 
+// GET /api/alerts/server/:serverId — current incident for a server
+exports.getServerIncident = async (req, res) => {
+    try {
+        const server = await Server.findById(req.params.serverId);
+        if (!server) return res.status(404).json({ error: 'Server not found' });
+        if (!req.isAdmin && String(server.userId) !== String(req.userId))
+            return res.status(403).json({ error: 'Forbidden' });
+
+        // Last 90 days of alerts for this server, newest first
+        const alerts = await Alert.find({
+            server: server._id,
+            createdAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+        }).sort('-createdAt').limit(100);
+
+        // Find the most recent "down" alert — that starts the current incident
+        const lastDown = alerts.find(a => a.type === 'down');
+        if (!lastDown) return res.json({ server, incident: null, activity: [] });
+
+        // Find the first "recovered" alert AFTER the down started
+        const recovery = alerts.find(a => a.type === 'recovered' && a.createdAt > lastDown.createdAt);
+
+        // Activity = all alerts from the down event up to recovery (or now)
+        const cutoff = recovery ? recovery.createdAt : new Date();
+        const activity = alerts.filter(a => a.createdAt >= lastDown.createdAt && a.createdAt <= cutoff);
+
+        const durationMs = (recovery ? recovery.createdAt : new Date()) - new Date(lastDown.createdAt);
+
+        res.json({
+            server: { _id: server._id, name: server.name, url: server.url, status: server.status },
+            incident: {
+                status: recovery ? 'resolved' : 'ongoing',
+                startedAt: lastDown.createdAt,
+                resolvedAt: recovery?.createdAt || null,
+                durationMs,
+                rootCause: lastDown.message || 'Site unreachable',
+            },
+            activity,
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 const PAGE_SIZE = 20;
 
 // GET /api/alerts

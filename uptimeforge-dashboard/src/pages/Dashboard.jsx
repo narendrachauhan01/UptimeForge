@@ -834,6 +834,15 @@ export default function Dashboard({ readOnly = false, user }) {
                     )}
                   </div>
                 </div>
+                {s.status === 'down' && !readOnly && (
+                  <button
+                    onClick={e => { e.stopPropagation(); navigate(`/incidents/site/${s._id}`); }}
+                    style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 11px', background:'rgba(244,63,94,0.1)', border:'1px solid rgba(244,63,94,0.25)', borderRadius:8, fontSize:12, fontWeight:600, color:'#f43f5e', cursor:'pointer', flexShrink:0, whiteSpace:'nowrap' }}
+                  >
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    View incident
+                  </button>
+                )}
                 {planInterval && !readOnly && (
                   <span
                     ref={intervalRef}

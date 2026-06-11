@@ -15,6 +15,7 @@ const PlanSettings      = lazy(() => import('./pages/PlanSettings'));
 const FeatureAccess     = lazy(() => import('./pages/FeatureAccess'));
 const PingMonitor       = lazy(() => import('./pages/PingMonitor'));
 const SiteDetail        = lazy(() => import('./pages/SiteDetail'));
+const IncidentDetail    = lazy(() => import('./pages/IncidentDetail'));
 const Reports           = lazy(() => import('./pages/Reports'));
 const AddMonitor        = lazy(() => import('./pages/AddMonitor'));
 const Login             = lazy(() => import('./pages/Login'));
@@ -725,6 +726,7 @@ function AppInner() {
               {isAdmin && <Route path="/deleted-users" element={<DeletedUsers />} />}
               {isAdmin && <Route path="/staff-management" element={<StaffManagement />} />}
               <Route path="/site/:id" element={<SiteDetail />} />
+              <Route path="/incidents/site/:serverId" element={<IncidentDetail />} />
               <Route path="/add-monitor" element={<AddMonitor user={user} />} />
               <Route path="/integrations" element={<Integrations user={user} freeAccess={freeAccess} bronzeAccess={bronzeAccess} silverAccess={silverAccess} goldAccess={goldAccess} />} />
               <Route path="/reports" element={(() => {
