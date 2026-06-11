@@ -700,7 +700,7 @@ function AppInner() {
             <Routes>
               <Route path="/verify-account" element={<VerifyAccount user={user} />} />
               <Route path="/complete-profile" element={<CompleteProfile user={user} onComplete={handleUserUpdate} />} />
-              <Route path="/monitoring" element={<Dashboard readOnly={planExpired} />} />
+              <Route path="/monitoring" element={<Dashboard readOnly={planExpired} user={user} />} />
               <Route path="/dashboard" element={<Navigate to="/monitoring" replace />} />
               <Route path="/alerts" element={<Navigate to="/incidents" replace />} />
               <Route path="/charts" element={<Navigate to="/performance" replace />} />

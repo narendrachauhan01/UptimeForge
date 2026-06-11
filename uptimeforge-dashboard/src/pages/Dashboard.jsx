@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useConfirm } from '../components/ConfirmDialog';
 let _loaded = false;
 import { useNavigate } from 'react-router-dom';
-import { getServers, checkNow, deleteServer } from '../api';
+import { getServers, checkNow, deleteServer, getPlans } from '../api';
 
 function NewDropdown({ onNavigate }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ function NewDropdown({ onNavigate }) {
   );
 }
 
-export default function Dashboard({ readOnly = false }) {
+export default function Dashboard({ readOnly = false, user }) {
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
@@ -50,6 +50,8 @@ export default function Dashboard({ readOnly = false }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
+  const [planInterval, setPlanInterval] = useState(null);
+  const [planSettings, setPlanSettings] = useState(null);
 
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -93,6 +95,19 @@ export default function Dashboard({ readOnly = false }) {
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getPlans().then(r => {
+      const s = r.data;
+      setPlanSettings(s);
+      const plan = user.plan || 'free_trial';
+      const iv = plan === 'free_trial'
+        ? (s.freeTrialInterval || 300)
+        : (s.plans?.[plan]?.interval || 60);
+      setPlanInterval(iv);
+    }).catch(() => {});
+  }, [user?.plan]);
 
   const getExpiryClass = (days) => {
     if (days == null) return 'expiry-na';
@@ -163,6 +178,74 @@ export default function Dashboard({ readOnly = false }) {
           {upPct !== null ? `${upPct}%` : '—'}
         </span>
       </div>
+    );
+  };
+
+  // Interval badge with hover tooltip
+  const IntervalBadge = ({ interval, plan, settings, isDarkMode }) => {
+    const [hovered, setHovered] = useState(false);
+    const ref = useRef(null);
+    if (!interval) return null;
+    const label = interval >= 60 ? `${interval / 60} min` : `${interval}s`;
+    // Tooltip content based on plan
+    let upgradeLine = null;
+    if (plan === 'free_trial' || plan === 'bronze') {
+      upgradeLine = (
+        <span>We recommend at least <strong style={{color:'#10b981'}}>1-min checks</strong> available in <strong style={{color:'#a78bfa'}}>Silver/Gold plans</strong> to spot incidents faster.</span>
+      );
+    } else if (plan === 'silver') {
+      upgradeLine = (
+        <span>Upgrade to <strong style={{color:'#a78bfa'}}>Gold plan</strong> for <strong style={{color:'#10b981'}}>30-second checks</strong> — 2x faster detection.</span>
+      );
+    } else if (plan === 'gold') {
+      upgradeLine = <span style={{color:'#10b981'}}>✓ You have the fastest check interval available.</span>;
+    }
+    return (
+      <span
+        ref={ref}
+        style={{ position:'relative', display:'inline-flex', alignItems:'center' }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <span style={{
+          display:'inline-flex', alignItems:'center', gap:4,
+          padding:'2px 8px', borderRadius:20,
+          background: isDarkMode ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.08)',
+          border:'1px solid rgba(124,58,237,0.2)',
+          fontSize:11, fontWeight:600, color:'#a78bfa', cursor:'default',
+          userSelect:'none',
+        }}>
+          <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {label}
+        </span>
+        {hovered && (
+          <div style={{
+            position:'absolute', bottom:'calc(100% + 8px)', left:'50%', transform:'translateX(-50%)',
+            background: isDarkMode ? '#1e2a3a' : '#fff',
+            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+            borderRadius:12, padding:'12px 14px', minWidth:220, maxWidth:280,
+            boxShadow:'0 12px 32px rgba(0,0,0,0.25)', zIndex:99999,
+            pointerEvents:'none',
+          }}>
+            <div style={{fontSize:13,fontWeight:700,color: isDarkMode?'#f8fafc':'#0f172a',marginBottom:6}}>
+              Checked every <span style={{color:'#a78bfa'}}>{label}</span>
+            </div>
+            {upgradeLine && (
+              <div style={{fontSize:12,color: isDarkMode?'#94a3b8':'#64748b',lineHeight:1.5}}>
+                {upgradeLine}
+              </div>
+            )}
+            {/* Arrow */}
+            <div style={{
+              position:'absolute', bottom:-6, left:'50%', transform:'translateX(-50%)',
+              width:10, height:10, background: isDarkMode?'#1e2a3a':'#fff',
+              border: isDarkMode?'1px solid rgba(255,255,255,0.1)':'1px solid #e2e8f0',
+              borderTop:'none', borderLeft:'none',
+              transform:'translateX(-50%) rotate(45deg)',
+            }}/>
+          </div>
+        )}
+      </span>
     );
   };
 
@@ -794,6 +877,17 @@ export default function Dashboard({ readOnly = false }) {
                       <>
                         <span className="mon-sep">·</span>
                         <span className="mon-resp" style={{color: s.responseTime<500?'#10b981':s.responseTime<1200?'#f59e0b':'#f43f5e'}}>{s.responseTime}ms</span>
+                      </>
+                    )}
+                    {planInterval && !readOnly && (
+                      <>
+                        <span className="mon-sep">·</span>
+                        <IntervalBadge
+                          interval={planInterval}
+                          plan={user?.plan || 'free_trial'}
+                          settings={planSettings}
+                          isDarkMode={isDark}
+                        />
                       </>
                     )}
                   </div>
