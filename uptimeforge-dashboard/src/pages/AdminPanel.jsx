@@ -2345,9 +2345,9 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
             {/* ── User Plan History Modal ── */}
             {userHistoryModal && (
-                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)', zIndex:700, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}
+                <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)', zIndex:700, display:'flex', alignItems:'center', justifyContent:'center', padding:'16px 10px' }}
                     onClick={() => setUserHistoryModal(null)}>
-                    <div style={{ background: T.card, borderRadius:16, boxShadow:'0 20px 60px rgba(0,0,0,0.4)', width:'100%', maxWidth:820, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden' }}
+                    <div style={{ background: T.card, borderRadius:16, boxShadow:'0 20px 60px rgba(0,0,0,0.4)', width:'100%', maxWidth:'min(98vw, 1180px)', maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden' }}
                         onClick={e => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div style={{ padding:'20px 24px', borderBottom:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
@@ -2389,7 +2389,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             </div>
                         )}
                         {/* Records Table */}
-                        <div style={{ overflowY:'auto', flex:1 }}>
+                        <div style={{ overflowY:'auto', overflowX:'auto', flex:1 }}>
                             {userHistoryLoading ? (
                                 <div style={{ padding:40, textAlign:'center', color:T.muted }}>Loading history...</div>
                             ) : userHistoryModal.records.length === 0 ? (
