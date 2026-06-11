@@ -37,6 +37,20 @@ const STYLES = `
     background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0) 70%);
   }
 
+  .perf-bg-glow-2 {
+    position: absolute;
+    bottom: -150px;
+    left: 5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, rgba(59, 130, 246, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .rpt-page.dark .perf-bg-glow-2 {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, rgba(59, 130, 246, 0) 70%);
+  }
+
   /* Light Theme */
   .rpt-page.light {
     --bg-primary: #f8fafc;
@@ -828,6 +842,7 @@ export default function Reports() {
             
             {/* Background glows for premium ambient feel */}
             <div className="perf-bg-glow-1" />
+            <div className="perf-bg-glow-2" />
 
             {delConfirm && (
                 <div className="del-overlay" onClick={() => setDelConfirm(null)}>
