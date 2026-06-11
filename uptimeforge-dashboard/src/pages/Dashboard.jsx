@@ -51,6 +51,8 @@ export default function Dashboard({ readOnly = false, user }) {
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
   const [planInterval, setPlanInterval] = useState(null);
+  const [intervalTip, setIntervalTip] = useState(null);
+  const intervalRef = useRef(null);
 
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -188,7 +190,30 @@ export default function Dashboard({ readOnly = false, user }) {
   return (
     <div className={`perf-page-container ${localTheme}`}>
       <ConfirmDialog />
-      
+
+      {/* Interval hover tooltip — fixed position, escapes overflow clipping */}
+      {intervalTip && (() => {
+        const ivLabel = planInterval >= 60 ? `${planInterval / 60} min` : `${planInterval}s`;
+        const plan = user?.plan || 'free_trial';
+        let body = null;
+        if (plan === 'free_trial' || plan === 'bronze') {
+          body = <>We recommend to use at least <strong style={{color:'#fff'}}>1-minute checks</strong> available in <strong style={{color:'#818cf8',textDecoration:'underline',cursor:'pointer'}}>paid plans</strong> to spot incident 5x faster.</>;
+        } else if (plan === 'silver') {
+          body = <>Upgrade to <strong style={{color:'#fff'}}>Gold plan</strong> for <strong style={{color:'#818cf8'}}>30-second checks</strong> to spot incidents 2x faster.</>;
+        } else {
+          body = <><strong style={{color:'#4ade80'}}>✓ Fastest interval</strong> — you're on the Gold plan with 30-second checks.</>;
+        }
+        return (
+          <div style={{ position:'fixed', top: intervalTip.top, left: intervalTip.left, transform:'translateX(-50%)', zIndex:99999, pointerEvents:'none' }}>
+            <div style={{ background:'#1e293b', borderRadius:10, padding:'12px 16px', width:260, boxShadow:'0 16px 40px rgba(0,0,0,0.5)', border:'1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ position:'absolute', top:-6, left:'50%', marginLeft:-5, width:10, height:10, background:'#1e293b', border:'1px solid rgba(255,255,255,0.08)', borderBottom:'none', borderRight:'none', transform:'rotate(45deg)' }} />
+              <div style={{ fontSize:13, fontWeight:700, color:'#f8fafc', marginBottom:6 }}>Checked every {ivLabel}</div>
+              <div style={{ fontSize:12, color:'#94a3b8', lineHeight:1.6 }}>{body}</div>
+            </div>
+          </div>
+        );
+      })()}
+
       <style>{`
         /* Global CSS Variables for scope */
         .perf-page-container {
@@ -810,7 +835,13 @@ export default function Dashboard({ readOnly = false, user }) {
                   </div>
                 </div>
                 {planInterval && !readOnly && (
-                  <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDark ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52 }}>
+                  <span
+                    ref={intervalRef}
+                    onClick={e => e.stopPropagation()}
+                    onMouseEnter={e => { e.stopPropagation(); const r = intervalRef.current?.getBoundingClientRect(); if (r) setIntervalTip({ top: r.bottom + 8, left: r.left + r.width / 2 }); }}
+                    onMouseLeave={() => setIntervalTip(null)}
+                    style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDark ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52, cursor:'default' }}
+                  >
                     <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-5.96"/></svg>
                     {planInterval >= 60 ? `${planInterval / 60} min` : `${planInterval}s`}
                   </span>
