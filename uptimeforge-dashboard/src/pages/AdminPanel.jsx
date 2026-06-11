@@ -2443,7 +2443,12 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                         {(r.startDate || r.createdAt) ? new Date(r.startDate || r.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}
                                                     </td>
                                                     <td style={{ padding:'10px 14px', fontSize:11, whiteSpace:'nowrap' }}>
-                                                        {r.planEndsAt ? (
+                                                        {r.status === 'cancelled' ? (
+                                                            <span style={{ color:'#f59e0b', fontWeight:700 }}>
+                                                                ✕ Cancelled
+                                                                {r.planEndsAt && <div style={{ fontSize:10, color:T.muted, fontWeight:400 }}>{new Date(r.planEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</div>}
+                                                            </span>
+                                                        ) : r.planEndsAt ? (
                                                             <span style={{ color: isExpired ? T.danger : T.success, fontWeight:600 }}>
                                                                 {new Date(r.planEndsAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
                                                                 <div style={{ fontSize:10, opacity:0.8 }}>{isExpired ? '✕ Expired' : '✓ Active'}</div>

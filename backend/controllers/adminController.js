@@ -67,8 +67,12 @@ exports.updateUser = async (req, res) => {
             const PaymentRequest = require('../models/PaymentRequest');
             const now = new Date();
 
-            // Paid plan assigned by admin
+            // Paid plan assigned by admin — cancel previous active plan record first
             if (plan && ['bronze', 'silver', 'gold'].includes(plan) && planEndsAt) {
+                await PaymentRequest.updateMany(
+                    { userId: user._id, type: 'plan', status: 'approved' },
+                    { $set: { status: 'cancelled' } }
+                );
                 await PaymentRequest.create({
                     userId:    user._id,
                     userName:  user.name,

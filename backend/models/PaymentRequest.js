@@ -10,7 +10,7 @@ const paymentRequestSchema = new mongoose.Schema({
     startDate: { type: Date, default: null },
     amount:    { type: Number, required: true },
     utr:       { type: String, required: true, trim: true },
-    status:    { type: String, enum: ['pending', 'approved', 'rejected', 'refunded'], default: 'pending' },
+    status:    { type: String, enum: ['pending', 'approved', 'rejected', 'refunded', 'cancelled'], default: 'pending' },
     razorpay_payment_id: { type: String, default: '' },
     razorpay_refund_id:  { type: String, default: '' },
     refundStatus:        { type: String, default: '' },
