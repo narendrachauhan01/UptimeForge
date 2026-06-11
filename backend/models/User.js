@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
     state:   { type: String, default: null, trim: true },
     country: { type: String, default: null, trim: true },
     pincode: { type: String, default: null, trim: true },
+    age:     { type: Number, default: null, min: 1, max: 120 },
     password: { type: String, default: null },
     googleId:   { type: String, default: null },
     plan: { type: String, enum: ['free_trial', 'bronze', 'silver', 'gold'], default: 'free_trial' },

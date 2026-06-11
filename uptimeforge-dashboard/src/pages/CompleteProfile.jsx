@@ -115,6 +115,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const [form, setForm] = useState({
     phone:   user?.phone   || '',
+    age:     user?.age     || '',
     city:    user?.city    || '',
     gender:  user?.gender  || '',
     state:   user?.state   || '',
@@ -129,6 +130,7 @@ export default function CompleteProfile({ user, onUserUpdate }) {
     if (user) {
       setForm(f => ({
         phone:   user.phone   || f.phone,
+        age:     user.age     || f.age,
         city:    user.city    || f.city,
         gender:  user.gender  || f.gender,
         state:   user.state   || f.state,
@@ -142,6 +144,8 @@ export default function CompleteProfile({ user, onUserUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.phone || form.phone.replace(/\D/g,'').length < 10) { setError('Enter valid 10-digit mobile number'); return; }
+    const ageNum = parseInt(form.age, 10);
+    if (!form.age || isNaN(ageNum) || ageNum < 13 || ageNum > 100) { setError('Enter a valid age (13–100)'); return; }
     if (!form.city.trim()) { setError('City is required'); return; }
     if (!form.gender) { setError('Please select your gender'); return; }
     if (!form.country) { setError('Please select your country'); return; }
@@ -204,11 +208,22 @@ export default function CompleteProfile({ user, onUserUpdate }) {
         </div>
 
         <form onSubmit={handleSubmit} className="cp-form">
-          {/* Row 1: Phone (full width) */}
-          <div className="cp-field">
-            <label className="cp-label">📱 Mobile Number <span className="reg-req">*</span></label>
-            <input className="cp-input" type="tel" placeholder="10-digit number" maxLength={10}
-              value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g,'').slice(0,10) })} />
+          {/* Row 1: Phone + Age */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+            <div className="cp-field">
+              <label className="cp-label">📱 Mobile Number <span className="reg-req">*</span></label>
+              <input className="cp-input" type="tel" placeholder="10-digit number" maxLength={10}
+                value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g,'').slice(0,10) })} />
+            </div>
+            <div className="cp-field">
+              <label className="cp-label">🎂 Age <span className="reg-req">*</span></label>
+              <input className="cp-input" type="number" placeholder="Your age" min={13} max={100}
+                value={form.age}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g,'').slice(0,3);
+                  setForm({ ...form, age: val });
+                }} />
+            </div>
           </div>
 
           {/* Row 2: Country + State */}

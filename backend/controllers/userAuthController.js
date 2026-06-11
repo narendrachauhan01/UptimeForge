@@ -34,6 +34,7 @@ function userPayload(u) {
         purpose: u.purpose || null,
         country: u.country || null,
         pincode: u.pincode || null,
+        age:     u.age     || null,
         isGoogleUser: !!u.googleId,
         plan: u.plan,
         trialEndsAt: u.trialEndsAt,
@@ -276,7 +277,7 @@ exports.resetPassword = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         if (req.isAdmin) return res.status(400).json({ error: 'Use admin settings' });
-        const { name, phone, state, country, city, gender, purpose, pincode } = req.body;
+        const { name, phone, state, country, city, gender, purpose, pincode, age } = req.body;
         const update = {};
         if (name     !== undefined) update.name    = name    || null;
         if (phone    !== undefined) update.phone   = phone   || null;
@@ -286,6 +287,7 @@ exports.updateProfile = async (req, res) => {
         if (city     !== undefined) update.city    = city    || null;
         if (gender   !== undefined) update.gender  = gender  || null;
         if (purpose  !== undefined) update.purpose = purpose || null;
+        if (age      !== undefined) update.age     = age ? Number(age) : null;
         const user = await User.findByIdAndUpdate(req.userId, update, { returnDocument: 'after' });
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json({ user: userPayload(user) });
