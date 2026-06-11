@@ -383,8 +383,12 @@ export default function PingMonitor() {
     const [addModal,    setAddModal]    = useState(false);
     const [editTarget,  setEditTarget]  = useState(null);
     const [pageLoading, setPageLoading] = useState(!_loaded_PingMonitor);
-    const [limitError,  setLimitError]  = useState('');
-    const [pingLimit,   setPingLimit]   = useState(null);
+    const [limitError,   setLimitError]   = useState('');
+    const [pingLimit,    setPingLimit]    = useState(null);
+    const [pingInterval, setPingInterval] = useState(null);
+    const [userPlan,     setUserPlan]     = useState('free_trial');
+    const [pingIvTip,    setPingIvTip]    = useState(null);
+    const pingIvRef = useRef(null);
 
     const [localTheme, setLocalTheme] = useState(() => {
         const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -431,10 +435,16 @@ export default function PingMonitor() {
             axios.get(`${API_URL}/api/users/me`, { withCredentials: true }),
             axios.get(`${API_URL}/api/payment/plans`, { withCredentials: true }),
         ]).then(([meRes, plansRes]) => {
-            const plan = meRes.data?.plan;
+            const plan = meRes.data?.plan || 'free_trial';
             const plans = plansRes.data;
-            if (plan === 'free_trial') setPingLimit(plans?.freeTrialPingLimit ?? 2);
-            else if (plan) setPingLimit(plans?.plans?.[plan]?.pingLimit ?? null);
+            setUserPlan(plan);
+            if (plan === 'free_trial') {
+                setPingLimit(plans?.freeTrialPingLimit ?? 2);
+                setPingInterval(plans?.freeTrialPingInterval || 180);
+            } else {
+                setPingLimit(plans?.plans?.[plan]?.pingLimit ?? null);
+                setPingInterval(plans?.plans?.[plan]?.pingInterval || 60);
+            }
         }).catch(()=>{});
         const t = setInterval(load, 30000);
         return () => clearInterval(t);
@@ -983,6 +993,28 @@ export default function PingMonitor() {
         <div className="perf-bg-glow-2" />
 
         <ConfirmDialog />
+
+        {pingIvTip && pingInterval && (() => {
+            const ivLabel = pingInterval >= 60 ? `${pingInterval / 60} min` : `${pingInterval}s`;
+            let body = null;
+            if (userPlan === 'free_trial' || userPlan === 'bronze') {
+                body = <>We recommend to use at least <strong style={{color:'#fff'}}>1-minute checks</strong> available in <strong style={{color:'#818cf8'}}>paid plans</strong> to spot incident 5x faster.</>;
+            } else if (userPlan === 'silver') {
+                body = <>Upgrade to <strong style={{color:'#fff'}}>Gold plan</strong> for <strong style={{color:'#818cf8'}}>30-second checks</strong> to spot incidents 2x faster.</>;
+            } else {
+                body = <><strong style={{color:'#4ade80'}}>✓ Fastest interval</strong> — you're on the Gold plan with 30-second checks.</>;
+            }
+            return (
+                <div style={{ position:'fixed', top: pingIvTip.top, left: pingIvTip.left, transform:'translateX(-50%)', zIndex:99999, pointerEvents:'none' }}>
+                    <div style={{ background:'#1e293b', borderRadius:10, padding:'12px 16px', width:260, boxShadow:'0 16px 40px rgba(0,0,0,0.5)', border:'1px solid rgba(255,255,255,0.08)' }}>
+                        <div style={{ position:'absolute', top:-6, left:'50%', marginLeft:-5, width:10, height:10, background:'#1e293b', border:'1px solid rgba(255,255,255,0.08)', borderBottom:'none', borderRight:'none', transform:'rotate(45deg)' }} />
+                        <div style={{ fontSize:13, fontWeight:700, color:'#f8fafc', marginBottom:6 }}>Checked every {ivLabel}</div>
+                        <div style={{ fontSize:12, color:'#94a3b8', lineHeight:1.6 }}>{body}</div>
+                    </div>
+                </div>
+            );
+        })()}
+
         <div className="mon-layout" style={{ padding: '0 4px' }}>
             {/* ── Left: list ── */}
             <div className="mon-main">
@@ -1068,6 +1100,18 @@ export default function PingMonitor() {
                                     </>}
                                 </div>
                             </div>
+                            {pingInterval && (
+                                <span
+                                    ref={pingIvRef}
+                                    onClick={e => e.stopPropagation()}
+                                    onMouseEnter={e => { e.stopPropagation(); const r = pingIvRef.current?.getBoundingClientRect(); if (r) setPingIvTip({ top: r.bottom + 8, left: r.left + r.width / 2 }); }}
+                                    onMouseLeave={() => setPingIvTip(null)}
+                                    style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDark ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52, cursor:'default' }}
+                                >
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-5.96"/></svg>
+                                    {pingInterval >= 60 ? `${pingInterval / 60} min` : `${pingInterval}s`}
+                                </span>
+                            )}
                             <div className="mon-bar-wrap">
                                 <UptimeBar history={t.history?.slice(-30)||[]} />
                             </div>
