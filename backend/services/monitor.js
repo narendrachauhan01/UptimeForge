@@ -12,6 +12,7 @@ const Integration = require('../models/Integration');
 const wa = require('./whatsapp');
 const { checkSSL, checkDomain, extractHostname, extractRootDomain } = require('./expiry');
 const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml } = require('./email');
+const { notifLog } = require('./notifLogger');
 
 // Per-server lock — prevents duplicate alerts if a check overlaps next tick
 const serverLocks = new Set();
@@ -102,7 +103,10 @@ async function fireIntegrations(server, type, userId, statusCode) {
             try {
                 if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
                     const url = intg.config?.url;
-                    if (!url) { console.warn(`[Integration] ${intg.type} skipped — no URL configured`); continue; }
+                    if (!url) {
+                        notifLog('WARN', intg.type.toUpperCase(), server.name, userId, `skipped — no URL configured`);
+                        continue;
+                    }
                     const data = intg.type === 'rocketchat' || intg.type === 'slack'
                         ? JSON.parse(rcSlackBody)
                         : intg.type === 'discord'
@@ -110,21 +114,24 @@ async function fireIntegrations(server, type, userId, statusCode) {
                         : payload;
                     const headers = { 'Content-Type': 'application/json' };
                     if (intg.config?.secret) headers['X-UptimeForge-Secret'] = intg.config.secret;
-                    console.log(`[Integration] Firing ${intg.type} for ${server.name} (${type})`);
+                    notifLog('INFO', intg.type.toUpperCase(), server.name, userId, `firing (event:${type})`);
                     axios.post(url, data, { headers, timeout: 10000 })
-                        .then(() => console.log(`[Integration] ${intg.type} OK for ${server.name}`))
-                        .catch(e => console.error(`[Integration] ${intg.type} FAILED for ${server.name}:`, e.message));
+                        .then(() => notifLog('INFO', intg.type.toUpperCase(), server.name, userId, `OK`))
+                        .catch(e => notifLog('ERROR', intg.type.toUpperCase(), server.name, userId, `FAILED: ${e.message}`));
                 }
                 if (intg.type === 'telegram') {
                     const chatId   = intg.config?.chatId;
                     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-                    if (!chatId || !botToken) { console.warn(`[Integration] Telegram skipped — missing chatId or TELEGRAM_BOT_TOKEN`); continue; }
-                    console.log(`[Integration] Firing Telegram for ${server.name} (${type})`);
+                    if (!chatId || !botToken) {
+                        notifLog('WARN', 'TELEGRAM', server.name, userId, `skipped — missing chatId or TELEGRAM_BOT_TOKEN`);
+                        continue;
+                    }
+                    notifLog('INFO', 'TELEGRAM', server.name, userId, `firing (event:${type})`);
                     axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
-                        .then(() => console.log(`[Integration] Telegram OK for ${server.name}`))
-                        .catch(e => console.error(`[Integration] Telegram FAILED for ${server.name}:`, e.message));
+                        .then(() => notifLog('INFO', 'TELEGRAM', server.name, userId, `OK`))
+                        .catch(e => notifLog('ERROR', 'TELEGRAM', server.name, userId, `FAILED: ${e.message}`));
                 }
-            } catch (e) { console.error(`[Integration] Exception for ${intg.type}:`, e.message); }
+            } catch (e) { notifLog('ERROR', intg.type?.toUpperCase() || 'UNKNOWN', server.name, userId, `Exception: ${e.message}`); }
         }
     } catch (e) { console.error(`[Integration] fireIntegrations error:`, e.message); }
 }
@@ -180,40 +187,43 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
 
         const tgText = `${emoji} *${label} Expiring in ${daysLeft} days!*\n\n*Service:* ${server.name}\n*URL:* ${server.url}\n*Days Until Expiry:* ${daysLeft} days\n*Expires At:* ${expiryStr}${extra ? `\n*${isSSL ? 'Issuer' : 'Registrar'}:* ${extra}` : ''}`;
 
+        const uid = String(userId);
         for (const intg of integrations) {
-            if (intg.events === 'down') continue; // skip if only down events
+            if (intg.events === 'down') continue;
             if (intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
             try {
                 if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
                     const url = intg.config?.url;
-                    if (!url) continue;
-                    const body = intg.type === 'rocketchat' || intg.type === 'slack'
-                        ? rcSlackBody
+                    if (!url) {
+                        notifLog('WARN', intg.type.toUpperCase(), server.name, uid, `expiry skipped — no URL configured`);
+                        continue;
+                    }
+                    const data = intg.type === 'rocketchat' || intg.type === 'slack'
+                        ? JSON.parse(rcSlackBody)
                         : intg.type === 'discord'
-                        ? discordBody
-                        : JSON.stringify({ event: expiryType, site: server.name, url: server.url, daysLeft, expiresAt: expiryStr });
-                    const headers = { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) };
-                    const mod = url.startsWith('https') ? https : http;
-                    const parsed = new URL(url);
-                    const req = mod.request({ hostname: parsed.hostname, path: parsed.pathname + parsed.search, method: 'POST', headers }, () => {});
-                    req.on('error', () => {});
-                    req.write(body);
-                    req.end();
+                        ? JSON.parse(discordBody)
+                        : { event: expiryType, site: server.name, url: server.url, daysLeft, expiresAt: expiryStr };
+                    const headers = { 'Content-Type': 'application/json' };
+                    notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `expiry firing (${expiryType}, ${daysLeft}d left)`);
+                    axios.post(url, data, { headers, timeout: 10000 })
+                        .then(() => notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `expiry OK`))
+                        .catch(e => notifLog('ERROR', intg.type.toUpperCase(), server.name, uid, `expiry FAILED: ${e.message}`));
                 }
                 if (intg.type === 'telegram') {
                     const chatId   = intg.config?.chatId;
                     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-                    if (!chatId || !botToken) continue;
-                    const tUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-                    const b = JSON.stringify({ chat_id: chatId, text: tgText, parse_mode: 'Markdown' });
-                    const req = https.request(tUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, () => {});
-                    req.on('error', () => {});
-                    req.write(b);
-                    req.end();
+                    if (!chatId || !botToken) {
+                        notifLog('WARN', 'TELEGRAM', server.name, uid, `expiry skipped — missing chatId or TELEGRAM_BOT_TOKEN`);
+                        continue;
+                    }
+                    notifLog('INFO', 'TELEGRAM', server.name, uid, `expiry firing (${expiryType}, ${daysLeft}d left)`);
+                    axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
+                        .then(() => notifLog('INFO', 'TELEGRAM', server.name, uid, `expiry OK`))
+                        .catch(e => notifLog('ERROR', 'TELEGRAM', server.name, uid, `expiry FAILED: ${e.message}`));
                 }
-            } catch (_) {}
+            } catch (e) { notifLog('ERROR', intg.type?.toUpperCase() || 'UNKNOWN', server.name, uid, `expiry Exception: ${e.message}`); }
         }
-    } catch (_) {}
+    } catch (e) { notifLog('ERROR', 'EXPIRY', server.name, String(userId), `fireExpiryIntegrations error: ${e.message}`); }
 }
 
 // Get check interval (seconds) for a given plan from settings
@@ -408,15 +418,24 @@ async function sendAlerts(server, recipients, type, detail, statusCode) {
         ? downEmailHtml(server.name, server.url, now(), codeLabel)
         : recoveredEmailHtml(server.name, server.url, now(), codeLabel);
 
+    const uid = String(server.userId?._id || server.userId || '');
     const sentTo = [];
     for (const r of recipients) {
         if (r.phone) {
-            try { await wa.sendMessage(r.phone, waMsg); }
-            catch (e) { console.error(`[Monitor] WA failed to ${r.phone}:`, e.message); }
+            try {
+                await wa.sendMessage(r.phone, waMsg);
+                notifLog('INFO', 'WHATSAPP', server.name, uid, `OK → ${r.phone} (${r.name})`);
+            } catch (e) {
+                notifLog('ERROR', 'WHATSAPP', server.name, uid, `FAILED → ${r.phone} (${r.name}): ${e.message}`);
+            }
         }
         if (r.email) {
-            try { await sendEmail(r.email, emailSubject, emailHtml); }
-            catch (e) { console.error(`[Monitor] Email failed to ${r.email}:`, e.message); }
+            try {
+                await sendEmail(r.email, emailSubject, emailHtml);
+                notifLog('INFO', 'EMAIL', server.name, uid, `OK → ${r.email} (${r.name})`);
+            } catch (e) {
+                notifLog('ERROR', 'EMAIL', server.name, uid, `FAILED → ${r.email} (${r.name}): ${e.message}`);
+            }
         }
         sentTo.push({ name: r.name, phone: r.phone || '', email: r.email || '' });
     }
