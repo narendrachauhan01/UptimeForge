@@ -45,6 +45,7 @@ function userPayload(u) {
         trialVerified: u.trialVerified ?? true,
         accountStatus: u.accountStatus || 'active',
         billing: u.billing || 'monthly',
+        planDuration: u.planDuration || '1m',
         referredBy: u.referredBy || null,
         referralBonusUsed: u.referralBonusUsed || false,
         noFreeTrial: u.noFreeTrial || false,

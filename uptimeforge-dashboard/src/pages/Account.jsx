@@ -80,6 +80,12 @@ export default function Account({ user, onUserUpdate }) {
     const isActive  = user?.isActive;
     const accountStatus = user?.accountStatus || 'active';
 
+    const DURATION_LABEL = { '1m':'1 Month', '3m':'3 Months', '6m':'6 Months', '1y':'1 Year', 'free_trial':'Free Trial' };
+    const planDurationLabel = DURATION_LABEL[user?.planDuration] || '1 Month';
+    const daysRemaining = user?.planEndsAt
+        ? Math.max(0, Math.ceil((new Date(user.planEndsAt) - new Date()) / (1000 * 60 * 60 * 24)))
+        : null;
+
     const saveName = async () => {
         try {
             const r = await axios.put(`${API_URL}/api/users/profile`, { name: nameForm.name }, { withCredentials: true });
@@ -798,6 +804,10 @@ export default function Account({ user, onUserUpdate }) {
                                         plan === 'free_trial'
                                             ? { label:'Trial Days Left', value: isActive ? `${trialLeft} days` : 'Expired', color: trialLeft <= 2 ? 'var(--danger)' : 'var(--success)' }
                                             : { label:'Renews', value: fmt(user?.planEndsAt), color:'var(--text-main)' },
+                                        ...(plan !== 'free_trial' ? [
+                                            { label:'Plan Duration', value: planDurationLabel, color:'var(--text-main)' },
+                                            { label:'Days Remaining', value: daysRemaining !== null ? `${daysRemaining} days` : '—', color: daysRemaining !== null && daysRemaining <= 7 ? 'var(--danger)' : daysRemaining !== null && daysRemaining <= 30 ? '#f59e0b' : 'var(--success)' },
+                                        ] : []),
                                     ].map(s => (
                                         <div key={s.label} className="info-card">
                                             <div className="info-card-label">{s.label}</div>
