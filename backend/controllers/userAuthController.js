@@ -276,20 +276,17 @@ exports.resetPassword = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         if (req.isAdmin) return res.status(400).json({ error: 'Use admin settings' });
-        const { phone, state, country, city, gender, purpose, pincode } = req.body;
-        const user = await User.findByIdAndUpdate(
-            req.userId,
-            {
-                phone: phone || null,
-                state: state || null,
-                country: country || null,
-                pincode: pincode || null,
-                ...(city !== undefined && { city: city || null }),
-                ...(gender !== undefined && { gender: gender || null }),
-                ...(purpose !== undefined && { purpose: purpose || null }),
-            },
-            { returnDocument: 'after' }
-        );
+        const { name, phone, state, country, city, gender, purpose, pincode } = req.body;
+        const update = {};
+        if (name     !== undefined) update.name    = name    || null;
+        if (phone    !== undefined) update.phone   = phone   || null;
+        if (state    !== undefined) update.state   = state   || null;
+        if (country  !== undefined) update.country = country || null;
+        if (pincode  !== undefined) update.pincode = pincode || null;
+        if (city     !== undefined) update.city    = city    || null;
+        if (gender   !== undefined) update.gender  = gender  || null;
+        if (purpose  !== undefined) update.purpose = purpose || null;
+        const user = await User.findByIdAndUpdate(req.userId, update, { returnDocument: 'after' });
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json({ user: userPayload(user) });
     } catch (e) {

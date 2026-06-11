@@ -89,7 +89,7 @@ export default function Account({ user, onUserUpdate }) {
     const saveName = async () => {
         try {
             const r = await axios.put(`${API_URL}/api/users/profile`, { name: nameForm.name }, { withCredentials: true });
-            onUserUpdate && onUserUpdate(r.data);
+            onUserUpdate && onUserUpdate({ ...user, ...r.data.user });
             setNameMsg('✅ Saved!');
             setTimeout(() => setNameMsg(''), 3000);
         } catch { setNameMsg('❌ Failed'); }
