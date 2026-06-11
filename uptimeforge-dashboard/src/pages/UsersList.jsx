@@ -314,6 +314,7 @@ export default function UsersList() {
     { label: 'Account ID', className: 'hide-tablet' },
     { label: 'Plan', className: '' },
     { label: 'Phone', className: 'hide-tablet' },
+    { label: 'Age', className: 'hide-tablet' },
     { label: 'City', className: 'hide-mobile' },
     { label: 'State', className: 'hide-mobile' },
     { label: 'Country', className: 'hide-tablet' },
@@ -439,6 +440,7 @@ export default function UsersList() {
                         <span style={planBadgeStyle}>{PLAN_LABEL[u.plan] || u.plan}</span>
                       </td>
                       <td className="hide-tablet" style={{ color:'var(--text-main)' }}>{u.phone || '—'}</td>
+                      <td className="hide-tablet" style={{ color:'var(--text-main)', textAlign:'center' }}>{u.age || '—'}</td>
                       <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.city || '—'}</td>
                       <td className="hide-mobile" style={{ color:'var(--text-main)' }}>{u.state || '—'}</td>
                       <td className="hide-tablet" style={{ color:'var(--text-main)' }}>{u.country || '—'}</td>
