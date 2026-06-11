@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useConfirm } from '../components/ConfirmDialog';
 let _loaded = false;
 import { useNavigate } from 'react-router-dom';
-import { getServers, checkNow, deleteServer } from '../api';
+import { getServers, checkNow, deleteServer, getPlans } from '../api';
 
 function NewDropdown({ onNavigate }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ function NewDropdown({ onNavigate }) {
   );
 }
 
-export default function Dashboard({ readOnly = false }) {
+export default function Dashboard({ readOnly = false, user }) {
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const navigate = useNavigate();
   const [servers, setServers] = useState([]);
@@ -50,6 +50,7 @@ export default function Dashboard({ readOnly = false }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(!_loaded);
+  const [planInterval, setPlanInterval] = useState(null);
 
   const [localTheme, setLocalTheme] = useState(() => {
     const match = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -93,6 +94,16 @@ export default function Dashboard({ readOnly = false }) {
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getPlans().then(r => {
+      const s = r.data;
+      const plan = user.plan || 'free_trial';
+      const iv = plan === 'free_trial' ? (s.freeTrialInterval || 300) : (s.plans?.[plan]?.interval || 60);
+      setPlanInterval(iv);
+    }).catch(() => {});
+  }, [user?.plan]);
 
   const getExpiryClass = (days) => {
     if (days == null) return 'expiry-na';
@@ -798,6 +809,12 @@ export default function Dashboard({ readOnly = false }) {
                     )}
                   </div>
                 </div>
+                {planInterval && !readOnly && (
+                  <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color: isDark ? '#64748b' : '#94a3b8', fontWeight:500, flexShrink:0, minWidth:52 }}>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.06-5.96"/></svg>
+                    {planInterval >= 60 ? `${planInterval / 60} min` : `${planInterval}s`}
+                  </span>
+                )}
                 <div className="mon-bar-wrap">
                   <UptimeBar history={s.historyBar||[]} />
                 </div>
