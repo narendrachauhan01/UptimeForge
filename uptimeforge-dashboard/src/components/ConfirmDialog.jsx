@@ -3,7 +3,7 @@ import React from 'react';
 export default function ConfirmDialog({ open, title, message, confirmText = 'Confirm', cancelText = 'Cancel', danger = true, onConfirm, onCancel }) {
     if (!open) return null;
     return (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', zIndex:99999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
             onClick={onCancel}>
             <div style={{ background:'#fff', borderRadius:14, width:'100%', maxWidth:400, padding:28, boxShadow:'0 20px 60px rgba(0,0,0,0.2)' }}
                 onClick={e => e.stopPropagation()}>
