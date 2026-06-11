@@ -260,7 +260,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
 
     const start = async () => {
         setRunning(true);
-        addLine(`PING ${target.host}:${target.port}`, '#60a5fa');
+        addLine(`PING ${target.host}${target.port ? ':' + target.port : ''}`, '#60a5fa');
         addLine('─'.repeat(42), '#1e2d3d');
         await doPing();
         timerRef.current = setInterval(doPing, 1000);
@@ -281,7 +281,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                         <PulseDot status={target.status} size={14} />
                         <div>
                             <div style={{ fontWeight:800, fontSize:17, color:'var(--text-main)' }}>{target.name}</div>
-                            <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:'monospace' }}>{target.host}:{target.port}</div>
+                            <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:'monospace' }}>{target.host}{target.port ? ':' + target.port : ''}</div>
                         </div>
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
@@ -336,7 +336,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                                 <span style={{ width:11, height:11, borderRadius:'50%', background:'#febc2e', display:'block' }}/>
                                 <span style={{ width:11, height:11, borderRadius:'50%', background:'#28c840', display:'block' }}/>
                             </div>
-                            <span style={{ flex:1, fontFamily:'monospace', fontSize:12, color:'#8b949e' }}>ping {target.host}:{target.port}</span>
+                            <span style={{ flex:1, fontFamily:'monospace', fontSize:12, color:'#8b949e' }}>ping {target.host}{target.port ? ':' + target.port : ''}</span>
                             <div style={{ display:'flex', gap:6 }}>
                                 <button onClick={() => setLines([])} style={{ padding:'3px 10px', background:'#21262d', border:'1px solid #30363d', borderRadius:6, color:'#8b949e', fontSize:11, cursor:'pointer' }}>Clear</button>
                                 {!running
@@ -1089,7 +1089,7 @@ export default function PingMonitor() {
                                         {t.status==='up'?'Up':t.status==='down'?'Down':'Unknown'}
                                     </span>
                                     <span className="mon-sep">·</span>
-                                    <span className="mon-time" style={{fontFamily:'monospace',fontSize:11}}>{t.host}:{t.port}</span>
+                                    <span className="mon-time" style={{fontFamily:'monospace',fontSize:11}}>{t.host}{t.port ? ':' + t.port : ''}</span>
                                     {t.responseTime && <>
                                         <span className="mon-sep">·</span>
                                         <span className="mon-resp" style={{color:latColor(t.responseTime)}}>{t.responseTime}ms</span>
