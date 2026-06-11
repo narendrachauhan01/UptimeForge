@@ -298,6 +298,39 @@ export default function UsersList() {
       .catch(() => setLoading(false));
   }, []);
 
+  const downloadCSV = () => {
+    const headers = ['#','Name','Email','Account ID','Plan','Status','Phone','Age','City','State','Country','Pincode','Gender','Purpose','Sites Used','Site Limit','Billing','Plan Ends','Registered'];
+    const rows = filtered.map((u, i) => [
+      i + 1,
+      u.name || '',
+      u.email || '',
+      u.accountId || '',
+      u.plan || '',
+      u.isBlocked ? 'Blocked' : u.isActive ? 'Active' : 'Expired',
+      u.phone || '',
+      u.age || '',
+      u.city || '',
+      u.state || '',
+      u.country || '',
+      u.pincode || '',
+      u.gender ? u.gender.charAt(0).toUpperCase() + u.gender.slice(1) : '',
+      u.purpose || '',
+      u.serverCount || 0,
+      u.siteLimit || 2,
+      u.billing === 'annually' ? 'Annual' : 'Monthly',
+      u.planEndsAt ? new Date(u.planEndsAt).toLocaleDateString('en-IN') : '',
+      u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : '',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = users.filter(u => {
     const q = search.toLowerCase();
     const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q) || u.accountId?.toLowerCase().includes(q);
@@ -367,8 +400,8 @@ export default function UsersList() {
           </div>
           <div className="users-filter-wrapper">
             {['all','active','expired','blocked','paid'].map(f => (
-              <button 
-                key={f} 
+              <button
+                key={f}
                 onClick={() => setFilter(f)}
                 className={`users-filter-btn ${filter === f ? 'active' : ''}`}
               >
@@ -376,6 +409,10 @@ export default function UsersList() {
               </button>
             ))}
           </div>
+          <button onClick={downloadCSV} style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 14px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0 }}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CSV ({filtered.length})
+          </button>
         </div>
 
         {/* Table */}
