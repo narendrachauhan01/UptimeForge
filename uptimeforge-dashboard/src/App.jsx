@@ -588,7 +588,10 @@ function AppInner() {
   // ── Profile completion gate for all users without state/phone ──
   // Note: /pay is NOT skipped so new Google users always go through complete-profile first
   const skipProfileGate = ['/complete-profile', '/support', '/account'].includes(location.pathname);
-  const needsProfile = authed && !isAdmin && user && (!user.city || !user.gender || !user.phone) && !skipProfileGate;
+  const needsProfile = authed && !isAdmin && user && (
+    !user.city || !user.gender || !user.phone || !user.age ||
+    !user.country || !user.state || !user.pincode || !user.purpose
+  ) && !skipProfileGate;
   if (needsProfile) {
     return <Navigate to="/complete-profile" replace />;
   }

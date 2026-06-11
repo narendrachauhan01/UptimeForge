@@ -114,8 +114,8 @@ export default function CompleteProfile({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const { confirm, Dialog: ConfirmDialog } = useConfirm();
   const [form, setForm] = useState({
-    phone:   user?.phone   || '',
-    age:     user?.age     || '',
+    phone:   user?.phone                         || '',
+    age:     user?.age ? String(user.age)        : '',
     city:    user?.city    || '',
     gender:  user?.gender  || '',
     state:   user?.state   || '',
@@ -129,8 +129,8 @@ export default function CompleteProfile({ user, onUserUpdate }) {
   useEffect(() => {
     if (user) {
       setForm(f => ({
-        phone:   user.phone   || f.phone,
-        age:     user.age     || f.age,
+        phone:   user.phone                          || f.phone,
+        age:     user.age ? String(user.age)         : f.age,
         city:    user.city    || f.city,
         gender:  user.gender  || f.gender,
         state:   user.state   || f.state,
