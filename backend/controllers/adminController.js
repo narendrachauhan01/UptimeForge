@@ -518,7 +518,7 @@ exports.getUserPlanHistory = async (req, res) => {
     try {
         const PaymentRequest = require('../models/PaymentRequest');
         const [raw, user] = await Promise.all([
-            PaymentRequest.find({ userId: req.params.userId, status: 'approved' }).sort('-createdAt').lean(),
+            PaymentRequest.find({ userId: req.params.userId, status: { $in: ['approved', 'cancelled'] } }).sort('-createdAt').lean(),
             User.findById(req.params.userId).select('name email plan billing planEndsAt trialEndsAt trialVerified').lean(),
         ]);
         const records = await enrichRecords(raw);
