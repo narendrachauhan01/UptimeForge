@@ -9,6 +9,7 @@ const { connectDB } = require('./config/db');
 const wa      = require('./services/whatsapp');
 const monitor = require('./services/monitor');
 const { startExpiryReminder } = require('./services/expiryReminder');
+const { startCleanup }        = require('./services/cleanup');
 
 const app        = express();
 const httpServer = http.createServer(app);
@@ -68,5 +69,6 @@ connectDB().then(() => {
     wa.init();
     monitor.start();
     startExpiryReminder();
+    startCleanup();
     httpServer.listen(PORT, () => console.log(`http://localhost:${PORT}/api-docs`));
 });
