@@ -1073,7 +1073,17 @@ export default function PingMonitor() {
                         </div>
                     ) : filtered.length === 0 ? (
                         <div className="mon-empty">
-                            <div style={{fontSize:48,marginBottom:12}}>📡</div>
+                            <div style={{marginBottom:12,display:'flex',justifyContent:'center'}}>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="4" y="9" width="16" height="11" rx="2"/>
+                                    <rect x="9" y="5" width="6" height="4" rx="1"/>
+                                    <line x1="7" y1="9" x2="7" y2="13"/>
+                                    <line x1="9.5" y1="9" x2="9.5" y2="13"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="14.5" y1="9" x2="14.5" y2="13"/>
+                                    <line x1="17" y1="9" x2="17" y2="13"/>
+                                </svg>
+                            </div>
                             <div style={{fontWeight:700,color:'var(--text-muted)'}}>No targets yet</div>
                             <div style={{fontSize:13,color:'var(--text-muted)',marginTop:4}}>Click + Add Target to start monitoring</div>
                         </div>
