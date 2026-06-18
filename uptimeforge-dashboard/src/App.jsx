@@ -215,8 +215,8 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
   const userLinks = [
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
-    { to: '/ping',         label: 'Port Monitoring', icon: <IcoPing /> },
-    { to: '/ping-monitor', label: 'Ping Monitor', icon: <IcoTarget /> },
+    { to: '/port',         label: 'Port Monitoring', icon: <IcoPing /> },
+    { to: '/ping',         label: 'Ping Monitor', icon: <IcoTarget /> },
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
@@ -752,13 +752,13 @@ function AppInner() {
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   return acc && acc.reports === false ? <UpgradeGate user={user} feature="Weekly / Monthly Reports" /> : <Reports />;
               })()} />
-              <Route path="/ping" element={(() => {
+              <Route path="/port" element={(() => {
                   const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   const blocked = acc && acc.pingMonitor === false;
                   return blocked ? <UpgradeGate user={user} feature="Port Monitoring" /> : <PingMonitor />;
               })()} />
-              <Route path="/ping-monitor" element={(() => {
+              <Route path="/ping" element={(() => {
                   const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   const blocked = acc && acc.pingMonitor === false;
