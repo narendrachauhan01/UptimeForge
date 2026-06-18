@@ -1021,7 +1021,7 @@ export default function PingMonitor() {
                 <div className="mon-header">
                     <div>
                         <h1 className="mon-title">Port Monitoring <span className="mon-dot">.</span></h1>
-                        <p className="mon-sub">TCP connectivity — alerts on DOWN/UP</p>
+                        <p className="mon-sub">Monitor any service on your server. Useful for SMTP, POP3, FTP, and other services running on specific TCP ports.</p>
                     </div>
                     <button onClick={() => {
                         if (pingLimit !== null && targets.length >= pingLimit) {
