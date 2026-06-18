@@ -558,7 +558,6 @@ function AppInner() {
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/support" element={<ContactSupport user={user} />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </Suspense>
@@ -589,7 +588,6 @@ function AppInner() {
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/support" element={<ContactSupport user={user} />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Login onLogin={handleLogin} />} />
           </Routes>
