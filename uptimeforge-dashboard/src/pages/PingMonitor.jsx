@@ -1020,7 +1020,7 @@ export default function PingMonitor() {
             <div className="mon-main">
                 <div className="mon-header">
                     <div>
-                        <h1 className="mon-title">Ping Monitor <span className="mon-dot">.</span></h1>
+                        <h1 className="mon-title">Port Monitoring <span className="mon-dot">.</span></h1>
                         <p className="mon-sub">TCP connectivity — alerts on DOWN/UP</p>
                     </div>
                     <button onClick={() => {

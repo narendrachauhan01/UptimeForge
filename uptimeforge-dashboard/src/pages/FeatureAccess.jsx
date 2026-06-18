@@ -28,7 +28,7 @@ const IcoReports = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="n
 const FEATURES = [
     { key: 'domainSsl',   label: 'Domain & SSL Monitoring', desc: 'View SSL certificate expiry and domain expiry dates', icon: <IcoSSL /> },
     { key: 'charts',      label: 'Performance Charts',       desc: 'View response time charts, uptime stats and alert history', icon: <IcoCharts /> },
-    { key: 'pingMonitor', label: 'Ping Monitor',             desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
+    { key: 'pingMonitor', label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
     { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
     { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
     { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
@@ -38,7 +38,7 @@ const FEATURES = [
 ];
 
 const PLAN_FEATURES = [
-    { key: 'pingMonitor', label: 'Ping Monitor',             desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
+    { key: 'pingMonitor', label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
     { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
     { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
     { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
