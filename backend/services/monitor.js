@@ -1,10 +1,12 @@
 const https = require('https');
 const http = require('http');
 const net = require('net');
+const { execFile } = require('child_process');
 const axios = require('axios');
 const cron = require('node-cron');
 const Server = require('../models/Server');
 const PingTarget = require('../models/PingTarget');
+const IcmpTarget = require('../models/IcmpTarget');
 const Recipient = require('../models/Recipient');
 const Alert = require('../models/Alert');
 const Settings = require('../models/Settings');
@@ -556,6 +558,21 @@ async function pingCheck(host, port) {
     return r;
 }
 
+// ── ICMP Ping check (real ping command — for Ping Monitor feature) ──────────
+const ICMP_HOST_RE = /^[a-zA-Z0-9.\-:]+$/;
+function icmpPingCheck(host) {
+    return new Promise((resolve) => {
+        if (!ICMP_HOST_RE.test(host)) return resolve({ alive: false, ms: null });
+        const isWin = process.platform === 'win32';
+        const args = isWin ? ['-n', '1', '-w', '2000', host] : ['-c', '1', '-W', '2', host];
+        execFile('ping', args, { timeout: 5000 }, (err, stdout) => {
+            if (err) return resolve({ alive: false, ms: null });
+            const match = (stdout || '').match(/time[=<]([\d.]+)/i);
+            resolve({ alive: true, ms: match ? Math.round(parseFloat(match[1])) : null });
+        });
+    });
+}
+
 // ── Check all ping targets ───────────────────────────────────────────────────
 async function checkPingTargets() {
     try {
@@ -674,13 +691,141 @@ async function checkPingTargets() {
     }
 }
 
+// ── Check all ICMP ping monitor targets (real ping, no port) ────────────────
+async function checkIcmpTargets() {
+    try {
+        const settings   = await Settings.get();
+        const targets    = await IcmpTarget.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified');
+        const recipients = await Recipient.find({ active: true }).populate('servers');
+
+        for (const target of targets) {
+            if (target.userId) {
+                const u = target.userId;
+                const plan = u.plan || 'free_trial';
+                if (plan === 'free_trial') {
+                    if (!u.trialVerified) continue;
+                    if (u.trialEndsAt && new Date() > new Date(u.trialEndsAt)) continue;
+                } else {
+                    if (u.planEndsAt && new Date() > new Date(u.planEndsAt)) continue;
+                }
+            }
+            if (target.userId) {
+                const plan = target.userId.plan || 'free_trial';
+                const pingInterval = plan === 'free_trial'
+                    ? (settings.freeTrialPingInterval || 180)
+                    : (settings.plans?.[plan]?.pingInterval || 60);
+                const lastChecked = target.lastChecked ? new Date(target.lastChecked).getTime() : 0;
+                if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
+            }
+
+            const result = await icmpPingCheck(target.host);
+            const prevStatus = target.status;
+            const wasAlertSent = target.downAlertSent;
+            const uid = String(target.userId?._id || target.userId || '');
+
+            console.log(`[IcmpPing] ${target.name} (${target.host}) → ${result.alive ? 'UP' : 'DOWN'} | ${result.ms || '—'}ms`);
+
+            const setFields = {
+                lastChecked: new Date(),
+                responseTime: result.ms,
+                status: result.alive ? 'up' : 'down',
+            };
+
+            const getEligible = () => {
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                const ids = target.notifyRecipients.map(id => id.toString());
+                return recipients.filter(r => ids.includes(r._id.toString()));
+            };
+
+            if (!result.alive) {
+                if (prevStatus !== 'down') setFields.lastDownAt = new Date();
+                if (prevStatus !== 'down' && !wasAlertSent) {
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: target.host },
+                        'down',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  target.host,
+                        type:       'down',
+                        message:    `Ping target unreachable`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                    setFields.downAlertSent = true;
+                }
+            } else {
+                if (prevStatus === 'down') {
+                    setFields.lastUpAt = new Date();
+                    setFields.downAlertSent = false;
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: target.host },
+                        'up',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  target.host,
+                        type:       'recovered',
+                        message:    `Ping target back online`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                }
+            }
+
+            await IcmpTarget.findByIdAndUpdate(target._id, {
+                $set: setFields,
+                $push: { history: { $each: [{ time: new Date(), responseTime: result.ms, status: result.alive ? 'up' : 'down' }], $slice: -1440 } },
+            });
+        }
+    } catch (err) {
+        console.error('[IcmpPing] checkIcmpTargets error:', err.message);
+    }
+}
+
 function start() {
     checkAll();
     checkExpiry();
     checkPingTargets();
+    checkIcmpTargets();
     setInterval(checkAll, 30 * 1000);
     setInterval(checkExpiry, 6 * 60 * 60 * 1000);
     setInterval(checkPingTargets, 30 * 1000);
+    setInterval(checkIcmpTargets, 30 * 1000);
     console.log('[Monitor] Started - ticker every 30s | Ping plan-based | Expiry check every 6h');
 
     // ── Report cron jobs ─────────────────────────────────────────────────────
