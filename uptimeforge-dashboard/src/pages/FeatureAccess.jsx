@@ -18,6 +18,7 @@ function Toggle({ checked, onChange, disabled }) {
 const IcoSSL = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
 const IcoCharts = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
 const IcoPing = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>;
+const IcoTarget = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8"><circle cx="12" cy="12" r="2" fill="#22c55e" stroke="none"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/></svg>;
 const IcoWhatsApp = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.729-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.864.001-2.637-1.03-5.114-2.905-6.989-1.874-1.873-4.35-2.903-6.986-2.903-5.438 0-9.863 4.42-9.866 9.865-.002 1.95.518 3.854 1.506 5.551l-.988 3.605 3.708-.973zm11.394-4.887c-.314-.157-1.858-.917-2.142-1.02-.284-.103-.49-.155-.696.156-.206.31-.798 1.02-.978 1.225-.18.207-.36.23-.674.074-1.476-.738-2.546-1.306-3.41-2.793-.23-.396.23-.367.658-1.22.073-.153.036-.288-.018-.395-.055-.107-.49-1.18-.67-1.62-.177-.425-.357-.367-.49-.374-.127-.007-.272-.008-.418-.008-.145 0-.38.054-.58.273-.2.22-.76.742-.76 1.81 0 1.067.776 2.094.884 2.242.11.147 1.527 2.33 3.697 3.268.516.223.918.357 1.233.456.518.165.99.14 1.36.085.414-.06 1.858-.76 2.117-1.498.26-.737.26-1.37.18-1.5-.078-.124-.284-.207-.598-.364z"/></svg>;
 const IcoTelegram = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="#0088cc"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-.97.53-1.34.52-.41-.01-1.2-.23-1.79-.42-.72-.24-1.29-.36-1.24-.76.03-.2.31-.4.85-.62 3.32-1.44 5.53-2.4 6.63-2.87 3.16-1.35 3.82-1.59 4.25-1.59.09 0 .31.02.45.14.12.1.15.24.17.34-.02.1-.01.2-.02.26z"/></svg>;
 const IcoWebhook = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>;
@@ -28,23 +29,25 @@ const IcoReports = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="n
 const FEATURES = [
     { key: 'domainSsl',   label: 'Domain & SSL Monitoring', desc: 'View SSL certificate expiry and domain expiry dates', icon: <IcoSSL /> },
     { key: 'charts',      label: 'Performance Charts',       desc: 'View response time charts, uptime stats and alert history', icon: <IcoCharts /> },
-    { key: 'pingMonitor', label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
-    { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
-    { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
-    { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
-    { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: <IcoRocketChat /> },
-    { key: 'slack',       label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: <IcoSlackFA /> },
-    { key: 'reports',     label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: <IcoReports /> },
+    { key: 'pingMonitor',     label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
+    { key: 'pingMonitorIcmp', label: 'Ping Monitor',              desc: 'Make sure your server or any device in the network is always available', icon: <IcoTarget /> },
+    { key: 'whatsapp',        label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
+    { key: 'telegram',        label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
+    { key: 'webhook',         label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
+    { key: 'rocketChat',      label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: <IcoRocketChat /> },
+    { key: 'slack',           label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: <IcoSlackFA /> },
+    { key: 'reports',         label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: <IcoReports /> },
 ];
 
 const PLAN_FEATURES = [
-    { key: 'pingMonitor', label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
-    { key: 'whatsapp',    label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
-    { key: 'telegram',    label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
-    { key: 'webhook',     label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
-    { key: 'rocketChat',  label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: <IcoRocketChat /> },
-    { key: 'slack',       label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: <IcoSlackFA /> },
-    { key: 'reports',     label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: <IcoReports /> },
+    { key: 'pingMonitor',     label: 'Port Monitoring',          desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: <IcoPing /> },
+    { key: 'pingMonitorIcmp', label: 'Ping Monitor',              desc: 'Make sure your server or any device in the network is always available', icon: <IcoTarget /> },
+    { key: 'whatsapp',        label: 'WhatsApp Alerts',          desc: 'Send downtime and recovery alerts via WhatsApp', icon: <IcoWhatsApp /> },
+    { key: 'telegram',        label: 'Telegram Alerts',          desc: 'Send downtime and recovery alerts via Telegram bot', icon: <IcoTelegram /> },
+    { key: 'webhook',         label: 'Webhook Integration',      desc: 'Send alert payloads to custom webhook URLs', icon: <IcoWebhook /> },
+    { key: 'rocketChat',      label: 'Rocket.Chat Integration',  desc: 'Send alerts to Rocket.Chat channels', icon: <IcoRocketChat /> },
+    { key: 'slack',           label: 'Slack Integration',        desc: 'Send alerts to your Slack channel via incoming webhook', icon: <IcoSlackFA /> },
+    { key: 'reports',         label: 'Weekly / Monthly Reports', desc: 'Generate and download automated monitoring reports', icon: <IcoReports /> },
 ];
 const BRONZE_FEATURES = PLAN_FEATURES;
 const SILVER_FEATURES = PLAN_FEATURES;
@@ -349,7 +352,7 @@ const FEATURE_ACCESS_STYLES = `
 `;
 
 export default function FeatureAccess({ readOnly = false }) {
-    const DEFAULT_ACC = { pingMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
+    const DEFAULT_ACC = { pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
     const [access,     setAccess]     = useState({ domainSsl: false, charts: false, ...DEFAULT_ACC });
     const [bronzeAcc,  setBronzeAcc]  = useState({ ...DEFAULT_ACC });
     const [silverAcc,  setSilverAcc]  = useState({ ...DEFAULT_ACC });
