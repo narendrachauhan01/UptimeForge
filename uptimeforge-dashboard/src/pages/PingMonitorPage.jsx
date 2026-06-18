@@ -79,7 +79,7 @@ function TargetModal({ target, onClose, onSave }) {
             <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:420, padding:28, boxShadow:'var(--card-shadow)', position:'relative' }}>
                 <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
                 <h2 style={{ color:'var(--text-main)', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
-                    {target ? '✏️ Edit Target' : '➕ Add Ping Monitor Target'}
+                    {target ? '✏️ Edit Target' : '➕ Add Ping Monitoring Target'}
                 </h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     <div>
@@ -650,7 +650,7 @@ export default function PingMonitorPage() {
             <div className="mon-main">
                 <div className="mon-header">
                     <div>
-                        <h1 className="mon-title">Ping Monitor <span className="mon-dot">.</span></h1>
+                        <h1 className="mon-title">Ping Monitoring <span className="mon-dot">.</span></h1>
                         <p className="mon-sub">Make sure your server or any device in the network is always available.</p>
                     </div>
                     <button onClick={() => {

@@ -216,7 +216,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
     { to: '/port',         label: 'Port Monitoring', icon: <IcoPing /> },
-    { to: '/ping',         label: 'Ping Monitor', icon: <IcoTarget /> },
+    { to: '/ping',         label: 'Ping Monitoring', icon: <IcoTarget /> },
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
@@ -762,7 +762,7 @@ function AppInner() {
                   const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   const blocked = acc && acc.pingMonitorIcmp === false;
-                  return blocked ? <UpgradeGate user={user} feature="Ping Monitor" /> : <PingMonitorPage />;
+                  return blocked ? <UpgradeGate user={user} feature="Ping Monitoring" /> : <PingMonitorPage />;
               })()} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
