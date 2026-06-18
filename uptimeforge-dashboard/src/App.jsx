@@ -427,7 +427,7 @@ function AppInner() {
     }).catch(() => {});
   }, []);
 
-  useEffect(() => {
+  const checkAuth = () => {
     // Check admin cookie first
     axios.get(`${API_URL}/api/auth/verify`, { withCredentials: true })
       .then(() => { setIsAdmin(true); setAuthed(true); })
@@ -435,8 +435,22 @@ function AppInner() {
         // Not admin — check user cookie
         axios.get(`${API_URL}/api/users/me`, { withCredentials: true })
           .then(r => { setUser(r.data); setIsAdmin(false); setAuthed(true); })
-          .catch(() => { setAuthed(false); });
+          .catch(() => { setAuthed(false); setUser(null); setIsAdmin(false); });
       });
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  // Re-check auth when page is restored from browser back-forward cache —
+  // prevents a stale "logged in" view from showing after logout + back button
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted) checkAuth();
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
   const handleLogin = (userData, isNewUser = false) => {
