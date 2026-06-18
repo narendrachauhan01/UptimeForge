@@ -70,8 +70,8 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
 exports.getPlans = async (req, res) => {
     try {
         const settings = await Settings.get();
-        const FREE_DEFAULT = { domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
-        const PLAN_DEFAULT = { pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
+        const FREE_DEFAULT = { domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
+        const PLAN_DEFAULT = { pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false };
         res.json({
             plans: settings.plans,
             verificationFee: settings.verificationFee || 2,

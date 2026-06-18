@@ -63,6 +63,7 @@ const settingsSchema = new mongoose.Schema({
         charts:          { type: Boolean, default: false },
         pingMonitor:     { type: Boolean, default: false },
         pingMonitorIcmp: { type: Boolean, default: false },
+        dnsMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -73,6 +74,7 @@ const settingsSchema = new mongoose.Schema({
     bronzeAccess: {
         pingMonitor:     { type: Boolean, default: false },
         pingMonitorIcmp: { type: Boolean, default: false },
+        dnsMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -83,6 +85,7 @@ const settingsSchema = new mongoose.Schema({
     silverAccess: {
         pingMonitor:     { type: Boolean, default: false },
         pingMonitorIcmp: { type: Boolean, default: false },
+        dnsMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -93,6 +96,7 @@ const settingsSchema = new mongoose.Schema({
     goldAccess: {
         pingMonitor:     { type: Boolean, default: false },
         pingMonitorIcmp: { type: Boolean, default: false },
+        dnsMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -192,6 +196,7 @@ settingsSchema.statics.get = async function () {
     for (const [key, obj] of [['freeTrialAccess', s.freeTrialAccess], ['bronzeAccess', s.bronzeAccess], ['silverAccess', s.silverAccess], ['goldAccess', s.goldAccess]]) {
         if (obj && obj.reports === undefined) { obj.reports = false; s.markModified(key); dirty = true; }
         if (obj && obj.pingMonitorIcmp === undefined) { obj.pingMonitorIcmp = false; s.markModified(key); dirty = true; }
+        if (obj && obj.dnsMonitor === undefined) { obj.dnsMonitor = false; s.markModified(key); dirty = true; }
     }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }

@@ -15,6 +15,7 @@ const PlanSettings      = lazy(() => import('./pages/PlanSettings'));
 const FeatureAccess     = lazy(() => import('./pages/FeatureAccess'));
 const PingMonitor       = lazy(() => import('./pages/PingMonitor'));
 const PingMonitorPage   = lazy(() => import('./pages/PingMonitorPage'));
+const DnsMonitorPage    = lazy(() => import('./pages/DnsMonitorPage'));
 const SiteDetail        = lazy(() => import('./pages/SiteDetail'));
 const IncidentDetail    = lazy(() => import('./pages/IncidentDetail'));
 const Reports           = lazy(() => import('./pages/Reports'));
@@ -70,6 +71,7 @@ const IcoSettings = () => <svg width="18" height="18" fill="none" stroke="curren
 const IcoToggle  = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="1" y="6" width="22" height="12" rx="6"/><circle cx="16" cy="12" r="3" fill="currentColor" stroke="none"/></svg>;
 const IcoPing     = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="10" y="2" width="4" height="4" rx="0.8" fill="currentColor" stroke="none"/><rect x="6" y="6" width="12" height="9" rx="1.5"/><line x1="8" y1="6" x2="8" y2="11"/><line x1="10" y1="6" x2="10" y2="11"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="14" y1="6" x2="14" y2="11"/><line x1="16" y1="6" x2="16" y2="11"/><line x1="12" y1="15" x2="12" y2="20"/></svg>;
 const IcoTarget   = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/></svg>;
+const IcoDns      = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/><circle cx="6.5" cy="6" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="18" r="0.6" fill="currentColor" stroke="none"/></svg>;
 const IcoReport   = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>;
 const IcoIncident = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 const IcoMenu    = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
@@ -217,6 +219,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
     { to: '/port',         label: 'Port Monitoring', icon: <IcoPing /> },
     { to: '/ping',         label: 'Ping Monitoring', icon: <IcoTarget /> },
+    { to: '/dns',          label: 'DNS Monitoring', icon: <IcoDns /> },
     { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
@@ -398,10 +401,10 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -763,6 +766,12 @@ function AppInner() {
                   const acc = user?.plan ? planAcc[user.plan] : null;
                   const blocked = acc && acc.pingMonitorIcmp === false;
                   return blocked ? <UpgradeGate user={user} feature="Ping Monitoring" /> : <PingMonitorPage />;
+              })()} />
+              <Route path="/dns" element={(() => {
+                  const planAcc = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
+                  const acc = user?.plan ? planAcc[user.plan] : null;
+                  const blocked = acc && acc.dnsMonitor === false;
+                  return blocked ? <UpgradeGate user={user} feature="DNS Monitoring" /> : <DnsMonitorPage />;
               })()} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/support" element={<ContactSupport user={user} />} />

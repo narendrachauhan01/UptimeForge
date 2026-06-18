@@ -1,12 +1,14 @@
 const https = require('https');
 const http = require('http');
 const net = require('net');
+const dns = require('dns');
 const { execFile } = require('child_process');
 const axios = require('axios');
 const cron = require('node-cron');
 const Server = require('../models/Server');
 const PingTarget = require('../models/PingTarget');
 const IcmpTarget = require('../models/IcmpTarget');
+const DnsTarget = require('../models/DnsTarget');
 const Recipient = require('../models/Recipient');
 const Alert = require('../models/Alert');
 const Settings = require('../models/Settings');
@@ -573,6 +575,40 @@ function icmpPingCheck(host) {
     });
 }
 
+// ── DNS resolution check (for DNS Monitoring feature) ───────────────────────
+function dnsWithTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('ETIMEDOUT')), ms)),
+    ]);
+}
+async function dnsCheck(hostname, recordType, expectedValue, dnsServer) {
+    const start = Date.now();
+    try {
+        let resolver = dns.promises;
+        if (dnsServer) {
+            const r = new dns.promises.Resolver();
+            r.setServers([dnsServer]);
+            resolver = r;
+        }
+        let values;
+        switch (recordType) {
+            case 'AAAA':  values = await dnsWithTimeout(resolver.resolve6(hostname), 5000); break;
+            case 'CNAME': values = await dnsWithTimeout(resolver.resolveCname(hostname), 5000); break;
+            case 'MX':    values = (await dnsWithTimeout(resolver.resolveMx(hostname), 5000)).map(r => r.exchange); break;
+            case 'TXT':   values = (await dnsWithTimeout(resolver.resolveTxt(hostname), 5000)).map(arr => arr.join('')); break;
+            case 'NS':    values = await dnsWithTimeout(resolver.resolveNs(hostname), 5000); break;
+            default:      values = await dnsWithTimeout(resolver.resolve4(hostname), 5000);
+        }
+        const ms = Date.now() - start;
+        const exp = (expectedValue || '').trim().toLowerCase();
+        const matches = !exp || values.some(v => String(v).toLowerCase().includes(exp));
+        return { alive: matches, ms, values };
+    } catch (e) {
+        return { alive: false, ms: Date.now() - start, values: [] };
+    }
+}
+
 // ── Check all ping targets ───────────────────────────────────────────────────
 async function checkPingTargets() {
     try {
@@ -817,15 +853,147 @@ async function checkIcmpTargets() {
     }
 }
 
+// ── Check all DNS monitor targets ────────────────────────────────────────────
+async function checkDnsTargets() {
+    try {
+        const settings   = await Settings.get();
+        const targets    = await DnsTarget.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified');
+        const recipients = await Recipient.find({ active: true }).populate('servers');
+
+        for (const target of targets) {
+            if (target.userId) {
+                const u = target.userId;
+                const plan = u.plan || 'free_trial';
+                if (plan === 'free_trial') {
+                    if (!u.trialVerified) continue;
+                    if (u.trialEndsAt && new Date() > new Date(u.trialEndsAt)) continue;
+                } else {
+                    if (u.planEndsAt && new Date() > new Date(u.planEndsAt)) continue;
+                }
+            }
+            if (target.userId) {
+                const plan = target.userId.plan || 'free_trial';
+                const pingInterval = plan === 'free_trial'
+                    ? (settings.freeTrialPingInterval || 180)
+                    : (settings.plans?.[plan]?.pingInterval || 60);
+                const lastChecked = target.lastChecked ? new Date(target.lastChecked).getTime() : 0;
+                if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
+            }
+
+            const result = await dnsCheck(target.hostname, target.recordType, target.expectedValue, target.dnsServer);
+            const prevStatus = target.status;
+            const wasAlertSent = target.downAlertSent;
+            const uid = String(target.userId?._id || target.userId || '');
+
+            console.log(`[DNS] ${target.name} (${target.hostname} ${target.recordType}) → ${result.alive ? 'UP' : 'DOWN'} | ${result.ms || '—'}ms | ${result.values.join(', ') || 'no answer'}`);
+
+            const setFields = {
+                lastChecked: new Date(),
+                responseTime: result.ms,
+                status: result.alive ? 'up' : 'down',
+                resolvedValues: result.values,
+            };
+
+            const getEligible = () => {
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                const ids = target.notifyRecipients.map(id => id.toString());
+                return recipients.filter(r => ids.includes(r._id.toString()));
+            };
+
+            if (!result.alive) {
+                if (prevStatus !== 'down') setFields.lastDownAt = new Date();
+                if (prevStatus !== 'down' && !wasAlertSent) {
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const reason = target.expectedValue
+                        ? `did not resolve to expected value "${target.expectedValue}"`
+                        : 'failed to resolve';
+                    const waMsg = `🚨 *DNS Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.hostname} (${target.recordType})\n*Time:* ${now()}\n\nDNS check ${reason} ❌`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] DNS Issue: ${target.name}`, pingDownEmailHtml(target.name, `${target.hostname} (${target.recordType})`, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: target.hostname },
+                        'down',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  target.hostname,
+                        type:       'down',
+                        message:    `DNS check failed — ${reason}`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                    setFields.downAlertSent = true;
+                }
+            } else {
+                if (prevStatus === 'down') {
+                    setFields.lastUpAt = new Date();
+                    setFields.downAlertSent = false;
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const waMsg = `✅ *DNS Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.hostname} (${target.recordType})\n*Time:* ${now()}\n\nDNS now resolves correctly ✅`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] DNS Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, `${target.hostname} (${target.recordType})`, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: target.hostname },
+                        'up',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  target.hostname,
+                        type:       'recovered',
+                        message:    `DNS resolved correctly again`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                }
+            }
+
+            await DnsTarget.findByIdAndUpdate(target._id, {
+                $set: setFields,
+                $push: { history: { $each: [{ time: new Date(), responseTime: result.ms, status: result.alive ? 'up' : 'down' }], $slice: -1440 } },
+            });
+        }
+    } catch (err) {
+        console.error('[DNS] checkDnsTargets error:', err.message);
+    }
+}
+
 function start() {
     checkAll();
     checkExpiry();
     checkPingTargets();
     checkIcmpTargets();
+    checkDnsTargets();
     setInterval(checkAll, 30 * 1000);
     setInterval(checkExpiry, 6 * 60 * 60 * 1000);
     setInterval(checkPingTargets, 30 * 1000);
     setInterval(checkIcmpTargets, 30 * 1000);
+    setInterval(checkDnsTargets, 30 * 1000);
     console.log('[Monitor] Started - ticker every 30s | Ping plan-based | Expiry check every 6h');
 
     // ── Report cron jobs ─────────────────────────────────────────────────────
