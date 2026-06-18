@@ -1073,15 +1073,16 @@ export default function PingMonitor() {
                         </div>
                     ) : filtered.length === 0 ? (
                         <div className="mon-empty">
-                            <div style={{marginBottom:12,display:'flex',justifyContent:'center'}}>
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="4" y="9" width="16" height="11" rx="2"/>
-                                    <rect x="9" y="5" width="6" height="4" rx="1"/>
-                                    <line x1="7" y1="9" x2="7" y2="13"/>
-                                    <line x1="9.5" y1="9" x2="9.5" y2="13"/>
-                                    <line x1="12" y1="9" x2="12" y2="13"/>
-                                    <line x1="14.5" y1="9" x2="14.5" y2="13"/>
-                                    <line x1="17" y1="9" x2="17" y2="13"/>
+                            <div style={{width:64,height:64,borderRadius:16,background:'rgba(34,197,94,0.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px'}}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="10" y="2" width="4" height="4" rx="0.8" fill="#22c55e" stroke="none"/>
+                                    <rect x="6" y="6" width="12" height="9" rx="1.5"/>
+                                    <line x1="8" y1="6" x2="8" y2="11"/>
+                                    <line x1="10" y1="6" x2="10" y2="11"/>
+                                    <line x1="12" y1="6" x2="12" y2="11"/>
+                                    <line x1="14" y1="6" x2="14" y2="11"/>
+                                    <line x1="16" y1="6" x2="16" y2="11"/>
+                                    <line x1="12" y1="15" x2="12" y2="20"/>
                                 </svg>
                             </div>
                             <div style={{fontWeight:700,color:'var(--text-muted)'}}>No targets yet</div>
