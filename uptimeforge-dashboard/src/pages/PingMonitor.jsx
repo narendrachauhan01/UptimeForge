@@ -83,7 +83,7 @@ function TargetModal({ target, onClose, onSave }) {
             <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:420, padding:28, boxShadow:'var(--card-shadow)', position:'relative' }}>
                 <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
                 <h2 style={{ color:'var(--text-main)', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
-                    {target ? '✏️ Edit Target' : '➕ Add Ping Target'}
+                    {target ? '✏️ Edit Target' : '➕ Add Port Monitor Target'}
                 </h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                     <div>
@@ -346,7 +346,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                             </div>
                         </div>
                         <div ref={termRef} style={{ height:180, overflowY:'auto', padding:'10px 14px', fontFamily:'monospace', fontSize:12, lineHeight:1.75 }}>
-                            {lines.length===0 && <div style={{ color:'#4d5566' }}>Press ▶ Start to begin live ping test...</div>}
+                            {lines.length===0 && <div style={{ color:'#4d5566' }}>Press ▶ Start to begin live connectivity test...</div>}
                             {lines.map(l => <div key={l.id} style={{ color:l.color }}>{l.text}</div>)}
                             {running && <div style={{ color:'#4ade80', animation:'blink 1s step-end infinite' }}>█</div>}
                         </div>
@@ -461,7 +461,7 @@ export default function PingMonitor() {
         return r;
     };
     const deleteTarget = async (id) => {
-        const _ok1 = await confirm('Delete this ping target?', { title:'Delete Target', confirmText:'Delete', danger:true }); if (!_ok1) return;
+        const _ok1 = await confirm('Delete this target?', { title:'Delete Target', confirmText:'Delete', danger:true }); if (!_ok1) return;
         await axios.delete(`${API_URL}/api/ping-targets/${id}`, { withCredentials: true });
         setSelected(null); load();
     };
