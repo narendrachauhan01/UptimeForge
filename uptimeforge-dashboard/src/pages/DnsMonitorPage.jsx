@@ -70,9 +70,15 @@ function TargetModal({ target, onClose, onSave }) {
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
             onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:440, padding:28, boxShadow:'var(--card-shadow)', position:'relative', maxHeight:'90vh', overflowY:'auto' }}>
-                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
-                <h2 style={{ color:'var(--text-main)', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
+            <style>{`
+                .dns-modal-scroll::-webkit-scrollbar { width: 7px; }
+                .dns-modal-scroll::-webkit-scrollbar-track { background: transparent; }
+                .dns-modal-scroll::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 10px; }
+                .dns-modal-scroll::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.55); }
+            `}</style>
+            <div className="dns-modal-scroll" style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:600, padding:'32px 36px', boxShadow:'var(--card-shadow)', position:'relative', maxHeight:'92vh', overflowY:'auto' }}>
+                <button onClick={onClose} style={{ position:'absolute', top:18, right:18, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:30, height:30, borderRadius:8, cursor:'pointer', fontSize:15 }}>✕</button>
+                <h2 style={{ color:'var(--text-main)', margin:'0 0 24px', fontSize:20, fontWeight:800 }}>
                     {target ? '✏️ Edit Target' : '➕ Add DNS Monitoring Target'}
                 </h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
