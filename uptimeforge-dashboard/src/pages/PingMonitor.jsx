@@ -60,6 +60,7 @@ function TargetModal({ target, onClose, onSave }) {
     const [integSites,   setIntegSites]   = useState({});
     const [integExpanded,setIntegExpanded]= useState(null);
     const [portDropdownOpen, setPortDropdownOpen] = useState(false);
+    const [ipVerDropdownOpen, setIpVerDropdownOpen] = useState(false);
 
     const isDark = document.body.classList.contains('charts-dark-theme');
 
@@ -155,15 +156,36 @@ function TargetModal({ target, onClose, onSave }) {
                 {/* Advanced Settings */}
                 <div style={{ marginTop:18, paddingTop:16, borderTop:'1px solid var(--border-color)' }}>
                     <div style={{ fontSize:13, fontWeight:800, color:'var(--text-main)', marginBottom:12 }}>⚙️ Advanced Settings</div>
-                    <div>
+                    <div style={{ position:'relative' }}>
                         <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:4 }}>Internet Protocol version</label>
                         <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:6 }}>
                             {IP_VERSION_OPTIONS.find(o => o.value === (form.ipVersion || 'ipv4_priority'))?.desc}
                         </div>
-                        <select value={form.ipVersion || 'ipv4_priority'} onChange={e=>setForm({...form, ipVersion: e.target.value})}
-                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }}>
-                            {IP_VERSION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                        </select>
+                        <button type="button"
+                            onClick={() => setIpVerDropdownOpen(p => !p)}
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}>
+                            <span>{IP_VERSION_OPTIONS.find(o => o.value === (form.ipVersion || 'ipv4_priority'))?.label}</span>
+                            <svg width="14" height="14" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: ipVerDropdownOpen ? 'rotate(180deg)' : 'none', transition:'transform 0.15s', flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        {ipVerDropdownOpen && (
+                            <>
+                                <div onClick={() => setIpVerDropdownOpen(false)} style={{ position:'fixed', inset:0, zIndex:19 }} />
+                                <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:9, boxShadow:'var(--card-shadow)', overflow:'hidden', zIndex:20 }}>
+                                    {IP_VERSION_OPTIONS.map(o => {
+                                        const isSel = (form.ipVersion || 'ipv4_priority') === o.value;
+                                        return (
+                                            <div key={o.value}
+                                                onClick={() => { setForm({...form, ipVersion: o.value}); setIpVerDropdownOpen(false); }}
+                                                style={{ padding:'10px 14px', fontSize:13, fontWeight: isSel ? 700 : 500, color: isSel ? 'var(--primary)' : 'var(--text-main)', background: isSel ? 'var(--primary-glow)' : 'transparent', cursor:'pointer', borderBottom:'1px solid var(--border-color)' }}
+                                                onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = 'var(--bg-input)'; }}
+                                                onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent'; }}>
+                                                {o.label}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
                 {/* Recipients */}
