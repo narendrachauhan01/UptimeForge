@@ -534,12 +534,37 @@ async function checkExpiry() {
 }
 
 // ── TCP Ping check ──────────────────────────────────────────────────────────
-function tcpPing(host, port) {
+function resolveDnsFamily(host, family) {
+    return new Promise((resolve) => {
+        dns.lookup(host, { family }, (err, address) => {
+            if (err) return resolve(null);
+            resolve(address);
+        });
+    });
+}
+
+// Resolves hostname to an address per the chosen IP version preference.
+// "priority" modes try the preferred family first, falling back only if
+// that family has no DNS record at all (not if the connection itself fails).
+async function resolveByIpVersion(host, ipVersion) {
+    if (net.isIP(host)) return { address: host, family: net.isIPv4(host) ? 4 : 6 };
+    const order = ipVersion === 'ipv6_only'     ? [6]
+                : ipVersion === 'ipv4_only'     ? [4]
+                : ipVersion === 'ipv6_priority' ? [6, 4]
+                : [4, 6]; // ipv4_priority (default)
+    for (const fam of order) {
+        const addr = await resolveDnsFamily(host, fam);
+        if (addr) return { address: addr, family: fam };
+    }
+    return null;
+}
+
+function tcpPing(address, port, family) {
     return new Promise((resolve) => {
         const start = Date.now();
         const sock = new net.Socket();
         sock.setTimeout(5000);
-        sock.connect(port, host, () => {
+        sock.connect({ host: address, port, family }, () => {
             const ms = Date.now() - start;
             sock.destroy();
             resolve({ alive: true, ms });
@@ -549,14 +574,17 @@ function tcpPing(host, port) {
     });
 }
 
-async function pingCheck(host, port) {
+async function pingCheck(host, port, ipVersion) {
+    const resolved = await resolveByIpVersion(host, ipVersion || 'ipv4_priority');
+    if (!resolved) return { alive: false, ms: null };
+    const { address, family } = resolved;
     // If port explicitly set, only try that port
     if (port && port !== 80 && port !== 443) {
-        return await tcpPing(host, port);
+        return await tcpPing(address, port, family);
     }
     // Default: try 443 then 80
-    let r = await tcpPing(host, port || 443);
-    if (!r.alive && (!port || port === 443)) r = await tcpPing(host, 80);
+    let r = await tcpPing(address, port || 443, family);
+    if (!r.alive && (!port || port === 443)) r = await tcpPing(address, 80, family);
     return r;
 }
 
@@ -638,7 +666,7 @@ async function checkPingTargets() {
                 if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
             }
 
-            const result = await pingCheck(target.host, target.port);
+            const result = await pingCheck(target.host, target.port, target.ipVersion);
             const prevStatus = target.status;
             const wasAlertSent = target.downAlertSent;
 

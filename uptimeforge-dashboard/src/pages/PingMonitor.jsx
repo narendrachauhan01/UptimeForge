@@ -23,9 +23,33 @@ function PulseDot({ status, size = 12 }) {
     );
 }
 
+// ── TCP port presets ──────────────────────────────────────────────────────────
+const PORT_PRESETS = [
+    { label: 'FTP',         port: 21   },
+    { label: 'SSH / SFTP',  port: 22   },
+    { label: 'SMTP',        port: 25   },
+    { label: 'DNS',         port: 53   },
+    { label: 'HTTP',        port: 80   },
+    { label: 'POP3',        port: 110  },
+    { label: 'IMAP',        port: 143  },
+    { label: 'HTTPS',       port: 443  },
+    { label: 'SMTP',        port: 465  },
+    { label: 'SMTP',        port: 587  },
+    { label: 'IMAP',        port: 993  },
+    { label: 'POP3',        port: 995  },
+    { label: 'MySQL',       port: 3306 },
+];
+
+const IP_VERSION_OPTIONS = [
+    { value: 'ipv4_priority', label: 'IPv4 / IPv6 (IPv4 Priority)', desc: "Default uses IPv4 first, then IPv6 only if IPv4 isn't available." },
+    { value: 'ipv6_priority', label: 'IPv4 / IPv6 (IPv6 Priority)', desc: "Uses IPv6 first, then IPv4 only if IPv6 isn't available." },
+    { value: 'ipv4_only',     label: 'IPv4 only',                  desc: 'Only connects over IPv4 — marked DOWN if no IPv4 address exists.' },
+    { value: 'ipv6_only',     label: 'IPv6 only',                  desc: 'Only connects over IPv6 — marked DOWN if no IPv6 address exists.' },
+];
+
 // ── Add/Edit Modal ────────────────────────────────────────────────────────────
 function TargetModal({ target, onClose, onSave }) {
-    const [form,         setForm]         = useState(target || { name:'', host:'', port:'' });
+    const [form,         setForm]         = useState(target || { name:'', host:'', port:'', ipVersion:'ipv4_priority' });
     const [saving,       setSaving]       = useState(false);
     const [saveError,    setSaveError]    = useState('');
     const [recipients,   setRecipients]   = useState([]);
@@ -35,6 +59,7 @@ function TargetModal({ target, onClose, onSave }) {
     const [integrations, setIntegrations] = useState([]);
     const [integSites,   setIntegSites]   = useState({});
     const [integExpanded,setIntegExpanded]= useState(null);
+    const [portDropdownOpen, setPortDropdownOpen] = useState(false);
 
     const isDark = document.body.classList.contains('charts-dark-theme');
 
@@ -64,7 +89,7 @@ function TargetModal({ target, onClose, onSave }) {
         setSaving(true);
         setSaveError('');
         try {
-            const payload = { name: form.name, host: form.host, port: form.port || '', notifyRecipients: selected };
+            const payload = { name: form.name, host: form.host, port: form.port || '', ipVersion: form.ipVersion || 'ipv4_priority', notifyRecipients: selected };
             await onSave(payload);
             onClose();
         } catch(e) {
@@ -80,9 +105,15 @@ function TargetModal({ target, onClose, onSave }) {
     return (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
             onClick={e => e.target===e.currentTarget && onClose()}>
-            <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:420, padding:28, boxShadow:'var(--card-shadow)', position:'relative' }}>
-                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
-                <h2 style={{ color:'var(--text-main)', margin:'0 0 20px', fontSize:18, fontWeight:800 }}>
+            <style>{`
+                .pm-modal-scroll::-webkit-scrollbar { width: 7px; }
+                .pm-modal-scroll::-webkit-scrollbar-track { background: transparent; }
+                .pm-modal-scroll::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 10px; }
+                .pm-modal-scroll::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.55); }
+            `}</style>
+            <div className="pm-modal-scroll" style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:560, padding:'32px 36px', boxShadow:'var(--card-shadow)', position:'relative', maxHeight:'92vh', overflowY:'auto' }}>
+                <button onClick={onClose} style={{ position:'absolute', top:18, right:18, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:30, height:30, borderRadius:8, cursor:'pointer', fontSize:15 }}>✕</button>
+                <h2 style={{ color:'var(--text-main)', margin:'0 0 24px', fontSize:20, fontWeight:800 }}>
                     {target ? '✏️ Edit Target' : '➕ Add Port Monitor Target'}
                 </h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
@@ -96,13 +127,43 @@ function TargetModal({ target, onClose, onSave }) {
                         <input value={form.host} onChange={e=>setForm({...form,host:e.target.value})} placeholder="192.168.1.1 or mysite.com"
                             style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
                     </div>
-                    <div>
-                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Port</label>
-                        <input type="number" min="1" max="65535" placeholder="e.g. 443 (blank = auto)"
+                    <div style={{ position:'relative' }}>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>TCP port</label>
+                        <input type="number" min="1" max="65535" placeholder="E.g. 22 (blank = auto)"
                             value={form.port}
                             onChange={e => setForm({...form, port: e.target.value === '' ? '' : Number(e.target.value)})}
+                            onFocus={() => setPortDropdownOpen(true)}
+                            onBlur={() => setTimeout(() => setPortDropdownOpen(false), 150)}
                             style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
                         <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>Blank = auto (443→80) · 443=HTTPS · 80=HTTP · 22=SSH · 3306=MySQL</div>
+                        {portDropdownOpen && (
+                            <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:9, boxShadow:'var(--card-shadow)', maxHeight:220, overflowY:'auto', zIndex:20 }}>
+                                {PORT_PRESETS.map(p => (
+                                    <div key={p.port}
+                                        onMouseDown={e => { e.preventDefault(); setForm({...form, port: p.port}); setPortDropdownOpen(false); }}
+                                        style={{ padding:'9px 14px', fontSize:13, color:'var(--text-main)', cursor:'pointer', borderBottom:'1px solid var(--border-color)' }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-glow)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                        {p.label} - {p.port}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Advanced Settings */}
+                <div style={{ marginTop:18, paddingTop:16, borderTop:'1px solid var(--border-color)' }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:'var(--text-main)', marginBottom:12 }}>⚙️ Advanced Settings</div>
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:4 }}>Internet Protocol version</label>
+                        <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:6 }}>
+                            {IP_VERSION_OPTIONS.find(o => o.value === (form.ipVersion || 'ipv4_priority'))?.desc}
+                        </div>
+                        <select value={form.ipVersion || 'ipv4_priority'} onChange={e=>setForm({...form, ipVersion: e.target.value})}
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }}>
+                            {IP_VERSION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
                     </div>
                 </div>
                 {/* Recipients */}
@@ -251,7 +312,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
         seqRef.current++;
         const n = seqRef.current;
         try {
-            const r = await axios.post(`${API_URL}/api/ping`, { target:target.host, port:target.port }, { withCredentials: true });
+            const r = await axios.post(`${API_URL}/api/ping`, { target:target.host, port:target.port, ipVersion:target.ipVersion }, { withCredentials: true });
             r.data.alive
                 ? addLine(`Reply from ${target.host}: seq=${n}  time=${r.data.ms}ms`, '#4ade80')
                 : addLine(`Request timeout for seq ${n}`, '#f87171');
