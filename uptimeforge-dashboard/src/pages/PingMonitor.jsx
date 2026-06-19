@@ -111,7 +111,7 @@ function TargetModal({ target, onClose, onSave }) {
                 .pm-modal-scroll::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 10px; }
                 .pm-modal-scroll::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.55); }
             `}</style>
-            <div className="pm-modal-scroll" style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:560, padding:'32px 36px', boxShadow:'var(--card-shadow)', position:'relative', maxHeight:'92vh', overflowY:'auto' }}>
+            <div className="pm-modal-scroll" style={{ background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:20, width:'100%', maxWidth:660, padding:'32px 40px', boxShadow:'var(--card-shadow)', position:'relative', maxHeight:'92vh', overflowY:'auto' }}>
                 <button onClick={onClose} style={{ position:'absolute', top:18, right:18, background:'var(--bg-input)', border:'1px solid var(--border-color)', color:'var(--text-main)', width:30, height:30, borderRadius:8, cursor:'pointer', fontSize:15 }}>✕</button>
                 <h2 style={{ color:'var(--text-main)', margin:'0 0 24px', fontSize:20, fontWeight:800 }}>
                     {target ? '✏️ Edit Target' : '➕ Add Port Monitor Target'}
