@@ -33,6 +33,7 @@ function TargetModal({ target, onClose, onSave }) {
     const [rSearch,      setRSearch]      = useState('');
     const [loadingR,     setLoadingR]     = useState(true);
     const [integrations, setIntegrations] = useState([]);
+    const [recordTypeOpen, setRecordTypeOpen] = useState(false);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
@@ -93,12 +94,33 @@ function TargetModal({ target, onClose, onSave }) {
                             style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
                     </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                        <div>
+                        <div style={{ position:'relative' }}>
                             <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Record Type</label>
-                            <select value={form.recordType} onChange={e=>setForm({...form,recordType:e.target.value})}
-                                style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }}>
-                                {RECORD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
+                            <button type="button"
+                                onClick={() => setRecordTypeOpen(p => !p)}
+                                style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}>
+                                <span>{form.recordType}</span>
+                                <svg width="14" height="14" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: recordTypeOpen ? 'rotate(180deg)' : 'none', transition:'transform 0.15s', flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            {recordTypeOpen && (
+                                <>
+                                    <div onClick={() => setRecordTypeOpen(false)} style={{ position:'fixed', inset:0, zIndex:19 }} />
+                                    <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:9, boxShadow:'var(--card-shadow)', overflow:'hidden', zIndex:20 }}>
+                                        {RECORD_TYPES.map(t => {
+                                            const isSel = form.recordType === t;
+                                            return (
+                                                <div key={t}
+                                                    onClick={() => { setForm({...form, recordType: t}); setRecordTypeOpen(false); }}
+                                                    style={{ padding:'10px 14px', fontSize:13, fontWeight: isSel ? 700 : 500, color: isSel ? 'var(--primary)' : 'var(--text-main)', background: isSel ? 'var(--primary-glow)' : 'transparent', cursor:'pointer', borderBottom:'1px solid var(--border-color)' }}
+                                                    onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = 'var(--bg-input)'; }}
+                                                    onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent'; }}>
+                                                    {t}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div>
                             <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>DNS Server</label>
