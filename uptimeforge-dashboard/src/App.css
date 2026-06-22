@@ -16,6 +16,16 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+/* Slim, themed scrollbars app-wide — replaces Chrome's default fat gray scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124,58,237,0.3) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 10px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.5); }
+
 :root {
   --primary: #7c3aed;
   --primary-dark: #6d28d9;
