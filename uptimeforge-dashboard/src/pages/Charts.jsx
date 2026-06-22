@@ -165,6 +165,33 @@ export default function Charts({ theme = 'light', user }) {
     setTimeout(() => URL.revokeObjectURL(url), 100);
   };
 
+  const RtTooltip = ({ active, payload, label }) => {
+    if (!active || !payload?.length) return null;
+    const isUp = payload[0].payload.status === 1;
+    return (
+      <div className="chart-tooltip" style={{
+        background: isDark ? '#1e293b' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+        boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+        borderRadius: 14,
+        padding: '12px 16px',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+      }}>
+        <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600, marginBottom: 6 }}>{label}</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+          <span style={{ fontSize: 20, fontWeight: 800, color: isDark ? '#c084fc' : '#7c3aed', fontFamily: "'Outfit', sans-serif" }}>
+            {payload[0]?.value}
+          </span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#a78bfa' : '#8b5cf6' }}>ms</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '4px 8px', background: isUp ? 'rgba(16,185,129,0.08)' : 'rgba(244,63,94,0.08)', borderRadius: 20, width: 'fit-content' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isUp ? '#10b981' : '#f43f5e', display: 'inline-block' }} />
+          <span style={{ fontSize: 10, fontWeight: 700, color: isUp ? '#10b981' : '#f43f5e' }}>{isUp ? 'Online' : 'Downtime Alert'}</span>
+        </div>
+      </div>
+    );
+  };
+
   const PieTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     const data = payload[0].payload;
@@ -1197,6 +1224,7 @@ export default function Charts({ theme = 'light', user }) {
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} vertical={false} />
                 <XAxis dataKey="time" tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} interval={4} tickLine={false} axisLine={false} />
                 <YAxis type="number" domain={[0, 'auto']} allowDecimals={false} tickFormatter={(v)=>`${Math.round(v)}ms`} tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }} tickLine={false} axisLine={false} width={50} />
+                <Tooltip content={<RtTooltip />} />
                 {avgResponseTime > 0 && (
                   <ReferenceLine y={avgResponseTime} stroke={isDark ? 'rgba(167,139,250,0.4)' : '#a78bfa'} strokeDasharray="4 4"
                     label={{ value: `avg ${avgResponseTime}ms`, position: 'insideTopRight', fontSize: 10, fill: isDark ? '#c084fc' : '#7c3aed', fontWeight: 700 }} />
