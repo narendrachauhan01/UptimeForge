@@ -844,15 +844,33 @@ export default function Landing() {
                   },
                   {
                     icon: (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
-                        <polyline points="4 17 10 11 12 13 18 7" />
-                        <polyline points="14 7 18 7 18 11" />
-                        <line x1="2" y1="22" x2="22" y2="22" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
+                        <rect x="10" y="2" width="4" height="4" rx="0.8" fill="currentColor" stroke="none"/><rect x="6" y="6" width="12" height="9" rx="1.5"/><line x1="8" y1="6" x2="8" y2="11"/><line x1="10" y1="6" x2="10" y2="11"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="14" y1="6" x2="14" y2="11"/><line x1="16" y1="6" x2="16" y2="11"/><line x1="12" y1="15" x2="12" y2="20"/>
                       </svg>
                     ),
-                    color: '#3b82f6',
-                    title: 'Ping Monitoring',
-                    desc: 'Check server latency, custom TCP/UDP ports, and ICMP ping status live. Ensure server availability from multiple locations.',
+                    color: '#0ea5e9',
+                    title: 'Port Monitoring',
+                    desc: 'Monitor any service on your server — SMTP, POP3, FTP, SSH, MySQL and other services running on specific TCP ports.',
+                    preview: (
+                      <div className="lp-feat-preview ping-preview">
+                        <div className="ping-console">
+                          <div className="console-line"><span className="c-prompt">$</span> check 192.168.1.10:443</div>
+                          <div className="console-line success">TCP handshake OK · 22ms</div>
+                          <div className="console-line success">Port 443 (HTTPS) — Open</div>
+                          <div className="console-line footer-line">IPv4 / IPv6 priority supported</div>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="lp-feat4-svg">
+                        <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/>
+                      </svg>
+                    ),
+                    color: '#22c55e',
+                    title: 'Ping Monitor',
+                    desc: 'Make sure your server or any device in the network is always available — real ICMP ping, not just HTTP checks.',
                     preview: (
                       <div className="lp-feat-preview ping-preview">
                         <div className="ping-console">
@@ -860,6 +878,66 @@ export default function Landing() {
                           <div className="console-line success">64 bytes: seq=1 ttl=56 time=11.4 ms</div>
                           <div className="console-line success">64 bytes: seq=2 ttl=56 time=12.2 ms</div>
                           <div className="console-line footer-line">Latency stable · 100% reachability</div>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
+                        <rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/><circle cx="6.5" cy="6" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="18" r="0.6" fill="currentColor" stroke="none"/>
+                      </svg>
+                    ),
+                    color: '#10b981',
+                    title: 'DNS Monitoring',
+                    desc: 'Monitor DNS servers and verify that A, AAAA, CNAME, MX, TXT, NS, SOA, PTR and SRV records resolve to the values you expect.',
+                    preview: (
+                      <div className="lp-feat-preview ping-preview">
+                        <div className="ping-console">
+                          <div className="console-line"><span className="c-prompt">$</span> dig acme-corp.com A</div>
+                          <div className="console-line success">A → 203.0.113.10 (matched)</div>
+                          <div className="console-line success">Query time: 18ms</div>
+                          <div className="console-line footer-line">Custom DNS server supported</div>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/><path d="M10 10l-2 2 2 2M14 10l2 2-2 2"/>
+                      </svg>
+                    ),
+                    color: '#f97316',
+                    title: 'UDP Monitoring',
+                    desc: 'Monitor UDP services like DNS, SNMP, NTP and Syslog. Configurable packet-loss threshold instead of single-probe pass/fail.',
+                    preview: (
+                      <div className="lp-feat-preview ping-preview">
+                        <div className="ping-console">
+                          <div className="console-line"><span className="c-prompt">$</span> udp-probe 10.0.0.5:161</div>
+                          <div className="console-line success">5/5 packets received</div>
+                          <div className="console-line success">0% packet loss</div>
+                          <div className="console-line footer-line">Threshold: 5% lost</div>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="lp-feat4-svg">
+                        <rect x="3" y="4" width="13" height="9" rx="2"/><path d="M19 9a4 4 0 0 1 0 8h-1"/><path d="M5 13v3a3 3 0 0 0 3 3h6"/>
+                      </svg>
+                    ),
+                    color: '#a855f7',
+                    title: 'API Monitoring',
+                    desc: 'Validate API responses with JSON assertions on top of status codes — check field values, not just whether it returned 200.',
+                    preview: (
+                      <div className="lp-feat-preview ping-preview">
+                        <div className="ping-console">
+                          <div className="console-line"><span className="c-prompt">$</span> GET /api/health</div>
+                          <div className="console-line success">HTTP 200 · 84ms</div>
+                          <div className="console-line success">✓ $.status equals "ok"</div>
+                          <div className="console-line footer-line">Assertions: ALL passed</div>
                         </div>
                       </div>
                     )
