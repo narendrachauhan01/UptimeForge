@@ -103,10 +103,11 @@ exports.getAlerts = async (req, res) => {
         }
 
         const page = Math.max(1, parseInt(req.query.page) || 1);
-        const skip = (page - 1) * PAGE_SIZE;
+        const effectiveLimit = req.query.limit ? Math.min(500, Math.max(1, parseInt(req.query.limit) || PAGE_SIZE)) : PAGE_SIZE;
+        const skip = req.query.limit ? 0 : (page - 1) * PAGE_SIZE;
 
         const [alerts, total, downCount, recoveredCount, totalCount, monthAgg] = await Promise.all([
-            Alert.find(queryFilter).sort('-createdAt').skip(skip).limit(PAGE_SIZE),
+            Alert.find(queryFilter).sort('-createdAt').skip(skip).limit(effectiveLimit),
             Alert.countDocuments(queryFilter),
             Alert.countDocuments({ ...baseFilter, type: 'down' }),
             Alert.countDocuments({ ...baseFilter, type: 'recovered' }),

@@ -36,6 +36,7 @@ export default function Charts({ theme = 'light', user }) {
 
   const [servers, setServers]       = useState([]);
   const [alerts, setAlerts]         = useState([]);
+  const [alertTotal, setAlertTotal] = useState(0);
   const [selectedId, setSelectedId] = useState('');
   const [history, setHistory]       = useState([]);
   const [siteSearch, setSiteSearch]     = useState('');
@@ -59,7 +60,7 @@ export default function Charts({ theme = 'light', user }) {
       if (r.data.length > 0) setSelectedId(r.data[0]._id);
       setPageLoading(false); _loaded_Charts = true;
     }).catch(()=>setPageLoading(false));
-    getAlerts().then(r => setAlerts(r.data.alerts || []));
+    getAlerts({ limit: 500 }).then(r => { setAlerts(r.data.alerts || []); setAlertTotal(r.data.summary?.total ?? r.data.total ?? 0); });
     // Fetch actual plan interval using user's plan
     getPlans().then(r => {
       const s = r.data;
@@ -1163,7 +1164,7 @@ export default function Charts({ theme = 'light', user }) {
                 </svg>
               </div>
             </div>
-            <div className="chart-stat-value" style={{ color: '#f59e0b' }}>{alerts.length}</div>
+            <div className="chart-stat-value" style={{ color: '#f59e0b' }}>{alertTotal}</div>
           </div>
         </div>
 
