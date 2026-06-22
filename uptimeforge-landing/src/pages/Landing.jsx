@@ -291,6 +291,166 @@ export default function Landing() {
     );
   };
 
+  const renderPortTab = () => {
+    return (
+      <div className="db-tab-content full-width">
+        <div className="db-section-header">
+          <div>
+            <h4 className="db-section-title">Mail Server — Port 465</h4>
+            <span className="db-section-subtitle">mail.acme-corp.com:465</span>
+          </div>
+          <span className="db-status-badge-green">● UP</span>
+        </div>
+        <div className="db-ping-stats">
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">STATUS</span><span className="db-ping-val green-text">Online</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">LATENCY</span><span className="db-ping-val green-text">38ms</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">UPTIME</span><span className="db-ping-val green-text">99.98%</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG (48H)</span><span className="db-ping-val purple-text">41ms</span></div>
+        </div>
+        <div className="db-terminal">
+          <div className="db-terminal-header">
+            <div className="db-terminal-dots"><span className="db-term-dot red"></span><span className="db-term-dot yellow"></span><span className="db-term-dot green"></span></div>
+            <span className="db-terminal-title">check mail.acme-corp.com:465</span>
+            <span className="db-terminal-badge">LIVE RUNNING</span>
+          </div>
+          <div className="db-terminal-body">
+            <div className="db-term-line">TCP handshake to mail.acme-corp.com:465...</div>
+            <div className="db-term-line"><span className="db-term-reply">Connected</span> in <span className="db-term-time">38ms</span></div>
+            <div className="db-term-line">Port 465 (SMTPS) — Open</div>
+            <div className="db-term-line">IPv4 / IPv6 (IPv4 Priority)</div>
+            <div className="db-term-line cursor-line"><span className="db-term-cursor">_</span></div>
+          </div>
+        </div>
+        <div className="db-ping-alert-box">
+          <span className="db-ping-bell">🔔</span>
+          <p className="db-ping-alert-p">
+            <strong>Alerts active</strong> — When this target goes DOWN or recovers UP, selected recipients will be notified via Email & WhatsApp. Webhooks also fire automatically.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDnsTab = () => {
+    return (
+      <div className="db-tab-content full-width">
+        <div className="db-section-header">
+          <div>
+            <h4 className="db-section-title">Primary Domain — A Record</h4>
+            <span className="db-section-subtitle">acme-corp.com</span>
+          </div>
+          <span className="db-status-badge-green">● RESOLVING</span>
+        </div>
+        <div className="db-ping-stats">
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">STATUS</span><span className="db-ping-val green-text">Resolving</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">QUERY TIME</span><span className="db-ping-val green-text">18ms</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">UPTIME</span><span className="db-ping-val green-text">100.0%</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG (48H)</span><span className="db-ping-val purple-text">21ms</span></div>
+        </div>
+        <div className="db-terminal">
+          <div className="db-terminal-header">
+            <div className="db-terminal-dots"><span className="db-term-dot red"></span><span className="db-term-dot yellow"></span><span className="db-term-dot green"></span></div>
+            <span className="db-terminal-title">dig acme-corp.com A</span>
+            <span className="db-terminal-badge">LIVE RUNNING</span>
+          </div>
+          <div className="db-terminal-body">
+            <div className="db-term-line">;; QUESTION SECTION: acme-corp.com. IN A</div>
+            <div className="db-term-line"><span className="db-term-reply">acme-corp.com.</span> IN A <span className="db-term-time">203.0.113.10</span></div>
+            <div className="db-term-line">✓ Matches expected value</div>
+            <div className="db-term-line">;; Query time: 18 msec</div>
+            <div className="db-term-line cursor-line"><span className="db-term-cursor">_</span></div>
+          </div>
+        </div>
+        <div className="db-ping-alert-box">
+          <span className="db-ping-bell">🔔</span>
+          <p className="db-ping-alert-p">
+            <strong>Alerts active</strong> — When this record fails to resolve or no longer matches, selected recipients will be notified via Email & WhatsApp. Webhooks also fire automatically.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderUdpTab = () => {
+    return (
+      <div className="db-tab-content full-width">
+        <div className="db-section-header">
+          <div>
+            <h4 className="db-section-title">SNMP Agent — Port 161</h4>
+            <span className="db-section-subtitle">10.0.0.5:161</span>
+          </div>
+          <span className="db-status-badge-green">● UP</span>
+        </div>
+        <div className="db-ping-stats">
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">STATUS</span><span className="db-ping-val green-text">Responding</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">LATENCY</span><span className="db-ping-val green-text">9ms</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">PACKET LOSS</span><span className="db-ping-val green-text">0%</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG (48H)</span><span className="db-ping-val purple-text">10ms</span></div>
+        </div>
+        <div className="db-terminal">
+          <div className="db-terminal-header">
+            <div className="db-terminal-dots"><span className="db-term-dot red"></span><span className="db-term-dot yellow"></span><span className="db-term-dot green"></span></div>
+            <span className="db-terminal-title">udp-probe 10.0.0.5:161</span>
+            <span className="db-terminal-badge">LIVE RUNNING</span>
+          </div>
+          <div className="db-terminal-body">
+            <div className="db-term-line">Sending 5 UDP probes...</div>
+            <div className="db-term-line"><span className="db-term-reply">5/5</span> packets received</div>
+            <div className="db-term-line">0% packet loss (threshold: 5%)</div>
+            <div className="db-term-line">avg round-trip: 9ms</div>
+            <div className="db-term-line cursor-line"><span className="db-term-cursor">_</span></div>
+          </div>
+        </div>
+        <div className="db-ping-alert-box">
+          <span className="db-ping-bell">🔔</span>
+          <p className="db-ping-alert-p">
+            <strong>Alerts active</strong> — When packet loss exceeds your threshold or recovers, selected recipients will be notified via Email & WhatsApp. Webhooks also fire automatically.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderApiTab = () => {
+    return (
+      <div className="db-tab-content full-width">
+        <div className="db-section-header">
+          <div>
+            <h4 className="db-section-title">GET /api/health</h4>
+            <span className="db-section-subtitle">api.acme-corp.com/health</span>
+          </div>
+          <span className="db-status-badge-green">● PASSING</span>
+        </div>
+        <div className="db-ping-stats">
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">STATUS</span><span className="db-ping-val green-text">Passing</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">HTTP CODE</span><span className="db-ping-val green-text">200</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">LATENCY</span><span className="db-ping-val green-text">84ms</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">UPTIME</span><span className="db-ping-val purple-text">100.0%</span></div>
+        </div>
+        <div className="db-terminal">
+          <div className="db-terminal-header">
+            <div className="db-terminal-dots"><span className="db-term-dot red"></span><span className="db-term-dot yellow"></span><span className="db-term-dot green"></span></div>
+            <span className="db-terminal-title">GET api.acme-corp.com/health</span>
+            <span className="db-terminal-badge">LIVE RUNNING</span>
+          </div>
+          <div className="db-terminal-body">
+            <div className="db-term-line">HTTP <span className="db-term-reply">200</span> · <span className="db-term-time">84ms</span></div>
+            <div className="db-term-line">✓ $.status equals "ok"</div>
+            <div className="db-term-line">✓ $.uptime greater_than 99</div>
+            <div className="db-term-line">Assertions: ALL passed (AND)</div>
+            <div className="db-term-line cursor-line"><span className="db-term-cursor">_</span></div>
+          </div>
+        </div>
+        <div className="db-ping-alert-box">
+          <span className="db-ping-bell">🔔</span>
+          <p className="db-ping-alert-p">
+            <strong>Alerts active</strong> — When the status code or any assertion fails, selected recipients will be notified via Email & WhatsApp. Webhooks also fire automatically.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   const renderPingTab = () => {
     return (
       <div className="db-tab-content full-width">
@@ -551,8 +711,20 @@ export default function Landing() {
               <button className={`db-nav-item ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')}>
                 📈 Performance
               </button>
+              <button className={`db-nav-item ${activeTab === 'port' ? 'active' : ''}`} onClick={() => setActiveTab('port')}>
+                🔌 Port Monitoring
+              </button>
               <button className={`db-nav-item ${activeTab === 'ping' ? 'active' : ''}`} onClick={() => setActiveTab('ping')}>
                 🖥️ Ping Monitor
+              </button>
+              <button className={`db-nav-item ${activeTab === 'dns' ? 'active' : ''}`} onClick={() => setActiveTab('dns')}>
+                🌐 DNS Monitoring
+              </button>
+              <button className={`db-nav-item ${activeTab === 'udp' ? 'active' : ''}`} onClick={() => setActiveTab('udp')}>
+                📶 UDP Monitoring
+              </button>
+              <button className={`db-nav-item ${activeTab === 'api' ? 'active' : ''}`} onClick={() => setActiveTab('api')}>
+                🧩 API Monitoring
               </button>
               <button className={`db-nav-item ${activeTab === 'ssl' ? 'active' : ''}`} onClick={() => setActiveTab('ssl')}>
                 🔒 Domain & SSL
@@ -576,7 +748,11 @@ export default function Landing() {
             <div className="db-main-content">
               {activeTab === 'monitoring' && renderMonitorsTab()}
               {activeTab === 'performance' && renderPerformanceTab()}
+              {activeTab === 'port' && renderPortTab()}
               {activeTab === 'ping' && renderPingTab()}
+              {activeTab === 'dns' && renderDnsTab()}
+              {activeTab === 'udp' && renderUdpTab()}
+              {activeTab === 'api' && renderApiTab()}
               {activeTab === 'ssl' && renderSSLTab()}
               {activeTab === 'integrations' && renderIntegrationsTab()}
             </div>
