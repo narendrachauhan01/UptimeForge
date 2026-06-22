@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { API_URL } from '../api';
 import axios from 'axios';
 
-const RECORD_TYPES = ['A','AAAA','CNAME','MX','TXT','NS'];
+const RECORD_TYPES = ['A','AAAA','CNAME','MX','TXT','SPF','NS','SOA','PTR','SRV'];
 const latColor = ms => !ms ? '#94a3b8' : ms < 100 ? '#10b981' : ms < 300 ? '#f59e0b' : '#ef4444';
 
 // ── Status dot with pulse ─────────────────────────────────────────────────────

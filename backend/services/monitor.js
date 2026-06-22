@@ -626,8 +626,12 @@ async function dnsCheck(hostname, recordType, expectedValue, dnsServer) {
             case 'AAAA':  values = await dnsWithTimeout(resolver.resolve6(hostname), 5000); break;
             case 'CNAME': values = await dnsWithTimeout(resolver.resolveCname(hostname), 5000); break;
             case 'MX':    values = (await dnsWithTimeout(resolver.resolveMx(hostname), 5000)).map(r => r.exchange); break;
-            case 'TXT':   values = (await dnsWithTimeout(resolver.resolveTxt(hostname), 5000)).map(arr => arr.join('')); break;
+            case 'TXT':
+            case 'SPF':   values = (await dnsWithTimeout(resolver.resolveTxt(hostname), 5000)).map(arr => arr.join('')); break;
             case 'NS':    values = await dnsWithTimeout(resolver.resolveNs(hostname), 5000); break;
+            case 'SOA':   { const soa = await dnsWithTimeout(resolver.resolveSoa(hostname), 5000); values = [`${soa.nsname} ${soa.hostmaster} ${soa.serial}`]; break; }
+            case 'PTR':   values = await dnsWithTimeout(resolver.resolvePtr(hostname), 5000); break;
+            case 'SRV':   values = (await dnsWithTimeout(resolver.resolveSrv(hostname), 5000)).map(r => `${r.name}:${r.port}`); break;
             default:      values = await dnsWithTimeout(resolver.resolve4(hostname), 5000);
         }
         const ms = Date.now() - start;

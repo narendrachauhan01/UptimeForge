@@ -1,7 +1,7 @@
 const DnsTarget = require('../models/DnsTarget');
 const Settings   = require('../models/Settings');
 
-const VALID_TYPES = ['A','AAAA','CNAME','MX','TXT','NS'];
+const VALID_TYPES = ['A','AAAA','CNAME','MX','TXT','SPF','NS','SOA','PTR','SRV'];
 
 function userFilter(req) {
     if (req.isAdmin) return {};

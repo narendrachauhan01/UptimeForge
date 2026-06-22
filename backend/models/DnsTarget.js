@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const dnsTargetSchema = new mongoose.Schema({
     name:          { type: String, required: true },
     hostname:      { type: String, required: true }, // domain to query, e.g. example.com
-    recordType:    { type: String, enum: ['A','AAAA','CNAME','MX','TXT','NS'], default: 'A' },
+    recordType:    { type: String, enum: ['A','AAAA','CNAME','MX','TXT','SPF','NS','SOA','PTR','SRV'], default: 'A' },
     expectedValue: { type: String, default: '' }, // blank = just verify it resolves
     dnsServer:     { type: String, default: '' }, // blank = system default resolver
     active:        { type: Boolean, default: true },

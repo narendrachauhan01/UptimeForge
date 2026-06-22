@@ -1,6 +1,6 @@
 const dns = require('dns');
 
-const VALID_TYPES = ['A','AAAA','CNAME','MX','TXT','NS'];
+const VALID_TYPES = ['A','AAAA','CNAME','MX','TXT','SPF','NS','SOA','PTR','SRV'];
 const HOST_RE = /^[a-zA-Z0-9.\-]+$/;
 
 function withTimeout(promise, ms) {
@@ -24,8 +24,12 @@ async function resolveDns(hostname, recordType, dnsServer) {
             case 'AAAA':  values = await withTimeout(resolver.resolve6(hostname), 5000); break;
             case 'CNAME': values = await withTimeout(resolver.resolveCname(hostname), 5000); break;
             case 'MX':    values = (await withTimeout(resolver.resolveMx(hostname), 5000)).map(r => r.exchange); break;
-            case 'TXT':   values = (await withTimeout(resolver.resolveTxt(hostname), 5000)).map(arr => arr.join('')); break;
+            case 'TXT':
+            case 'SPF':   values = (await withTimeout(resolver.resolveTxt(hostname), 5000)).map(arr => arr.join('')); break;
             case 'NS':    values = await withTimeout(resolver.resolveNs(hostname), 5000); break;
+            case 'SOA':   { const soa = await withTimeout(resolver.resolveSoa(hostname), 5000); values = [`${soa.nsname} ${soa.hostmaster} ${soa.serial}`]; break; }
+            case 'PTR':   values = await withTimeout(resolver.resolvePtr(hostname), 5000); break;
+            case 'SRV':   values = (await withTimeout(resolver.resolveSrv(hostname), 5000)).map(r => `${r.name}:${r.port}`); break;
             default:      values = await withTimeout(resolver.resolve4(hostname), 5000);
         }
         return { resolved: true, values, ms: Date.now() - start };
