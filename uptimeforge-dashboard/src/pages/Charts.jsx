@@ -540,6 +540,11 @@ export default function Charts({ theme = 'light', user }) {
         .perf-page-container .chart-card:hover {
           border-color: rgba(var(--primary-rgb), 0.15);
         }
+        .perf-page-container .recharts-wrapper:focus,
+        .perf-page-container .recharts-wrapper *:focus,
+        .perf-page-container .recharts-surface:focus {
+          outline: none !important;
+        }
         .perf-page-container .chart-card-title {
           color: var(--text-main) !important;
           font-size: 16px;
