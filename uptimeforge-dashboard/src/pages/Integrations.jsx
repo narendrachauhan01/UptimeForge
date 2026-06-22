@@ -207,6 +207,10 @@ const IcoSlack    = () => (<svg width="26" height="26" viewBox="0 0 24 24" xmlns
 const IcoTelegram = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#0088cc"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.820 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>);
 const IcoDiscord  = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>);
 const IcoRocket   = () => (<svg width="26" height="26" viewBox="0 0 345 304" xmlns="http://www.w3.org/2000/svg"><g fillRule="nonzero" fill="none"><path d="M302.326 118.304l.005.007-.002-.003-.003-.004zM103.893 13.408c10.625 5.903 20.67 13.37 29.247 21.67 13.827-2.504 28.084-3.767 42.547-3.767 43.298 0 84.348 11.36 115.58 31.981 16.175 10.684 29.031 23.36 38.207 37.68 10.22 15.957 15.4 33.116 15.4 51.503 0 17.892-5.18 35.058-15.4 51.011-9.176 14.327-22.032 27-38.206 37.684-31.233 20.62-72.28 31.974-115.58 31.974-14.464 0-28.718-1.263-42.548-3.765-8.581 8.297-18.622 15.769-29.247 21.67-56.773 28.438-103.854.67-103.854.67s43.773-37.168 36.655-69.75c-19.586-20.077-30.197-44.291-30.197-69.982 0-25.207 10.615-49.42 30.197-69.5C43.811 49.913.054 12.752.039 12.74c.014-.009 47.09-27.768 103.854.668z" fill="#DB2323"/><path d="M69.964 208.766c-19.484-15.38-31.18-35.061-31.18-56.512 0-49.223 61.582-89.126 137.547-89.126s137.547 39.903 137.547 89.126c0 49.223-61.582 89.126-137.547 89.126-18.722 0-36.57-2.424-52.839-6.814l-11.894 11.49c-6.462 6.242-14.037 11.892-21.932 16.343-10.466 5.148-20.8 7.957-31.024 8.814.576-1.05 1.107-2.114 1.678-3.166 11.917-21.989 15.132-41.75 9.644-59.281z" fill="#FFF"/><path d="M110.528 172.151c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.193 0-20.267-9.043-20.267-20.2 0-11.155 9.074-20.199 20.267-20.199s20.267 9.044 20.267 20.2c0 11.156-9.074 20.2-20.267 20.2v-.001zm65.25 0c-11.194 0-20.267-9.043-20.267-20.2 0-11.155 9.073-20.199 20.267-20.199 11.193 0 20.267 9.044 20.267 20.2 0 11.156-9.074 20.2-20.267 20.2v-.001z" fill="#DB2323"/></g></svg>);
+const IcoMattermost = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#0058CC"/><path d="M12 4.5l6 3.5v7l-6 3.5-6-3.5v-7l6-3.5z" stroke="#fff" strokeWidth="1.5" fill="none"/></svg>);
+const IcoMsTeams    = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#5059C9"/><circle cx="9.3" cy="9.8" r="2.8" fill="#fff"/><circle cx="15.3" cy="8.3" r="1.8" fill="#fff" opacity="0.75"/><rect x="5.8" y="12.3" width="7" height="6" rx="2" fill="#fff"/></svg>);
+const IcoGoogleChat = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#00AC47"/><circle cx="9" cy="11" r="1.4" fill="#fff"/><circle cx="13" cy="11" r="1.4" fill="#fff"/><circle cx="17" cy="11" r="1.4" fill="#fff"/></svg>);
+const IcoSplunk     = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#000000"/><path d="M12 4l5 4-5 4-5-4 5-4zM7 12l5 4 5-4M7 16l5 4 5-4" stroke="#65A637" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>);
 
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
@@ -306,6 +310,14 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
     const [slackAllSites, setSlackAllSites] = useState(true);
     const [slackSelected, setSlackSelected] = useState([]);
     const [slackSearch,   setSlackSearch]   = useState('');
+
+    const [discordModal,    setDiscordModal]    = useState(false);
+    const [discordForm,     setDiscordForm]     = useState({ url:'', events:'all' });
+    const [discordSaving,   setDiscordSaving]   = useState(false);
+    const [discordTesting,  setDiscordTesting]  = useState(false);
+    const [discordAllSites, setDiscordAllSites] = useState(true);
+    const [discordSelected, setDiscordSelected] = useState([]);
+    const [discordSearch,   setDiscordSearch]   = useState('');
 
     const [tgModal,      setTgModal]      = useState(false);
     const [tgConnected,  setTgConnected]  = useState(false);
@@ -413,6 +425,45 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
             showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
         }
         setSlackTesting(false);
+    };
+
+    const openDiscordModal = async () => {
+        try {
+            const r = await axios.get(`${API_URL}/api/integrations`, { withCredentials: true });
+            const dc = r.data.find(i => i.type === 'discord');
+            if (dc) {
+                setDiscordForm({ url: dc.config?.url||'', events: dc.events||'all' });
+                const srvs = dc.servers || [];
+                setDiscordAllSites(srvs.length === 0);
+                setDiscordSelected(srvs.map(s => s.toString()));
+            }
+        } catch {}
+        setDiscordModal(true);
+    };
+
+    const saveDiscord = async () => {
+        const err = validateWebhookUrl(discordForm.url);
+        if (err) { showToast(err); return; }
+        setDiscordSaving(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/discord`, { config: { url: discordForm.url }, events: discordForm.events||'all', servers: discordAllSites ? [] : discordSelected }, { withCredentials: true });
+            setSaved(p=>({...p, discord:true}));
+            showToast('✅ Discord saved!');
+            setDiscordModal(false);
+        } catch {}
+        setDiscordSaving(false);
+    };
+
+    const testDiscord = async () => {
+        if (!discordForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
+        setDiscordTesting(true);
+        try {
+            await axios.post(`${API_URL}/api/integrations/test-webhook`, { url: discordForm.url, body: { content: '🚨 **UptimeForge Test** — Discord integration is working!' } }, { withCredentials: true });
+            showToast('✅ Test message sent to Discord!');
+        } catch (e) {
+            showToast('❌ Failed: ' + (e.response?.data?.error || e.message || 'Check URL'));
+        }
+        setDiscordTesting(false);
     };
 
     const openTgModal = async () => {
@@ -1159,10 +1210,32 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
                     </div>
                 </div>
 
+                {/* Discord */}
+                <div className="integration-card">
+                    <div className="integration-icon" style={{ background:isDark ? 'rgba(88, 101, 242, 0.1)' : '#eef0fe', borderColor: isDark ? 'rgba(88, 101, 242, 0.3)' : '#d8dcfb' }}>
+                        <IcoDiscord/>
+                    </div>
+                    <div style={{ flex:1 }}>
+                        <div className="integration-name">Discord</div>
+                        <div className="integration-desc">Post status updates to your Discord server via webhook.</div>
+                    </div>
+                    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                        {saved.discord && <span className="badge-active">✓ Active</span>}
+                        {saved.discord && !blocked('discord') && <button onClick={()=>deleteIntegration('discord')} className="btn-delete">🗑</button>}
+                        {blocked('discord')
+                            ? <UpgradeBtn />
+                            : <button onClick={openDiscordModal} className="btn-add" style={{ background: saved.discord ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #5865F2, #4752c4)' }}>{saved.discord ? '✏️ Edit' : '+ Add'}</button>
+                        }
+                    </div>
+                </div>
+
                 {/* Coming Soon */}
                 <div className="section-title" style={{ marginTop:20 }}>Coming Soon</div>
                 {[
-                    { iconEl:<IcoDiscord/>,  name:'Discord',  desc:'Post status updates to your Discord server.' },
+                    { iconEl:<IcoMattermost/>,  name:'Mattermost',  desc:'Send alerts to your Mattermost channel.' },
+                    { iconEl:<IcoMsTeams/>,     name:'MS Teams',    desc:'Post status updates to a Microsoft Teams channel.' },
+                    { iconEl:<IcoGoogleChat/>,  name:'Google Chat', desc:'Send alerts to a Google Chat space.' },
+                    { iconEl:<IcoSplunk/>,      name:'Splunk',      desc:'Forward alert events to Splunk for analysis.' },
                 ].map(intg => (
                     <div key={intg.name} className="coming-soon-card">
                         <div className="coming-soon-icon">{intg.iconEl}</div>
@@ -1291,6 +1364,65 @@ export default function Integrations({ user, freeAccess = {}, bronzeAccess = {},
                                 </button>
                                 <button onClick={saveSlack} disabled={slackSaving||!slackForm.url} className="modal-btn-save" style={{ flex: 2 }}>
                                     {slackSaving ? 'Saving...' : '💾 Save'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Discord Modal */}
+                {discordModal && (
+                    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setDiscordModal(false)}>
+                        <div className="modal-card">
+                            <button onClick={()=>setDiscordModal(false)} className="modal-close">✕</button>
+                            <div style={{ textAlign:'center', marginBottom:20 }}>
+                                <div style={{ marginBottom:10, display:'flex', justifyContent:'center' }}><IcoDiscord/></div>
+                                <h2 className="modal-title">Add <span style={{color:'#5865F2'}}>Discord</span> Webhook</h2>
+                                <p className="modal-subtitle">Server Settings → Integrations → Webhooks → New Webhook → copy URL</p>
+                            </div>
+                            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                                <div>
+                                    <label className="modal-label">Webhook URL *</label>
+                                    <input value={discordForm.url} onChange={e=>setDiscordForm({...discordForm,url:e.target.value})} placeholder="https://discord.com/api/webhooks/..." className="modal-input" />
+                                </div>
+                                <div>
+                                    <label className="modal-label">Events</label>
+                                    <select value={discordForm.events} onChange={e=>setDiscordForm({...discordForm,events:e.target.value})} className="modal-select">
+                                        <option value="all">All events (Down, Up, SSL, Domain)</option>
+                                        <option value="down">Down events only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="modal-label" style={{ marginBottom:8 }}>Notify for sites</label>
+                                    <div onClick={()=>setDiscordAllSites(p=>!p)} className="modal-checkbox-row">
+                                        <input type="checkbox" checked={discordAllSites} onChange={()=>{}} className="modal-checkbox" />
+                                        <span className="modal-checkbox-label">All sites (current + future)</span>
+                                    </div>
+                                    {!discordAllSites && (
+                                        <div className="modal-site-selector-card">
+                                            <div className="modal-site-selector-search">
+                                                <input value={discordSearch} onChange={e=>setDiscordSearch(e.target.value)} placeholder="Search sites..." className="modal-site-selector-input" />
+                                            </div>
+                                            <div className="modal-site-list">
+                                                {servers.filter(s=>s.name.toLowerCase().includes(discordSearch.toLowerCase())).map(s => (
+                                                    <div key={s._id} onClick={()=>setDiscordSelected(p=>p.includes(s._id)?p.filter(x=>x!==s._id):[...p,s._id])} className="modal-site-row">
+                                                        <input type="checkbox" checked={discordSelected.includes(s._id)} onChange={()=>{}} className="modal-checkbox" />
+                                                        <span className="modal-site-dot" style={{ background: s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b' }}/>
+                                                        <span style={{ fontSize:13, color:'var(--text-main)' }}>{s.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                                <button onClick={()=>setDiscordModal(false)} className="modal-btn-cancel" style={{ flex: 1 }}>Cancel</button>
+                                <button onClick={testDiscord} disabled={discordTesting||!discordForm.url} className="modal-btn-test" style={{ flex: 1 }}>
+                                    {discordTesting ? '...' : '📨 Test'}
+                                </button>
+                                <button onClick={saveDiscord} disabled={discordSaving||!discordForm.url} className="modal-btn-save" style={{ flex: 2 }}>
+                                    {discordSaving ? 'Saving...' : '💾 Save'}
                                 </button>
                             </div>
                         </div>

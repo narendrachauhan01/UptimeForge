@@ -71,6 +71,7 @@ const settingsSchema = new mongoose.Schema({
         webhook:         { type: Boolean, default: false },
         rocketChat:      { type: Boolean, default: false },
         slack:           { type: Boolean, default: false },
+        discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
     },
     bronzeAccess: {
@@ -84,6 +85,7 @@ const settingsSchema = new mongoose.Schema({
         webhook:         { type: Boolean, default: false },
         rocketChat:      { type: Boolean, default: false },
         slack:           { type: Boolean, default: false },
+        discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
     },
     silverAccess: {
@@ -97,6 +99,7 @@ const settingsSchema = new mongoose.Schema({
         webhook:         { type: Boolean, default: false },
         rocketChat:      { type: Boolean, default: false },
         slack:           { type: Boolean, default: false },
+        discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
     },
     goldAccess: {
@@ -110,6 +113,7 @@ const settingsSchema = new mongoose.Schema({
         webhook:         { type: Boolean, default: false },
         rocketChat:      { type: Boolean, default: false },
         slack:           { type: Boolean, default: false },
+        discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
     },
     annualDiscount: { type: Number, default: 20 },
@@ -207,6 +211,7 @@ settingsSchema.statics.get = async function () {
         if (obj && obj.dnsMonitor === undefined) { obj.dnsMonitor = false; s.markModified(key); dirty = true; }
         if (obj && obj.udpMonitor === undefined) { obj.udpMonitor = false; s.markModified(key); dirty = true; }
         if (obj && obj.apiMonitor === undefined) { obj.apiMonitor = false; s.markModified(key); dirty = true; }
+        if (obj && obj.discord === undefined) { obj.discord = false; s.markModified(key); dirty = true; }
     }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }

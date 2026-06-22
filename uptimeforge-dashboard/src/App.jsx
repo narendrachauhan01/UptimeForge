@@ -407,10 +407,10 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
-  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, reports: false });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
   const navigate = useNavigate();
   const location = useLocation();
 
