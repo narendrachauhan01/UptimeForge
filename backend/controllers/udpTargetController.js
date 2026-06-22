@@ -17,9 +17,15 @@ exports.getTargets = async (req, res) => {
 // POST /api/udp-targets
 exports.createTarget = async (req, res) => {
     try {
-        const { name, host, port, notifyRecipients } = req.body;
+        const { name, host, port, payload, timeout, expectedKeyword, packetLossThreshold, notifyRecipients } = req.body;
         if (!name?.trim() || !host?.trim() || !port) return res.status(400).json({ error: 'Name, host, and port are required' });
-        const data = { name: name.trim(), host: host.trim(), port: Number(port), notifyRecipients };
+        const data = {
+            name: name.trim(), host: host.trim(), port: Number(port), notifyRecipients,
+            payload:             (payload ?? 'ping').toString().trim() || 'ping',
+            timeout:             timeout ? Number(timeout) : 30,
+            expectedKeyword:     (expectedKeyword || '').toString().trim(),
+            packetLossThreshold: packetLossThreshold !== undefined ? Number(packetLossThreshold) : 5,
+        };
         if (!req.isAdmin) {
             data.userId = req.userId;
             // Reuses the same plan-based ping limit as Port/Ping/DNS Monitoring

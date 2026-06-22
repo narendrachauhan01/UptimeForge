@@ -17,6 +17,8 @@ const UDP_PORT_PRESETS = [
     { label: 'RADIUS',  port: 1812 },
 ];
 
+const PACKET_LOSS_OPTIONS = [0, 5, 10, 20, 50];
+
 // ── Status dot with pulse ─────────────────────────────────────────────────────
 function PulseDot({ status, size = 12 }) {
     const c = status === 'up' ? '#10b981' : status === 'down' ? '#ef4444' : '#f59e0b';
@@ -34,7 +36,7 @@ function PulseDot({ status, size = 12 }) {
 
 // ── Add/Edit Modal ────────────────────────────────────────────────────────────
 function TargetModal({ target, onClose, onSave }) {
-    const [form,         setForm]         = useState(target || { name:'', host:'', port:'' });
+    const [form,         setForm]         = useState(target || { name:'', host:'', port:'', payload:'ping', timeout:30, expectedKeyword:'', packetLossThreshold:5 });
     const [saving,       setSaving]       = useState(false);
     const [saveError,    setSaveError]    = useState('');
     const [recipients,   setRecipients]   = useState([]);
@@ -43,6 +45,7 @@ function TargetModal({ target, onClose, onSave }) {
     const [loadingR,     setLoadingR]     = useState(true);
     const [integrations, setIntegrations] = useState([]);
     const [portDropdownOpen, setPortDropdownOpen] = useState(false);
+    const [lossDropdownOpen, setLossDropdownOpen] = useState(false);
 
     useEffect(() => {
         axios.get(`${API_URL}/api/integrations`, { withCredentials: true })
@@ -64,7 +67,13 @@ function TargetModal({ target, onClose, onSave }) {
         setSaving(true);
         setSaveError('');
         try {
-            const payload = { name: form.name, host: form.host, port: Number(form.port), notifyRecipients: selected };
+            const payload = {
+                name: form.name, host: form.host, port: Number(form.port), notifyRecipients: selected,
+                payload: form.payload || 'ping',
+                timeout: Number(form.timeout) || 30,
+                expectedKeyword: form.expectedKeyword || '',
+                packetLossThreshold: Number(form.packetLossThreshold) ?? 5,
+            };
             await onSave(payload);
             onClose();
         } catch(e) {
@@ -124,6 +133,64 @@ function TargetModal({ target, onClose, onSave }) {
                                 ))}
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Advanced Settings */}
+                <div style={{ marginTop:18, paddingTop:16, borderTop:'1px solid var(--border-color)' }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:'var(--text-main)', marginBottom:12 }}>⚙️ Advanced Settings</div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Payload to send</label>
+                                <input value={form.payload} onChange={e=>setForm({...form, payload: e.target.value})} placeholder="E.g. ping or test"
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
+                                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>Data sent in the UDP probe packet.</div>
+                            </div>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Response timeout (s)</label>
+                                <input type="number" min="1" max="120" value={form.timeout}
+                                    onChange={e => setForm({...form, timeout: e.target.value === '' ? '' : Number(e.target.value)})}
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
+                                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>How long to wait for a reply.</div>
+                            </div>
+                        </div>
+                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Keyword to check in response</label>
+                                <input value={form.expectedKeyword} onChange={e=>setForm({...form, expectedKeyword: e.target.value})} placeholder="Blank = don't check content"
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box' }} />
+                            </div>
+                            <div style={{ position:'relative' }}>
+                                <label style={{ fontSize:12, fontWeight:700, color:'var(--text-main)', display:'block', marginBottom:6 }}>Packet response rule</label>
+                                <button type="button"
+                                    onClick={() => setLossDropdownOpen(p => !p)}
+                                    style={{ width:'100%', padding:'10px 14px', border:'1.5px solid var(--border-color)', borderRadius:9, fontSize:14, background:'var(--bg-input)', color:'var(--text-main)', outline:'none', boxSizing:'border-box', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', fontFamily:'inherit', textAlign:'left' }}>
+                                    <span>{form.packetLossThreshold}% lost</span>
+                                    <svg width="14" height="14" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: lossDropdownOpen ? 'rotate(180deg)' : 'none', transition:'transform 0.15s', flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                {lossDropdownOpen && (
+                                    <>
+                                        <div onClick={() => setLossDropdownOpen(false)} style={{ position:'fixed', inset:0, zIndex:19 }} />
+                                        <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'var(--bg-card)', border:'1px solid var(--border-color)', borderRadius:9, boxShadow:'var(--card-shadow)', overflow:'hidden', zIndex:20 }}>
+                                            {PACKET_LOSS_OPTIONS.map(v => {
+                                                const isSel = form.packetLossThreshold === v;
+                                                return (
+                                                    <div key={v}
+                                                        onClick={() => { setForm({...form, packetLossThreshold: v}); setLossDropdownOpen(false); }}
+                                                        style={{ padding:'10px 14px', fontSize:13, fontWeight: isSel ? 700 : 500, color: isSel ? 'var(--primary)' : 'var(--text-main)', background: isSel ? 'var(--primary-glow)' : 'transparent', cursor:'pointer', borderBottom:'1px solid var(--border-color)' }}
+                                                        onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = 'var(--bg-input)'; }}
+                                                        onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent'; }}>
+                                                        {v}% lost
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </>
+                                )}
+                                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:4 }}>Marked DOWN if more than this % of probes get no reply.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -247,13 +314,16 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
 
     const probeNow = async () => {
         setProbing(true);
-        addLine(`udp-probe ${target.host}:${target.port}`, '#60a5fa');
+        addLine(`udp-probe ${target.host}:${target.port} payload="${target.payload || 'ping'}"`, '#60a5fa');
         addLine('─'.repeat(42), '#1e2d3d');
         try {
-            const r = await axios.post(`${API_URL}/api/udp/probe`, { host: target.host, port: target.port }, { withCredentials: true });
-            r.data.alive
-                ? addLine(`Response from ${target.host}:${target.port}  time=${r.data.ms}ms`, '#4ade80')
-                : addLine(`No response from ${target.host}:${target.port} (timeout)`, '#f87171');
+            const r = await axios.post(`${API_URL}/api/udp/probe`, { host: target.host, port: target.port, payload: target.payload, timeout: target.timeout, expectedKeyword: target.expectedKeyword }, { withCredentials: true });
+            if (r.data.alive) {
+                addLine(`Response from ${target.host}:${target.port}  time=${r.data.ms}ms`, '#4ade80');
+                if (target.expectedKeyword) addLine(r.data.keywordOk ? `Keyword "${target.expectedKeyword}" found ✓` : `Keyword "${target.expectedKeyword}" NOT found ✗`, r.data.keywordOk ? '#4ade80' : '#f87171');
+            } else {
+                addLine(`No response from ${target.host}:${target.port} (timeout)`, '#f87171');
+            }
         } catch { addLine(`Error probing ${target.host}:${target.port}`, '#f87171'); }
         setProbing(false);
     };

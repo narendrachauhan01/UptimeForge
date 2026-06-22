@@ -640,25 +640,41 @@ async function dnsCheck(hostname, recordType, expectedValue, dnsServer) {
 }
 
 // ── UDP probe check (for UDP Monitoring feature) ─────────────────────────────
-function udpCheck(host, port) {
+const UDP_PROBE_COUNT = 5;
+
+function udpSingleProbe(host, port, payload, timeoutMs) {
     return new Promise((resolve) => {
         const start = Date.now();
         const sock = dgram.createSocket('udp4');
         let done = false;
-        const finish = (alive) => {
+        const finish = (received, data) => {
             if (done) return;
             done = true;
             clearTimeout(timer);
             try { sock.close(); } catch (_) {}
-            resolve({ alive, ms: alive ? Date.now() - start : null });
+            resolve({ received, ms: received ? Date.now() - start : null, data: data || '' });
         };
-        const timer = setTimeout(() => finish(false), 5000);
-        sock.on('message', () => finish(true));
+        const timer = setTimeout(() => finish(false), timeoutMs);
+        sock.on('message', (msg) => finish(true, msg.toString()));
         sock.on('error', () => finish(false));
-        sock.send(Buffer.from('ping'), port, host, (err) => {
+        sock.send(Buffer.from(payload || 'ping'), port, host, (err) => {
             if (err) finish(false);
         });
     });
+}
+
+async function udpCheck(host, port, payload, timeoutSec, packetLossThreshold, expectedKeyword) {
+    const timeoutMs = Math.max(1, timeoutSec || 30) * 1000;
+    const probes = await Promise.all(
+        Array.from({ length: UDP_PROBE_COUNT }, () => udpSingleProbe(host, port, payload, timeoutMs))
+    );
+    const received = probes.filter(p => p.received);
+    const lossPct = Math.round(((UDP_PROBE_COUNT - received.length) / UDP_PROBE_COUNT) * 100);
+    const avgMs = received.length ? Math.round(received.reduce((s, p) => s + p.ms, 0) / received.length) : null;
+    const keyword = (expectedKeyword || '').trim();
+    const keywordOk = !keyword || received.some(p => p.data.includes(keyword));
+    const alive = lossPct <= (packetLossThreshold ?? 5) && keywordOk;
+    return { alive, ms: avgMs, lossPct };
 }
 
 // ── Check all ping targets ───────────────────────────────────────────────────
@@ -1062,7 +1078,7 @@ async function checkUdpTargets() {
                 if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
             }
 
-            const result = await udpCheck(target.host, target.port);
+            const result = await udpCheck(target.host, target.port, target.payload, target.timeout, target.packetLossThreshold, target.expectedKeyword);
             const prevStatus = target.status;
             const wasAlertSent = target.downAlertSent;
             const uid = String(target.userId?._id || target.userId || '');
