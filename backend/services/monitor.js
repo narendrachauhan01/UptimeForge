@@ -2,6 +2,7 @@ const https = require('https');
 const http = require('http');
 const net = require('net');
 const dns = require('dns');
+const dgram = require('dgram');
 const { execFile } = require('child_process');
 const axios = require('axios');
 const cron = require('node-cron');
@@ -9,6 +10,7 @@ const Server = require('../models/Server');
 const PingTarget = require('../models/PingTarget');
 const IcmpTarget = require('../models/IcmpTarget');
 const DnsTarget = require('../models/DnsTarget');
+const UdpTarget = require('../models/UdpTarget');
 const Recipient = require('../models/Recipient');
 const Alert = require('../models/Alert');
 const Settings = require('../models/Settings');
@@ -637,6 +639,28 @@ async function dnsCheck(hostname, recordType, expectedValue, dnsServer) {
     }
 }
 
+// ── UDP probe check (for UDP Monitoring feature) ─────────────────────────────
+function udpCheck(host, port) {
+    return new Promise((resolve) => {
+        const start = Date.now();
+        const sock = dgram.createSocket('udp4');
+        let done = false;
+        const finish = (alive) => {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            try { sock.close(); } catch (_) {}
+            resolve({ alive, ms: alive ? Date.now() - start : null });
+        };
+        const timer = setTimeout(() => finish(false), 5000);
+        sock.on('message', () => finish(true));
+        sock.on('error', () => finish(false));
+        sock.send(Buffer.from('ping'), port, host, (err) => {
+            if (err) finish(false);
+        });
+    });
+}
+
 // ── Check all ping targets ───────────────────────────────────────────────────
 async function checkPingTargets() {
     try {
@@ -1011,17 +1035,145 @@ async function checkDnsTargets() {
     }
 }
 
+// ── Check all UDP monitor targets ────────────────────────────────────────────
+async function checkUdpTargets() {
+    try {
+        const settings   = await Settings.get();
+        const targets    = await UdpTarget.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified');
+        const recipients = await Recipient.find({ active: true }).populate('servers');
+
+        for (const target of targets) {
+            if (target.userId) {
+                const u = target.userId;
+                const plan = u.plan || 'free_trial';
+                if (plan === 'free_trial') {
+                    if (!u.trialVerified) continue;
+                    if (u.trialEndsAt && new Date() > new Date(u.trialEndsAt)) continue;
+                } else {
+                    if (u.planEndsAt && new Date() > new Date(u.planEndsAt)) continue;
+                }
+            }
+            if (target.userId) {
+                const plan = target.userId.plan || 'free_trial';
+                const pingInterval = plan === 'free_trial'
+                    ? (settings.freeTrialPingInterval || 180)
+                    : (settings.plans?.[plan]?.pingInterval || 60);
+                const lastChecked = target.lastChecked ? new Date(target.lastChecked).getTime() : 0;
+                if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
+            }
+
+            const result = await udpCheck(target.host, target.port);
+            const prevStatus = target.status;
+            const wasAlertSent = target.downAlertSent;
+            const uid = String(target.userId?._id || target.userId || '');
+
+            console.log(`[UDP] ${target.name} (${target.host}:${target.port}) → ${result.alive ? 'UP' : 'DOWN'} | ${result.ms || '—'}ms`);
+
+            const setFields = {
+                lastChecked: new Date(),
+                responseTime: result.ms,
+                status: result.alive ? 'up' : 'down',
+            };
+
+            const getEligible = () => {
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                const ids = target.notifyRecipients.map(id => id.toString());
+                return recipients.filter(r => ids.includes(r._id.toString()));
+            };
+
+            if (!result.alive) {
+                if (prevStatus !== 'down') setFields.lastDownAt = new Date();
+                if (prevStatus !== 'down' && !wasAlertSent) {
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const waMsg = `🚨 *UDP Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}:${target.port}\n*Time:* ${now()}\n\nNo UDP response — service is *DOWN* ❌`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] UDP Service Down: ${target.name}`, pingDownEmailHtml(target.name, `${target.host}:${target.port}`, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: `${target.host}:${target.port}` },
+                        'down',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  `${target.host}:${target.port}`,
+                        type:       'down',
+                        message:    `UDP service unresponsive`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                    setFields.downAlertSent = true;
+                }
+            } else {
+                if (prevStatus === 'down') {
+                    setFields.lastUpAt = new Date();
+                    setFields.downAlertSent = false;
+                    const eligible = getEligible();
+                    const sentTo = [];
+                    const waMsg = `✅ *UDP Service Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}:${target.port}\n*Time:* ${now()}\n\nService is responding again ✅`;
+                    for (const r of eligible) {
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] UDP Service Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, `${target.host}:${target.port}`, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
+                        sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
+                    }
+                    fireIntegrations(
+                        { _id: target._id, name: target.name, url: `${target.host}:${target.port}` },
+                        'up',
+                        target.userId?._id || target.userId,
+                        null
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
+                    await Alert.create({
+                        userId:     target.userId || null,
+                        serverName: target.name,
+                        serverUrl:  `${target.host}:${target.port}`,
+                        type:       'recovered',
+                        message:    `UDP service responding again`,
+                        sentTo,
+                        source:     'ping',
+                    }).catch(() => {});
+                }
+            }
+
+            await UdpTarget.findByIdAndUpdate(target._id, {
+                $set: setFields,
+                $push: { history: { $each: [{ time: new Date(), responseTime: result.ms, status: result.alive ? 'up' : 'down' }], $slice: -1440 } },
+            });
+        }
+    } catch (err) {
+        console.error('[UDP] checkUdpTargets error:', err.message);
+    }
+}
+
 function start() {
     checkAll();
     checkExpiry();
     checkPingTargets();
     checkIcmpTargets();
     checkDnsTargets();
+    checkUdpTargets();
     setInterval(checkAll, 30 * 1000);
     setInterval(checkExpiry, 6 * 60 * 60 * 1000);
     setInterval(checkPingTargets, 30 * 1000);
     setInterval(checkIcmpTargets, 30 * 1000);
     setInterval(checkDnsTargets, 30 * 1000);
+    setInterval(checkUdpTargets, 30 * 1000);
     console.log('[Monitor] Started - ticker every 30s | Ping plan-based | Expiry check every 6h');
 
     // ── Report cron jobs ─────────────────────────────────────────────────────

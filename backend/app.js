@@ -52,6 +52,8 @@ app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/icmp-targets',  require('./routes/icmpTargets'));
 app.use('/api/dns',           require('./routes/dns'));
 app.use('/api/dns-targets',   require('./routes/dnsTargets'));
+app.use('/api/udp',           require('./routes/udp'));
+app.use('/api/udp-targets',   require('./routes/udpTargets'));
 app.use('/api/integrations',  require('./routes/integrations'));
 app.use('/api/telegram',      require('./routes/telegram'));
 app.use('/api/staff',         require('./routes/staff'));
