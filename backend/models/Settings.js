@@ -65,6 +65,7 @@ const settingsSchema = new mongoose.Schema({
         pingMonitorIcmp: { type: Boolean, default: false },
         dnsMonitor:      { type: Boolean, default: false },
         udpMonitor:      { type: Boolean, default: false },
+        apiMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -77,6 +78,7 @@ const settingsSchema = new mongoose.Schema({
         pingMonitorIcmp: { type: Boolean, default: false },
         dnsMonitor:      { type: Boolean, default: false },
         udpMonitor:      { type: Boolean, default: false },
+        apiMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -89,6 +91,7 @@ const settingsSchema = new mongoose.Schema({
         pingMonitorIcmp: { type: Boolean, default: false },
         dnsMonitor:      { type: Boolean, default: false },
         udpMonitor:      { type: Boolean, default: false },
+        apiMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -101,6 +104,7 @@ const settingsSchema = new mongoose.Schema({
         pingMonitorIcmp: { type: Boolean, default: false },
         dnsMonitor:      { type: Boolean, default: false },
         udpMonitor:      { type: Boolean, default: false },
+        apiMonitor:      { type: Boolean, default: false },
         whatsapp:        { type: Boolean, default: false },
         telegram:        { type: Boolean, default: false },
         webhook:         { type: Boolean, default: false },
@@ -202,6 +206,7 @@ settingsSchema.statics.get = async function () {
         if (obj && obj.pingMonitorIcmp === undefined) { obj.pingMonitorIcmp = false; s.markModified(key); dirty = true; }
         if (obj && obj.dnsMonitor === undefined) { obj.dnsMonitor = false; s.markModified(key); dirty = true; }
         if (obj && obj.udpMonitor === undefined) { obj.udpMonitor = false; s.markModified(key); dirty = true; }
+        if (obj && obj.apiMonitor === undefined) { obj.apiMonitor = false; s.markModified(key); dirty = true; }
     }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
