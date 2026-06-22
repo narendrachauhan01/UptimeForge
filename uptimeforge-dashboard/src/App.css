@@ -16,15 +16,11 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-/* Slim, themed scrollbars app-wide — replaces Chrome's default fat gray scrollbar */
+/* Hide scrollbars app-wide — scrolling still works, just no visible bar */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124,58,237,0.3) transparent;
+  scrollbar-width: none;
 }
-*::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 10px; }
-*::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.5); }
+*::-webkit-scrollbar { display: none; }
 
 :root {
   --primary: #7c3aed;
