@@ -2161,7 +2161,7 @@ export default function Landing() {
             <div className="feat-modal" onClick={e => e.stopPropagation()}>
               <button className="feat-modal-close" onClick={() => setFeatureModal(null)} aria-label="Close">✕</button>
               <div className="feat-modal-header" style={{ '--fmc': featureModal.color }}>
-                <div className="feat-modal-icon-wrap" style={{ background: `${featureModal.color}20`, border: `1.5px solid ${featureModal.color}40` }}>
+                <div className="feat-modal-icon-wrap" style={{ background: `${featureModal.color}20`, border: `1.5px solid ${featureModal.color}40`, color: featureModal.color }}>
                   {featureModal.icon}
                 </div>
                 <div className="feat-modal-head-text">
