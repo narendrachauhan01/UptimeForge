@@ -283,24 +283,7 @@ export default function TermsOfService() {
 
           {/* 8 */}
           <section className="tos-section">
-            <h2>8. Intellectual Property</h2>
-            <p>
-              All content, branding, design, code, and features of UptimeForge are the intellectual
-              property of <strong>{OPERATOR_NAME}</strong>. You may not copy, reproduce, modify,
-              distribute, or create derivative works from any part of the platform without prior
-              written permission.
-            </p>
-            <p>
-              You retain full ownership of the URLs, domain names, and content you input into the
-              platform. By using the Service, you grant us a limited, non-exclusive, royalty-free
-              license to access and process your input data solely for the purpose of providing
-              the monitoring and alert services.
-            </p>
-          </section>
-
-          {/* 9 */}
-          <section className="tos-section">
-            <h2>9. Third-Party Services</h2>
+            <h2>8. Third-Party Services</h2>
             <p>
               UptimeForge integrates with third-party services to deliver its functionality. These
               include (but are not limited to):
@@ -320,9 +303,9 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* 10 */}
+          {/* 9 */}
           <section className="tos-section">
-            <h2>10. Limitation of Liability</h2>
+            <h2>9. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by applicable law, UptimeForge and{' '}
               <strong>{OPERATOR_NAME}</strong> shall not be liable for:
@@ -341,9 +324,9 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* 11 */}
+          {/* 10 */}
           <section className="tos-section">
-            <h2>11. Account Termination</h2>
+            <h2>10. Account Termination</h2>
 
             <h3>11.1 Termination by You</h3>
             <p>
@@ -375,9 +358,9 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* 12 */}
+          {/* 11 */}
           <section className="tos-section">
-            <h2>12. Modifications to These Terms</h2>
+            <h2>11. Modifications to These Terms</h2>
             <p>
               We reserve the right to update or modify these Terms at any time. For material changes
               that affect user rights or payment obligations, we will notify active users via email at
@@ -390,9 +373,9 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* 13 */}
+          {/* 12 */}
           <section className="tos-section">
-            <h2>13. Governing Law and Dispute Resolution</h2>
+            <h2>12. Governing Law and Dispute Resolution</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of{' '}
               <strong>India</strong>, without regard to conflict of law principles. Any disputes
@@ -406,9 +389,9 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* 14 */}
+          {/* 13 */}
           <section className="tos-section">
-            <h2>14. Miscellaneous</h2>
+            <h2>13. Miscellaneous</h2>
             <ul>
               <li>
                 <strong>Entire Agreement:</strong> These Terms constitute the entire agreement between
@@ -429,9 +412,9 @@ export default function TermsOfService() {
             </ul>
           </section>
 
-          {/* 15 */}
+          {/* 14 */}
           <section className="tos-section">
-            <h2>15. Contact Information</h2>
+            <h2>14. Contact Information</h2>
             <p>
               For any questions, concerns, or formal notices regarding these Terms of Service or your
               account, please reach out to us:
