@@ -5238,7 +5238,7 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
 .lp-feat4-svg {
   width: 24px;
   height: 24px;
-  stroke: var(--feat-color);
+  stroke: currentColor;
   transition: transform 0.3s ease;
 }
 .lp-feat4-card:hover .lp-feat4-icon {
