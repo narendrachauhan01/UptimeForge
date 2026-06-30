@@ -1022,14 +1022,14 @@ export default function Landing() {
         <div className="lp-hero-wrap-centered">
           <div className="lp-hero-tag">
             <span className="lp-tag-dot" />
-            Live · 24/7 Uptime Monitoring
+            Live · 8-in-1 Monitoring Platform
           </div>
           <h1 className="lp-hero-h1">
             Never miss a<br />
             <span className="lp-hero-gradient">website outage again.</span>
           </h1>
           <p className="lp-hero-p">
-            UptimeForge is a 24/7 website monitoring platform built for businesses. It watches your sites every 30 seconds to 5 minutes (based on your plan), tracks SSL &amp; domain expiry, measures response time, and instantly alerts you on WhatsApp &amp; Email — so downtime never catches you off guard.
+            UptimeForge is an all-in-one monitoring platform built for businesses. It checks uptime, TCP ports, ICMP ping, DNS records, UDP services, and API health every 30 seconds to 5 minutes — tracks SSL &amp; domain expiry, and instantly alerts you on WhatsApp, Telegram &amp; Email so downtime never catches you off guard.
           </p>
           <div className="lp-hero-actions">
             <button className="lp-btn-primary" onClick={() => { localStorage.removeItem('sm_intended_plan'); navigate('/register'); }}>
@@ -1049,7 +1049,7 @@ export default function Landing() {
             <span className="lp-hero-google-text"><strong>4.9/5</strong> Rating on Google Reviews</span>
           </div>
           <div className="lp-hero-trust">
-            {['5-day free trial', 'Alerts in under 1 min', 'WhatsApp + Email', 'No hidden charges'].map(t => (
+            {['5-day free trial', 'Alerts in under 1 min', 'WhatsApp · Email · Telegram', 'No hidden charges'].map(t => (
               <div key={t} className="lp-trust-item"><span className="lp-trust-check">✓</span>{t}</div>
             ))}
           </div>
@@ -1063,7 +1063,7 @@ export default function Landing() {
 
       {/* ── STATS BAR ── */}
       <div className="lp-stats-bar">
-        {[['30s–5m', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['Email', '+ WhatsApp Alerts'], ['₹2', 'Trial Cost'], ['SSL & Domain', 'Expiry Tracking']].map(([v, l]) => (
+        {[['30s–5m', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['WA · Email · TG', 'Alert Channels'], ['₹2', 'Trial Cost'], ['8+', 'Monitoring Types']].map(([v, l]) => (
           <div key={l} className="lp-stat-item">
             <div className="lp-stat-val">{v}</div>
             <div className="lp-stat-label">{l}</div>
@@ -1425,8 +1425,8 @@ export default function Landing() {
               },
               {
                 step: '02',
-                title: 'Add Your Sites',
-                desc: 'Paste your website URLs. We start monitoring immediately — every 30s to 5 min based on your plan.',
+                title: 'Add Your Sites & Services',
+                desc: 'Add websites, TCP ports, DNS records, IPs, UDP services, or API endpoints. We start monitoring immediately — every 30s to 5 min based on your plan.',
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lp-how3-svg">
                     <circle cx="12" cy="12" r="10" />
@@ -1453,7 +1453,7 @@ export default function Landing() {
               {
                 step: '03',
                 title: 'Get Instant Alerts',
-                desc: 'If anything goes wrong — site down, SSL expiring, domain renewal — you get a WhatsApp + email alert right away.',
+                desc: 'If anything goes wrong — site down, port closed, DNS mismatch, API assertion failed, SSL expiring, domain renewal — you get a WhatsApp, Telegram, or Email alert right away.',
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lp-how3-svg">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
