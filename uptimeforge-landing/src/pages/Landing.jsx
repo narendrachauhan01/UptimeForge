@@ -27,6 +27,119 @@ const PLAN_META = {
   gold:       { name: 'Gold',       emoji: '🥇', period: '/month',   gradient: 'linear-gradient(135deg,#ca8a04,#eab308)', cta: 'Get Gold',         popular: false },
 };
 
+const FEAT_DETAIL = {
+  'Uptime Monitoring': {
+    intro: 'Continuous HTTP/HTTPS checks every 30 seconds to 5 minutes ensure your website is always reachable. The moment it goes down, you know — before your customers do.',
+    workflow: [
+      { step: '1', title: 'Add your website URL', desc: 'Paste any HTTP or HTTPS URL into UptimeForge. No code changes or server installation needed.' },
+      { step: '2', title: 'Automated health checks', desc: 'Our servers send real HTTP requests at your plan\'s interval (30s–5 min), verifying the response code, redirect chain, and response time.' },
+      { step: '3', title: 'Down alert in under 1 minute', desc: 'The moment a check fails (wrong status code, timeout, or connection refused), an alert fires to your WhatsApp and Email.' },
+      { step: '4', title: 'Auto recovery notification', desc: 'When the site comes back online you get a "Recovered" alert so you know the outage is resolved without having to log in.' },
+    ],
+    highlights: ['30-second check interval (Gold plan)', 'Email + WhatsApp alerts in < 1 min', 'HTTP status code & latency tracking', '28-day uptime history chart'],
+  },
+  'SSL Expiry Alerts': {
+    intro: 'An expired SSL certificate instantly breaks HTTPS for every visitor and tanks your SEO. UptimeForge warns you at 30, 15, and 7 days in advance so you never miss the renewal window.',
+    workflow: [
+      { step: '1', title: 'Automatic SSL detection', desc: 'When you add a site, UptimeForge immediately fetches the SSL certificate and records its exact expiry date.' },
+      { step: '2', title: 'Daily countdown check', desc: 'Every day we recalculate how many days remain on your certificate and update the dashboard.' },
+      { step: '3', title: 'Multi-stage advance warnings', desc: 'You receive alerts at 30 days, 15 days, and 7 days before expiry — three chances to act before it\'s too late.' },
+      { step: '4', title: 'Instant critical alert', desc: 'If a certificate actually expires or becomes invalid (revoked, wrong domain), you get an immediate alert so you can act at once.' },
+    ],
+    highlights: ['Alerts at 30, 15, and 7 days before expiry', 'Wildcard and multi-domain (SAN) cert support', 'No agent or plugin required', 'Included in all plans'],
+  },
+  'Domain Expiry Tracking': {
+    intro: 'Losing a domain means losing your email, website, and years of brand equity. UptimeForge watches your renewal date and alerts you well before it lapses.',
+    workflow: [
+      { step: '1', title: 'WHOIS lookup', desc: 'UptimeForge queries the WHOIS database to find the precise expiry date for your domain.' },
+      { step: '2', title: 'Renewal countdown on dashboard', desc: 'The dashboard shows remaining days and a visual progress bar for each domain you monitor.' },
+      { step: '3', title: 'Advance alert schedule', desc: 'We send email + WhatsApp reminders well ahead of expiry so you have plenty of time to renew without rushing to your registrar.' },
+      { step: '4', title: 'Auto-refresh after renewal', desc: 'Once you renew, the updated expiry date is picked up automatically on the next WHOIS check — no manual update needed.' },
+    ],
+    highlights: ['WHOIS-based renewal date tracking', 'Visual countdown on dashboard', 'Email + WhatsApp renewal reminders', 'Works with any domain registrar'],
+  },
+  'Port Monitoring': {
+    intro: 'HTTP checks only tell you the web server is alive. Port Monitoring verifies every TCP service — mail, database, SSH, FTP — directly at the network layer.',
+    workflow: [
+      { step: '1', title: 'Enter host and port', desc: 'Add your server\'s IP or hostname and the TCP port (e.g. mail.example.com:465 for SMTPS). Pick a preset like SMTP, MySQL, or SSH, or enter any custom port.' },
+      { step: '2', title: 'TCP handshake probe', desc: 'UptimeForge opens a real TCP connection. If the three-way handshake completes within the timeout, the port is marked "Up".' },
+      { step: '3', title: 'Latency measured', desc: 'We record the handshake time in milliseconds. Rising latency often signals a struggling service before it fully fails.' },
+      { step: '4', title: 'Instant alert on failure', desc: 'If the connection is refused, times out, or the host is unreachable, an alert goes to Email and WhatsApp immediately.' },
+    ],
+    highlights: ['SMTP, POP3, FTP, SSH, MySQL and any custom TCP port', 'IPv4 and IPv6 dual-stack support', 'TCP preset dropdown (one-click setup)', 'Response time trend chart'],
+  },
+  'Ping Monitor': {
+    intro: 'Real ICMP ping tells you whether a server, router, or IoT device is alive on the network — not just whether its web server responds.',
+    workflow: [
+      { step: '1', title: 'Add an IP or hostname', desc: 'Enter any public IP address or hostname. No URL scheme needed — this is raw ICMP, not HTTP.' },
+      { step: '2', title: 'ICMP echo requests', desc: 'UptimeForge sends ICMP echo (ping) packets to the target. Replies confirm the host is reachable and measure round-trip time.' },
+      { step: '3', title: 'Latency and uptime tracked', desc: 'Every probe\'s response time is recorded. The dashboard shows average latency, trend, and a 28-day uptime history.' },
+      { step: '4', title: 'Down alert if no reply', desc: 'If the host stops responding to ICMP pings, you get an instant alert. Note: some cloud hosts block ICMP — use Port Monitoring for those.' },
+    ],
+    highlights: ['True ICMP ping, not an HTTP check', 'Monitor servers, routers, IoT devices', 'Latency trend and uptime chart', 'Alert within < 1 min of no-reply'],
+  },
+  'DNS Monitoring': {
+    intro: 'A misconfigured or hijacked DNS record breaks every service that depends on it. UptimeForge continuously resolves your records and alerts you the moment something changes.',
+    workflow: [
+      { step: '1', title: 'Add domain + record type', desc: 'Choose the hostname and record type: A, AAAA, CNAME, MX, TXT, NS, SOA, PTR, SRV, or SPF.' },
+      { step: '2', title: 'Set expected value (optional)', desc: 'Optionally enter the expected resolved answer. If the value changes — DNS hijack, mis-config, propagation failure — you\'ll be alerted.' },
+      { step: '3', title: 'Continuous DNS resolution', desc: 'Our checks query the DNS infrastructure (or your custom DNS server) at your plan\'s interval around the clock.' },
+      { step: '4', title: 'Alert on mismatch or failure', desc: 'If the record returns NXDOMAIN, fails to resolve, or no longer matches your expected value, an instant alert fires.' },
+    ],
+    highlights: ['Supports A, AAAA, CNAME, MX, TXT, NS, SOA, PTR, SRV, SPF', 'Custom DNS server support', 'Value mismatch detection (anti-hijack)', 'Query latency tracking'],
+  },
+  'UDP Monitoring': {
+    intro: 'DNS resolvers, SNMP agents, NTP servers, and Syslog collectors all run over UDP. Unlike TCP, UDP has no built-in connection confirmation — UptimeForge uses a multi-probe approach to measure true reliability.',
+    workflow: [
+      { step: '1', title: 'Add a UDP target', desc: 'Enter the host, port, and an optional payload string. Common presets: DNS (53), SNMP (161), NTP (123), Syslog (514).' },
+      { step: '2', title: '5-probe burst per check', desc: 'UptimeForge sends 5 UDP packets per check interval. This gives a statistically meaningful packet-loss percentage rather than a brittle single-probe pass/fail.' },
+      { step: '3', title: 'Packet-loss threshold check', desc: 'We calculate what percentage of the 5 probes received a reply. You set the loss threshold (default 5%) — above it, the target is marked "Down".' },
+      { step: '4', title: 'Alert on threshold breach', desc: 'When packet loss exceeds your threshold, or the service recovers below it, an alert fires to Email and WhatsApp.' },
+    ],
+    highlights: ['5-probe burst per check interval', 'Configurable packet-loss threshold (default 5%)', 'Optional keyword check in response', 'DNS, SNMP, NTP, Syslog presets'],
+  },
+  'API Monitoring': {
+    intro: 'A 200 OK does not mean your API is working correctly. UptimeForge sends real HTTP requests and validates the JSON response body — not just the status code.',
+    workflow: [
+      { step: '1', title: 'Configure the request', desc: 'Set the URL, HTTP method (GET/POST/PUT/DELETE/PATCH), custom headers (e.g. Authorization: Bearer ...), and an optional JSON request body.' },
+      { step: '2', title: 'Define JSON assertions', desc: 'Add assertions like "$.status equals ok" or "$.responseTime less_than 200". Combine multiple assertions with AND or OR logic.' },
+      { step: '3', title: 'Request sent every check cycle', desc: 'UptimeForge fires the real HTTP request at your plan\'s interval and captures response code, body, and latency.' },
+      { step: '4', title: 'Alert if assertion fails', desc: 'If the status code is unexpected or any assertion fails, an alert fires instantly. A slow-response alert also fires if latency exceeds your threshold.' },
+    ],
+    highlights: ['GET, POST, PUT, DELETE, PATCH support', 'JSON path assertions ($.field equals value)', 'AND / OR assertion logic', 'Custom headers + request body', 'IPv4 / IPv6 + follow-redirects control'],
+  },
+  'Incident Tracking': {
+    intro: 'Every outage is automatically logged with start time, duration, and recovery confirmation — giving you a clear audit trail for clients and stakeholders.',
+    workflow: [
+      { step: '1', title: 'Outage detected and logged', desc: 'The moment a monitor fails, UptimeForge creates an incident with start time, monitor name, and failure reason (timeout, wrong code, etc.).' },
+      { step: '2', title: 'Duration tracked in real time', desc: 'The incident stays open and its duration updates live on your dashboard until the monitor recovers.' },
+      { step: '3', title: 'Recovery closes the incident', desc: 'When the service comes back up, the incident is automatically closed with an end time and total downtime duration.' },
+      { step: '4', title: 'History preserved indefinitely', desc: 'All past incidents are kept in your alert history so you can review patterns, SLA compliance, and recurring issues.' },
+    ],
+    highlights: ['Automatic logging — no manual effort', 'Start, detection, and recovery timestamps', 'Visible in alerts history + performance charts', 'Useful for SLA reporting and client communication'],
+  },
+  'Performance Charts': {
+    intro: 'Raw uptime numbers don\'t tell the full story. UptimeForge\'s charts let you see response time trends, down events, and recovery patterns over time so you can catch slow degradation before it becomes an outage.',
+    workflow: [
+      { step: '1', title: 'Latency sampled every check', desc: 'Every HTTP check records the response time in milliseconds. This stream of data builds a time-series history per monitor.' },
+      { step: '2', title: 'Response time chart', desc: 'A line chart shows how latency fluctuates over the last hour, 24 hours, or 7 days. Spikes reveal performance degradation early.' },
+      { step: '3', title: '28-day uptime bar history', desc: 'One bar per day — green for healthy, red for outage days. Gives you an instant SLA-style view at a glance.' },
+      { step: '4', title: 'Alerts trends breakdown', desc: 'A bar chart breaks down down-events and recoveries by day, so you can spot recurring problem windows (e.g. always fails at 3 AM).' },
+    ],
+    highlights: ['Response time chart (1h / 24h / 7d)', '28-day uptime history per monitor', 'Alert trends breakdown by day', 'Per-monitor detailed drill-down view'],
+  },
+  'Weekly & Monthly Reports': {
+    intro: 'Auto-generated PDF reports summarise uptime, response times, down events, SSL and domain expiry — delivered to your inbox on a weekly or monthly schedule without any manual effort.',
+    workflow: [
+      { step: '1', title: 'Data collected automatically', desc: 'Throughout the period, UptimeForge accumulates uptime %, average response time, alert counts, and SSL/domain expiry for every monitor.' },
+      { step: '2', title: 'PDF report compiled', desc: 'At your chosen schedule (weekly on Monday / monthly on the 1st), a professionally formatted PDF is generated with charts, tables, and summaries.' },
+      { step: '3', title: 'Delivered to your inbox', desc: 'The PDF is emailed to your registered address automatically. No login needed to stay informed.' },
+      { step: '4', title: 'Client-ready format', desc: 'Clean layout and branded design make it easy to share directly with clients or management as proof of uptime SLA compliance.' },
+    ],
+    highlights: ['Weekly PDF auto-sent every Monday', 'Monthly PDF auto-sent on the 1st', 'Covers all monitors, SSL & domain expiry', 'Auto-emailed — no login needed', 'Professional layout for client sharing'],
+  },
+};
+
 export default function Landing() {
   const navigate = (path) => { window.location.assign(`${DASHBOARD}${path}`); };
   const [menuOpen, setMenuOpen] = useState(false);
@@ -57,6 +170,7 @@ export default function Landing() {
   });
   const [showAddIntegration, setShowAddIntegration] = useState(null);
   const [integrationValue, setIntegrationValue] = useState('');
+  const [featureModal, setFeatureModal] = useState(null);
 
   // Clock Update Effect
   useEffect(() => {
@@ -1212,11 +1326,12 @@ export default function Landing() {
                   },
                 ];
                 return [...list, ...list].map((f, i) => (
-                  <div key={`${f.title}-${i}`} className="lp-feat4-card" style={{ '--feat-color': f.color, '--feat-glow': `${f.color}18` }}>
+                  <div key={`${f.title}-${i}`} className="lp-feat4-card" style={{ '--feat-color': f.color, '--feat-glow': `${f.color}18`, cursor: 'pointer' }} onClick={() => setFeatureModal(f)}>
                     <div className="lp-feat4-icon">{f.icon}</div>
                     <h3 className="lp-feat4-title">{f.title}</h3>
                     <p className="lp-feat4-desc">{f.desc}</p>
                     {f.preview}
+                    <div className="lp-feat4-learn-more" style={{ color: f.color }}>Learn more →</div>
                   </div>
                 ));
               })()}
@@ -2037,6 +2152,65 @@ export default function Landing() {
           </Link>
         </div>
       </footer>
+
+      {/* ── FEATURE DETAIL MODAL ── */}
+      {featureModal && (() => {
+        const detail = FEAT_DETAIL[featureModal.title] || {};
+        return (
+          <div className="feat-modal-overlay" onClick={() => setFeatureModal(null)}>
+            <div className="feat-modal" onClick={e => e.stopPropagation()}>
+              <button className="feat-modal-close" onClick={() => setFeatureModal(null)} aria-label="Close">✕</button>
+              <div className="feat-modal-header" style={{ '--fmc': featureModal.color }}>
+                <div className="feat-modal-icon-wrap" style={{ background: `${featureModal.color}20`, border: `1.5px solid ${featureModal.color}40` }}>
+                  {featureModal.icon}
+                </div>
+                <div className="feat-modal-head-text">
+                  <h2 className="feat-modal-title" style={{ color: featureModal.color }}>{featureModal.title}</h2>
+                  <p className="feat-modal-intro">{detail.intro || featureModal.desc}</p>
+                </div>
+              </div>
+
+              {detail.workflow && (
+                <div className="feat-modal-section">
+                  <h3 className="feat-modal-section-title">How It Works</h3>
+                  <div className="feat-modal-steps">
+                    {detail.workflow.map((s, idx) => (
+                      <div key={idx} className="feat-modal-step">
+                        <div className="feat-modal-step-num" style={{ background: featureModal.color }}>{s.step}</div>
+                        <div className="feat-modal-step-body">
+                          <div className="feat-modal-step-title">{s.title}</div>
+                          <div className="feat-modal-step-desc">{s.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {detail.highlights && (
+                <div className="feat-modal-section">
+                  <h3 className="feat-modal-section-title">Key Highlights</h3>
+                  <div className="feat-modal-highlights">
+                    {detail.highlights.map((h, idx) => (
+                      <div key={idx} className="feat-modal-highlight">
+                        <span className="feat-modal-highlight-dot" style={{ background: featureModal.color }} />
+                        {h}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="feat-modal-footer">
+                <a href={`${DASHBOARD}/register`} className="feat-modal-cta" style={{ background: `linear-gradient(135deg, ${featureModal.color}, ${featureModal.color}bb)` }}>
+                  Get Started Free →
+                </a>
+                <button className="feat-modal-dismiss" onClick={() => setFeatureModal(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
