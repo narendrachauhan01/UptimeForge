@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UWLogo from '../components/UWLogo';
 
-const EFFECTIVE_DATE = 'June 1, 2026';
+const EFFECTIVE_DATE = 'June 30, 2026';
 const CONTACT_EMAIL  = 'uptimeforge@gmail.com';
 const OPERATOR_NAME  = 'Narendra Singh';
 const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://uptimeforge.narendrasingh.site';
@@ -133,8 +133,7 @@ export default function TermsOfService() {
 
             <h3>4.2 Free Trial Verification Fee — ₹2</h3>
             <p>
-              To activate your 5-day free trial, a <strong>one-time, non-refundable ₹2 UPI
-              payment</strong> is required at registration. This fee:
+              To activate your 5-day free trial, a <strong>one-time, non-refundable ₹2 payment via Razorpay</strong> is required at registration. This fee:
             </p>
             <ul>
               <li>Verifies that your UPI account is active and operational</li>
@@ -181,21 +180,36 @@ export default function TermsOfService() {
 
             <h3>4.5 No Auto-Renewal — No Standing Instructions</h3>
             <p>
-              UptimeForge does <strong>NOT</strong> set up any auto-debit mandates, recurring UPI
-              instructions, or automatic renewals. You will never be charged without initiating a
+              UptimeForge does <strong>NOT</strong> set up any auto-debit mandates, recurring UPI instructions, card-on-file recurring charges, or automatic renewals of any kind. You will never be charged without initiating a
               payment yourself. Your plan will simply expire at the end of the billing period and you
               can choose to renew manually. You will receive a reminder email before your plan expires.
             </p>
 
-            <h3>4.6 Refund Policy</h3>
+            <h3>4.6 Refund and Cancellation Policy</h3>
             <p>
-              The ₹2 trial verification fee is <strong>strictly non-refundable</strong>. For monthly
-              subscription payments, refunds are not provided for the current billing month or any
-              unused portion of a plan. If you believe a payment was made in error (e.g., duplicate
-              payment), contact us at{' '}
+              <strong>No Refunds — All Plans:</strong> All payments made to UptimeForge — the ₹2
+              trial verification fee and all monthly subscription charges (Bronze, Silver, or Gold) —
+              are <strong>strictly and unconditionally non-refundable</strong>. This applies in all
+              situations, including:
+            </p>
+            <ul>
+              <li>Cancelling your subscription at any time — no refund is issued for unused days in the current billing period</li>
+              <li>Switching or downgrading to a lower plan mid-cycle — no partial or pro-rated refund</li>
+              <li>Not using the Service or features during a paid period</li>
+              <li>Account suspension or termination due to violations of these Terms</li>
+              <li>The ₹2 trial verification fee, under all circumstances without exception</li>
+            </ul>
+            <p>
+              <strong>Duplicate / Erroneous Charges Only:</strong> If you were charged twice for the
+              same billing period due to a confirmed technical error, contact us at{' '}
               <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> within{' '}
-              <strong>7 days</strong> of the transaction with your UPI transaction reference number
-              (UTR). We will review such requests on a case-by-case basis.
+              <strong>7 days</strong> of the transaction with your Razorpay payment reference ID
+              (UTR for UPI / transaction ID for Cards or Netbanking). If a duplicate charge is
+              confirmed, only the extra amount is eligible for refund.
+            </p>
+            <p>
+              By completing payment, you acknowledge that you have read, understood, and agreed to
+              this no-refund policy.
             </p>
           </section>
 
@@ -251,7 +265,7 @@ export default function TermsOfService() {
             <ul>
               <li><strong>Account data:</strong> Name, email address, phone number, billing address, city, state</li>
               <li><strong>Monitoring data:</strong> URLs you add for monitoring, response times, uptime status history</li>
-              <li><strong>Payment data:</strong> UPI transaction reference numbers (UTR). We do not store UPI PINs, bank account numbers, or any sensitive payment credentials</li>
+              <li><strong>Payment data:</strong> Razorpay payment reference IDs (UTR for UPI / transaction ID for Cards or Netbanking). We do not store UPI PINs, card numbers, CVVs, bank passwords, or any sensitive payment credentials</li>
               <li><strong>Alert recipient data:</strong> Email addresses, WhatsApp numbers, Telegram bot tokens, and webhook URLs (Slack, Discord, Rocket.Chat) you configure for notifications</li>
               <li><strong>Usage data:</strong> Login activity, feature usage, and error logs for service improvement</li>
             </ul>
@@ -328,14 +342,14 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>10. Account Termination</h2>
 
-            <h3>11.1 Termination by You</h3>
+            <h3>10.1 Termination by You</h3>
             <p>
               You may terminate your account at any time by contacting us at{' '}
               <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Upon termination, your access
               to the Service will cease and your monitored sites will no longer be checked.
             </p>
 
-            <h3>11.2 Termination by Us</h3>
+            <h3>10.2 Termination by Us</h3>
             <p>
               We reserve the right to suspend or permanently terminate accounts that:
             </p>
@@ -349,12 +363,11 @@ export default function TermsOfService() {
               In cases of serious violations, termination may occur without prior notice or refund.
             </p>
 
-            <h3>11.3 Effect of Termination</h3>
+            <h3>10.3 Effect of Termination</h3>
             <p>
               Upon termination (by either party), we are under no obligation to retain your data
               beyond the 90-day retention window. Provisions of these Terms that by their nature
-              should survive termination (including payment obligations, limitation of liability,
-              and intellectual property rights) shall survive.
+              should survive termination (including payment obligations, data protection obligations, limitation of liability, and dispute resolution) shall survive.
             </p>
           </section>
 
