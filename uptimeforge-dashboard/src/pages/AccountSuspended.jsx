@@ -19,10 +19,10 @@ export default function AccountSuspended({ user, onLogout }) {
                 </p>
 
                 <div style={{ display:'flex', flexDirection:'column', gap:12, maxWidth:320, margin:'0 auto 32px' }}>
-                    <Link to="/pay?plan=select" style={{ display:'block', padding:'14px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:12, fontWeight:700, fontSize:15, textDecoration:'none', boxShadow:'0 4px 20px rgba(124,58,237,0.4)' }}>
+                    <Link to="/pay?plan=select" className="suspended-btn-primary">
                         ⬆️ Upgrade Plan
                     </Link>
-                    <Link to="/support" style={{ display:'block', padding:'14px', border:'1.5px solid rgba(255,255,255,0.15)', color:'rgba(255,255,255,0.7)', borderRadius:12, fontWeight:600, fontSize:14, textDecoration:'none' }}>
+                    <Link to="/support" className="suspended-btn-secondary">
                         📩 Contact Support
                     </Link>
                 </div>
@@ -35,7 +35,7 @@ export default function AccountSuspended({ user, onLogout }) {
                 )}
 
                 <div>
-                    <button onClick={onLogout} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.3)', fontSize:13, cursor:'pointer', textDecoration:'underline' }}>
+                    <button onClick={onLogout} className="suspended-logout-btn">
                         Logout
                     </button>
                 </div>

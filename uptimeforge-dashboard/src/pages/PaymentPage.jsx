@@ -417,7 +417,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
             <PlanSelectScreen
                 planData={planData}
                 user={user}
-                onBack={() => navigate(-1)}
+                onBack={() => navigate('/performance')}
                 onSelect={(p, selectedBilling) => {
                     setBilling(selectedBilling || 'monthly');
                     navigate(p === 'verification' ? '/pay?plan=verification' : `/pay?plan=${p}`);
