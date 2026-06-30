@@ -53,16 +53,22 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>2. Description of Service</h2>
             <p>
-              UptimeForge is a website and server uptime monitoring platform that provides the
-              following services to its registered users:
+              UptimeForge is an all-in-one monitoring platform that provides the following services
+              to its registered users:
             </p>
             <ul>
-              <li>24/7 automated HTTP/HTTPS uptime checks at regular intervals</li>
-              <li>SSL certificate expiry monitoring and advance alerts</li>
+              <li>24/7 automated HTTP/HTTPS uptime checks at configurable intervals (30 seconds to 5 minutes based on plan)</li>
+              <li>TCP Port Monitoring — verifies that specific TCP ports (SMTP, FTP, SSH, MySQL, and custom ports) are reachable</li>
+              <li>ICMP Ping Monitoring — real ping checks for servers, routers, and network devices</li>
+              <li>DNS Record Monitoring — verifies that A, AAAA, CNAME, MX, TXT, NS, SOA, PTR, SRV, and SPF records resolve to expected values</li>
+              <li>UDP Service Monitoring — multi-probe packet-loss checks for DNS, SNMP, NTP, Syslog, and other UDP services</li>
+              <li>API Monitoring — HTTP request checks with JSON response body assertions</li>
+              <li>SSL certificate expiry monitoring and advance warnings</li>
               <li>Domain name expiry tracking via WHOIS lookups</li>
               <li>Response time performance analytics and historical charts</li>
-              <li>Real-time downtime and alert notifications via Email and WhatsApp</li>
-              <li>Server resource monitoring (CPU, RAM, disk) for supported servers</li>
+              <li>Incident tracking with timestamps and resolution logs</li>
+              <li>Weekly and monthly PDF performance reports delivered by email</li>
+              <li>Real-time downtime and alert notifications via Email, WhatsApp, Telegram, Slack, Discord, Rocket.Chat, and custom Webhooks</li>
             </ul>
             <p>
               The Service is provided on an "as-is" basis. We reserve the right to modify, add,
@@ -109,13 +115,20 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>4. Payments and Billing</h2>
 
-            <h3>4.1 Payment Method — UPI Only</h3>
+            <h3>4.1 Payment Method</h3>
             <p>
-              UptimeForge accepts payments <strong>exclusively via UPI (Unified Payments Interface)</strong>,
-              India's government-regulated instant payment system. We do not accept credit cards,
-              debit cards, net banking, international payments, or cryptocurrency of any kind.
-              Accepted UPI applications include PhonePe, Google Pay, Paytm, BHIM, Amazon Pay,
-              and any other standard UPI-compatible app.
+              UptimeForge processes all payments securely through <strong>Razorpay</strong>, a
+              PCI-DSS compliant payment gateway. We accept the following payment methods:
+            </p>
+            <ul>
+              <li><strong>UPI</strong> — PhonePe, Google Pay, Paytm, BHIM, Amazon Pay, and all UPI-compatible apps</li>
+              <li><strong>Debit / Credit Cards</strong> — Visa, Mastercard, RuPay, and other major card networks</li>
+              <li><strong>Net Banking</strong> — all major Indian banks</li>
+            </ul>
+            <p>
+              We do not accept international payments, cryptocurrency, or cash. Payment credentials
+              (card numbers, UPI PINs, bank passwords) are entered directly on Razorpay's secure
+              checkout and are never stored or accessible by UptimeForge.
             </p>
 
             <h3>4.2 Free Trial Verification Fee — ₹2</h3>
@@ -158,10 +171,12 @@ export default function TermsOfService() {
 
             <h3>4.4 Plan Activation Timeline</h3>
             <p>
-              After a payment request is submitted, your plan will be activated within{' '}
-              <strong>24 hours</strong> following manual verification of your UPI transaction by our
-              team. Activation may be delayed on public holidays and weekends. You will receive an
-              email confirmation once your plan is active.
+              Payments are verified automatically and instantly via Razorpay's cryptographic signature
+              system. Your plan is typically activated <strong>within seconds</strong> of a successful
+              payment. You will receive an email confirmation once your plan is active. In rare cases
+              of payment gateway delays, activation may take up to <strong>30 minutes</strong>. If
+              your plan is not activated within this window, contact us at{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with your payment reference.
             </p>
 
             <h3>4.5 No Auto-Renewal — No Standing Instructions</h3>
@@ -237,7 +252,7 @@ export default function TermsOfService() {
               <li><strong>Account data:</strong> Name, email address, phone number, billing address, city, state</li>
               <li><strong>Monitoring data:</strong> URLs you add for monitoring, response times, uptime status history</li>
               <li><strong>Payment data:</strong> UPI transaction reference numbers (UTR). We do not store UPI PINs, bank account numbers, or any sensitive payment credentials</li>
-              <li><strong>Alert recipient data:</strong> Email addresses and WhatsApp numbers you configure for notifications</li>
+              <li><strong>Alert recipient data:</strong> Email addresses, WhatsApp numbers, Telegram bot tokens, and webhook URLs (Slack, Discord, Rocket.Chat) you configure for notifications</li>
               <li><strong>Usage data:</strong> Login activity, feature usage, and error logs for service improvement</li>
             </ul>
 
@@ -288,14 +303,20 @@ export default function TermsOfService() {
             <h2>9. Third-Party Services</h2>
             <p>
               UptimeForge integrates with third-party services to deliver its functionality. These
-              include (but are not limited to): WHOIS data providers for domain expiry checks, SSL
-              certificate information services, email delivery providers, and WhatsApp Business API
-              for alerts. We are not responsible for the accuracy, availability, or terms of these
-              third-party services.
+              include (but are not limited to):
             </p>
+            <ul>
+              <li><strong>Razorpay</strong> — payment processing (UPI, Cards, Netbanking)</li>
+              <li><strong>WHOIS data providers</strong> — domain expiry lookups</li>
+              <li><strong>Email delivery providers</strong> — transactional alert emails</li>
+              <li><strong>WhatsApp Business API</strong> — WhatsApp alert messages</li>
+              <li><strong>Telegram Bot API</strong> — Telegram alert messages</li>
+              <li><strong>Slack, Discord, Rocket.Chat</strong> — webhook-based alert notifications</li>
+            </ul>
             <p>
-              Missed alerts due to third-party email or WhatsApp delivery failures, rate limits, or
-              service outages are not our liability.
+              We are not responsible for the accuracy, availability, pricing changes, or terms of
+              these third-party services. Missed alerts due to delivery failures, rate limits, or
+              outages at any third-party provider are not our liability.
             </p>
           </section>
 
@@ -309,7 +330,7 @@ export default function TermsOfService() {
             <ul>
               <li>Any loss of revenue, profit, data, or business opportunity resulting from monitoring failures, missed alerts, or service downtime</li>
               <li>Inaccurate or outdated WHOIS, SSL, or domain data obtained from third-party sources</li>
-              <li>Alerts not delivered due to third-party email or WhatsApp service failures</li>
+              <li>Alerts not delivered due to third-party email, WhatsApp, Telegram, Slack, Discord, or webhook service failures</li>
               <li>Any indirect, incidental, special, consequential, or punitive damages arising from use of or inability to use the Service</li>
               <li>Security breaches resulting from events beyond our reasonable control</li>
             </ul>
@@ -418,7 +439,11 @@ export default function TermsOfService() {
             <div className="tos-contact-box">
               <div className="tos-contact-row">
                 <span className="tos-contact-label">Service</span>
-                <span>UptimeForge — Website &amp; Server Monitoring</span>
+                <span>UptimeForge — All-in-One Monitoring Platform</span>
+              </div>
+              <div className="tos-contact-row">
+                <span className="tos-contact-label">Website</span>
+                <span><a href={LANDING_URL} target="_blank" rel="noopener noreferrer">{LANDING_URL}</a></span>
               </div>
               <div className="tos-contact-row">
                 <span className="tos-contact-label">Operated by</span>
