@@ -5051,28 +5051,53 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
 }
 
 /* ── Landing Page Redesign — Clean Sections ── */
+.lp-marquee-outer {
+  position: relative;
+  margin-top: 48px;
+}
 .lp-marquee-wrapper {
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: visible;
+  scrollbar-width: none;
   width: 100%;
   position: relative;
   padding: 24px 0;
-  margin-top: 48px;
   mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
 }
+.lp-marquee-wrapper::-webkit-scrollbar { display: none; }
 .lp-marquee-content {
   display: flex;
   gap: 24px;
   width: max-content;
-  animation: marquee-scroll 40s linear infinite;
 }
-.lp-marquee-content:hover {
-  animation-play-state: paused;
+.lp-marquee-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(8px);
 }
-@keyframes marquee-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-50% - 12px)); }
+.lp-marquee-arrow:hover {
+  background: rgba(124, 58, 237, 0.3);
+  border-color: rgba(124, 58, 237, 0.6);
+  color: #fff;
 }
+.lp-marquee-arrow-left  { left: 4px; }
+.lp-marquee-arrow-right { right: 4px; }
+.lp-marquee-arrow-left:hover  { transform: translateY(-50%) translateX(-1px); }
+.lp-marquee-arrow-right:hover { transform: translateY(-50%) translateX(1px); }
 .lp-feat4-card {
   flex: 0 0 320px;
   background: rgba(255, 255, 255, 0.02);

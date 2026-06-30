@@ -171,6 +171,10 @@ export default function Landing() {
   const [showAddIntegration, setShowAddIntegration] = useState(null);
   const [integrationValue, setIntegrationValue] = useState('');
   const [featureModal, setFeatureModal] = useState(null);
+  const marqueeRef = useRef(null);
+  const marqueeRafRef = useRef(null);
+  const marqueePausedRef = useRef(false);
+  const marqueePauseTimerRef = useRef(null);
 
   // Clock Update Effect
   useEffect(() => {
@@ -179,6 +183,40 @@ export default function Landing() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Feature card marquee — JS-driven scrollLeft (replaces CSS animation so arrows work)
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (!el) return;
+    const speed = 1.4; // px per frame ≈ same visual speed as the old 40s CSS animation
+    const step = () => {
+      if (!marqueePausedRef.current) {
+        el.scrollLeft += speed;
+        const halfW = el.scrollWidth / 2;
+        if (el.scrollLeft >= halfW) el.scrollLeft -= halfW;
+      }
+      marqueeRafRef.current = requestAnimationFrame(step);
+    };
+    marqueeRafRef.current = requestAnimationFrame(step);
+    const pause = () => { marqueePausedRef.current = true; };
+    const resume = () => { marqueePausedRef.current = false; };
+    el.addEventListener('mouseenter', pause);
+    el.addEventListener('mouseleave', resume);
+    return () => {
+      cancelAnimationFrame(marqueeRafRef.current);
+      el.removeEventListener('mouseenter', pause);
+      el.removeEventListener('mouseleave', resume);
+    };
+  }, []);
+
+  const scrollFeatMarquee = (dir) => {
+    const el = marqueeRef.current;
+    if (!el) return;
+    marqueePausedRef.current = true;
+    el.scrollBy({ left: dir * 360, behavior: 'smooth' });
+    clearTimeout(marqueePauseTimerRef.current);
+    marqueePauseTimerRef.current = setTimeout(() => { marqueePausedRef.current = false; }, 1800);
+  };
 
   // Ping Log Simulation Effect
   useEffect(() => {
@@ -1041,7 +1079,14 @@ export default function Landing() {
           <p className="lp-section-sub" style={{ margin: '0 auto 48px', color: 'rgba(255, 255, 255, 0.65)' }}>
             Get deep visibility into your application availability and speed with our enterprise-grade monitoring suite.
           </p>
-          <div className="lp-marquee-wrapper">
+          <div className="lp-marquee-outer">
+            <button className="lp-marquee-arrow lp-marquee-arrow-left" onClick={() => scrollFeatMarquee(-1)} aria-label="Scroll left">
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button className="lp-marquee-arrow lp-marquee-arrow-right" onClick={() => scrollFeatMarquee(1)} aria-label="Scroll right">
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          <div className="lp-marquee-wrapper" ref={marqueeRef}>
             <div className="lp-marquee-content">
               {(() => {
                 const list = [
@@ -1336,6 +1381,7 @@ export default function Landing() {
                 ));
               })()}
             </div>
+          </div>
           </div>
         </div>
       </section>
