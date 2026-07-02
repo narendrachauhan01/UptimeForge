@@ -181,7 +181,7 @@ export default function Account({ user, onUserUpdate }) {
       <div>
         <div class="label">From</div>
         <h3>UptimeForge</h3>
-        <p>uptimeforge@gmail.com<br>India</p>
+        <p>uptimeforge.in<br>uptimeforge@gmail.com<br>India</p>
       </div>
       <div>
         <div class="label">Billed To</div>
@@ -210,7 +210,7 @@ export default function Account({ user, onUserUpdate }) {
   </div>
   <div class="footer">
     <span>Thank you for using UptimeForge! For support: uptimeforge@gmail.com</span>
-    <strong>© 2026 UptimeForge.in</strong>
+    <strong>© ${new Date().getFullYear()} UptimeForge.in</strong>
   </div>
 </div>
 <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
