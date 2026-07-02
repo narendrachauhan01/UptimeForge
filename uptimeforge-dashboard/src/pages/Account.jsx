@@ -181,7 +181,7 @@ export default function Account({ user, onUserUpdate }) {
       <div>
         <div class="label">From</div>
         <h3>UptimeForge</h3>
-        <p>Narendra Singh — DevOps Engineer<br>uptimeforge@gmail.com<br>India</p>
+        <p>uptimeforge@gmail.com<br>India</p>
       </div>
       <div>
         <div class="label">Billed To</div>
