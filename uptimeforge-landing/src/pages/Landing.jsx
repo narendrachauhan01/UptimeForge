@@ -2200,9 +2200,10 @@ export default function Landing() {
             <Link to="/privacy">Privacy Policy</Link>
             <span className="lp-footer-bottom-sep">·</span>
             <Link to="/terms">Terms of Service</Link>
-            <span className="lp-footer-bottom-sep">·</span>
-            <Link to="/staff-login">Staff Login</Link>
           </div>
+          <Link to="/staff-login" className="lp-staff-login-btn">
+            🔐 Staff Login
+          </Link>
         </div>
       </footer>
 
