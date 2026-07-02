@@ -13,8 +13,10 @@ async function buildReportData(userId, type) {
         const fmt = (d) => d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
         title = `Weekly Report: ${fmt(periodStart)} – ${fmt(periodEnd)}`;
     } else {
-        periodStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-        periodEnd   = new Date(now);
+        // Cron runs on the 1st of each month — report should cover the previous complete month
+        const firstOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        periodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+        periodEnd   = new Date(firstOfThisMonth.getTime() - 1); // last ms of previous month
         title = `Monthly Report: ${periodStart.toLocaleDateString('en-IN', { month:'long', year:'numeric' })}`;
     }
 
