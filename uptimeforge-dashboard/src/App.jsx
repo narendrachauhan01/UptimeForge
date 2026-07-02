@@ -42,6 +42,7 @@ const ContactSupport    = lazy(() => import('./pages/ContactSupport'));
 const SupportTickets    = lazy(() => import('./pages/SupportTickets'));
 const Servers           = lazy(() => import('./pages/Servers'));
 const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'));
 const StaffManagement   = lazy(() => import('./pages/StaffManagement'));
 const StaffLogin        = lazy(() => import('./pages/StaffLogin'));
 const StaffDashboard    = lazy(() => import('./pages/StaffDashboard'));
@@ -551,7 +552,7 @@ function AppInner() {
     return () => clearInterval(t);
   }, [authed, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const publicPaths = ['/', '/login', '/register', '/pricing', '/reset-password', '/terms'];
+  const publicPaths = ['/', '/login', '/register', '/pricing', '/reset-password', '/terms', '/privacy'];
   const isPublicPath = publicPaths.includes(location.pathname);
 
   if (authed === null && !isPublicPath) return (
@@ -570,6 +571,7 @@ function AppInner() {
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </Suspense>
@@ -600,6 +602,7 @@ function AppInner() {
             <Route path="/register" element={<Register onRegister={handleRegister} />} />
             <Route path="/pricing" element={<Pricing user={user} authed={authed} />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Login onLogin={handleLogin} />} />
           </Routes>
@@ -792,6 +795,7 @@ function AppInner() {
                   return blocked ? <UpgradeGate user={user} feature="API Monitoring" /> : <ApiMonitorPage />;
               })()} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/support" element={<ContactSupport user={user} />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>
@@ -806,7 +810,7 @@ function AppInner() {
                 <span className="status-text">All systems operational</span>
               </div>
               <span className="footer-copyright">
-                © {new Date().getFullYear()} UptimeForge.in – <Link to="/terms">Privacy Policy</Link> | <Link to="/terms">Terms &amp; Conditions</Link>
+                © {new Date().getFullYear()} UptimeForge.in – <Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms &amp; Conditions</Link>
               </span>
             </div>
             <div className="footer-right">

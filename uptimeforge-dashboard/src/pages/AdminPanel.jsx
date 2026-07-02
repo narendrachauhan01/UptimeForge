@@ -743,7 +743,15 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         setUserHistoryLoading(false);
     };
 
-    // Load abandoned users when tab selected
+    // Load abandoned users on mount (so count shows in tab) and refresh when tab selected
+    useEffect(() => {
+        setAbandonedLoading(true);
+        axios.get(`${API_URL}/api/admin/abandoned-users`, { withCredentials: true })
+            .then(r => setAbandonedUsers(r.data))
+            .catch(() => {})
+            .finally(() => setAbandonedLoading(false));
+    }, []);
+
     useEffect(() => {
         if (tab !== 'abandoned') return;
         setAbandonedLoading(true);

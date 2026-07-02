@@ -2184,7 +2184,7 @@ export default function Landing() {
             <div className="lp-footer-col-title">Legal</div>
             <div className="lp-footer-links">
               <Link to="/terms">Terms of Service</Link>
-              <Link to="/terms">Privacy Policy</Link>
+              <Link to="/privacy">Privacy Policy</Link>
             </div>
           </div>
 
@@ -2192,7 +2192,7 @@ export default function Landing() {
 
         {/* Bottom bar */}
         <div className="lp-footer-bottom">
-          <div className="lp-footer-copy">© {new Date().getFullYear()} UptimeForge.in – <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Privacy Policy</Link> | <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Terms &amp; Conditions</Link></div>
+          <div className="lp-footer-copy">© {new Date().getFullYear()} UptimeForge.in – <Link to="/privacy" style={{ color:'inherit', textDecoration:'underline' }}>Privacy Policy</Link> | <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Terms &amp; Conditions</Link></div>
           <Link to="/staff-login" className="lp-staff-login-btn">
             🔐 Staff Login
           </Link>
