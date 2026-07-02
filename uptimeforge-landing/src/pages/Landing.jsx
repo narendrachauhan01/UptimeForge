@@ -1049,7 +1049,7 @@ export default function Landing() {
             <span className="lp-hero-google-text"><strong>4.9/5</strong> Rating on Google Reviews</span>
           </div>
           <div className="lp-hero-trust">
-            {['5-day free trial', 'Alerts in under 1 min', 'WhatsApp · Email · Telegram', 'No hidden charges'].map(t => (
+            {['5-day free trial', 'Alerts in under 1 min', 'Email · Telegram · Slack · Discord', 'No hidden charges'].map(t => (
               <div key={t} className="lp-trust-item"><span className="lp-trust-check">✓</span>{t}</div>
             ))}
           </div>
@@ -1063,7 +1063,7 @@ export default function Landing() {
 
       {/* ── STATS BAR ── */}
       <div className="lp-stats-bar">
-        {[['30s–5m', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['WA · Email · TG', 'Alert Channels'], ['₹2', 'Trial Cost'], ['8+', 'Monitoring Types']].map(([v, l]) => (
+        {[['30s–5m', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['Email · Telegram · Slack', 'Alert Channels'], ['₹2', 'Trial Cost'], ['8+', 'Monitoring Types']].map(([v, l]) => (
           <div key={l} className="lp-stat-item">
             <div className="lp-stat-val">{v}</div>
             <div className="lp-stat-label">{l}</div>
