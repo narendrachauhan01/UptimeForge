@@ -731,6 +731,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
             .catch(() => {})
             .finally(() => setPlanHistoryLoading(false));
     };
+    useEffect(() => { loadPlanHistory(1); }, []); // eslint-disable-line react-hooks/exhaustive-deps
     useEffect(() => { if (tab === 'planhistory') loadPlanHistory(1); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const openUserHistory = async (u) => {
