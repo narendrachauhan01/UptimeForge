@@ -1161,7 +1161,7 @@ body.charts-dark-theme .status-dot {
   letter-spacing: 0.1px;
 }
 body.charts-dark-theme .footer-copyright {
-  color: #64748b;
+  color: #94a3b8;
 }
 .footer-right {
   display: flex;
@@ -1178,7 +1178,7 @@ body.charts-dark-theme .footer-copyright {
   transition: all 0.2s ease;
 }
 body.charts-dark-theme .footer-link {
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 .footer-link:hover {
   color: #7c3aed;
@@ -1195,7 +1195,7 @@ body.charts-dark-theme .footer-link:hover {
   user-select: none;
 }
 body.charts-dark-theme .footer-divider {
-  color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.25);
 }
 
 /* ══════════════════════════════════════
