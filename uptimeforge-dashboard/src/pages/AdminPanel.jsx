@@ -566,6 +566,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
     const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
+    const liveUsers    = users.filter(u => u.trialVerified && u.isActive && !u.isBlocked);
     const expiredUsers = users.filter(u => {
         if (u.isBlocked) return false;
         // Never-verified free trial users belong in Abandoned, not Expired Plans
@@ -768,6 +769,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         { id: 'overview',     label: 'Overview' },
         { id: 'users',        label: `Users (${users.length})` },
         { id: 'planhistory',  label: `Plan History (${planHistoryTotal || '...'})` },
+        { id: 'live',         label: `Live Users (${liveUsers.length})` },
         { id: 'abandoned',    label: `Abandoned (${abandonedUsers.length || '?'})` },
         { id: 'expired',      label: `Expired Plans (${expiredUsers.length})` },
         { id: 'payments',     label: `Payments (${payments.length})` },
@@ -1500,6 +1502,60 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
             )}
 
             {/* ================================================================
+                LIVE USERS TAB
+            ================================================================ */}
+            {tab === 'live' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ ...cardStyle, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: `1px solid ${T.border}` }}>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: 17, color: T.text }}>Live Users</div>
+                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>Verified users with an active plan</div>
+                            </div>
+                            <span style={{ ...pill('#D1FAE5', '#059669'), fontSize: 13 }}>{liveUsers.length} active</span>
+                        </div>
+                        {liveUsers.length === 0 ? (
+                            <div style={{ padding: '40px 20px', textAlign: 'center', color: T.muted }}>
+                                <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
+                                <div style={{ fontWeight: 600 }}>No live users</div>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                    <thead>
+                                        <tr style={{ background: T.headerBg }}>
+                                            {['#', 'Name', 'Email', 'Phone', 'Plan', 'Plan Expires', 'Sites', 'Joined'].map(h => (
+                                                <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}` }}>{h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {liveUsers.map((u, idx) => (
+                                            <tr key={u._id} style={{ borderBottom: `1px solid ${T.border}` }}
+                                                onMouseEnter={e => e.currentTarget.style.background = T.rowHover}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                <td style={{ padding: '14px 16px', color: T.muted, fontWeight: 600 }}>{idx + 1}</td>
+                                                <td style={{ padding: '14px 16px', fontWeight: 700, color: T.text }}>
+                                                    <div>{u.name}</div>
+                                                    <div style={{ fontSize: 11, color: T.muted, fontFamily: 'monospace' }}>{u.accountId}</div>
+                                                </td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.email}</td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.phone || '—'}</td>
+                                                <td style={{ padding: '14px 16px' }}><PlanBadge plan={u.plan} /></td>
+                                                <td style={{ padding: '14px 16px', color: T.text, fontWeight: 600 }}>{fmt(u.planEndsAt || u.trialEndsAt)}</td>
+                                                <td style={{ padding: '14px 16px', color: T.sub }}>{u.serverCount || 0}</td>
+                                                <td style={{ padding: '14px 16px', color: T.muted, fontSize: 12 }}>{fmt(u.createdAt)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ================================================================
                 ABANDONED USERS TAB
             ================================================================ */}
             {tab === 'abandoned' && (
@@ -1510,7 +1566,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                             <div>
                                 <div style={{ fontWeight: 800, fontSize: 17 }}>👥 Abandoned Users</div>
                                 <div style={{ color: T.muted, fontSize: 13, marginTop: 4 }}>
-                                    Users who filled profile but haven't paid ₹2 verification fee (account &gt; 2 hours old)
+                                    All registered users who haven't completed ₹2 verification payment
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
