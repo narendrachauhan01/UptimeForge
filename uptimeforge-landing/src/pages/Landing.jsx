@@ -1024,11 +1024,6 @@ export default function Landing() {
             <span className="lp-tag-dot" />
             Live · 8-in-1 Monitoring Platform
           </div>
-          <div className="lp-hero-monitor-types">
-            {['🌐 Website','🔒 SSL','📅 Domain','📡 Ping','🔌 Port','🧭 DNS','📶 UDP','⚡ API'].map(t => (
-              <span key={t} className="lp-monitor-chip">{t}</span>
-            ))}
-          </div>
           <h1 className="lp-hero-h1">
             Never miss a<br />
             <span className="lp-hero-gradient">website outage again.</span>
