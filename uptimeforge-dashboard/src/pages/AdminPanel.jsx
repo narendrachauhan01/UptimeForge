@@ -568,6 +568,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
     const expiredUsers = users.filter(u => {
         if (u.isBlocked) return false;
+        // Never-verified free trial users belong in Abandoned, not Expired Plans
+        if (u.plan === 'free_trial' && !u.trialVerified) return false;
         const d = new Date();
         const endDate = u.plan === 'free_trial' ? u.trialEndsAt : u.planEndsAt;
         return endDate && new Date(endDate) < d;
