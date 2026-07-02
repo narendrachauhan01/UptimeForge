@@ -19,7 +19,7 @@ async function makePDF(reportId, html) {
             headless: true,
         });
         const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
+        await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
         const buf = await page.pdf({ format: 'A4', printBackground: true });
         fs.writeFileSync(path.join(PDF_DIR, `${reportId}.pdf`), buf);
         console.log(`[Report PDF] Generated for report ${reportId}`);
@@ -107,7 +107,7 @@ exports.pdf = async (req, res) => {
                 headless: true,
             });
             const page = await browser.newPage();
-            await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
+            await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
             const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
             // Save for future downloads
             fs.writeFileSync(filepath, pdfBuffer);
