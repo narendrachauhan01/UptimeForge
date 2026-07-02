@@ -2321,7 +2321,30 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
   font-weight: 600;
   padding: 6px 14px;
   border-radius: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+}
+.lp-hero-monitor-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.lp-monitor-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.2px;
+  transition: all 0.2s;
+}
+.lp-monitor-chip:hover {
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.3);
+  background: rgba(124, 58, 237, 0.08);
 }
 .lp-tag-dot {
   width: 6px;
