@@ -34,7 +34,7 @@ async function fireIntegrations(server, type, userId, statusCode, skipServerFilt
         const integrations = await Integration.find({ userId, active: true });
         for (const intg of integrations) {
             // Check event type
-            if (intg.events === 'down' && type !== 'down') continue;
+            if (intg.events !== 'all' && type !== 'down') continue; // 'down' and 'down_ssl' both skip UP events
             // Server filter only applies to HTTP monitors. Non-HTTP targets (Port, DNS, UDP, ICMP, API)
             // cannot be added to this filter in the UI, so skip the filter for them.
             if (!skipServerFilter && intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
@@ -263,7 +263,8 @@ function now() {
 
 // Human-friendly status code label — 0 means no HTTP response was received (timeout/connection error)
 function statusCodeLabel(code) {
-    return (code && code !== 0) ? String(code) : '0 (No Response / Timeout)';
+    if (code == null) return 'N/A';
+    return code !== 0 ? String(code) : '0 (No Response / Timeout)';
 }
 
 function checkUrl(url, options = {}) {
@@ -745,8 +746,14 @@ async function checkPingTargets() {
                     const sentTo = [];
                     const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
                     for (const r of eligible) {
-                        if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, pingDownEmailHtml(target.name, target.host, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
                         sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
                     fireIntegrations(
@@ -755,7 +762,7 @@ async function checkPingTargets() {
                         target.userId?._id || target.userId,
                         null,
                         true
-                    ).catch(() => {});
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     // Save to Incidents
                     await Alert.create({
                         userId:     target.userId || null,
@@ -776,8 +783,14 @@ async function checkPingTargets() {
                     const sentTo = [];
                     const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
                     for (const r of eligible) {
-                        if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); } catch(_){} }
+                        if (r.phone) {
+                            try { await wa.sendMessage(r.phone, waMsg); notifLog('INFO', 'WHATSAPP', target.name, uid, `OK → ${r.phone} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'WHATSAPP', target.name, uid, `FAILED → ${r.phone}: ${e.message}`); }
+                        }
+                        if (r.email) {
+                            try { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, pingRecoveredEmailHtml(target.name, target.host, now())); notifLog('INFO', 'EMAIL', target.name, uid, `OK → ${r.email} (${r.name})`); }
+                            catch (e) { notifLog('ERROR', 'EMAIL', target.name, uid, `FAILED → ${r.email}: ${e.message}`); }
+                        }
                         sentTo.push({ name: r.name, phone: r.phone||'', email: r.email||'' });
                     }
                     fireIntegrations(
@@ -786,7 +799,7 @@ async function checkPingTargets() {
                         target.userId?._id || target.userId,
                         null,
                         true
-                    ).catch(() => {});
+                    ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     // Save to Incidents
                     await Alert.create({
                         userId:     target.userId || null,
