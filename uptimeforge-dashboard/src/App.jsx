@@ -814,8 +814,6 @@ function AppInner() {
               </span>
             </div>
             <div className="footer-right">
-              <span className="footer-version">v1.0.0</span>
-              <span className="footer-divider">•</span>
               <span className="footer-region">Asia-South1 (Mumbai)</span>
             </div>
           </div>

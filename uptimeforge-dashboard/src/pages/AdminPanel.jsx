@@ -781,8 +781,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
         { id: 'live',         label: `Live Users (${liveUsers.length})` },
         { id: 'abandoned',    label: `Abandoned (${abandonedUsers.length || '?'})` },
         { id: 'expired',      label: `Expired Plans (${expiredUsers.length})` },
-        { id: 'payments',     label: `Payments (${payments.length})` },
-        { id: 'transactions', label: `Payments & Refund (${payments.length})` },
+        { id: 'payments',     label: `Manage Payments (${payments.length})` },
+        { id: 'transactions', label: `Transaction Log (${payments.length})` },
         { id: 'canceling',   label: `Plan Canceling (${refundedPayments.length})` },
     ];
 
