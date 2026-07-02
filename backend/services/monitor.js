@@ -728,11 +728,10 @@ async function checkPingTargets() {
                 status: result.alive ? 'up' : 'down',
             };
 
-            // Get eligible recipients — MUST have notifyRecipients selected, empty = no alerts
+            const uid = String(target.userId?._id || target.userId || '');
+            // Get eligible recipients — empty = all recipients for this user
             const getPingEligible = () => {
                 if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
-                    // empty = all recipients for this user (mirrors HTTP monitor behavior)
-                    const uid = String(target.userId?._id || target.userId || '');
                     return recipients.filter(r => !r.userId || r.userId.toString() === uid);
                 }
                 const ids = target.notifyRecipients.map(id => id.toString());
