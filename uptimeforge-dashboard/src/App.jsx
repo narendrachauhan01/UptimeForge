@@ -809,11 +809,13 @@ function AppInner() {
                 <span className="status-dot"></span>
                 <span className="status-text">All systems operational</span>
               </div>
-              <span className="footer-copyright">
-                © {new Date().getFullYear()} UptimeForge.in – <Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms &amp; Conditions</Link>
-              </span>
+              <span className="footer-copyright">© {new Date().getFullYear()} UptimeForge.in</span>
             </div>
-            <div className="footer-right"></div>
+            <div className="footer-right">
+              <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+              <span className="footer-divider">·</span>
+              <Link to="/terms" className="footer-link">Terms of Service</Link>
+            </div>
           </div>
         </footer>
       </div>

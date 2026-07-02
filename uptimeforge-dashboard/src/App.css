@@ -1092,28 +1092,28 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
 ══════════════════════════════════════ */
 .app-footer {
   background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  padding: 16px 24px;
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, #7c3aed22, #7c3aed66, #7c3aed22) 1;
+  padding: 14px 28px;
   transition: all 0.3s ease;
 }
 body.charts-dark-theme .app-footer {
   background: #0d121f;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-image: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent) 1;
 }
 .footer-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  flex-wrap: wrap;
-  gap: 16px;
   width: 100%;
+  gap: 12px;
 }
 .footer-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 .status-indicator {
@@ -1122,11 +1122,12 @@ body.charts-dark-theme .app-footer {
   gap: 6px;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  padding: 4px 10px;
+  padding: 4px 12px 4px 8px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
   color: #15803d;
+  letter-spacing: 0.2px;
   transition: all 0.3s ease;
 }
 body.charts-dark-theme .status-indicator {
@@ -1135,13 +1136,14 @@ body.charts-dark-theme .status-indicator {
   color: #34d399;
 }
 .status-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   background-color: #22c55e;
   border-radius: 50%;
   display: inline-block;
   box-shadow: 0 0 8px #22c55e;
   animation: footerPulse 2s infinite;
+  flex-shrink: 0;
 }
 body.charts-dark-theme .status-dot {
   background-color: #10b981;
@@ -1153,53 +1155,47 @@ body.charts-dark-theme .status-dot {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 .footer-copyright {
-  font-size: 12.5px;
-  color: #64748b;
+  font-size: 12px;
+  color: #94a3b8;
   font-weight: 500;
   letter-spacing: 0.1px;
 }
 body.charts-dark-theme .footer-copyright {
-  color: #94a3b8;
-}
-.app-footer strong {
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-}
-body.charts-dark-theme .app-footer strong {
-  background: linear-gradient(135deg, #a78bfa, #22d3ee);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #64748b;
 }
 .footer-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
-.footer-link, .footer-version, .footer-region {
-  font-size: 12.5px;
+.footer-link {
+  font-size: 12px;
   color: #64748b;
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s ease;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
-body.charts-dark-theme .footer-link,
-body.charts-dark-theme .footer-version,
-body.charts-dark-theme .footer-region {
+body.charts-dark-theme .footer-link {
   color: #94a3b8;
 }
 .footer-link:hover {
-  color: var(--primary, #7c3aed);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.07);
+}
+body.charts-dark-theme .footer-link:hover {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.08);
 }
 .footer-divider {
-  font-size: 12px;
-  color: #cbd5e1;
+  font-size: 14px;
+  color: #e2e8f0;
+  font-weight: 300;
+  user-select: none;
 }
 body.charts-dark-theme .footer-divider {
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.1);
 }
 
 /* ══════════════════════════════════════
