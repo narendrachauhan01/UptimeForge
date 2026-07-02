@@ -7982,14 +7982,14 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
   gap: 13px;
 }
 .lp-footer-links a {
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 14px;
   text-decoration: none;
   transition: all 0.2s ease;
   width: fit-content;
 }
 .lp-footer-links a:hover {
-  color: #c4b5fd;
+  color: #fff;
   padding-left: 4px;
 }
 .lp-footer-tag {
@@ -8015,7 +8015,7 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
 }
 .lp-footer-copy {
   font-size: 13px;
-  color: #475569;
+  color: #94a3b8;
 }
 .lp-footer-bottom-links {
   display: flex;
@@ -8024,15 +8024,15 @@ body.charts-dark-theme .uptime-table tbody tr:hover { background: rgba(124, 58, 
 }
 .lp-footer-bottom-links a {
   font-size: 12.5px;
-  color: #475569;
+  color: #94a3b8;
   text-decoration: none;
   transition: color 0.2s;
 }
 .lp-footer-bottom-links a:hover {
-  color: #a78bfa;
+  color: #fff;
 }
 .lp-footer-bottom-sep {
-  color: #1e293b;
+  color: #334155;
   font-size: 14px;
   user-select: none;
 }
