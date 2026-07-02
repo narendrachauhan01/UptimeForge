@@ -543,7 +543,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
 
     const filtered = users.filter(u => {
         const q = search.toLowerCase();
-        const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q);
+        const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q) || u.accountId?.toLowerCase().includes(q);
         const matchPlan = planFilter === 'all' ? true
             : planFilter === '__paid__' ? u.plan !== 'free_trial'
             : planFilter === '__active__' ? (u.isActive && !u.isBlocked)
@@ -1152,7 +1152,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         <div style={{ flex:1, minWidth:200, display:'flex', alignItems:'center', gap:8 }}>
                             <SearchIcon />
                             <input style={{ border:'none', outline:'none', background:'transparent', fontSize:13, color:T.text, flex:1, fontFamily:'inherit' }}
-                                placeholder="Search name, email, phone..."
+                                placeholder="Search name, email, phone, account ID..."
                                 value={search} onChange={e => setSearch(e.target.value)} />
                             {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:13, padding:0 }}>✕</button>}
                         </div>
