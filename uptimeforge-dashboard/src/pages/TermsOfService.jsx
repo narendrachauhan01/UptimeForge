@@ -460,7 +460,7 @@ export default function TermsOfService() {
 
         {/* ── page footer ── */}
         <div className="tos-footer-bar">
-          <p>© 2026 UptimeForge · Operated by {OPERATOR_NAME} · All rights reserved</p>
+          <p>© {new Date().getFullYear()} UptimeForge · Operated by {OPERATOR_NAME} · All rights reserved</p>
           <div className="tos-footer-links">
             <a href={LANDING_URL}>Home</a>
             <Link to="/pricing">Pricing</Link>

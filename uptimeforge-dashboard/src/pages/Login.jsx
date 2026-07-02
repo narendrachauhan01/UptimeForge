@@ -156,7 +156,7 @@ export default function Login({ onLogin }) {
             </div>
           </div>
 
-          <div className="login-left-footer">© 2026 UptimeForge.in</div>
+          <div className="login-left-footer">© {new Date().getFullYear()} UptimeForge.in</div>
         </div>
       </div>
 

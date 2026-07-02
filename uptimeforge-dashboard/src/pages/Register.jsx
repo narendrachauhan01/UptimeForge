@@ -184,7 +184,7 @@ export default function Register({ onRegister }) {
             </div>
           </div>
 
-          <div className="reg-left-footer">© 2026 UptimeForge.in</div>
+          <div className="reg-left-footer">© {new Date().getFullYear()} UptimeForge.in</div>
         </div>
       </div>
 
