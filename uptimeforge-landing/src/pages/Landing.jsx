@@ -2175,7 +2175,6 @@ export default function Landing() {
             <div className="lp-footer-links">
               <Link to="/register">Get Started Free</Link>
               <Link to="/login">Login</Link>
-              <Link to="/pricing">Plans</Link>
               <Link to="/support">Support</Link>
             </div>
           </div>
