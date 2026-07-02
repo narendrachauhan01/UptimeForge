@@ -813,9 +813,7 @@ function AppInner() {
                 © {new Date().getFullYear()} UptimeForge.in – <Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms &amp; Conditions</Link>
               </span>
             </div>
-            <div className="footer-right">
-              <span className="footer-region">Asia-South1 (Mumbai)</span>
-            </div>
+            <div className="footer-right"></div>
           </div>
         </footer>
       </div>
