@@ -566,7 +566,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
     const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
-    const liveUsers    = users.filter(u => u.trialVerified && u.isActive && !u.isBlocked);
+    const liveUsers    = users.filter(u => u.trialVerified && !u.isBlocked);
     const expiredUsers = users.filter(u => {
         if (u.isBlocked) return false;
         // Never-verified free trial users belong in Abandoned, not Expired Plans
@@ -1510,7 +1510,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: `1px solid ${T.border}` }}>
                             <div>
                                 <div style={{ fontWeight: 800, fontSize: 17, color: T.text }}>Live Users</div>
-                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>Verified users with an active plan</div>
+                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>All users who completed ₹2 verification</div>
                             </div>
                             <span style={{ ...pill('#D1FAE5', '#059669'), fontSize: 13 }}>{liveUsers.length} active</span>
                         </div>
