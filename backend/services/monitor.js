@@ -26,15 +26,18 @@ const { checkApiTarget } = require('./apiAssertions');
 const serverLocks = new Set();
 
 // Fire user-configured integrations (Slack, Discord, Webhook, etc.)
-async function fireIntegrations(server, type, userId, statusCode) {
+// skipServerFilter: true for Port/DNS/UDP/ICMP/API monitors — their IDs are not Server IDs
+// so the integration server filter (which only holds HTTP Server IDs) would never match them.
+async function fireIntegrations(server, type, userId, statusCode, skipServerFilter = false) {
     if (!userId) return;
     try {
         const integrations = await Integration.find({ userId, active: true });
         for (const intg of integrations) {
             // Check event type
             if (intg.events === 'down' && type !== 'down') continue;
-            // Check server filter — empty = all servers
-            if (intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
+            // Server filter only applies to HTTP monitors. Non-HTTP targets (Port, DNS, UDP, ICMP, API)
+            // cannot be added to this filter in the UI, so skip the filter for them.
+            if (!skipServerFilter && intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
 
             const isDown = type === 'down';
             const now = new Date();
@@ -726,7 +729,11 @@ async function checkPingTargets() {
 
             // Get eligible recipients — MUST have notifyRecipients selected, empty = no alerts
             const getPingEligible = () => {
-                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return []; // no selection = no alerts
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
+                    // empty = all recipients for this user (mirrors HTTP monitor behavior)
+                    const uid = String(target.userId?._id || target.userId || '');
+                    return recipients.filter(r => !r.userId || r.userId.toString() === uid);
+                }
                 const ids = target.notifyRecipients.map(id => id.toString());
                 return recipients.filter(r => ids.includes(r._id.toString()));
             };
@@ -746,7 +753,8 @@ async function checkPingTargets() {
                         { _id: target._id, name: target.name, url: `${target.host}${target.port ? ':' + target.port : ''}` },
                         'down',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(() => {});
                     // Save to Incidents
                     await Alert.create({
@@ -776,7 +784,8 @@ async function checkPingTargets() {
                         { _id: target._id, name: target.name, url: `${target.host}${target.port ? ':' + target.port : ''}` },
                         'up',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(() => {});
                     // Save to Incidents
                     await Alert.create({
@@ -842,7 +851,10 @@ async function checkIcmpTargets() {
             };
 
             const getEligible = () => {
-                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
+                    const uid = String(target.userId?._id || target.userId || '');
+                    return recipients.filter(r => !r.userId || r.userId.toString() === uid);
+                }
                 const ids = target.notifyRecipients.map(id => id.toString());
                 return recipients.filter(r => ids.includes(r._id.toString()));
             };
@@ -868,7 +880,8 @@ async function checkIcmpTargets() {
                         { _id: target._id, name: target.name, url: target.host },
                         'down',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -903,7 +916,8 @@ async function checkIcmpTargets() {
                         { _id: target._id, name: target.name, url: target.host },
                         'up',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -969,7 +983,10 @@ async function checkDnsTargets() {
             };
 
             const getEligible = () => {
-                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
+                    const uid = String(target.userId?._id || target.userId || '');
+                    return recipients.filter(r => !r.userId || r.userId.toString() === uid);
+                }
                 const ids = target.notifyRecipients.map(id => id.toString());
                 return recipients.filter(r => ids.includes(r._id.toString()));
             };
@@ -998,7 +1015,8 @@ async function checkDnsTargets() {
                         { _id: target._id, name: target.name, url: target.hostname },
                         'down',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -1033,7 +1051,8 @@ async function checkDnsTargets() {
                         { _id: target._id, name: target.name, url: target.hostname },
                         'up',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -1098,7 +1117,10 @@ async function checkUdpTargets() {
             };
 
             const getEligible = () => {
-                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
+                    const uid = String(target.userId?._id || target.userId || '');
+                    return recipients.filter(r => !r.userId || r.userId.toString() === uid);
+                }
                 const ids = target.notifyRecipients.map(id => id.toString());
                 return recipients.filter(r => ids.includes(r._id.toString()));
             };
@@ -1124,7 +1146,8 @@ async function checkUdpTargets() {
                         { _id: target._id, name: target.name, url: `${target.host}:${target.port}` },
                         'down',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -1159,7 +1182,8 @@ async function checkUdpTargets() {
                         { _id: target._id, name: target.name, url: `${target.host}:${target.port}` },
                         'up',
                         target.userId?._id || target.userId,
-                        null
+                        null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -1225,7 +1249,10 @@ async function checkApiTargets() {
             };
 
             const getEligible = () => {
-                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return [];
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) {
+                    const uid = String(target.userId?._id || target.userId || '');
+                    return recipients.filter(r => !r.userId || r.userId.toString() === uid);
+                }
                 const ids = target.notifyRecipients.map(id => id.toString());
                 return recipients.filter(r => ids.includes(r._id.toString()));
             };
@@ -1255,7 +1282,8 @@ async function checkApiTargets() {
                         { _id: target._id, name: target.name, url: target.url },
                         'down',
                         target.userId?._id || target.userId,
-                        result.statusCode || null
+                        result.statusCode || null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
@@ -1290,7 +1318,8 @@ async function checkApiTargets() {
                         { _id: target._id, name: target.name, url: target.url },
                         'up',
                         target.userId?._id || target.userId,
-                        result.statusCode || null
+                        result.statusCode || null,
+                        true
                     ).catch(e => notifLog('ERROR', 'SYSTEM', target.name, uid, `fireIntegrations unhandled: ${e.message}`));
                     await Alert.create({
                         userId:     target.userId || null,
