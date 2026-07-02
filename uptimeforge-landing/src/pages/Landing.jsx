@@ -2135,9 +2135,10 @@ export default function Landing() {
         <div className="lp-footer-status-row">
           <div className="lp-footer-status-dot" />
           <span className="lp-footer-status-text">
-            All systems operational · <strong>Email, WhatsApp, Webhook &amp; Rocket.Chat</strong> alerts active
+            All systems operational · <strong>Email, Telegram, Slack, Discord &amp; Webhook</strong> alerts active
           </span>
         </div>
+
         <div className="lp-footer-wrap">
 
           {/* Brand */}
@@ -2147,10 +2148,10 @@ export default function Landing() {
               <span className="lp-brand-text" style={{ fontSize:18, background:'none', color:'#fff', WebkitTextFillColor:'#fff' }}>UptimeForge</span>
             </div>
             <p className="lp-footer-brand-desc">
-              24×7 uptime monitoring with instant WhatsApp &amp; Email alerts. Know before your customers do.
+              24×7 uptime, SSL, port, ping, DNS &amp; API monitoring with instant multi-channel alerts. Know before your customers do.
             </p>
-            <div style={{ display:'flex', gap:8, marginTop:8, flexWrap:'wrap' }}>
-              {['SSL Monitoring','Ping Monitor','Alerts'].map(t => (
+            <div style={{ display:'flex', gap:8, marginTop:4, flexWrap:'wrap' }}>
+              {['HTTP Monitor','SSL Monitor','Ping Monitor','Port Monitor','DNS Monitor'].map(t => (
                 <span key={t} className="lp-footer-tag">{t}</span>
               ))}
             </div>
@@ -2161,10 +2162,10 @@ export default function Landing() {
             <div className="lp-footer-col-title">Product</div>
             <div className="lp-footer-links">
               <a href="#features">Features</a>
-              <a href="#how">How it works</a>
+              <a href="#how">How It Works</a>
               <a href="#pricing">Pricing</a>
+              <a href="#integrations">Integrations</a>
               <a href="#reviews">Reviews</a>
-              <Link to="/register">Get Started Free</Link>
             </div>
           </div>
 
@@ -2172,8 +2173,8 @@ export default function Landing() {
           <div>
             <div className="lp-footer-col-title">Account</div>
             <div className="lp-footer-links">
+              <Link to="/register">Get Started Free</Link>
               <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
               <Link to="/pricing">Plans</Link>
               <Link to="/support">Support</Link>
             </div>
@@ -2192,10 +2193,16 @@ export default function Landing() {
 
         {/* Bottom bar */}
         <div className="lp-footer-bottom">
-          <div className="lp-footer-copy">© {new Date().getFullYear()} UptimeForge.in – <Link to="/privacy" style={{ color:'inherit', textDecoration:'underline' }}>Privacy Policy</Link> | <Link to="/terms" style={{ color:'inherit', textDecoration:'underline' }}>Terms &amp; Conditions</Link></div>
-          <Link to="/staff-login" className="lp-staff-login-btn">
-            🔐 Staff Login
-          </Link>
+          <div className="lp-footer-copy">
+            © {new Date().getFullYear()} UptimeForge.in — All rights reserved
+          </div>
+          <div className="lp-footer-bottom-links">
+            <Link to="/privacy">Privacy Policy</Link>
+            <span className="lp-footer-bottom-sep">·</span>
+            <Link to="/terms">Terms of Service</Link>
+            <span className="lp-footer-bottom-sep">·</span>
+            <Link to="/staff-login">Staff Login</Link>
+          </div>
         </div>
       </footer>
 
