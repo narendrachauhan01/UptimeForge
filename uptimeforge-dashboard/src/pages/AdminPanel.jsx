@@ -241,7 +241,7 @@ function PayStatusBadge({ status }) {
 // ── Date formatter ────────────────────────────────────────────────────────────
 function fmt(date) {
     if (!date) return '—';
-    return new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(date).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 // ── Metric Card (left color border + icon) ────────────────────────────────────
@@ -1609,7 +1609,7 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                     <thead>
                                         <tr style={{ background: T.headerBg }}>
-                                            {['Name', 'Email', 'Phone', 'City', 'Reason', 'Signup', 'Hours Ago', 'Follow-up'].map(h => (
+                                            {['Name', 'Email', 'Phone', 'City', 'Reason', 'Signup', 'Since', 'Follow-up'].map(h => (
                                                 <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: `1px solid ${T.border}` }}>{h}</th>
                                             ))}
                                         </tr>
@@ -1628,9 +1628,13 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                                                     {new Date(u.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
                                                 </td>
                                                 <td style={{ padding: '12px 16px' }}>
-                                                    <span style={{ ...pill(u.hoursSinceSignup < 24 ? '#FEF3C7' : '#FEE2E2', u.hoursSinceSignup < 24 ? '#D97706' : '#DC2626'), fontSize: 11 }}>
-                                                        {u.hoursSinceSignup}h ago
-                                                    </span>
+                                                    {(() => {
+                                                        const h = u.hoursSinceSignup;
+                                                        const label = h < 1 ? 'just now' : h < 24 ? `${h}h ago` : h < 48 ? '1 day ago' : `${Math.floor(h / 24)}d ago`;
+                                                        const bg = h < 24 ? '#FEF3C7' : '#FEE2E2';
+                                                        const cl = h < 24 ? '#D97706' : '#DC2626';
+                                                        return <span style={{ ...pill(bg, cl), fontSize: 11 }}>{label}</span>;
+                                                    })()}
                                                 </td>
                                                 <td style={{ padding: '12px 16px' }}>
                                                     {u.followupSent ? (
