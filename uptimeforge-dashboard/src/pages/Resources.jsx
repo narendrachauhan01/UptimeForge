@@ -1048,6 +1048,54 @@ export default function Resources() {
             {keyCopied ? '✓ Copied!' : 'Copy Key'}
           </button>
         </div>
+
+        {/* Step 3 — Useful commands */}
+        <div style={{ borderTop: '1px solid var(--border-color)', padding: '20px 24px 4px' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--text-muted)', marginBottom: 14 }}>Useful Commands — Run on your server</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 16 }}>
+
+            {/* Check status */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>Check Agent Status</div>
+              {[
+                { label: 'Root install', cmd: 'systemctl status uptimeforge-agent' },
+                { label: 'User install', cmd: 'systemctl --user status uptimeforge-agent' },
+                { label: 'Any method', cmd: 'ps aux | grep agent.js | grep -v grep' },
+              ].map(({ label, cmd }) => (
+                <div key={label} style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
+                    <code style={{ flex: 1, fontFamily: 'monospace', fontSize: 11.5, color: 'var(--text-main)', wordBreak: 'break-all' }}>{cmd}</code>
+                    <button onClick={() => copyCmd(cmd, 's-' + label)} style={{ flexShrink: 0, padding: '2px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: cmdCopied === 's-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 's-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 10, fontWeight: 700 }}>
+                      {cmdCopied === 's-' + label ? '✓' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Uninstall */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>Uninstall Agent</div>
+              {[
+                { label: 'Root install (systemd)', cmd: 'systemctl stop uptimeforge-agent && systemctl disable uptimeforge-agent && rm -f /etc/systemd/system/uptimeforge-agent.service && systemctl daemon-reload && rm -rf /opt/uptimeforge-agent' },
+                { label: 'User install (systemd)', cmd: 'systemctl --user stop uptimeforge-agent && systemctl --user disable uptimeforge-agent && rm -f ~/.config/systemd/user/uptimeforge-agent.service && systemctl --user daemon-reload && rm -rf ~/.uptimeforge-agent' },
+                { label: 'Background process', cmd: 'pkill -f "uptimeforge-agent/agent.js" && rm -rf ~/.uptimeforge-agent' },
+              ].map(({ label, cmd }) => (
+                <div key={label} style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
+                    <code style={{ flex: 1, fontFamily: 'monospace', fontSize: 11, color: 'var(--text-main)', wordBreak: 'break-all', lineHeight: 1.6 }}>{cmd}</code>
+                    <button onClick={() => copyCmd(cmd, 'd-' + label)} style={{ flexShrink: 0, padding: '2px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: cmdCopied === 'd-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 'd-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 10, fontWeight: 700, marginTop: 2 }}>
+                      {cmdCopied === 'd-' + label ? '✓' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   );
