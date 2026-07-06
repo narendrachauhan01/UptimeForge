@@ -28,19 +28,11 @@ function colorByPct(p) {
   return p >= 90 ? '#EF4444' : p >= 70 ? '#F59E0B' : '#10B981';
 }
 
-function MiniBar({ value, color }) {
-  return (
-    <div style={{ height: 5, borderRadius: 10, overflow: 'hidden', background: 'rgba(148,163,184,0.15)', marginTop: 4 }}>
-      <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 10, transition: 'width 0.5s' }} />
-    </div>
-  );
-}
-
 function InfoRow({ label, value, mono }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border-color)', gap: 8 }}>
-      <span style={{ fontSize: 12.5, color: 'var(--text-muted)', fontWeight: 500, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-main)', textAlign: 'right', wordBreak: 'break-all', fontFamily: mono ? 'monospace' : 'inherit' }}>{value || '—'}</span>
+    <div className="res-info-row">
+      <span className="res-info-label">{label}</span>
+      <span className={`res-info-val ${mono ? 'mono' : ''}`}>{value || '—'}</span>
     </div>
   );
 }
@@ -48,250 +40,801 @@ function InfoRow({ label, value, mono }) {
 const STYLES = `
   .res-page {
     --primary: #7c3aed;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    min-height: 100vh;
-    background-color: var(--bg-primary);
+    --primary-rgb: 124, 58, 237;
+    --primary-hover: #6d28d9;
+    --success: #10b981;
+    --success-rgb: 16, 185, 129;
+    --danger: #ef4444;
+    --danger-rgb: 239, 68, 68;
+    --warning: #f59e0b;
+    --warning-rgb: 245, 158, 11;
+    min-height: calc(100vh - 200px);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+  
   .res-page.light {
     --bg-primary: #f8fafc;
     --bg-card: #ffffff;
     --bg-input: #f1f5f9;
-    --border-color: rgba(226,232,240,0.8);
+    --border-color: rgba(226, 232, 240, 0.8);
     --text-main: #0f172a;
     --text-muted: #64748b;
-    --card-shadow: 0 2px 12px rgba(148,163,184,0.1);
+    --text-muted-darker: #475569;
+    --card-shadow: 0 4px 20px -2px rgba(148, 163, 184, 0.06), 0 2px 8px -1px rgba(148, 163, 184, 0.04);
+    --card-hover-shadow: 0 16px 36px -4px rgba(148, 163, 184, 0.12), 0 4px 12px -2px rgba(148, 163, 184, 0.06);
     --table-header-bg: #f8fafc;
     --tooltip-bg: #ffffff;
     --tooltip-border: #e2e8f0;
-    --recharts-grid: #f1f5f9;
+    --recharts-grid: #e2e8f0;
     --recharts-text: #94a3b8;
-    --hover-row-bg: rgba(124,58,237,0.04);
+    --hover-row-bg: rgba(124, 58, 237, 0.04);
+    --terminal-bg: #0f172a;
+    --terminal-text: #e2e8f0;
   }
+  
   .res-page.dark {
     --bg-primary: #0b0f19;
     --bg-card: #131a26;
     --bg-input: #1b2535;
-    --border-color: rgba(255,255,255,0.07);
+    --border-color: rgba(255, 255, 255, 0.07);
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --card-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    --text-muted-darker: #cbd5e1;
+    --card-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.35), 0 2px 10px -1px rgba(0, 0, 0, 0.2);
+    --card-hover-shadow: 0 16px 48px -4px rgba(0, 0, 0, 0.55), 0 6px 16px -2px rgba(0, 0, 0, 0.3);
     --table-header-bg: #101622;
     --tooltip-bg: #172130;
-    --tooltip-border: rgba(255,255,255,0.08);
-    --recharts-grid: rgba(255,255,255,0.05);
+    --tooltip-border: rgba(255, 255, 255, 0.08);
+    --recharts-grid: rgba(255, 255, 255, 0.05);
     --recharts-text: #64748b;
-    --hover-row-bg: rgba(124,58,237,0.08);
+    --hover-row-bg: rgba(124, 58, 237, 0.08);
+    --terminal-bg: #090d16;
+    --terminal-text: #f8fafc;
   }
+
   body.charts-dark-theme { background-color: #0b0f19 !important; }
   body.charts-dark-theme .app-main, body.charts-dark-theme .content { background-color: #0b0f19 !important; }
 
-  .res-wrap { padding: 24px; }
-
-  /* Search toolbar */
-  .search-toolbar {
-    display: flex; align-items: center; gap: 12px;
-    margin: 20px 0 0; flex-wrap: wrap;
+  .res-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 8px;
   }
-  .search-wrap { position: relative; display: inline-flex; align-items: center; flex: 1; max-width: 360px; }
-  .search-wrap svg { position: absolute; left: 12px; color: var(--text-muted); pointer-events: none; flex-shrink: 0; }
-  .search-input {
-    width: 100%; padding: 9px 14px 9px 38px;
-    border-radius: 10px; border: 1px solid var(--border-color);
-    background: var(--bg-card); color: var(--text-main);
-    font-size: 13.5px; font-family: inherit; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
-  .search-count { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-left: auto; }
 
-  /* Server list cards */
-  .server-grid {
+  /* Header Design */
+  .res-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .res-header-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  .res-header-subtitle {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .res-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .res-badge.primary {
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+  }
+  .res-badge.limit {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .res-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), #4f46e5);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+    transition: all 0.2s ease;
+  }
+  .res-btn-add:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.45);
+  }
+  .res-btn-add:disabled {
+    background: rgba(156, 163, 175, 0.15);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  /* Search Toolbar */
+  .res-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 24px;
+    flex-wrap: wrap;
+  }
+  .res-search-input-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex: 1;
+    max-width: 380px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px 14px;
+    transition: all 0.2s;
+  }
+  .res-search-input-wrap:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+  }
+  .res-search-input-wrap svg {
+    color: var(--text-muted);
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .res-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: var(--text-main);
+    font-size: 13.5px;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .res-search-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .res-search-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  /* Server Grid & Cards */
+  .res-server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
   }
-  .server-card {
+  .res-server-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 18px;
+    border-radius: 20px;
     box-shadow: var(--card-shadow);
     overflow: hidden;
-    transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     display: flex;
     flex-direction: column;
   }
-  .server-card:hover {
+  .res-server-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 14px 40px rgba(124,58,237,0.15);
-    border-color: rgba(124,58,237,0.38);
+    box-shadow: var(--card-hover-shadow);
+    border-color: rgba(124, 58, 237, 0.3);
   }
-  .server-card-body { padding: 22px 22px 18px; flex: 1; }
-  .sc-del-btn {
-    position: absolute; top: 14px; right: 14px;
-    width: 30px; height: 30px; border-radius: 8px;
-    border: 1px solid rgba(239,68,68,0.25);
-    background: rgba(239,68,68,0.06);
-    color: #EF4444; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; z-index: 2;
+  .res-server-card-body {
+    padding: 24px 24px 20px;
+    flex: 1;
+    cursor: pointer;
   }
-  .sc-del-btn:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.5); }
-  .sc-view-btn {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%; padding: 12px 0;
-    border-top: 1px solid var(--border-color);
-    background: none; border-left: none; border-right: none; border-bottom: none;
-    color: var(--primary); font-size: 13.5px; font-weight: 700;
-    cursor: pointer; font-family: inherit;
-    transition: background 0.18s;
-  }
-  .sc-view-btn:hover { background: rgba(124,58,237,0.06); }
-  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 18px 0 0; }
-  .metric-col-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .metric-col-val { font-size: 18px; font-weight: 800; margin-bottom: 7px; }
-  .metric-bar-bg { height: 5px; border-radius: 10px; background: rgba(148,163,184,0.15); overflow: hidden; }
-  .metric-bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s; }
 
-  /* Install card */
-  .install-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    margin-bottom: 20px;
+  .res-del-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.05);
+    color: var(--danger);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .res-del-btn:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.4);
+    transform: scale(1.05);
+  }
+
+  .res-server-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-right: 36px;
+  }
+  .res-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .res-status-dot.online {
+    background: var(--success);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  }
+  .res-status-dot.offline {
+    background: var(--danger);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  }
+  .res-server-name {
+    font-weight: 800;
+    font-size: 17.5px;
+    color: var(--text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Outfit', sans-serif;
+  }
+  .res-status-pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .res-status-pill.online {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  .res-status-pill.offline {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .res-server-meta {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-family: monospace;
+    margin-bottom: 6px;
+    word-break: break-all;
+  }
+  .res-server-platform {
+    font-size: 12.5px;
+    color: var(--text-muted-darker);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .res-platform-tag {
+    background: rgba(124, 58, 237, 0.08);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  /* Cockpit Metrics Dashboard */
+  .res-metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .res-metric-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .res-metric-val {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    font-family: 'Outfit', sans-serif;
+  }
+  .res-metric-bar-track {
+    height: 6px;
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.12);
     overflow: hidden;
   }
-  .install-cmd-box {
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
+  .res-metric-bar-fill {
+    height: 100%;
     border-radius: 10px;
-    padding: 14px 16px;
-    font-family: monospace;
-    font-size: 13px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* View details button inside card */
+  .res-view-detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 13px 0;
+    border-top: 1px solid var(--border-color);
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    color: var(--primary);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .res-view-detail-btn:hover {
+    background: rgba(124, 58, 237, 0.05);
+    color: var(--primary-hover);
+  }
+  .res-view-detail-btn svg {
+    transition: transform 0.2s ease;
+  }
+  .res-view-detail-btn:hover svg {
+    transform: translateX(4px);
+  }
+
+  /* Terminal Installation Card */
+  .term-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 24px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  .term-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(124, 58, 237, 0.02));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .term-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 14.5px;
     color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+  }
+  .term-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 22px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .term-close-btn:hover {
+    color: var(--danger);
+  }
+  .term-body {
+    padding: 24px;
+  }
+  .term-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .term-input-field {
+    width: 260px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-input);
+    color: var(--text-main);
+    font-size: 13.5px;
+    font-family: inherit;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .term-input-field:focus {
+    border-color: var(--primary);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+  }
+  .term-input-field::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* macOS Terminal Box */
+  .mac-term-box {
+    background: var(--terminal-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    margin: 12px 0 20px;
+  }
+  .mac-term-titlebar {
+    background: rgba(0,0,0,0.15);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .mac-term-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .mac-term-dot.red { background: #ff5f56; }
+  .mac-term-dot.yellow { background: #ffbd2e; }
+  .mac-term-dot.green { background: #27c93f; }
+  .mac-term-text {
+    margin-left: auto;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+
+  .mac-term-content-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+  .mac-term-code {
+    flex: 1;
+    font-family: 'JetBrains Mono', Fira Code, monospace;
+    font-size: 13px;
+    color: var(--terminal-text);
     word-break: break-all;
     line-height: 1.6;
-    flex: 1;
+    margin: 0;
   }
-  .copy-btn {
+  .mac-term-copy-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
+    padding: 8px 16px;
+    border-radius: 9px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     border: 1px solid var(--border-color);
-    background: var(--bg-input);
+    background: rgba(255,255,255,0.05);
     color: var(--text-main);
     white-space: nowrap;
     transition: all 0.2s;
   }
-  .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .name-input {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-input);
-    color: var(--text-main);
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
+  .mac-term-copy-btn:hover {
+    border-color: var(--primary);
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--primary);
   }
-  .name-input:focus { border-color: var(--primary); }
 
-  /* Detail view */
-  .back-btn {
+  .term-support-badge {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 12.5px;
+    color: var(--text-muted-darker);
+    line-height: 1.8;
+  }
+
+  .term-key-row {
+    border-top: 1px solid var(--border-color);
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .term-key-code {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--text-main);
+    font-family: monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* Empty state */
+  .res-empty-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 54px 32px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .res-empty-icon {
+    font-size: 54px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 4px 10px rgba(124, 58, 237, 0.15));
+  }
+  .res-empty-title {
+    font-size: 20px;
+    fontWeight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    font-family: 'Outfit', sans-serif;
+  }
+  .res-empty-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+  }
+
+  /* Detail view back button */
+  .res-back-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
     background: var(--bg-card);
     color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13.5px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
-  .back-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .info-box {
+  .res-back-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateX(-2px);
+  }
+
+  /* Server info banner in details */
+  .res-detail-header-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .res-detail-header-card .online-badge {
+    padding: 6px 16px;
+    font-size: 12.5px;
+  }
+
+  .res-offline-alert {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--danger);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  /* Details Grid */
+  .res-detail-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .res-detail-metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    padding: 18px 20px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .res-detail-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow);
+  }
+  .res-detail-metric-card-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .res-detail-metric-card-val {
+    font-size: 24px;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* Info boxes grid */
+  .res-info-boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .res-info-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
     box-shadow: var(--card-shadow);
     overflow: hidden;
   }
-  .info-box-header {
-    padding: 12px 16px;
+  .res-info-box-header {
+    padding: 14px 20px;
     background: var(--table-header-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--text-muted);
   }
-  .info-box-body { padding: 14px 16px; }
-  .info-box-body .info-row:last-child { border-bottom: none !important; }
-
-  .metric-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    padding: 16px;
+  .res-info-box-body {
+    padding: 16px 20px;
   }
-  .minibar-bg {
-    height: 6px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 8px;
-    background: var(--bg-input);
-  }
-  .sessions-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-    margin-bottom: 20px;
-  }
-  .sessions-th {
-    padding: 12px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: left;
+  .res-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
     border-bottom: 1px solid var(--border-color);
+    gap: 12px;
   }
-  .session-row { border-bottom: 1px solid var(--border-color); transition: background 0.15s; }
-  .session-row:last-child { border-bottom: none; }
-  .session-row:hover { background: var(--hover-row-bg); }
-  .session-td { padding: 12px 16px; font-size: 13px; color: var(--text-main); }
-  .session-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 8px 0; border-bottom: 1px solid var(--border-color);
-    flex-wrap: wrap; font-size: 13px;
+  .res-info-box-body .res-info-row:last-child {
+    border-bottom: none;
   }
-  .session-item:last-child { border-bottom: none; }
-  .badge-online { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .res-page.light .badge-online { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-  .res-page.dark  .badge-online { background: rgba(16,185,129,0.08); color: #10B981; border: 1px solid rgba(16,185,129,0.2); }
-  .badge-offline { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .res-page.light .badge-offline { background: #FEE2E2; color: #991B1B; border: 1px solid #FECDD3; }
-  .res-page.dark  .badge-offline { background: rgba(239,68,68,0.08); color: #EF4444; border: 1px solid rgba(239,68,68,0.2); }
+  .res-info-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .res-info-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: right;
+    word-break: break-all;
+  }
+  .res-info-val.mono {
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--primary);
+  }
+
+  /* Tables inside details */
+  .res-table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .res-table-card-header {
+    padding: 16px 20px;
+    background: var(--table-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .res-table-card-title {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+  }
+  .res-table-th {
+    padding: 12px 18px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: left;
+    border-bottom: 1.5px solid var(--border-color);
+    background: var(--table-header-bg);
+  }
+  .res-table-row {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.15s;
+  }
+  .res-table-row:last-child {
+    border-bottom: none;
+  }
+  .res-table-row:hover {
+    background: var(--hover-row-bg);
+  }
+  .res-table-td {
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-main);
+  }
+
+  /* Recharts card */
+  .res-chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .res-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 `;
 
 const STALE_MS = 90 * 1000;
@@ -352,7 +895,6 @@ export default function Resources() {
       const real = res.data.filter(s => s.ramTotal > 0);
       setServers(real);
       setSecondsAgo(0);
-      // Keep selected in sync with fresh data
       if (selectedRef.current) {
         const fresh = real.find(s => s.serverId === selectedRef.current.serverId);
         if (fresh) setSelected(fresh);
@@ -409,9 +951,9 @@ export default function Resources() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div style={{ background: 'var(--tooltip-bg)', border: '1px solid var(--tooltip-border)', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
-        <p style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: 4 }}>{label}</p>
-        {payload.map((p, i) => <p key={i} style={{ color: p.color, margin: '2px 0' }}>{p.name}: {p.value}%</p>)}
+      <div style={{ background: 'var(--tooltip-bg)', border: '1px solid var(--tooltip-border)', borderRadius: 10, padding: '10px 14px', fontSize: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
+        <p style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: 6, fontFamily: 'Outfit, sans-serif' }}>{label}</p>
+        {payload.map((p, i) => <p key={i} style={{ color: p.color, margin: '3px 0', fontWeight: 600 }}>{p.name}: {p.value}%</p>)}
       </div>
     );
   };
@@ -419,10 +961,12 @@ export default function Resources() {
   if (loading) return (
     <div className={`res-page ${localTheme}`}>
       <style>{STYLES}</style>
-      <div className="res-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <div className="res-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
         <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>⏳</div>
-          <p style={{ fontSize: 14 }}>Loading metrics...</p>
+          <div className="inc-spinner-wrap" style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', border: '4px solid rgba(124,58,237,0.1)', borderTop: '4px solid var(--primary)', animation: 'spin 0.8s linear infinite' }} />
+          </div>
+          <p style={{ fontSize: 14, fontWeight: 600 }}>Loading metrics...</p>
         </div>
       </div>
     </div>
@@ -431,70 +975,85 @@ export default function Resources() {
   const atLimit = agentLimit > 0 && servers.length >= agentLimit;
 
   const installPanel = (
-    <div className="install-card">
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg,rgba(124,58,237,0.08),rgba(124,58,237,0.03))', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div className="term-card">
+      <div className="term-header">
+        <div className="term-header-title">
           <span style={{ fontSize: 18 }}>📡</span>
-          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main)' }}>Install Agent on Your Server</span>
+          <span>Install Agent on Your Server</span>
         </div>
         {servers.length > 0 && (
-          <button onClick={() => setShowInstall(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20, lineHeight: 1 }}>×</button>
+          <button onClick={() => setShowInstall(false)} className="term-close-btn">&times;</button>
         )}
       </div>
-      <div style={{ padding: 20 }}>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: 8 }}>Step 1 — Name your server (optional)</div>
+      <div className="term-body">
+        <div style={{ marginBottom: 20 }}>
+          <div className="term-label">Step 1 — Name your server (optional)</div>
           <input
-            className="name-input"
+            className="term-input-field"
             type="text"
             placeholder="e.g. prod-web-01"
             value={serverName}
             onChange={e => setServerName(e.target.value)}
-            style={{ width: 220 }}
           />
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 5 }}>Leave blank to use hostname</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>Leave blank to use hostname</div>
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: 8 }}>Step 2 — Run on your Linux server</div>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
-            <div className="install-cmd-box">{installCmd || 'Loading...'}</div>
-            <button className="copy-btn" onClick={handleCopy}>{copied ? '✓ Copied!' : '⎘ Copy'}</button>
+        <div style={{ marginBottom: 20 }}>
+          <div className="term-label">Step 2 — Run on your Linux server</div>
+          
+          {/* macOS Style Terminal */}
+          <div className="mac-term-box">
+            <div className="mac-term-titlebar">
+              <span className="mac-term-dot red"></span>
+              <span className="mac-term-dot yellow"></span>
+              <span className="mac-term-dot green"></span>
+              <span className="mac-term-text">bash</span>
+            </div>
+            <div className="mac-term-content-wrap">
+              <pre className="mac-term-code">{installCmd || 'Loading install command...'}</pre>
+              <button className="mac-term-copy-btn" onClick={handleCopy}>
+                {copied ? '✓ Copied!' : (
+                  <>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginRight: 2 }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
-        <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.8 }}>
-          ✓ Ubuntu · Debian · RHEL · CentOS · Arch · Alpine · openSUSE &nbsp;|&nbsp; ✓ Root &amp; non-root &nbsp;|&nbsp; ✓ Auto-installs Node.js &nbsp;|&nbsp; ✓ Appears in ~30s
+        <div className="term-support-badge">
+          <div style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: 4 }}>Supported Environments &amp; Info:</div>
+          ✓ Ubuntu · Debian · RHEL · CentOS · Arch · Alpine · openSUSE &nbsp;|&nbsp; ✓ Root &amp; non-root supported &nbsp;|&nbsp; ✓ Automatic Node.js installation &nbsp;|&nbsp; ✓ Appears in your dashboard in ~30 seconds
         </div>
-        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 14, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Your key:</span>
-          <code style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', padding: '4px 10px', borderRadius: 8, fontSize: 12, color: 'var(--text-main)', letterSpacing: '1px' }}>{agentKey || '...'}</code>
-          <button className="copy-btn" onClick={handleCopyKey}>{keyCopied ? '✓' : 'Copy Key'}</button>
+        <div className="term-key-row">
+          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>Your Unique Agent Key:</span>
+          <code className="term-key-code">{agentKey || 'Loading unique key...'}</code>
+          <button className="mac-term-copy-btn" style={{ padding: '6px 12px' }} onClick={handleCopyKey}>
+            {keyCopied ? '✓ Copied!' : 'Copy Key'}
+          </button>
         </div>
       </div>
     </div>
   );
 
-  // ── Delete modal ──────────────────────────────────────
   const DeleteModal = () => deleteConfirm ? (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 28, maxWidth: 380, width: '90%', boxShadow: 'var(--card-shadow)' }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>Remove Server</div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20, lineHeight: 1.6 }}>
-          Remove <strong style={{ color: 'var(--text-main)' }}>{servers.find(sv => sv.serverId === deleteConfirm)?.serverName || deleteConfirm}</strong> and all its data?
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 20, padding: 28, maxWidth: 400, width: '90%', boxShadow: 'var(--card-shadow)', animation: 'fadeIn 0.25s ease' }}>
+        <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text-main)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Remove Server Monitor</div>
+        <div style={{ fontSize: 13.5, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.6 }}>
+          Are you sure you want to remove <strong style={{ color: 'var(--text-main)' }}>{servers.find(sv => sv.serverId === deleteConfirm)?.serverName || deleteConfirm}</strong>? This action is permanent and will delete all historical logs.
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={() => setDeleteConfirm(null)} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-main)', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Cancel</button>
+          <button onClick={() => setDeleteConfirm(null)} style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-main)', cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s' }}>Cancel</button>
           <button onClick={() => handleDeleteServer(deleteConfirm)} disabled={deleting}
-            style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#EF4444', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
-            {deleting ? 'Removing...' : 'Remove'}
+            style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: 'var(--danger)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(239,68,68,0.25)', transition: 'all 0.2s' }}>
+            {deleting ? 'Removing...' : 'Remove Server'}
           </button>
         </div>
       </div>
     </div>
   ) : null;
 
-  // ══════════════════════════════════════════════════════
-  // ── LIST VIEW (no server selected) ───────────────────
-  // ══════════════════════════════════════════════════════
   if (!selected) {
     return (
       <div className={`res-page ${localTheme}`}>
@@ -503,23 +1062,21 @@ export default function Resources() {
         <div className="res-wrap">
 
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+          <div className="res-header-row">
             <div>
-              <h1 style={{ fontFamily: 'Outfit,sans-serif', fontSize: 28, fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+              <h1 className="res-header-title">
                 Infra Monitor <span style={{ color: 'var(--primary)' }}>.</span>
               </h1>
-              <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: '4px 0 0', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <p className="res-header-subtitle">
                 Real-time server resource monitoring
                 {agentLimit > 0 && (
-                  <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: atLimit ? 'rgba(239,68,68,0.1)' : 'rgba(124,58,237,0.1)', color: atLimit ? '#EF4444' : 'var(--primary)', border: `1px solid ${atLimit ? 'rgba(239,68,68,0.2)' : 'rgba(124,58,237,0.2)'}` }}>
+                  <span className={`res-badge ${atLimit ? 'limit' : 'primary'}`}>
                     {servers.length}/{agentLimit} servers
                   </span>
                 )}
               </p>
             </div>
-            <button onClick={() => setShowInstall(o => !o)} disabled={atLimit}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: atLimit ? 'not-allowed' : 'pointer', border: 'none', background: atLimit ? 'rgba(156,163,175,0.15)' : 'var(--primary)', color: atLimit ? 'var(--text-muted)' : '#fff', opacity: atLimit ? 0.7 : 1 }}
-              title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
+            <button onClick={() => setShowInstall(o => !o)} disabled={atLimit} className="res-btn-add" title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
               ＋ Add Server
             </button>
           </div>
@@ -527,12 +1084,12 @@ export default function Resources() {
           {/* Install panel */}
           {showInstall && installPanel}
 
-          {/* Empty state / Server grid — hidden when install panel is open */}
+          {/* Empty state / Server grid */}
           {!showInstall && (servers.length === 0 ? (
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '48px 32px', textAlign: 'center', marginTop: 24 }}>
-              <div style={{ fontSize: 52, marginBottom: 14 }}>📡</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>No servers connected yet</div>
-              <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 28 }}>Install the agent on any Linux server to start monitoring</div>
+            <div className="res-empty-box">
+              <div className="res-empty-icon">📡</div>
+              <div className="res-empty-title">No servers connected yet</div>
+              <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
               {installPanel}
             </div>
           ) : (() => {
@@ -540,18 +1097,18 @@ export default function Resources() {
             return (
               <>
                 {/* Search toolbar */}
-                <div className="search-toolbar">
-                  <div className="search-wrap">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <div className="res-search-bar">
+                  <div className="res-search-input-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
-                    <input className="search-input" type="text" placeholder="Search by name or hostname..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                    <input className="res-search-input" type="text" placeholder="Search by name or hostname..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                   </div>
-                  <span className="search-count">{filtered.length} of {servers.length} server{servers.length !== 1 ? 's' : ''}</span>
+                  <span className="res-search-count">{filtered.length} of {servers.length} server{servers.length !== 1 ? 's' : ''}</span>
                 </div>
 
                 {/* Server grid */}
-                <div className="server-grid">
+                <div className="res-server-grid">
                   {filtered.map(sv => {
                     const online  = isServerOnline(sv);
                     const cpuPct  = sv.cpu || 0;
@@ -559,50 +1116,52 @@ export default function Resources() {
                     const diskPct = pct(sv.diskUsed, sv.diskTotal);
                     const accent  = online ? '#10B981' : '#EF4444';
                     return (
-                      <div key={sv.serverId} className="server-card" style={{ borderTop: `3px solid ${accent}` }}>
+                      <div key={sv.serverId} className="res-server-card" style={{ borderTop: `4px solid ${accent}` }}>
                         {/* Trash icon */}
-                        <button className="sc-del-btn" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }} title="Remove server">
+                        <button className="res-del-btn" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }} title="Remove server">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                         </button>
 
                         {/* Body */}
-                        <div className="server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                        <div className="res-server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
                           {/* Name row */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8, paddingRight: 38 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: accent, flexShrink: 0, boxShadow: online ? `0 0 8px ${accent}88` : 'none' }} />
-                            <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sv.serverName}</div>
-                            <span className={online ? 'badge-online' : 'badge-offline'} style={{ fontSize: 11, flexShrink: 0, marginLeft: 'auto' }}>{online ? 'Online' : 'Offline'}</span>
+                          <div className="res-server-header">
+                            <div className={`res-status-dot ${online ? 'online' : 'offline'}`} />
+                            <div className="res-server-name">{sv.serverName}</div>
+                            <span className={`res-status-pill ${online ? 'online' : 'offline'}`}>{online ? 'Online' : 'Offline'}</span>
                           </div>
 
                           {/* Meta */}
-                          <div style={{ fontSize: 12.5, color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: 3 }}>{sv.hostname}</div>
-                          <div style={{ fontSize: 12.5, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ background: 'rgba(124,58,237,0.1)', color: 'var(--primary)', padding: '1px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'inherit' }}>{sv.platform}</span>
+                          <div className="res-server-meta">{sv.hostname}</div>
+                          <div className="res-server-platform">
+                            <span className="res-platform-tag">{sv.platform}</span>
                             <span>Up {formatUptime(sv.uptime)}</span>
                           </div>
 
                           {/* Metrics */}
-                          <div className="metric-row">
+                          <div className="res-metrics-row">
                             {[
-                              { label: 'CPU', val: cpuPct },
-                              { label: 'RAM', val: ramPct },
-                              { label: 'Disk', val: diskPct },
+                              { label: '⚡ CPU', val: cpuPct },
+                              { label: '🧠 RAM', val: ramPct },
+                              { label: '💾 Disk', val: diskPct },
                             ].map(m => {
                               const c = colorByPct(m.val);
                               return (
                                 <div key={m.label}>
-                                  <div className="metric-col-label">{m.label}</div>
-                                  <div className="metric-col-val" style={{ color: c }}>{m.val}%</div>
-                                  <div className="metric-bar-bg"><div className="metric-bar-fill" style={{ width: `${m.val}%`, background: c }} /></div>
+                                  <div className="res-metric-lbl">{m.label}</div>
+                                  <div className="res-metric-val" style={{ color: c }}>{m.val}%</div>
+                                  <div className="res-metric-bar-track">
+                                    <div className="res-metric-bar-fill" style={{ width: `${m.val}%`, background: c }} />
+                                  </div>
                                 </div>
                               );
                             })}
                           </div>
                         </div>
 
-                        {/* View Details — full-width bottom button */}
-                        <button className="sc-view-btn" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                          View Details
+                        {/* View Details full-width bottom button */}
+                        <button className="res-view-detail-btn" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                          <span>View Details</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </button>
                       </div>
@@ -634,14 +1193,14 @@ export default function Resources() {
       <div className="res-wrap">
 
         {/* Back + header row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <button className="back-btn" onClick={() => { setSelected(null); setHistory([]); }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+          <button className="res-back-btn" onClick={() => { setSelected(null); setHistory([]); }}>
             ← All Servers
           </button>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {online && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10B981' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981' }}>
+                <span className="res-status-dot online" style={{ animation: 'spin 1.5s linear infinite' }} />
                 Live {secondsAgo > 0 && `— ${secondsAgo}s ago`}
               </span>
             )}
@@ -649,41 +1208,41 @@ export default function Resources() {
         </div>
 
         {/* Server header card */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: online ? '#10B981' : '#EF4444', flexShrink: 0, boxShadow: online ? '0 0 8px #10B981' : 'none' }} />
+        <div className="res-detail-header-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className={`res-status-dot ${online ? 'online' : 'offline'}`} style={{ width: 12, height: 12 }} />
             <div>
-              <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--text-main)' }}>{s.serverName}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>{s.hostname} &bull; {s.platform} &bull; {formatUptime(s.uptime)}</div>
+              <div style={{ fontWeight: 800, fontSize: 20, color: 'var(--text-main)', fontFamily: 'Outfit, sans-serif' }}>{s.serverName}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>{s.hostname} &bull; {s.platform} &bull; Up {formatUptime(s.uptime)}</div>
             </div>
           </div>
-          <span className={online ? 'badge-online' : 'badge-offline'} style={{ fontSize: 13, padding: '5px 14px' }}>{online ? 'Online' : 'Offline'}</span>
+          <span className={`res-status-pill online-badge ${online ? 'online' : 'offline'}`}>{online ? 'Online' : 'Offline'}</span>
         </div>
 
         {/* Offline banner */}
         {!online && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: '#ef4444', fontSize: 13, fontWeight: 600 }}>
-            🔴 Offline — last seen {dataAge < 60000 ? `${Math.round(dataAge/1000)}s` : `${Math.round(dataAge/60000)} min`} ago
+          <div className="res-offline-alert">
+            🚨 Offline — Agent was last seen {dataAge < 60000 ? `${Math.round(dataAge/1000)}s` : `${Math.round(dataAge/60000)}m`} ago. Check your server's agent status.
           </div>
         )}
 
         {/* Metric cards */}
         {online && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
+          <div className="res-detail-metrics-grid">
             {[
-              { label: 'CPU',       value: `${s.cpu || 0}%`, pctVal: s.cpu || 0 },
-              { label: 'RAM',       value: `${ramPct}%`,     pctVal: ramPct },
-              { label: 'Disk',      value: `${diskPct}%`,    pctVal: diskPct },
-              ...(s.swapTotal > 0 ? [{ label: 'Swap', value: `${swapPct}%`, pctVal: swapPct }] : []),
-              { label: 'Load (1m)', value: `${s.load1 || 0}`, fixed: true },
+              { label: '⚡ CPU',       value: `${s.cpu || 0}%`, pctVal: s.cpu || 0 },
+              { label: '🧠 RAM',       value: `${ramPct}%`,     pctVal: ramPct },
+              { label: '💾 Disk',      value: `${diskPct}%`,    pctVal: diskPct },
+              ...(s.swapTotal > 0 ? [{ label: '🔄 Swap', value: `${swapPct}%`, pctVal: swapPct }] : []),
+              { label: '📈 Load (1m)', value: `${s.load1 || 0}`, fixed: true },
             ].map((m, idx) => {
-              const color = m.fixed ? '#7c3aed' : colorByPct(m.pctVal);
+              const color = m.fixed ? 'var(--primary)' : colorByPct(m.pctVal);
               return (
-                <div key={idx} className="metric-card" style={{ borderTop: `3px solid ${color}` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 6 }}>{m.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color }}>{m.value}</div>
+                <div key={idx} className="res-detail-metric-card" style={{ borderTop: `4px solid ${color}` }}>
+                  <div className="res-detail-metric-card-lbl">{m.label}</div>
+                  <div className="res-detail-metric-card-val" style={{ color }}>{m.value}</div>
                   {!m.fixed && (
-                    <div className="minibar-bg"><div style={{ width: `${m.pctVal}%`, height: '100%', background: color, borderRadius: 10, transition: 'width 0.5s' }} /></div>
+                    <div className="res-metric-bar-track" style={{ marginTop: 8 }}><div style={{ width: `${m.pctVal}%`, height: '100%', background: color, borderRadius: 10, transition: 'width 0.5s' }} /></div>
                   )}
                 </div>
               );
@@ -693,7 +1252,7 @@ export default function Resources() {
 
         {/* Info boxes */}
         {online && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 20 }}>
+          <div className="res-info-boxes-grid">
             {[
               { icon: '🖥️', title: 'System', accent: '#7c3aed', rows: [
                 { label: 'Hostname', value: s.hostname },
@@ -705,8 +1264,8 @@ export default function Resources() {
                 { label: 'Usage',        value: `${s.cpu || 0}%` },
                 { label: 'Cores',        value: s.cpuCores ? `${s.cpuCores} cores` : null },
                 { label: 'Architecture', value: s.cpuArch },
-                { label: 'Model',        value: s.cpuModel ? s.cpuModel.substring(0, 35) : null },
-                { label: 'Load avg',     value: s.load1 !== undefined ? `${s.load1} · ${s.load5} · ${s.load15}` : null },
+                { label: 'Model',        value: s.cpuModel ? s.cpuModel.substring(0, 32) + '...' : null },
+                { label: 'Load averages', value: s.load1 !== undefined ? `${s.load1} / ${s.load5} / ${s.load15}` : null },
               ]},
               { icon: '🧠', title: 'Memory', accent: '#10B981', rows: [
                 { label: 'RAM Used',   value: formatBytes(s.ramUsed) },
@@ -715,21 +1274,21 @@ export default function Resources() {
                 ...(s.swapTotal > 0 ? [{ label: 'Swap Used', value: formatBytes(s.swapUsed) }, { label: 'Swap Total', value: formatBytes(s.swapTotal) }] : []),
               ]},
               { icon: '💾', title: 'Storage', accent: '#06B6D4', rows: [
-                { label: 'Used',  value: formatBytes(s.diskUsed) },
-                { label: 'Free',  value: formatBytes(s.diskTotal - s.diskUsed) },
-                { label: 'Total', value: formatBytes(s.diskTotal) },
-                { label: 'Usage', value: `${diskPct}%` },
+                { label: 'Disk Used', value: formatBytes(s.diskUsed) },
+                { label: 'Disk Free', value: formatBytes(s.diskTotal - s.diskUsed) },
+                { label: 'Disk Total', value: formatBytes(s.diskTotal) },
+                { label: 'Disk Usage', value: `${diskPct}%` },
               ]},
               { icon: '🌐', title: 'Network', accent: '#F59E0B', rows: [
                 { label: 'Local IP',  value: s.localIp,  mono: true },
                 { label: 'Public IP', value: s.publicIp, mono: true },
               ]},
             ].map(box => (
-              <div key={box.title} className="info-box">
-                <div className="info-box-header" style={{ borderLeft: `3px solid ${box.accent}` }}>
-                  <span style={{ fontSize: 16 }}>{box.icon}</span>{box.title}
+              <div key={box.title} className="res-info-box">
+                <div className="res-info-box-header" style={{ borderLeft: `3px solid ${box.accent}` }}>
+                  <span style={{ fontSize: 16 }}>{box.icon}</span>&nbsp;&nbsp;{box.title}
                 </div>
-                <div className="info-box-body">
+                <div className="res-info-box-body">
                   {box.rows.map(r => <InfoRow key={r.label} label={r.label} value={r.value} mono={r.mono} />)}
                 </div>
               </div>
@@ -739,28 +1298,28 @@ export default function Resources() {
 
         {/* Active SSH Sessions */}
         {s.activeSessions && s.activeSessions.length > 0 && (
-          <div className="sessions-card">
-            <div style={{ padding: '14px 20px', background: 'var(--table-header-bg)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="res-table-card">
+            <div className="res-table-card-header">
               <span style={{ fontSize: 16 }}>👥</span>
-              <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main)' }}>Active SSH Sessions</span>
-              <span className="badge-online" style={{ marginLeft: 'auto' }}>{s.activeSessions.length} online</span>
+              <span className="res-table-card-title">Active SSH Sessions</span>
+              <span className="res-status-pill online" style={{ marginLeft: 'auto' }}>{s.activeSessions.length} sessions active</span>
             </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: 'var(--table-header-bg)' }}>
-                    {['User', 'TTY', 'IP Address', 'Login', 'Idle', 'Command'].map(h => <th key={h} className="sessions-th">{h}</th>)}
+                  <tr>
+                    {['User', 'TTY', 'IP Address', 'Login Time', 'Idle Time', 'Current command'].map(h => <th key={h} className="res-table-th">{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {s.activeSessions.map((u, i) => (
-                    <tr key={i} className="session-row">
-                      <td className="session-td" style={{ fontWeight: 700, color: 'var(--primary)' }}>{u.user}</td>
-                      <td className="session-td" style={{ color: 'var(--text-muted)' }}>{u.tty}</td>
-                      <td className="session-td" style={{ fontFamily: 'monospace', color: '#10B981' }}>{u.from}</td>
-                      <td className="session-td" style={{ color: 'var(--text-muted)' }}>{u.loginTime}</td>
-                      <td className="session-td" style={{ color: '#F59E0B', fontWeight: 600 }}>{u.idle}</td>
-                      <td className="session-td" style={{ fontFamily: 'monospace', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{u.what}</td>
+                    <tr key={i} className="res-table-row">
+                      <td className="res-table-td" style={{ fontWeight: 700, color: 'var(--primary)' }}>{u.user}</td>
+                      <td className="res-table-td" style={{ color: 'var(--text-muted)' }}>{u.tty}</td>
+                      <td className="res-table-td" style={{ fontFamily: 'monospace', color: '#10B981', fontWeight: 600 }}>{u.from}</td>
+                      <td className="res-table-td" style={{ color: 'var(--text-muted)' }}>{u.loginTime}</td>
+                      <td className="res-table-td" style={{ color: '#F59E0B', fontWeight: 700 }}>{u.idle}</td>
+                      <td className="res-table-td" style={{ fontFamily: 'monospace', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{u.what}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -771,17 +1330,26 @@ export default function Resources() {
 
         {/* Recent SSH logins */}
         {s.lastSsh && s.lastSsh.length > 0 && (
-          <div className="info-box" style={{ marginBottom: 20 }}>
-            <div className="info-box-header" style={{ borderLeft: '3px solid #EF4444' }}>
-              <span style={{ fontSize: 16 }}>🔐</span>Recent SSH Logins
+          <div className="res-table-card">
+            <div className="res-table-card-header" style={{ borderLeft: '3px solid #EF4444' }}>
+              <span style={{ fontSize: 16 }}>🔐</span>
+              <span className="res-table-card-title">Recent SSH Logins</span>
             </div>
-            <div className="info-box-body">
+            <div className="res-info-box-body">
               {s.lastSsh.slice(0, 5).map((l, i) => (
-                <div key={i} className="session-item">
+                <div key={i} className="res-info-row">
                   <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{l.user}</span>
                   <span style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>{l.ip}</span>
-                  <span style={{ color: 'var(--text-muted)', opacity: 0.8, fontSize: 12 }}>{l.time}</span>
-                  <span style={{ marginLeft: 'auto', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: l.active ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', color: l.active ? '#10B981' : '#94a3b8' }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}>{l.time}</span>
+                  <span style={{
+                    padding: '2px 8px',
+                    borderRadius: 20,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    background: l.active ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)',
+                    color: l.active ? '#10B981' : '#94a3b8',
+                    border: `1px solid ${l.active ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}`
+                  }}>
                     {l.active ? 'Active' : 'Ended'}
                   </span>
                 </div>
@@ -792,21 +1360,21 @@ export default function Resources() {
 
         {/* History Charts */}
         {history.length > 0 && (
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: 24, marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 16 }}>
-              {s.serverName} — Last 2 Hours
+          <div className="res-chart-card">
+            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+              {s.serverName} &mdash; Resource History (Last 2 Hours)
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
-              {[{ key: 'cpu', name: 'CPU %', color: '#7c3aed' }, { key: 'ram', name: 'RAM %', color: '#10B981' }, { key: 'disk', name: 'Disk %', color: '#06B6D4' }].map(({ key, name, color }) => (
+            <div className="res-chart-grid">
+              {[{ key: 'cpu', name: 'CPU Usage', color: '#7c3aed' }, { key: 'ram', name: 'Memory Usage', color: '#10B981' }, { key: 'disk', name: 'Storage Usage', color: '#06B6D4' }].map(({ key, name, color }) => (
                 <div key={key}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color, marginBottom: 10 }}>{name}</div>
-                  <ResponsiveContainer width="100%" height={140}>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color, marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>{name}</div>
+                  <ResponsiveContainer width="100%" height={150}>
                     <LineChart data={history} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--recharts-grid)" />
                       <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'var(--recharts-text)' }} interval="preserveStartEnd" />
                       <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--recharts-text)' }} unit="%" />
                       <Tooltip content={<CustomTooltip />} />
-                      <Line type="monotone" dataKey={key} name={name} stroke={color} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey={key} name={name} stroke={color} strokeWidth={2.5} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
