@@ -240,7 +240,7 @@ const STYLES = `
     position: relative;
     display: flex;
     flex-direction: column;
-    max-width: 520px;
+    max-width: 380px;
   }
   .res-server-card:hover {
     transform: translateY(-4px);
