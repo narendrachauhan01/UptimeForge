@@ -91,25 +91,58 @@ const STYLES = `
   /* Server list cards */
   .server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
     margin-top: 24px;
   }
   .server-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 18px;
     box-shadow: var(--card-shadow);
-    padding: 20px;
-    cursor: pointer;
+    overflow: hidden;
     transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
     position: relative;
+    display: flex;
+    flex-direction: column;
   }
   .server-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(124,58,237,0.12);
-    border-color: rgba(124,58,237,0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(124,58,237,0.14);
+    border-color: rgba(124,58,237,0.4);
   }
+  .server-card-body { padding: 20px 20px 16px; cursor: pointer; flex: 1; }
+  .server-card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color);
+    background: rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .res-page.light .server-card-footer { background: rgba(0,0,0,0.02); }
+  .btn-view {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; background: var(--primary); color: #fff;
+    transition: opacity 0.2s;
+  }
+  .btn-view:hover { opacity: 0.88; }
+  .btn-remove {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid rgba(239,68,68,0.35);
+    background: rgba(239,68,68,0.06); color: #EF4444;
+    transition: all 0.2s;
+  }
+  .btn-remove:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.6); }
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0 0; }
+  .metric-col { }
+  .metric-col-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .metric-col-val { font-size: 15px; font-weight: 800; margin-bottom: 5px; }
+  .metric-bar-bg { height: 5px; border-radius: 10px; background: rgba(148,163,184,0.15); overflow: hidden; }
+  .metric-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
 
   /* Install card */
   .install-card {
@@ -498,49 +531,55 @@ export default function Resources() {
                 const cpuPct  = sv.cpu || 0;
                 const ramPct  = pct(sv.ramUsed, sv.ramTotal);
                 const diskPct = pct(sv.diskUsed, sv.diskTotal);
+                const accent  = online ? '#10B981' : '#EF4444';
                 return (
-                  <div key={sv.serverId} className="server-card" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                    {/* Delete button */}
-                    <button
-                      onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }}
-                      style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 6, color: '#EF4444', fontSize: 11, padding: '2px 8px', cursor: 'pointer', fontWeight: 700, opacity: 0.7, transition: 'opacity 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                      onMouseLeave={e => e.currentTarget.style.opacity = 0.7}
-                      title="Remove server"
-                    >✕</button>
-
-                    {/* Name + status */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingRight: 36 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: online ? '#10B981' : '#EF4444', flexShrink: 0, boxShadow: online ? '0 0 6px #10B981' : 'none' }} />
-                      <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sv.serverName}</div>
-                    </div>
-
-                    {/* Sub info */}
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-                      {sv.hostname} &bull; {sv.platform} &bull; {formatUptime(sv.uptime)}
-                    </div>
-
-                    {/* Mini metric bars */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
-                      {[
-                        { label: 'CPU', val: cpuPct },
-                        { label: 'RAM', val: ramPct },
-                        { label: 'Disk', val: diskPct },
-                      ].map(m => (
-                        <div key={m.label}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4 }}>
-                            <span>{m.label}</span>
-                            <span style={{ color: colorByPct(m.val) }}>{m.val}%</span>
-                          </div>
-                          <MiniBar value={m.val} color={colorByPct(m.val)} />
+                  <div key={sv.serverId} className="server-card" style={{ borderTop: `3px solid ${accent}` }}>
+                    {/* Clickable body */}
+                    <div className="server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                      {/* Name + status */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                          <div style={{ width: 9, height: 9, borderRadius: '50%', background: accent, flexShrink: 0, boxShadow: online ? `0 0 7px ${accent}` : 'none' }} />
+                          <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sv.serverName}</div>
                         </div>
-                      ))}
+                        <span className={online ? 'badge-online' : 'badge-offline'} style={{ fontSize: 11, flexShrink: 0 }}>{online ? 'Online' : 'Offline'}</span>
+                      </div>
+
+                      {/* Meta */}
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, fontFamily: 'monospace' }}>
+                        {sv.hostname}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 0 }}>
+                        {sv.platform} &bull; Up {formatUptime(sv.uptime)}
+                      </div>
+
+                      {/* Metrics */}
+                      <div className="metric-row">
+                        {[
+                          { label: 'CPU', val: cpuPct },
+                          { label: 'RAM', val: ramPct },
+                          { label: 'Disk', val: diskPct },
+                        ].map(m => {
+                          const c = colorByPct(m.val);
+                          return (
+                            <div key={m.label} className="metric-col">
+                              <div className="metric-col-label"><span>{m.label}</span></div>
+                              <div className="metric-col-val" style={{ color: c }}>{m.val}%</div>
+                              <div className="metric-bar-bg"><div className="metric-bar-fill" style={{ width: `${m.val}%`, background: c }} /></div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {/* Footer */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className={online ? 'badge-online' : 'badge-offline'}>{online ? 'Online' : 'Offline'}</span>
-                      <span style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 700 }}>View Details →</span>
+                    {/* Footer actions */}
+                    <div className="server-card-footer">
+                      <button className="btn-remove" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }}>
+                        🗑 Remove
+                      </button>
+                      <button className="btn-view" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                        View Details →
+                      </button>
                     </div>
                   </div>
                 );
