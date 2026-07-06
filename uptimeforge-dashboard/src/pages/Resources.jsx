@@ -248,7 +248,7 @@ const STYLES = `
     border-color: rgba(124, 58, 237, 0.3);
   }
   .res-server-card-body {
-    padding: 20px 20px 16px;
+    padding: 24px 22px 20px;
     flex: 1;
     cursor: pointer;
   }
