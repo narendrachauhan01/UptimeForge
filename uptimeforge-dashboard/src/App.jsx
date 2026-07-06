@@ -219,20 +219,20 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount, 
   useEffect(() => setOpen(false), [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const userLinks = [
-    { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
-    { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
-    { to: '/port',         label: 'Port Monitoring', icon: <IcoPing /> },
-    { to: '/ping',         label: 'Ping Monitoring', icon: <IcoTarget /> },
-    { to: '/dns',          label: 'DNS Monitoring', icon: <IcoDns /> },
-    { to: '/udp',          label: 'UDP Monitoring', icon: <IcoUdp /> },
-    { to: '/api-monitor',  label: 'API Monitoring', icon: <IcoApi /> },
-    { to: '/domain-ssl',   label: 'Domain & SSL', icon: <IcoLock /> },
-    { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
-    { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
-    { to: '/reports',      label: 'Reports',      icon: <IcoReport /> },
+    { to: '/performance',  label: 'Performance',     icon: <IcoChart /> },
+    { to: '/monitoring',   label: 'Monitoring',      icon: <IcoDash /> },
+    { to: '/ping',         label: 'Ping Monitoring',  icon: <IcoTarget /> },
+    { to: '/port',         label: 'Port Monitoring',  icon: <IcoPing /> },
+    { to: '/dns',          label: 'DNS Monitoring',   icon: <IcoDns /> },
+    { to: '/udp',          label: 'UDP Monitoring',   icon: <IcoUdp /> },
+    { to: '/api-monitor',  label: 'API Monitoring',   icon: <IcoApi /> },
     ...(hasInfraAccess ? [{ to: '/server-resources', label: 'Infra Monitor', icon: <IcoServer /> }] : []),
-    { to: '/account',      label: 'My Account',   icon: <IcoPlan /> },
-    { to: '/support',      label: 'Support',      icon: <IcoHeadset /> },
+    { to: '/domain-ssl',   label: 'Domain & SSL',     icon: <IcoLock /> },
+    { to: '/incidents',    label: 'Incidents',        icon: <IcoIncident /> },
+    { to: '/reports',      label: 'Reports',          icon: <IcoReport /> },
+    { to: '/account',      label: 'My Account',       icon: <IcoPlan /> },
+    { to: '/support',      label: 'Support',          icon: <IcoHeadset /> },
+    { to: '/integrations', label: 'Integrations',     icon: <IcoToggle /> },
   ];
 
   return (
