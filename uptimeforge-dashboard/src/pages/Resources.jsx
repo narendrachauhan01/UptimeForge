@@ -1329,7 +1329,18 @@ export default function Resources() {
           {/* Empty state / Server grid */}
           {!showInstall && (servers.length === 0 ? (
             <div className="res-empty-box">
-              <div className="res-empty-icon">🖥️</div>
+              <div className="res-empty-icon">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 12px rgba(124,58,237,0.6))' }}>
+                  <rect x="6" y="8" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" strokeWidth="2"/>
+                  <circle cx="50" cy="17" r="3" fill="#10B981"/>
+                  <rect x="12" y="13" width="20" height="3" rx="1.5" fill="#7c3aed" opacity="0.6"/>
+                  <rect x="12" y="18" width="12" height="2" rx="1" fill="#7c3aed" opacity="0.3"/>
+                  <rect x="6" y="32" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" strokeWidth="2"/>
+                  <circle cx="50" cy="41" r="3" fill="#F59E0B"/>
+                  <rect x="12" y="37" width="20" height="3" rx="1.5" fill="#7c3aed" opacity="0.6"/>
+                  <rect x="12" y="42" width="12" height="2" rx="1" fill="#7c3aed" opacity="0.3"/>
+                </svg>
+              </div>
               <div className="res-empty-title">No servers connected yet</div>
               <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
               {installPanel}
