@@ -226,8 +226,8 @@ const STYLES = `
 
   /* Server Grid & Cards */
   .res-server-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
   }
   .res-server-card {
@@ -240,7 +240,13 @@ const STYLES = `
     position: relative;
     display: flex;
     flex-direction: column;
-    max-width: 380px;
+    flex: 1 1 310px;
+    max-width: 330px;
+  }
+  @media (max-width: 480px) {
+    .res-server-card {
+      max-width: 100%;
+    }
   }
   .res-server-card:hover {
     transform: translateY(-4px);
