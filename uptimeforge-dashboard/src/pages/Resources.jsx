@@ -1559,7 +1559,18 @@ export default function Resources() {
                 <div className="res-empty-pulse-wrap">
                   <div className="res-empty-pulse-circle" />
                   <div className="res-empty-pulse-radar" />
-                  <span className="res-empty-pulse-icon">📡</span>
+                  <span className="res-empty-pulse-icon">
+                    <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 10px rgba(124,58,237,0.7))' }}>
+                      <rect x="6" y="8" width="52" height="18" rx="4" fill="rgba(124,58,237,0.2)" stroke="#7c3aed" strokeWidth="2.5"/>
+                      <circle cx="50" cy="17" r="3.5" fill="#10B981"/>
+                      <rect x="12" y="13" width="22" height="3" rx="1.5" fill="#7c3aed" opacity="0.7"/>
+                      <rect x="12" y="18" width="14" height="2" rx="1" fill="#7c3aed" opacity="0.35"/>
+                      <rect x="6" y="32" width="52" height="18" rx="4" fill="rgba(124,58,237,0.2)" stroke="#7c3aed" strokeWidth="2.5"/>
+                      <circle cx="50" cy="41" r="3.5" fill="#F59E0B"/>
+                      <rect x="12" y="37" width="22" height="3" rx="1.5" fill="#7c3aed" opacity="0.7"/>
+                      <rect x="12" y="42" width="14" height="2" rx="1" fill="#7c3aed" opacity="0.35"/>
+                    </svg>
+                  </span>
                 </div>
                 <div className="res-empty-title">No servers connected yet</div>
                 <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
