@@ -862,6 +862,9 @@ export default function Resources() {
   const [searchQuery, setSearchQuery]     = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting]     = useState(false);
+  const [deletedInfo, setDeletedInfo]   = useState(null); // { serverName, serverId } after removal
+  const [helpOpen, setHelpOpen]         = useState(false);
+  const [cmdCopied, setCmdCopied]       = useState('');
 
   const [localTheme, setLocalTheme] = useState(() => {
     const m = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -940,14 +943,20 @@ export default function Resources() {
   const handleCopyKey = () => { navigator.clipboard.writeText(agentKey).then(() => { setKeyCopied(true); setTimeout(() => setKeyCopied(false), 2000); }); };
 
   const handleDeleteServer = async (serverId) => {
+    const sv = servers.find(s => s.serverId === serverId);
     setDeleting(true);
     try {
       await axios.delete(`${API_URL}/api/metrics/${serverId}`, { withCredentials: true });
-      setServers(prev => prev.filter(sv => sv.serverId !== serverId));
+      setServers(prev => prev.filter(s => s.serverId !== serverId));
       if (selected?.serverId === serverId) { setSelected(null); setHistory([]); }
+      setDeletedInfo({ serverName: sv?.serverName || serverId, serverId });
     } catch (_) {}
     setDeleteConfirm(null);
     setDeleting(false);
+  };
+
+  const copyCmd = (cmd, key) => {
+    navigator.clipboard.writeText(cmd).then(() => { setCmdCopied(key); setTimeout(() => setCmdCopied(''), 2000); });
   };
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -1025,7 +1034,7 @@ export default function Resources() {
         </div>
         <div className="term-support-badge">
           <div style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: 4 }}>Supported Environments &amp; Info:</div>
-          ✓ Ubuntu · Debian · RHEL · CentOS · Arch · Alpine · openSUSE &nbsp;|&nbsp; ✓ Root &amp; non-root supported &nbsp;|&nbsp; ✓ Automatic Node.js installation &nbsp;|&nbsp; ✓ Appears in your dashboard in ~30 seconds
+          ✓ Ubuntu · Debian · RHEL · CentOS · Arch · Alpine · openSUSE &nbsp;|&nbsp; ✓ Appears in your dashboard in ~30 seconds
         </div>
         <div className="term-key-row">
           <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>Your Unique Agent Key:</span>
@@ -1038,23 +1047,74 @@ export default function Resources() {
     </div>
   );
 
-  const DeleteModal = () => deleteConfirm ? (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 20, padding: 28, maxWidth: 400, width: '90%', boxShadow: 'var(--card-shadow)', animation: 'fadeIn 0.25s ease' }}>
-        <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text-main)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Remove Server Monitor</div>
-        <div style={{ fontSize: 13.5, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.6 }}>
-          Are you sure you want to remove <strong style={{ color: 'var(--text-main)' }}>{servers.find(sv => sv.serverId === deleteConfirm)?.serverName || deleteConfirm}</strong>? This action is permanent and will delete all historical logs.
-        </div>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={() => setDeleteConfirm(null)} style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-main)', cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s' }}>Cancel</button>
-          <button onClick={() => handleDeleteServer(deleteConfirm)} disabled={deleting}
-            style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: 'var(--danger)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(239,68,68,0.25)', transition: 'all 0.2s' }}>
-            {deleting ? 'Removing...' : 'Remove Server'}
-          </button>
+  const modalOverlay = { position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 };
+  const modalBox    = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 20, padding: 28, width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' };
+  const cmdBox = (cmd, key) => (
+    <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '10px 14px', fontFamily: 'monospace', fontSize: 12.5, color: 'var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+      <code style={{ flex: 1, wordBreak: 'break-all', lineHeight: 1.6 }}>{cmd}</code>
+      <button onClick={() => copyCmd(cmd, key)} style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 7, border: '1px solid var(--border-color)', background: cmdCopied === key ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === key ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+        {cmdCopied === key ? '✓' : 'Copy'}
+      </button>
+    </div>
+  );
+
+  const DeleteModal = () => {
+    if (deleteConfirm) return (
+      <div style={modalOverlay}>
+        <div style={{ ...modalBox, maxWidth: 420 }}>
+          <div style={{ fontSize: 19, fontWeight: 800, color: 'var(--text-main)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Remove Server</div>
+          <div style={{ fontSize: 13.5, color: 'var(--text-muted)', marginBottom: 20, lineHeight: 1.65 }}>
+            Remove <strong style={{ color: 'var(--text-main)' }}>{servers.find(sv => sv.serverId === deleteConfirm)?.serverName || deleteConfirm}</strong> from dashboard? All historical data will be deleted permanently.
+          </div>
+          <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 22, fontSize: 12.5, color: '#F59E0B', lineHeight: 1.6 }}>
+            ⚠️ This only removes the server from the dashboard. The agent will keep running on your server until you uninstall it manually.
+          </div>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <button onClick={() => setDeleteConfirm(null)} style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-main)', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>Cancel</button>
+            <button onClick={() => handleDeleteServer(deleteConfirm)} disabled={deleting}
+              style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: 'var(--danger)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(239,68,68,0.25)' }}>
+              {deleting ? 'Removing...' : 'Remove Server'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  ) : null;
+    );
+
+    if (deletedInfo) return (
+      <div style={modalOverlay}>
+        <div style={{ ...modalBox, maxWidth: 520 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>✓</div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-main)', fontFamily: 'Outfit, sans-serif' }}>{deletedInfo.serverName} removed</div>
+              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>Removed from dashboard successfully</div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 18, marginBottom: 14 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main)', marginBottom: 12 }}>
+              Stop & uninstall the agent on your server
+            </div>
+
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>If installed as root (systemd):</div>
+            {cmdBox('systemctl stop uptimeforge-agent && systemctl disable uptimeforge-agent && rm -f /etc/systemd/system/uptimeforge-agent.service && systemctl daemon-reload && rm -rf /opt/uptimeforge-agent', 'root-stop')}
+
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600, marginTop: 14 }}>If installed as regular user (systemd --user):</div>
+            {cmdBox('systemctl --user stop uptimeforge-agent && systemctl --user disable uptimeforge-agent && rm -f ~/.config/systemd/user/uptimeforge-agent.service && systemctl --user daemon-reload && rm -rf ~/.uptimeforge-agent', 'user-stop')}
+
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600, marginTop: 14 }}>If running as background process (nohup):</div>
+            {cmdBox('pkill -f "uptimeforge-agent/agent.js" && rm -rf ~/.uptimeforge-agent', 'nohup-stop')}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => setDeletedInfo(null)} style={{ padding: '9px 22px', borderRadius: 10, border: 'none', background: 'var(--primary)', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>Done</button>
+          </div>
+        </div>
+      </div>
+    );
+
+    return null;
+  };
 
   if (!selected) {
     return (
@@ -1173,6 +1233,72 @@ export default function Resources() {
               </>
             );
           })())}
+
+          {/* Agent Help Section */}
+          <div style={{ marginTop: 32 }}>
+            <button onClick={() => setHelpOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: helpOpen ? '14px 14px 0 0' : 14, padding: '14px 20px', cursor: 'pointer', color: 'var(--text-main)', fontWeight: 700, fontSize: 14, fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
+              <span style={{ fontSize: 18 }}>📖</span>
+              Agent Management Guide
+              <svg style={{ marginLeft: 'auto', transform: helpOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: 'var(--text-muted)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            {helpOpen && (
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderTop: 'none', borderRadius: '0 0 14px 14px', padding: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+
+                  {/* Status check */}
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(16,185,129,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🔍</span>
+                      Check Agent Status
+                    </div>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.6 }}>Run on your server to check if the agent is running:</p>
+                    {[
+                      { label: 'Systemd (root install)', cmd: 'systemctl status uptimeforge-agent' },
+                      { label: 'Systemd (user install)', cmd: 'systemctl --user status uptimeforge-agent' },
+                      { label: 'Process check (any)', cmd: "ps aux | grep agent.js | grep -v grep" },
+                      { label: 'View live logs', cmd: 'journalctl -u uptimeforge-agent -f' },
+                    ].map(({ label, cmd }) => (
+                      <div key={label} style={{ marginBottom: 10 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</div>
+                        <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontFamily: 'monospace', fontSize: 12, color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                          <code style={{ flex: 1, wordBreak: 'break-all' }}>{cmd}</code>
+                          <button onClick={() => copyCmd(cmd, 'h-' + label)} style={{ flexShrink: 0, padding: '3px 9px', borderRadius: 6, border: '1px solid var(--border-color)', background: cmdCopied === 'h-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 'h-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+                            {cmdCopied === 'h-' + label ? '✓' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Uninstall */}
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-main)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🗑</span>
+                      Uninstall Agent
+                    </div>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.6 }}>Run on your server to fully remove the agent:</p>
+                    {[
+                      { label: 'Root install (systemd)', cmd: 'systemctl stop uptimeforge-agent && systemctl disable uptimeforge-agent && rm -f /etc/systemd/system/uptimeforge-agent.service && systemctl daemon-reload && rm -rf /opt/uptimeforge-agent' },
+                      { label: 'User install (systemd --user)', cmd: 'systemctl --user stop uptimeforge-agent && systemctl --user disable uptimeforge-agent && rm -f ~/.config/systemd/user/uptimeforge-agent.service && systemctl --user daemon-reload && rm -rf ~/.uptimeforge-agent' },
+                      { label: 'Background process (nohup)', cmd: 'pkill -f "uptimeforge-agent/agent.js" && rm -rf ~/.uptimeforge-agent' },
+                    ].map(({ label, cmd }) => (
+                      <div key={label} style={{ marginBottom: 10 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</div>
+                        <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontFamily: 'monospace', fontSize: 11.5, color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'flex-start' }}>
+                          <code style={{ flex: 1, wordBreak: 'break-all', lineHeight: 1.7 }}>{cmd}</code>
+                          <button onClick={() => copyCmd(cmd, 'u-' + label)} style={{ flexShrink: 0, padding: '3px 9px', borderRadius: 6, border: '1px solid var(--border-color)', background: cmdCopied === 'u-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 'u-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+                            {cmdCopied === 'u-' + label ? '✓' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     );
