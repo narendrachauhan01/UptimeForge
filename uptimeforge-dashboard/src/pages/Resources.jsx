@@ -550,9 +550,9 @@ const STYLES = `
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255,255,255,0.05);
-    color: var(--text-main);
+    color: var(--terminal-text);
     white-space: nowrap;
     transition: all 0.2s;
   }
