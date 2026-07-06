@@ -113,7 +113,6 @@ const ADMIN_NAV_GROUPS = [
       { to: '/plan-settings',    label: 'Plan Settings',       icon: <IcoSettings /> },
       { to: '/annual-plans',     label: 'Annual Plans',        icon: <IcoSettings /> },
       { to: '/feature-access',   label: 'Feature Access',      icon: <IcoToggle /> },
-      { to: '/server-resources', label: 'Infra',               icon: <IcoServer /> },
     ],
   },
   {
