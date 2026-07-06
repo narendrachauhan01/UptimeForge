@@ -593,7 +593,7 @@ const STYLES = `
 
   /* Empty state */
   .res-empty-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 24px auto 0;
     animation: fadeIn 0.3s ease;
   }
