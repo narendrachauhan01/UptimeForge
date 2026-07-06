@@ -250,7 +250,7 @@ const STYLES = `
   .res-page.dark  .badge-offline { background: rgba(239,68,68,0.08); color: #EF4444; border: 1px solid rgba(239,68,68,0.2); }
 `;
 
-const STALE_MS = 60 * 1000;
+const STALE_MS = 90 * 1000;
 const isServerOnline = (sv) => sv?.timestamp && (Date.now() - new Date(sv.timestamp).getTime()) < STALE_MS;
 
 export default function Resources() {
@@ -331,7 +331,7 @@ export default function Resources() {
 
   useEffect(() => {
     loadLatest();
-    const t = setInterval(loadLatest, 10000);
+    const t = setInterval(loadLatest, 5000);
     return () => clearInterval(t);
   }, [loadLatest]);
 
