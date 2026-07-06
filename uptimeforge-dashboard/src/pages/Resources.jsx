@@ -989,7 +989,6 @@ export default function Resources() {
     <div className="term-card">
       <div className="term-header">
         <div className="term-header-title">
-          <span style={{ fontSize: 18 }}>📡</span>
           <span>Install Agent on Your Server</span>
         </div>
         {servers.length > 0 && (
@@ -1155,7 +1154,7 @@ export default function Resources() {
           {/* Empty state / Server grid */}
           {!showInstall && (servers.length === 0 ? (
             <div className="res-empty-box">
-              <div className="res-empty-icon">📡</div>
+              <div className="res-empty-icon">🖥️</div>
               <div className="res-empty-title">No servers connected yet</div>
               <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
               {installPanel}
