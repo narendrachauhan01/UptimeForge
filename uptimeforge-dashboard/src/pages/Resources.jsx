@@ -130,13 +130,29 @@ const STYLES = `
   }
   .btn-view:hover { opacity: 0.88; }
   .btn-remove {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 5px;
     padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
     cursor: pointer; border: 1px solid rgba(239,68,68,0.35);
     background: rgba(239,68,68,0.06); color: #EF4444;
-    transition: all 0.2s;
+    transition: all 0.2s; white-space: nowrap; line-height: 1;
+    font-family: inherit;
   }
   .btn-remove:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.6); }
+  .search-input {
+    padding: 8px 14px 8px 36px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+  .search-wrap { position: relative; display: inline-flex; align-items: center; }
+  .search-wrap svg { position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; }
   .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0 0; }
   .metric-col { }
   .metric-col-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
@@ -303,6 +319,7 @@ export default function Resources() {
   const [serverName, setServerName] = useState('');
   const [copied, setCopied]         = useState(false);
   const [keyCopied, setKeyCopied]   = useState(false);
+  const [searchQuery, setSearchQuery]     = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting]     = useState(false);
 
@@ -505,11 +522,28 @@ export default function Resources() {
                 )}
               </p>
             </div>
-            <button onClick={() => setShowInstall(o => !o)} disabled={atLimit}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: atLimit ? 'not-allowed' : 'pointer', border: 'none', background: atLimit ? 'rgba(156,163,175,0.15)' : 'var(--primary)', color: atLimit ? 'var(--text-muted)' : '#fff', opacity: atLimit ? 0.7 : 1 }}
-              title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
-              ＋ Add Server
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {/* Search */}
+              {servers.length > 0 && (
+                <div className="search-wrap">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input
+                    className="search-input"
+                    type="text"
+                    placeholder="Search servers..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              )}
+              <button onClick={() => setShowInstall(o => !o)} disabled={atLimit}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: atLimit ? 'not-allowed' : 'pointer', border: 'none', background: atLimit ? 'rgba(156,163,175,0.15)' : 'var(--primary)', color: atLimit ? 'var(--text-muted)' : '#fff', opacity: atLimit ? 0.7 : 1 }}
+                title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
+                ＋ Add Server
+              </button>
+            </div>
           </div>
 
           {/* Install panel */}
@@ -526,7 +560,7 @@ export default function Resources() {
           ) : (
             /* Server grid */
             <div className="server-grid">
-              {servers.map(sv => {
+              {servers.filter(sv => !searchQuery || sv.serverName?.toLowerCase().includes(searchQuery.toLowerCase()) || sv.hostname?.toLowerCase().includes(searchQuery.toLowerCase())).map(sv => {
                 const online  = isServerOnline(sv);
                 const cpuPct  = sv.cpu || 0;
                 const ramPct  = pct(sv.ramUsed, sv.ramTotal);
@@ -575,7 +609,8 @@ export default function Resources() {
                     {/* Footer actions */}
                     <div className="server-card-footer">
                       <button className="btn-remove" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }}>
-                        🗑 Remove
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        Remove
                       </button>
                       <button className="btn-view" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
                         View Details →
