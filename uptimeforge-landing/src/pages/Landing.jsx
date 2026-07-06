@@ -108,6 +108,16 @@ const FEAT_DETAIL = {
     ],
     highlights: ['GET, POST, PUT, DELETE, PATCH support', 'JSON path assertions ($.field equals value)', 'AND / OR assertion logic', 'Custom headers + request body', 'IPv4 / IPv6 + follow-redirects control'],
   },
+  'Infra Monitor': {
+    intro: 'Install a lightweight Node.js agent on any Linux server in one command. It reports CPU, RAM, and Disk metrics every 30 seconds so you always know the health of every machine in your fleet.',
+    workflow: [
+      { step: '1', title: 'Copy the install command', desc: 'From your dashboard, grab the one-line install command that already contains your unique agent key and your chosen server name.' },
+      { step: '2', title: 'Run it on your server', desc: 'Paste it into any Linux terminal — as root or a regular user. The installer auto-detects your distro, installs Node.js if needed, and sets up a systemd service.' },
+      { step: '3', title: 'Server appears in 30 seconds', desc: 'The agent starts sending CPU, RAM, Disk, and uptime data immediately. Your new server card shows up in the Infra Monitor page within ~30 seconds.' },
+      { step: '4', title: 'Monitor in real time', desc: 'Watch live metrics update every 30 seconds. History charts let you spot trends — a disk gradually filling up, a RAM spike at peak hours, a CPU runaway process.' },
+    ],
+    highlights: ['One-command install for any Linux distro', 'CPU, RAM, and Disk usage — live every 30s', 'Works as root (system service) or non-root (user service)', 'Supports Ubuntu, Debian, RHEL, CentOS, Arch, Alpine, openSUSE', 'Auto Node.js install — no manual setup needed', 'History charts to spot trends over time'],
+  },
   'Incident Tracking': {
     intro: 'Every outage is automatically logged with start time, duration, and recovery confirmation — giving you a clear audit trail for clients and stakeholders.',
     workflow: [
@@ -1374,6 +1384,37 @@ export default function Landing() {
                           <div className="console-line success">✓ $.status equals "ok"</div>
                           <div className="console-line footer-line">Assertions: ALL passed</div>
                         </div>
+                      </div>
+                    )
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 64 64" fill="none" className="lp-feat4-svg">
+                        <rect x="6" y="8" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="currentColor" strokeWidth="2.5"/>
+                        <circle cx="50" cy="17" r="3.5" fill="#10B981"/>
+                        <rect x="6" y="32" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="currentColor" strokeWidth="2.5"/>
+                        <circle cx="50" cy="41" r="3.5" fill="#F59E0B"/>
+                      </svg>
+                    ),
+                    color: '#7c3aed',
+                    title: 'Infra Monitor',
+                    desc: 'Install a lightweight agent on any Linux server to track real-time CPU, RAM and Disk usage — updated every 30 seconds with history charts.',
+                    preview: (
+                      <div className="lp-feat-preview" style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {[['prod-web-01', 34, 61, 48], ['prod-db-01', 72, 83, 67]].map(([name, cpu, ram, disk]) => (
+                          <div key={name} style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)', borderLeft: '3px solid #7c3aed', borderRadius: 7, padding: '8px 10px' }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0', marginBottom: 6 }}>{name}</div>
+                            {[['CPU', cpu], ['RAM', ram], ['DISK', disk]].map(([label, val]) => (
+                              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                                <span style={{ fontSize: 9, color: '#94a3b8', width: 28 }}>{label}</span>
+                                <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)' }}>
+                                  <div style={{ height: '100%', width: `${val}%`, borderRadius: 2, background: val >= 75 ? '#f59e0b' : '#10b981' }} />
+                                </div>
+                                <span style={{ fontSize: 9, fontWeight: 700, color: val >= 75 ? '#f59e0b' : '#10b981', width: 26, textAlign: 'right' }}>{val}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
                       </div>
                     )
                   },
