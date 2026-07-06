@@ -242,6 +242,7 @@ const PLAN_SETTINGS_STYLES = `
 
 export default function PlanSettings({ readOnly = false }) {
     const [form, setForm] = useState(null);
+    const [infraServers, setInfraServers] = useState({ free_trial: 0, bronze: 1, silver: 5, gold: 10 });
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState('');
 
@@ -255,6 +256,7 @@ export default function PlanSettings({ readOnly = false }) {
     useEffect(() => {
         adminGetSettings().then(r => {
             const d = r.data;
+            if (d.infraServers) setInfraServers(prev => ({ ...prev, ...d.infraServers }));
             setForm({
                 trialDays: d.trialDays,
                 verificationFee: d.verificationFee ?? 2,
@@ -322,6 +324,7 @@ export default function PlanSettings({ readOnly = false }) {
                     silver: { price: form.plans.silver.price, sites: form.plans.silver.sites, interval: Number(form.plans.silver.interval), pingInterval: Number(form.plans.silver.pingInterval), pingLimit: Number(form.plans.silver.pingLimit), recipientLimit: Number(form.plans.silver.recipientLimit), features: form.plans.silver.features.split('\n').map(s => s.trim()).filter(Boolean) },
                     gold:   { price: form.plans.gold.price,   sites: form.plans.gold.sites,   interval: Number(form.plans.gold.interval),   pingInterval: Number(form.plans.gold.pingInterval),   pingLimit: Number(form.plans.gold.pingLimit),   recipientLimit: Number(form.plans.gold.recipientLimit),   features: form.plans.gold.features.split('\n').map(s => s.trim()).filter(Boolean) },
                 },
+                infraServers,
             });
             showToast('✅ Settings saved!');
         } catch { showToast('❌ Save failed'); }
@@ -462,6 +465,15 @@ export default function PlanSettings({ readOnly = false }) {
                                 className="custom-input"
                             />
                         </div>
+                        <div>
+                            <label className="custom-label">🖥️ Max Infra Servers</label>
+                            <input type="number" min="0" max="100"
+                                value={infraServers.free_trial}
+                                disabled={readOnly}
+                                onChange={e => setInfraServers(prev => ({ ...prev, free_trial: Number(e.target.value) }))}
+                                className="custom-input" />
+                            <span className="hint-text">{infraServers.free_trial === 0 ? 'Blocked (set 0)' : `${infraServers.free_trial} server${infraServers.free_trial !== 1 ? 's' : ''} max`}</span>
+                        </div>
                     </div>
                     <div style={{ marginTop: 20 }}>
                         <label className="custom-label">
@@ -551,6 +563,14 @@ export default function PlanSettings({ readOnly = false }) {
                                             value={form.plans[pk].recipientLimit}
                                             onChange={e => setPlanField(pk, 'recipientLimit', e.target.value)}
                                             className="custom-input" />
+                                    </div>
+                                    <div>
+                                        <label className="custom-label">🖥️ Max Infra Servers</label>
+                                        <input type="number" min="0" max="100"
+                                            value={infraServers[pk] ?? 0}
+                                            onChange={e => setInfraServers(prev => ({ ...prev, [pk]: Number(e.target.value) }))}
+                                            className="custom-input" />
+                                        <span className="hint-text">{(infraServers[pk] ?? 0) === 0 ? 'Blocked (set 0)' : `${infraServers[pk]} server${infraServers[pk] !== 1 ? 's' : ''} max`}</span>
                                     </div>
                                 </div>
                                 <div>

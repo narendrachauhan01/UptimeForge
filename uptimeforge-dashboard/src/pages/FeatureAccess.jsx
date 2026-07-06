@@ -371,7 +371,6 @@ export default function FeatureAccess({ readOnly = false }) {
     const [bronzeAcc,  setBronzeAcc]  = useState({ ...DEFAULT_ACC });
     const [silverAcc,  setSilverAcc]  = useState({ ...DEFAULT_ACC });
     const [goldAcc,    setGoldAcc]    = useState({ ...DEFAULT_ACC });
-    const [infraServers, setInfraServers] = useState({ free_trial: 0, bronze: 1, silver: 5, gold: 10 });
     const [agentApiUrl, setAgentApiUrl] = useState('');
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState('');
@@ -389,7 +388,6 @@ export default function FeatureAccess({ readOnly = false }) {
             if (r.data.bronzeAccess)    setBronzeAcc(prev => ({ ...prev, ...r.data.bronzeAccess }));
             if (r.data.silverAccess)    setSilverAcc(prev => ({ ...prev, ...r.data.silverAccess }));
             if (r.data.goldAccess)      setGoldAcc(prev => ({ ...prev, ...r.data.goldAccess }));
-            if (r.data.infraServers)    setInfraServers(prev => ({ ...prev, ...r.data.infraServers }));
             if (r.data.agentApiUrl !== undefined) setAgentApiUrl(r.data.agentApiUrl);
         }).catch(() => showToast('Failed to load settings'));
     }, []);
@@ -426,7 +424,7 @@ export default function FeatureAccess({ readOnly = false }) {
     const save = async () => {
         setSaving(true);
         try {
-            await adminUpdateSettings({ freeTrialAccess: access, bronzeAccess: bronzeAcc, silverAccess: silverAcc, goldAccess: goldAcc, infraServers, agentApiUrl });
+            await adminUpdateSettings({ freeTrialAccess: access, bronzeAccess: bronzeAcc, silverAccess: silverAcc, goldAccess: goldAcc, agentApiUrl });
             showToast('✅ Saved!');
         } catch { showToast('❌ Save failed'); }
         setSaving(false);
@@ -636,38 +634,6 @@ export default function FeatureAccess({ readOnly = false }) {
                         <div className="warning-banner">{banner}</div>
                     </div>
                 ))}
-
-                {/* Infra Monitor — Server Limits */}
-                <div className="form-card" style={{ marginTop: 24 }}>
-                    <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontWeight: 700, fontSize: 15, color: 'var(--text-main)' }}>
-                        🖥️ Infra Monitor — Server Limits per Plan
-                    </div>
-                    <div style={{ padding: '16px 20px' }}>
-                        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-                            Max servers each plan can connect. Set to 0 to block access.
-                        </p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-                            {[
-                                { key: 'free_trial', label: 'Free Trial' },
-                                { key: 'bronze',     label: 'Bronze' },
-                                { key: 'silver',     label: 'Silver' },
-                                { key: 'gold',       label: 'Gold' },
-                            ].map(({ key, label }) => (
-                                <div key={key}>
-                                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>{label}</div>
-                                    <input
-                                        type="number" min="0" max="100"
-                                        value={infraServers[key] ?? 0}
-                                        disabled={readOnly}
-                                        onChange={e => setInfraServers(prev => ({ ...prev, [key]: Number(e.target.value) }))}
-                                        style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-main)', fontSize: 14, fontWeight: 700 }}
-                                    />
-                                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>{infraServers[key] === 0 ? 'Blocked' : `${infraServers[key]} server${infraServers[key] !== 1 ? 's' : ''} max`}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
 
                 {/* Agent API URL */}
                 <div className="form-card" style={{ marginTop: 16 }}>
