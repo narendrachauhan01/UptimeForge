@@ -98,9 +98,7 @@ const STYLES = `
   body.charts-dark-theme .app-main, body.charts-dark-theme .content { background-color: #0b0f19 !important; }
 
   .res-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px 8px;
+    padding: 10px 28px;
   }
 
   /* Header Design */
@@ -229,7 +227,7 @@ const STYLES = `
   /* Server Grid & Cards */
   .res-server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
   }
   .res-server-card {
@@ -242,6 +240,7 @@ const STYLES = `
     position: relative;
     display: flex;
     flex-direction: column;
+    max-width: 520px;
   }
   .res-server-card:hover {
     transform: translateY(-4px);
