@@ -272,7 +272,6 @@ export default function Resources() {
   const [keyCopied, setKeyCopied]   = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting]     = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
 
   const [localTheme, setLocalTheme] = useState(() => {
     const m = document.cookie.match(/(?:^| )charts_theme=([^;]+)/);
@@ -351,13 +350,6 @@ export default function Resources() {
   const handleCopy    = () => { if (!installCmd) return; navigator.clipboard.writeText(installCmd).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); };
   const handleCopyKey = () => { navigator.clipboard.writeText(agentKey).then(() => { setKeyCopied(true); setTimeout(() => setKeyCopied(false), 2000); }); };
 
-  const handleRegenerate = async () => {
-    if (!window.confirm('Regenerate key? All existing agents will stop reporting until reinstalled.')) return;
-    setRegenerating(true);
-    try { const r = await axios.post(`${API_URL}/api/agent/regenerate`, {}, { withCredentials: true }); setAgentKey(r.data.agentKey); } catch (_) {}
-    setRegenerating(false);
-  };
-
   const handleDeleteServer = async (serverId) => {
     setDeleting(true);
     try {
@@ -431,9 +423,6 @@ export default function Resources() {
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Your key:</span>
           <code style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', padding: '4px 10px', borderRadius: 8, fontSize: 12, color: 'var(--text-main)', letterSpacing: '1px' }}>{agentKey || '...'}</code>
           <button className="copy-btn" onClick={handleCopyKey}>{keyCopied ? '✓' : 'Copy Key'}</button>
-          <button className="copy-btn" onClick={handleRegenerate} disabled={regenerating} style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.3)' }}>
-            {regenerating ? 'Regenerating...' : '↺ Regenerate'}
-          </button>
         </div>
       </div>
     </div>
