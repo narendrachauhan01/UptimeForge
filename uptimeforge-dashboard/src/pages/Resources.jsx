@@ -393,22 +393,28 @@ export default function Resources() {
 
   const atLimit = agentLimit > 0 && servers.length >= agentLimit;
 
-  // ── Install section (shared) ──────────────────────────
-  const InstallSection = ({ compact = false }) => (
+  const installPanel = (
     <div className="install-card">
       <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg,rgba(124,58,237,0.08),rgba(124,58,237,0.03))', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 18 }}>📡</span>
           <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main)' }}>Install Agent on Your Server</span>
         </div>
-        {compact && <button onClick={() => setShowInstall(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20, lineHeight: 1 }}>×</button>}
+        {servers.length > 0 && (
+          <button onClick={() => setShowInstall(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20, lineHeight: 1 }}>×</button>
+        )}
       </div>
       <div style={{ padding: 20 }}>
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: 8 }}>Step 1 — Name your server (optional)</div>
-          <input className="name-input" type="text" placeholder="e.g. prod-web-01" value={serverName}
-            onChange={e => setServerName(e.target.value.replace(/[^a-zA-Z0-9\-_. ]/g, ''))}
-            style={{ width: 220 }} />
+          <input
+            className="name-input"
+            type="text"
+            placeholder="e.g. prod-web-01"
+            value={serverName}
+            onChange={e => setServerName(e.target.value)}
+            style={{ width: 220 }}
+          />
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 5 }}>Leave blank to use hostname</div>
         </div>
         <div style={{ marginBottom: 16 }}>
@@ -485,7 +491,7 @@ export default function Resources() {
           </div>
 
           {/* Install panel */}
-          {showInstall && <InstallSection compact />}
+          {showInstall && installPanel}
 
           {/* Empty state / Server grid — hidden when install panel is open */}
           {!showInstall && (servers.length === 0 ? (
@@ -493,7 +499,7 @@ export default function Resources() {
               <div style={{ fontSize: 52, marginBottom: 14 }}>📡</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>No servers connected yet</div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 28 }}>Install the agent on any Linux server to start monitoring</div>
-              <InstallSection />
+              {installPanel}
             </div>
           ) : (
             /* Server grid */
