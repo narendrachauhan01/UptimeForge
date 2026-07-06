@@ -96,7 +96,7 @@ if [ -f /etc/os-release ]; then
   . /etc/os-release
   OS=$ID
 fi
-echo "          OS: ${PRETTY_NAME:-$OS}"
+echo "          OS: \${PRETTY_NAME:-$OS}"
 
 # ── Step 2: Check / Install Node.js ─────────────────
 echo "Step 2/6  Checking Node.js..."
