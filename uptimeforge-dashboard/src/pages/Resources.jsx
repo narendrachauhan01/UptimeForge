@@ -592,31 +592,70 @@ const STYLES = `
   }
 
   /* Empty state */
-  .res-empty-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    padding: 54px 32px;
+  .res-empty-container {
+    max-width: 800px;
+    margin: 24px auto 0;
+    animation: fadeIn 0.3s ease;
+  }
+  .res-empty-banner {
     text-align: center;
-    margin-top: 24px;
+    padding: 32px 16px 24px;
   }
-  .res-empty-icon {
-    font-size: 54px;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 4px 10px rgba(124, 58, 237, 0.15));
+
+  /* Animated pulse radar */
+  .res-empty-pulse-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  .res-empty-pulse-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(124, 58, 237, 0.22);
+    z-index: 2;
+  }
+  .res-empty-pulse-radar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.15);
+    animation: pulseRadar 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+    z-index: 1;
+  }
+  .res-empty-pulse-icon {
+    font-size: 26px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @keyframes pulseRadar {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
   .res-empty-title {
     font-size: 20px;
-    fontWeight: 800;
+    font-weight: 800;
     color: var(--text-main);
     margin-bottom: 8px;
     font-family: 'Outfit', sans-serif;
   }
   .res-empty-desc {
-    font-size: 14px;
+    font-size: 13.5px;
     color: var(--text-muted);
-    margin-bottom: 32px;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
   }
 
   /* Detail view back button */
@@ -1328,21 +1367,16 @@ export default function Resources() {
 
           {/* Empty state / Server grid */}
           {!showInstall && (servers.length === 0 ? (
-            <div className="res-empty-box">
-              <div className="res-empty-icon">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 12px rgba(124,58,237,0.6))' }}>
-                  <rect x="6" y="8" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" strokeWidth="2"/>
-                  <circle cx="50" cy="17" r="3" fill="#10B981"/>
-                  <rect x="12" y="13" width="20" height="3" rx="1.5" fill="#7c3aed" opacity="0.6"/>
-                  <rect x="12" y="18" width="12" height="2" rx="1" fill="#7c3aed" opacity="0.3"/>
-                  <rect x="6" y="32" width="52" height="18" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" strokeWidth="2"/>
-                  <circle cx="50" cy="41" r="3" fill="#F59E0B"/>
-                  <rect x="12" y="37" width="20" height="3" rx="1.5" fill="#7c3aed" opacity="0.6"/>
-                  <rect x="12" y="42" width="12" height="2" rx="1" fill="#7c3aed" opacity="0.3"/>
-                </svg>
+            <div className="res-empty-container">
+              <div className="res-empty-banner">
+                <div className="res-empty-pulse-wrap">
+                  <div className="res-empty-pulse-circle" />
+                  <div className="res-empty-pulse-radar" />
+                  <span className="res-empty-pulse-icon">📡</span>
+                </div>
+                <div className="res-empty-title">No servers connected yet</div>
+                <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
               </div>
-              <div className="res-empty-title">No servers connected yet</div>
-              <div className="res-empty-desc">Install the lightweight agent on any Linux server to get real-time CPU, RAM, and Disk metrics.</div>
               {installPanel}
             </div>
           ) : (() => {
