@@ -487,13 +487,13 @@ export default function Resources() {
           {/* Install panel */}
           {showInstall && <InstallSection compact />}
 
-          {/* Empty state */}
-          {servers.length === 0 ? (
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '48px 32px', textAlign: 'center', marginTop: showInstall ? 0 : 0 }}>
+          {/* Empty state / Server grid — hidden when install panel is open */}
+          {!showInstall && (servers.length === 0 ? (
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '48px 32px', textAlign: 'center' }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>📡</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>No servers connected yet</div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 28 }}>Install the agent on any Linux server to start monitoring</div>
-              {!showInstall && <InstallSection />}
+              <InstallSection />
             </div>
           ) : (
             /* Server grid */
@@ -551,7 +551,7 @@ export default function Resources() {
                 );
               })}
             </div>
-          )}
+          ))}
         </div>
       </div>
     );
