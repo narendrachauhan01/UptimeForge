@@ -253,7 +253,7 @@ const STYLES = `
     cursor: pointer;
   }
 
-  .res-server-header {
+  .res-card-server-header {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1644,7 +1644,7 @@ export default function Resources() {
                         {/* Body */}
                         <div className="res-server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
                           {/* Name row */}
-                          <div className="res-server-header">
+                          <div className="res-card-server-header">
                             <div className={`res-status-dot ${online ? 'online' : 'offline'}`} />
                             <div className="res-server-name">{sv.serverName}</div>
                             <span className={`res-status-pill ${online ? 'online' : 'offline'}`}>{online ? 'Online' : 'Offline'}</span>
