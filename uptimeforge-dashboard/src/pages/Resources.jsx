@@ -1043,9 +1043,6 @@ export default function Resources() {
         <div className="term-key-row">
           <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>Your Unique Agent Key:</span>
           <code className="term-key-code">{agentKey || 'Loading unique key...'}</code>
-          <button onClick={handleCopyKey} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: '1px solid var(--border-color)', background: keyCopied ? 'rgba(16,185,129,0.1)' : 'var(--bg-input)', color: keyCopied ? '#10B981' : 'var(--text-main)', transition: 'all 0.2s', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
-            {keyCopied ? '✓ Copied!' : 'Copy Key'}
-          </button>
         </div>
 
         {/* Step 3 — Useful commands */}
