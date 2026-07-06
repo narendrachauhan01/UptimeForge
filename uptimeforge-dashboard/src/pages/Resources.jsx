@@ -229,13 +229,13 @@ const STYLES = `
   /* Server Grid & Cards */
   .res-server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 20px;
   }
   .res-server-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
+    border-radius: 16px;
     box-shadow: var(--card-shadow);
     overflow: hidden;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -249,58 +249,34 @@ const STYLES = `
     border-color: rgba(124, 58, 237, 0.3);
   }
   .res-server-card-body {
-    padding: 24px 24px 20px;
+    padding: 20px 20px 16px;
     flex: 1;
     cursor: pointer;
-  }
-
-  .res-del-btn {
-    position: absolute;
-    top: 18px;
-    right: 18px;
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    border: 1px solid rgba(239, 68, 68, 0.15);
-    background: rgba(239, 68, 68, 0.05);
-    color: var(--danger);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    z-index: 10;
-  }
-  .res-del-btn:hover {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.4);
-    transform: scale(1.05);
   }
 
   .res-server-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    padding-right: 36px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
   .res-status-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
   .res-status-dot.online {
     background: var(--success);
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
   }
   .res-status-dot.offline {
     background: var(--danger);
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
   }
   .res-server-name {
     font-weight: 800;
-    font-size: 17.5px;
+    font-size: 15.5px;
     color: var(--text-main);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -308,9 +284,9 @@ const STYLES = `
     font-family: 'Outfit', sans-serif;
   }
   .res-status-pill {
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
     margin-left: auto;
     flex-shrink: 0;
@@ -339,7 +315,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .res-platform-tag {
     background: rgba(124, 58, 237, 0.08);
@@ -370,13 +346,13 @@ const STYLES = `
     gap: 4px;
   }
   .res-metric-val {
-    font-size: 19px;
+    font-size: 17px;
     font-weight: 800;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     font-family: 'Outfit', sans-serif;
   }
   .res-metric-bar-track {
-    height: 6px;
+    height: 5px;
     border-radius: 10px;
     background: rgba(148, 163, 184, 0.12);
     overflow: hidden;
@@ -387,35 +363,59 @@ const STYLES = `
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* View details button inside card */
-  .res-view-detail-btn {
+  /* Card footer actions */
+  .res-card-footer {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    background: transparent;
+    padding: 0 14px;
+  }
+  .res-card-view-btn {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    width: 100%;
-    padding: 13px 0;
-    border-top: 1px solid var(--border-color);
+    padding: 11px 0;
     background: transparent;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
+    border: none;
     color: var(--primary);
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s ease;
   }
-  .res-view-detail-btn:hover {
-    background: rgba(124, 58, 237, 0.05);
+  .res-card-view-btn:hover {
     color: var(--primary-hover);
+    background: rgba(124, 58, 237, 0.05);
   }
-  .res-view-detail-btn svg {
+  .res-card-view-btn svg {
     transition: transform 0.2s ease;
   }
-  .res-view-detail-btn:hover svg {
+  .res-card-view-btn:hover svg {
     transform: translateX(4px);
+  }
+  .res-card-del-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-left: 6px;
+  }
+  .res-card-del-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: var(--danger);
   }
 
   /* Terminal Installation Card */
@@ -1077,7 +1077,7 @@ export default function Resources() {
               </p>
             </div>
             <button onClick={() => setShowInstall(o => !o)} disabled={atLimit} className="res-btn-add" title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
-              ＋ Add Server
+              + Add Server
             </button>
           </div>
 
@@ -1117,11 +1117,6 @@ export default function Resources() {
                     const accent  = online ? '#10B981' : '#EF4444';
                     return (
                       <div key={sv.serverId} className="res-server-card" style={{ borderTop: `4px solid ${accent}` }}>
-                        {/* Trash icon */}
-                        <button className="res-del-btn" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }} title="Remove server">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                        </button>
-
                         {/* Body */}
                         <div className="res-server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
                           {/* Name row */}
@@ -1159,11 +1154,16 @@ export default function Resources() {
                           </div>
                         </div>
 
-                        {/* View Details full-width bottom button */}
-                        <button className="res-view-detail-btn" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                          <span>View Details</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </button>
+                        {/* Footer Actions */}
+                        <div className="res-card-footer">
+                          <button className="res-card-view-btn" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                            <span>View Details</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                          </button>
+                          <button className="res-card-del-btn" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }} title="Remove server">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
