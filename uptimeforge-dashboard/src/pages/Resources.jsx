@@ -580,10 +580,6 @@ export default function Resources() {
                 Live {secondsAgo > 0 && `— ${secondsAgo}s ago`}
               </span>
             )}
-            <button onClick={() => setDeleteConfirm(s.serverId)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.3)', background: 'transparent', color: '#EF4444', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-              🗑 Remove
-            </button>
           </div>
         </div>
 
