@@ -88,12 +88,29 @@ const STYLES = `
 
   .res-wrap { padding: 24px; }
 
+  /* Search toolbar */
+  .search-toolbar {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0 0; flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; display: inline-flex; align-items: center; flex: 1; max-width: 360px; }
+  .search-wrap svg { position: absolute; left: 12px; color: var(--text-muted); pointer-events: none; flex-shrink: 0; }
+  .search-input {
+    width: 100%; padding: 9px 14px 9px 38px;
+    border-radius: 10px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-main);
+    font-size: 13.5px; font-family: inherit; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+  .search-count { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-left: auto; }
+
   /* Server list cards */
   .server-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 20px;
-    margin-top: 24px;
+    margin-top: 20px;
   }
   .server-card {
     background: var(--bg-card);
@@ -108,57 +125,35 @@ const STYLES = `
   }
   .server-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 36px rgba(124,58,237,0.14);
-    border-color: rgba(124,58,237,0.4);
+    box-shadow: 0 14px 40px rgba(124,58,237,0.15);
+    border-color: rgba(124,58,237,0.38);
   }
-  .server-card-body { padding: 20px 20px 16px; cursor: pointer; flex: 1; }
-  .server-card-footer {
-    padding: 12px 20px;
+  .server-card-body { padding: 22px 22px 18px; flex: 1; }
+  .sc-del-btn {
+    position: absolute; top: 14px; right: 14px;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid rgba(239,68,68,0.25);
+    background: rgba(239,68,68,0.06);
+    color: #EF4444; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 2;
+  }
+  .sc-del-btn:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.5); }
+  .sc-view-btn {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    width: 100%; padding: 12px 0;
     border-top: 1px solid var(--border-color);
-    background: rgba(0,0,0,0.06);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    background: none; border-left: none; border-right: none; border-bottom: none;
+    color: var(--primary); font-size: 13.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.18s;
   }
-  .res-page.light .server-card-footer { background: rgba(0,0,0,0.02); }
-  .btn-view {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
-    cursor: pointer; border: none; background: var(--primary); color: #fff;
-    transition: opacity 0.2s;
-  }
-  .btn-view:hover { opacity: 0.88; }
-  .btn-remove {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: 1px solid rgba(239,68,68,0.35);
-    background: rgba(239,68,68,0.06); color: #EF4444;
-    transition: all 0.2s; white-space: nowrap; line-height: 1;
-    font-family: inherit;
-  }
-  .btn-remove:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.6); }
-  .search-input {
-    padding: 8px 14px 8px 36px;
-    border-radius: 9px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    color: var(--text-main);
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    width: 220px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
-  .search-wrap { position: relative; display: inline-flex; align-items: center; }
-  .search-wrap svg { position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; }
-  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0 0; }
-  .metric-col { }
-  .metric-col-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .metric-col-val { font-size: 15px; font-weight: 800; margin-bottom: 5px; }
+  .sc-view-btn:hover { background: rgba(124,58,237,0.06); }
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 18px 0 0; }
+  .metric-col-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .metric-col-val { font-size: 18px; font-weight: 800; margin-bottom: 7px; }
   .metric-bar-bg { height: 5px; border-radius: 10px; background: rgba(148,163,184,0.15); overflow: hidden; }
-  .metric-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+  .metric-bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s; }
 
   /* Install card */
   .install-card {
@@ -522,28 +517,11 @@ export default function Resources() {
                 )}
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              {/* Search */}
-              {servers.length > 0 && (
-                <div className="search-wrap">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
-                  <input
-                    className="search-input"
-                    type="text"
-                    placeholder="Search servers..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              )}
-              <button onClick={() => setShowInstall(o => !o)} disabled={atLimit}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: atLimit ? 'not-allowed' : 'pointer', border: 'none', background: atLimit ? 'rgba(156,163,175,0.15)' : 'var(--primary)', color: atLimit ? 'var(--text-muted)' : '#fff', opacity: atLimit ? 0.7 : 1 }}
-                title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
-                ＋ Add Server
-              </button>
-            </div>
+            <button onClick={() => setShowInstall(o => !o)} disabled={atLimit}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: atLimit ? 'not-allowed' : 'pointer', border: 'none', background: atLimit ? 'rgba(156,163,175,0.15)' : 'var(--primary)', color: atLimit ? 'var(--text-muted)' : '#fff', opacity: atLimit ? 0.7 : 1 }}
+              title={atLimit ? `Plan limit reached (${agentLimit} servers)` : 'Add a new server'}>
+              ＋ Add Server
+            </button>
           </div>
 
           {/* Install panel */}
@@ -551,76 +529,89 @@ export default function Resources() {
 
           {/* Empty state / Server grid — hidden when install panel is open */}
           {!showInstall && (servers.length === 0 ? (
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '48px 32px', textAlign: 'center' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 16, boxShadow: 'var(--card-shadow)', padding: '48px 32px', textAlign: 'center', marginTop: 24 }}>
               <div style={{ fontSize: 52, marginBottom: 14 }}>📡</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>No servers connected yet</div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 28 }}>Install the agent on any Linux server to start monitoring</div>
               {installPanel}
             </div>
-          ) : (
-            /* Server grid */
-            <div className="server-grid">
-              {servers.filter(sv => !searchQuery || sv.serverName?.toLowerCase().includes(searchQuery.toLowerCase()) || sv.hostname?.toLowerCase().includes(searchQuery.toLowerCase())).map(sv => {
-                const online  = isServerOnline(sv);
-                const cpuPct  = sv.cpu || 0;
-                const ramPct  = pct(sv.ramUsed, sv.ramTotal);
-                const diskPct = pct(sv.diskUsed, sv.diskTotal);
-                const accent  = online ? '#10B981' : '#EF4444';
-                return (
-                  <div key={sv.serverId} className="server-card" style={{ borderTop: `3px solid ${accent}` }}>
-                    {/* Clickable body */}
-                    <div className="server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                      {/* Name + status */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                          <div style={{ width: 9, height: 9, borderRadius: '50%', background: accent, flexShrink: 0, boxShadow: online ? `0 0 7px ${accent}` : 'none' }} />
-                          <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sv.serverName}</div>
-                        </div>
-                        <span className={online ? 'badge-online' : 'badge-offline'} style={{ fontSize: 11, flexShrink: 0 }}>{online ? 'Online' : 'Offline'}</span>
-                      </div>
-
-                      {/* Meta */}
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, fontFamily: 'monospace' }}>
-                        {sv.hostname}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 0 }}>
-                        {sv.platform} &bull; Up {formatUptime(sv.uptime)}
-                      </div>
-
-                      {/* Metrics */}
-                      <div className="metric-row">
-                        {[
-                          { label: 'CPU', val: cpuPct },
-                          { label: 'RAM', val: ramPct },
-                          { label: 'Disk', val: diskPct },
-                        ].map(m => {
-                          const c = colorByPct(m.val);
-                          return (
-                            <div key={m.label} className="metric-col">
-                              <div className="metric-col-label"><span>{m.label}</span></div>
-                              <div className="metric-col-val" style={{ color: c }}>{m.val}%</div>
-                              <div className="metric-bar-bg"><div className="metric-bar-fill" style={{ width: `${m.val}%`, background: c }} /></div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Footer actions */}
-                    <div className="server-card-footer">
-                      <button className="btn-remove" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                        Remove
-                      </button>
-                      <button className="btn-view" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
-                        View Details →
-                      </button>
-                    </div>
+          ) : (() => {
+            const filtered = servers.filter(sv => !searchQuery || sv.serverName?.toLowerCase().includes(searchQuery.toLowerCase()) || sv.hostname?.toLowerCase().includes(searchQuery.toLowerCase()));
+            return (
+              <>
+                {/* Search toolbar */}
+                <div className="search-toolbar">
+                  <div className="search-wrap">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input className="search-input" type="text" placeholder="Search by name or hostname..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                   </div>
-                );
-              })}
-            </div>
-          ))}
+                  <span className="search-count">{filtered.length} of {servers.length} server{servers.length !== 1 ? 's' : ''}</span>
+                </div>
+
+                {/* Server grid */}
+                <div className="server-grid">
+                  {filtered.map(sv => {
+                    const online  = isServerOnline(sv);
+                    const cpuPct  = sv.cpu || 0;
+                    const ramPct  = pct(sv.ramUsed, sv.ramTotal);
+                    const diskPct = pct(sv.diskUsed, sv.diskTotal);
+                    const accent  = online ? '#10B981' : '#EF4444';
+                    return (
+                      <div key={sv.serverId} className="server-card" style={{ borderTop: `3px solid ${accent}` }}>
+                        {/* Trash icon */}
+                        <button className="sc-del-btn" onClick={e => { e.stopPropagation(); setDeleteConfirm(sv.serverId); }} title="Remove server">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        </button>
+
+                        {/* Body */}
+                        <div className="server-card-body" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                          {/* Name row */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8, paddingRight: 38 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: accent, flexShrink: 0, boxShadow: online ? `0 0 8px ${accent}88` : 'none' }} />
+                            <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sv.serverName}</div>
+                            <span className={online ? 'badge-online' : 'badge-offline'} style={{ fontSize: 11, flexShrink: 0, marginLeft: 'auto' }}>{online ? 'Online' : 'Offline'}</span>
+                          </div>
+
+                          {/* Meta */}
+                          <div style={{ fontSize: 12.5, color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: 3 }}>{sv.hostname}</div>
+                          <div style={{ fontSize: 12.5, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: 'rgba(124,58,237,0.1)', color: 'var(--primary)', padding: '1px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'inherit' }}>{sv.platform}</span>
+                            <span>Up {formatUptime(sv.uptime)}</span>
+                          </div>
+
+                          {/* Metrics */}
+                          <div className="metric-row">
+                            {[
+                              { label: 'CPU', val: cpuPct },
+                              { label: 'RAM', val: ramPct },
+                              { label: 'Disk', val: diskPct },
+                            ].map(m => {
+                              const c = colorByPct(m.val);
+                              return (
+                                <div key={m.label}>
+                                  <div className="metric-col-label">{m.label}</div>
+                                  <div className="metric-col-val" style={{ color: c }}>{m.val}%</div>
+                                  <div className="metric-bar-bg"><div className="metric-bar-fill" style={{ width: `${m.val}%`, background: c }} /></div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* View Details — full-width bottom button */}
+                        <button className="sc-view-btn" onClick={() => { setSelected(sv); loadHistory(sv.serverId); }}>
+                          View Details
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })())}
         </div>
       </div>
     );
