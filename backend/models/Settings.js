@@ -73,6 +73,7 @@ const settingsSchema = new mongoose.Schema({
         slack:           { type: Boolean, default: false },
         discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
+        infraMonitor:    { type: Boolean, default: false },
     },
     bronzeAccess: {
         pingMonitor:     { type: Boolean, default: false },
@@ -87,6 +88,7 @@ const settingsSchema = new mongoose.Schema({
         slack:           { type: Boolean, default: false },
         discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
+        infraMonitor:    { type: Boolean, default: false },
     },
     silverAccess: {
         pingMonitor:     { type: Boolean, default: false },
@@ -101,6 +103,7 @@ const settingsSchema = new mongoose.Schema({
         slack:           { type: Boolean, default: false },
         discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
+        infraMonitor:    { type: Boolean, default: false },
     },
     goldAccess: {
         pingMonitor:     { type: Boolean, default: false },
@@ -115,7 +118,15 @@ const settingsSchema = new mongoose.Schema({
         slack:           { type: Boolean, default: false },
         discord:         { type: Boolean, default: false },
         reports:         { type: Boolean, default: false },
+        infraMonitor:    { type: Boolean, default: false },
     },
+    infraServers: {
+        free_trial: { type: Number, default: 0 },
+        bronze:     { type: Number, default: 1 },
+        silver:     { type: Number, default: 5 },
+        gold:       { type: Number, default: 10 },
+    },
+    agentApiUrl: { type: String, default: '' },
     annualDiscount: { type: Number, default: 20 },
     annualPlans: {
         enabled:  { type: Boolean, default: true },
@@ -212,7 +223,13 @@ settingsSchema.statics.get = async function () {
         if (obj && obj.udpMonitor === undefined) { obj.udpMonitor = false; s.markModified(key); dirty = true; }
         if (obj && obj.apiMonitor === undefined) { obj.apiMonitor = false; s.markModified(key); dirty = true; }
         if (obj && obj.discord === undefined) { obj.discord = false; s.markModified(key); dirty = true; }
+        if (obj && obj.infraMonitor === undefined) { obj.infraMonitor = false; s.markModified(key); dirty = true; }
     }
+    if (!s.infraServers || s.infraServers.gold === undefined) {
+        s.infraServers = { free_trial: 0, bronze: 1, silver: 5, gold: 10 };
+        s.markModified('infraServers'); dirty = true;
+    }
+    if (!s.agentApiUrl) { s.agentApiUrl = ''; dirty = true; }
     if (s.freeTrialPingLimit  === undefined) { s.freeTrialPingLimit  = 2; dirty = true; }
     if (s.freeTrialSiteLimit  === undefined) { s.freeTrialSiteLimit  = 2; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
@@ -301,6 +318,13 @@ settingsSchema.statics.update = async function (data) {
         }
         s.markModified('plans');
     }
+    if (data.infraServers) {
+        for (const k of ['free_trial', 'bronze', 'silver', 'gold']) {
+            if (data.infraServers[k] !== undefined) s.infraServers[k] = Math.max(0, Number(data.infraServers[k]) || 0);
+        }
+        s.markModified('infraServers');
+    }
+    if (data.agentApiUrl !== undefined) s.agentApiUrl = data.agentApiUrl;
     await s.save();
     return s;
 };

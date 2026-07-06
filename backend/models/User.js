@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
     deleteToken:        { type: String, select: false },
     deleteTokenExpires: { type: Date,   select: false },
     reportSchedule:     { type: String, enum: ['none', 'weekly', 'monthly'], default: 'none' },
+    agentKey:           { type: String, unique: true, sparse: true },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

@@ -411,6 +411,8 @@ exports.confirmDelete = async (req, res) => {
         await Notification.deleteMany({ userId: uid2 });
         await PaymentRequest.deleteMany({ userId: uid2 });
         await SupportTicket.deleteMany({ userId: uid2 });
+        const { deleteAllForUser } = require('./metricsController');
+        await deleteAllForUser(uid2).catch(() => {});
         await User.findByIdAndDelete(uid2);
 
         res.json({ success: true, message: 'Account permanently deleted.' });

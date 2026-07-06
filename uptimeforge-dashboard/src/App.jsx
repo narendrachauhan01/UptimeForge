@@ -215,7 +215,7 @@ function AdminNotifBell() {
 }
 
 
-function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }) {
+function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount, hasInfraAccess }) {
   const location = useLocation();
   useEffect(() => setOpen(false), [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -231,6 +231,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/incidents',    label: 'Incidents',    icon: <IcoIncident /> },
     { to: '/integrations', label: 'Integrations', icon: <IcoToggle /> },
     { to: '/reports',      label: 'Reports',      icon: <IcoReport /> },
+    ...(hasInfraAccess ? [{ to: '/server-resources', label: 'Infra Monitor', icon: <IcoServer /> }] : []),
     { to: '/account',      label: 'My Account',   icon: <IcoPlan /> },
     { to: '/support',      label: 'Support',      icon: <IcoHeadset /> },
   ];
@@ -408,10 +409,10 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
-  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
-  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
-  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: false, charts: false, pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false, infraMonitor: false });
+  const [bronzeAccess, setBronzeAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false, infraMonitor: false });
+  const [silverAccess, setSilverAccess] = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false, infraMonitor: false });
+  const [goldAccess,   setGoldAccess]   = useState({ pingMonitor: false, pingMonitorIcmp: false, dnsMonitor: false, udpMonitor: false, apiMonitor: false, whatsapp: false, telegram: false, webhook: false, rocketChat: false, slack: false, discord: false, reports: false, infraMonitor: false });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -686,6 +687,10 @@ function AppInner() {
   }
 
   // Authenticated — sidebar layout
+  const planAccMap = { free_trial: freeAccess, bronze: bronzeAccess, silver: silverAccess, gold: goldAccess };
+  const userPlanAcc = user?.plan ? planAccMap[user.plan] : null;
+  const hasInfraAccess = isAdmin || (userPlanAcc?.infraMonitor === true);
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -696,6 +701,7 @@ function AppInner() {
         setOpen={setSidebarOpen}
         onBell={handleBell}
         unreadCount={unreadCount}
+        hasInfraAccess={hasInfraAccess}
       />
       <NotificationPanel
         open={notifOpen}
@@ -737,7 +743,7 @@ function AppInner() {
               <Route path="/charts" element={<Navigate to="/performance" replace />} />
               <Route path="/servers" element={<Servers user={user} isAdmin={isAdmin} onNotify={loadNotifications} readOnly={planExpired} />} />
               <Route path="/incidents" element={<Alerts />} />
-              <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
+              <Route path="/server-resources" element={hasInfraAccess ? <Resources /> : <UpgradeGate user={user} feature="Infra Monitor" />} />
               <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring" />} />
               <Route path="/performance"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts theme={theme} user={user} />   : <UpgradeGate user={user} feature="Performance Charts" />} />
               <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />

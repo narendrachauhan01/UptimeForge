@@ -47,6 +47,7 @@ app.use('/api/whatsapp',      require('./routes/whatsapp'));
 app.use('/api/expiry',        require('./routes/expiry'));
 app.use('/api/email-config',  require('./routes/emailConfig'));
 app.use('/api/metrics',       require('./routes/metrics'));
+app.use('/api/agent',         require('./routes/agent'));
 app.use('/api/ping',          require('./routes/ping'));
 app.use('/api/ping-targets',  require('./routes/pingTargets'));
 app.use('/api/icmp-targets',  require('./routes/icmpTargets'));
