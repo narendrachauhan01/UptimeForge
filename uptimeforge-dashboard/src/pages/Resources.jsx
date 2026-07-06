@@ -532,9 +532,11 @@ const STYLES = `
   }
   .mac-term-code {
     flex: 1;
+    min-width: 0;
     font-family: 'JetBrains Mono', Fira Code, monospace;
     font-size: 13px;
     color: var(--terminal-text);
+    white-space: pre-wrap;
     word-break: break-all;
     line-height: 1.6;
     margin: 0;
