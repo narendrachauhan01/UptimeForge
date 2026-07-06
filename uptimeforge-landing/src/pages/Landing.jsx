@@ -726,6 +726,102 @@ export default function Landing() {
     );
   };
 
+  const renderInfraTab = () => {
+    const servers = [
+      { name: 'prod-web-01', host: '10.0.1.10', cpu: 34, ram: 61, disk: 48, status: 'online' },
+      { name: 'prod-db-01',  host: '10.0.1.11', cpu: 72, ram: 83, disk: 67, status: 'online' },
+      { name: 'staging-01',  host: '10.0.2.5',  cpu: 12, ram: 39, disk: 31, status: 'online' },
+    ];
+    const metricColor = (v) => v >= 85 ? '#ef4444' : v >= 65 ? '#f59e0b' : '#10b981';
+    return (
+      <div className="db-tab-content full-width">
+        <div className="db-section-header">
+          <div>
+            <h4 className="db-section-title">Server Fleet Overview</h4>
+            <span className="db-section-subtitle">Real-time CPU · RAM · Disk — updated every 30 s</span>
+          </div>
+          <span className="db-status-badge-green">● 3 Online</span>
+        </div>
+
+        <div className="db-ping-stats">
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">SERVERS</span><span className="db-ping-val green-text">3 / 3</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG CPU</span><span className="db-ping-val green-text">39%</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG RAM</span><span className="db-ping-val" style={{color:'#f59e0b'}}>61%</span></div>
+          <div className="db-ping-stat-card"><span className="db-ping-lbl">AVG DISK</span><span className="db-ping-val green-text">49%</span></div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '14px 0' }}>
+          {servers.map(sv => (
+            <div key={sv.name} style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(124,58,237,0.25)',
+              borderLeft: '3px solid #7c3aed',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}>
+              <div style={{ flex: '0 0 110px' }}>
+                <div style={{ fontWeight: 600, fontSize: '13px', color: '#e2e8f0' }}>{sv.name}</div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{sv.host}</div>
+              </div>
+              {[['CPU', sv.cpu], ['RAM', sv.ram], ['DISK', sv.disk]].map(([label, val]) => (
+                <div key={label} style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94a3b8', marginBottom: '4px' }}>
+                    <span>{label}</span><span style={{ color: metricColor(val), fontWeight: 700 }}>{val}%</span>
+                  </div>
+                  <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)' }}>
+                    <div style={{ height: '100%', width: `${val}%`, borderRadius: '3px', background: metricColor(val), transition: 'width 0.6s' }} />
+                  </div>
+                </div>
+              ))}
+              <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 600, flex: '0 0 50px', textAlign: 'right' }}>● Online</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="db-terminal">
+          <div className="db-terminal-header">
+            <div className="db-terminal-dots"><span className="db-term-dot red"></span><span className="db-term-dot yellow"></span><span className="db-term-dot green"></span></div>
+            <span className="db-terminal-title">Install agent on any Linux server</span>
+            <span className="db-terminal-badge">ONE COMMAND</span>
+          </div>
+          <div className="db-terminal-body">
+            <div className="db-term-line"><span style={{color:'#64748b'}}>$</span> curl -fsSL https://uptimeforge.in/api/agent/install <span style={{color:'#94a3b8'}}>| bash -s -- \</span></div>
+            <div className="db-term-line" style={{paddingLeft:'16px'}}><span style={{color:'#94a3b8'}}>YOUR_AGENT_KEY "prod-web-01"</span></div>
+            <div className="db-term-line" style={{marginTop:'6px'}}>Step 1/6  Detecting OS... <span className="db-term-reply">Ubuntu 22.04</span></div>
+            <div className="db-term-line">Step 2/6  Checking Node.js... <span className="db-term-reply">Found v20.11.0</span></div>
+            <div className="db-term-line">Step 3/6  Downloading agent...</div>
+            <div className="db-term-line">Step 6/6  Setting up systemd service...</div>
+            <div className="db-term-line"><span className="db-term-reply">✓ Installation complete! Server appears in dashboard in ~30s</span></div>
+            <div className="db-term-line cursor-line"><span className="db-term-cursor">_</span></div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '12px' }}>
+          {[
+            ['30s Updates', 'Metrics refreshed every 30 seconds'],
+            ['Multi-Distro', 'Ubuntu, Debian, RHEL, Arch, Alpine'],
+            ['Root & Non-Root', 'Works as system or user service'],
+            ['Auto Node.js', 'Installer handles Node.js setup'],
+          ].map(([title, desc]) => (
+            <div key={title} style={{
+              background: 'rgba(124,58,237,0.08)',
+              border: '1px solid rgba(124,58,237,0.2)',
+              borderRadius: '7px',
+              padding: '9px 12px',
+              fontSize: '12px',
+            }}>
+              <div style={{ fontWeight: 700, color: '#a78bfa', marginBottom: '2px' }}>{title}</div>
+              <div style={{ color: '#94a3b8' }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderIntegrationsTab = () => {
     const platformAlerts = [
       { id: 'whatsapp', name: 'WhatsApp', desc: 'Receive WhatsApp alerts when your site goes down or recovers.', icon: '💬', color: '#25d366', status: integrations.whatsapp },
@@ -878,6 +974,9 @@ export default function Landing() {
               <button className={`db-nav-item ${activeTab === 'api' ? 'active' : ''}`} onClick={() => setActiveTab('api')}>
                 🧩 API Monitoring
               </button>
+              <button className={`db-nav-item ${activeTab === 'infra' ? 'active' : ''}`} onClick={() => setActiveTab('infra')}>
+                🖧 Infra Monitor
+              </button>
               <button className={`db-nav-item ${activeTab === 'ssl' ? 'active' : ''}`} onClick={() => setActiveTab('ssl')}>
                 🔒 Domain & SSL
               </button>
@@ -905,6 +1004,7 @@ export default function Landing() {
               {activeTab === 'dns' && renderDnsTab()}
               {activeTab === 'udp' && renderUdpTab()}
               {activeTab === 'api' && renderApiTab()}
+              {activeTab === 'infra' && renderInfraTab()}
               {activeTab === 'ssl' && renderSSLTab()}
               {activeTab === 'integrations' && renderIntegrationsTab()}
             </div>
