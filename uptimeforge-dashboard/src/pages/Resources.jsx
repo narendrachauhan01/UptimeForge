@@ -836,6 +836,127 @@ const STYLES = `
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* Useful Commands Redesign */
+  .res-cmd-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .res-cmd-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px;
+    height: 100%;
+    transition: all 0.2s ease;
+  }
+  .res-cmd-card:hover {
+    border-color: rgba(124, 58, 237, 0.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .res-cmd-card.uninstall:hover {
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  .res-cmd-card-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .res-cmd-row {
+    margin-bottom: 12px;
+  }
+  .res-cmd-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .res-cmd-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    margin-bottom: 4px;
+  }
+  .res-cmd-badge.root {
+    background: rgba(124, 58, 237, 0.08);
+    color: var(--primary);
+  }
+  .res-cmd-badge.user {
+    background: rgba(6, 182, 212, 0.08);
+    color: #06b6d4;
+  }
+  .res-cmd-badge.any {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+  }
+  .res-cmd-badge.uninstall-type {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--danger);
+  }
+
+  .res-cmd-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s;
+  }
+  .res-cmd-box:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .res-cmd-code {
+    flex: 1;
+    font-family: 'JetBrains Mono', Fira Code, monospace;
+    font-size: 11px;
+    color: #e2e8f0;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  .res-cmd-copy-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 700;
+    transition: all 0.2s;
+    padding: 0;
+  }
+  .res-cmd-copy-btn:hover {
+    background: rgba(124, 58, 237, 0.15);
+    border-color: var(--primary);
+    color: #a78bfa;
+  }
+  .res-cmd-copy-btn.copied {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--success);
+    color: #34d399;
+  }
 `;
 
 const STALE_MS = 90 * 1000;
@@ -1046,24 +1167,29 @@ export default function Resources() {
         </div>
 
         {/* Step 3 — Useful commands */}
-        <div style={{ borderTop: '1px solid var(--border-color)', padding: '20px 24px 4px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--text-muted)', marginBottom: 14 }}>Useful Commands — Run on your server</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div style={{ borderTop: '1px solid var(--border-color)', padding: '24px 24px 8px' }}>
+          <div className="res-cmd-section-title">Useful Commands — Run on your server</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 16 }}>
 
             {/* Check status */}
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>Check Agent Status</div>
+            <div className="res-cmd-card">
+              <div className="res-cmd-card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Check Agent Status</span>
+              </div>
               {[
-                { label: 'Root install', cmd: 'systemctl status uptimeforge-agent' },
-                { label: 'User install', cmd: 'systemctl --user status uptimeforge-agent' },
-                { label: 'Any method', cmd: 'ps aux | grep agent.js | grep -v grep' },
-              ].map(({ label, cmd }) => (
-                <div key={label} style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
-                    <code style={{ flex: 1, fontFamily: 'monospace', fontSize: 11.5, color: 'var(--text-main)', wordBreak: 'break-all' }}>{cmd}</code>
-                    <button onClick={() => copyCmd(cmd, 's-' + label)} style={{ flexShrink: 0, padding: '2px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: cmdCopied === 's-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 's-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 10, fontWeight: 700 }}>
-                      {cmdCopied === 's-' + label ? '✓' : 'Copy'}
+                { label: 'Root install', type: 'root', cmd: 'systemctl status uptimeforge-agent' },
+                { label: 'User install', type: 'user', cmd: 'systemctl --user status uptimeforge-agent' },
+                { label: 'Any method', type: 'any', cmd: 'ps aux | grep agent.js | grep -v grep' },
+              ].map(({ label, type, cmd }) => (
+                <div key={label} className="res-cmd-row">
+                  <span className={`res-cmd-badge ${type}`}>{label}</span>
+                  <div className="res-cmd-box">
+                    <code className="res-cmd-code">{cmd}</code>
+                    <button onClick={() => copyCmd(cmd, 's-' + label)} className={`res-cmd-copy-btn ${cmdCopied === 's-' + label ? 'copied' : ''}`} title="Copy command">
+                      {cmdCopied === 's-' + label ? '✓' : (
+                        <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1071,19 +1197,24 @@ export default function Resources() {
             </div>
 
             {/* Uninstall */}
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>Uninstall Agent</div>
+            <div className="res-cmd-card uninstall">
+              <div className="res-cmd-card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--danger)' }}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                <span>Uninstall Agent</span>
+              </div>
               {[
                 { label: 'Root install (systemd)', cmd: 'systemctl stop uptimeforge-agent && systemctl disable uptimeforge-agent && rm -f /etc/systemd/system/uptimeforge-agent.service && systemctl daemon-reload && rm -rf /opt/uptimeforge-agent' },
                 { label: 'User install (systemd)', cmd: 'systemctl --user stop uptimeforge-agent && systemctl --user disable uptimeforge-agent && rm -f ~/.config/systemd/user/uptimeforge-agent.service && systemctl --user daemon-reload && rm -rf ~/.uptimeforge-agent' },
                 { label: 'Background process', cmd: 'pkill -f "uptimeforge-agent/agent.js" && rm -rf ~/.uptimeforge-agent' },
               ].map(({ label, cmd }) => (
-                <div key={label} style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 10.5, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
-                    <code style={{ flex: 1, fontFamily: 'monospace', fontSize: 11, color: 'var(--text-main)', wordBreak: 'break-all', lineHeight: 1.6 }}>{cmd}</code>
-                    <button onClick={() => copyCmd(cmd, 'd-' + label)} style={{ flexShrink: 0, padding: '2px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: cmdCopied === 'd-' + label ? 'rgba(16,185,129,0.1)' : 'var(--bg-card)', color: cmdCopied === 'd-' + label ? '#10B981' : 'var(--text-muted)', cursor: 'pointer', fontSize: 10, fontWeight: 700, marginTop: 2 }}>
-                      {cmdCopied === 'd-' + label ? '✓' : 'Copy'}
+                <div key={label} className="res-cmd-row">
+                  <span className="res-cmd-badge uninstall-type">{label}</span>
+                  <div className="res-cmd-box">
+                    <code className="res-cmd-code" style={{ fontSize: 10.5 }}>{cmd}</code>
+                    <button onClick={() => copyCmd(cmd, 'd-' + label)} className={`res-cmd-copy-btn ${cmdCopied === 'd-' + label ? 'copied' : ''}`} title="Copy command">
+                      {cmdCopied === 'd-' + label ? '✓' : (
+                        <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      )}
                     </button>
                   </div>
                 </div>
