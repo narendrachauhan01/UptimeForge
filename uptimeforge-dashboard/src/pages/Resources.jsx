@@ -1033,8 +1033,14 @@ export default function Resources() {
           </div>
         </div>
         <div className="term-support-badge">
-          <div style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: 4 }}>Supported Environments &amp; Info:</div>
-          ✓ Ubuntu · Debian · RHEL · CentOS · Arch · Alpine · openSUSE &nbsp;|&nbsp; ✓ Appears in your dashboard in ~30 seconds
+          <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 12px', alignItems: 'start' }}>
+            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
+            <span><strong style={{ color: 'var(--text-main)' }}>Supported Linux distros:</strong> Ubuntu, Debian, RHEL, CentOS, Arch, Alpine, openSUSE</span>
+            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
+            <span>Agent appears in your dashboard within <strong style={{ color: 'var(--text-main)' }}>30 seconds</strong> after running the install command.</span>
+            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
+            <span>Run the command with <strong style={{ color: 'var(--text-main)' }}>sudo</strong> (root) or without it (regular user) — both work.</span>
+          </div>
         </div>
         <div className="term-key-row">
           <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>Your Unique Agent Key:</span>
