@@ -876,6 +876,157 @@ const STYLES = `
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Step labels & inputs redesign */
+  .res-step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .res-step-badge {
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--primary);
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .res-step-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .res-input-container {
+    position: relative;
+    max-width: 320px;
+  }
+  .res-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .term-input-field {
+    width: 100% !important;
+    padding: 10px 14px 10px 38px !important;
+    border-radius: 10px;
+    border: 2px solid var(--border-color) !important;
+    background: var(--bg-input) !important;
+    color: var(--text-main) !important;
+    font-size: 13.5px !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+    outline: none !important;
+    transition: all 0.2s !important;
+  }
+  .term-input-field:focus {
+    border-color: var(--primary) !important;
+    background: var(--bg-card) !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1) !important;
+  }
+  .res-input-help {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* Support list & distro chips */
+  .res-support-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .res-support-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .res-support-check {
+    color: #10B981;
+    font-weight: 800;
+    font-size: 13.5px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .res-distro-chips-wrap {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .res-distro-chip {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* Agent Key Widget */
+  .res-key-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 18px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .res-key-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .res-key-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px 12px;
+    gap: 12px;
+  }
+  .res-key-code {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-main);
+    word-break: break-all;
+    font-weight: 600;
+  }
+  .res-key-copy-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+  }
+  .res-key-copy-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(124, 58, 237, 0.05);
+  }
+
   /* Useful Commands Redesign */
   .res-cmd-section-title {
     font-size: 11px;
@@ -1148,6 +1299,7 @@ export default function Resources() {
     <div className="term-card">
       <div className="term-header">
         <div className="term-header-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)', marginRight: 4 }}><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
           <span>Install Agent on Your Server</span>
         </div>
         {servers.length > 0 && (
@@ -1155,19 +1307,29 @@ export default function Resources() {
         )}
       </div>
       <div className="term-body">
-        <div style={{ marginBottom: 20 }}>
-          <div className="term-label">Step 1 — Name your server (optional)</div>
-          <input
-            className="term-input-field"
-            type="text"
-            placeholder="e.g. prod-web-01"
-            value={serverName}
-            onChange={e => setServerName(e.target.value)}
-          />
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>Leave blank to use hostname</div>
+        <div style={{ marginBottom: 24 }}>
+          <div className="res-step-header">
+            <span className="res-step-badge">Step 1</span>
+            <span className="res-step-title">Name your server (optional)</span>
+          </div>
+          <div className="res-input-container">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="res-input-icon"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            <input
+              className="term-input-field"
+              type="text"
+              placeholder="e.g. prod-web-01"
+              value={serverName}
+              onChange={e => setServerName(e.target.value)}
+            />
+          </div>
+          <div className="res-input-help">Leave blank to use hostname automatically</div>
         </div>
-        <div style={{ marginBottom: 20 }}>
-          <div className="term-label">Step 2 — Run on your Linux server</div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div className="res-step-header">
+            <span className="res-step-badge">Step 2</span>
+            <span className="res-step-title">Run installer on your Linux terminal</span>
+          </div>
           
           {/* macOS Style Terminal */}
           <div className="mac-term-box">
@@ -1190,19 +1352,44 @@ export default function Resources() {
             </div>
           </div>
         </div>
+
         <div className="term-support-badge">
-          <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 12px', alignItems: 'start' }}>
-            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
-            <span><strong style={{ color: 'var(--text-main)' }}>Supported Linux distros:</strong> Ubuntu, Debian, RHEL, CentOS, Arch, Alpine, openSUSE</span>
-            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
-            <span>Agent appears in your dashboard within <strong style={{ color: 'var(--text-main)' }}>30 seconds</strong> after running the install command.</span>
-            <span style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>✓</span>
-            <span>Run the command with <strong style={{ color: 'var(--text-main)' }}>sudo</strong> (root) or without it (regular user) — both work.</span>
+          <div className="res-support-list">
+            <div className="res-support-item">
+              <span className="res-support-check">✓</span>
+              <span>
+                <strong style={{ color: 'var(--text-main)' }}>Supported OS:</strong>
+                <span className="res-distro-chips-wrap">
+                  {['Ubuntu', 'Debian', 'CentOS', 'RHEL', 'Arch', 'Alpine', 'openSUSE'].map(d => (
+                    <span key={d} className="res-distro-chip">{d}</span>
+                  ))}
+                </span>
+              </span>
+            </div>
+            <div className="res-support-item">
+              <span className="res-support-check">✓</span>
+              <span>Automatically syncs and appears in your dashboard in <strong style={{ color: 'var(--text-main)' }}>30 seconds</strong>.</span>
+            </div>
+            <div className="res-support-item">
+              <span className="res-support-check">✓</span>
+              <span>Runs seamlessly with root (<strong style={{ color: 'var(--text-main)' }}>sudo</strong>) or standard user privileges.</span>
+            </div>
           </div>
         </div>
-        <div className="term-key-row">
-          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600 }}>Your Unique Agent Key:</span>
-          <code className="term-key-code">{agentKey || 'Loading unique key...'}</code>
+
+        <div className="res-key-container">
+          <span className="res-key-label">Your Unique Agent Key:</span>
+          <div className="res-key-box">
+            <code className="res-key-code">{agentKey || 'Loading unique key...'}</code>
+            <button className="res-key-copy-btn" onClick={handleCopyKey}>
+              {keyCopied ? '✓ Copied' : (
+                <>
+                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginRight: 3 }}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Step 3 — Useful commands */}
