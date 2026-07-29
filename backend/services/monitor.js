@@ -562,7 +562,7 @@ async function checkExpiry() {
                 if (SSL_MILESTONES.includes(ssl.daysLeft)) {
                     const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     const emoji = ssl.daysLeft <= 7 ? '🚨' : ssl.daysLeft <= 15 ? '⚠️' : '📢';
-                    const waMsg = `${emoji} *SSL Certificate Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Expires:* ${ssl.expiry.toDateString()}\n*Days Left:* ${ssl.daysLeft} days\n\nPlease renew SSL certificate!`;
+                    const waMsg = `${emoji} *SSL Certificate Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Expires:* ${new Date(ssl.expiry).toDateString()}\n*Days Left:* ${ssl.daysLeft} days\n\nPlease renew SSL certificate!`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
                         if (r.email) { await sendEmail(r.email, `[UptimeForge] SSL Expiring: ${server.name} (${ssl.daysLeft} days)`, sslEmailHtml(server.name, server.url, ssl.daysLeft, ssl.expiry)); }
@@ -595,7 +595,7 @@ async function checkExpiry() {
                 if (DOMAIN_MILESTONES.includes(domainDaysLeft)) {
                     const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     const emoji = domainDaysLeft <= 7 ? '🚨' : domainDaysLeft <= 15 ? '⚠️' : '📢';
-                    const msg = `${emoji} *Domain Expiry Alert!*\n\n*Site:* ${server.name}\n*Domain:* ${rootDomain}\n*Expires:* ${domain.expiry.toDateString()}\n*Days Left:* ${domainDaysLeft} days\n\nPlease renew the domain before it expires!`;
+                    const msg = `${emoji} *Domain Expiry Alert!*\n\n*Site:* ${server.name}\n*Domain:* ${rootDomain}\n*Expires:* ${new Date(domain.expiry).toDateString()}\n*Days Left:* ${domainDaysLeft} days\n\nPlease renew the domain before it expires!`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, msg); } catch (_) {} }
                     }
