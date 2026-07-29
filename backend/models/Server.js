@@ -22,6 +22,7 @@ const serverSchema = new mongoose.Schema({
     domainExpiry: { type: Date },
     uptime24h:     { type: Number, default: null }, // percentage, updated by monitor
     downAlertSent: { type: Boolean, default: false },
+    lastIp:        { type: String, default: null },
     userId: { type: require('mongoose').Schema.Types.ObjectId, ref: 'User', default: null },
     // Advanced settings
     timeout:         { type: Number, default: 10 },           // seconds

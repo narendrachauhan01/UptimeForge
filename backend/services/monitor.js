@@ -267,26 +267,58 @@ function statusCodeLabel(code) {
     return code !== 0 ? String(code) : '0 (No Response / Timeout)';
 }
 
-function checkUrl(url, options = {}) {
-    const { timeout = 10, followRedirects = true, httpMethod = 'GET', upCodes = [200, 301, 302] } = options;
+// Resolve a domain's current IP via a fresh DNS query (bypasses Node.js/OS DNS cache)
+function resolveDomainIp(url) {
     return new Promise((resolve) => {
-        const mod = url.startsWith('https') ? https : http;
+        try {
+            const hostname = new URL(url).hostname;
+            // dns.resolve4 always queries the DNS server — not the OS cache
+            dns.resolve4(hostname, (err, addrs) => resolve(!err && addrs?.length ? addrs[0] : null));
+        } catch { resolve(null); }
+    });
+}
+
+function checkUrl(url, options = {}) {
+    const { timeout = 10, followRedirects = true, httpMethod = 'GET', upCodes = [200, 301, 302], resolvedIp } = options;
+    return new Promise((resolve) => {
         const start = Date.now();
         const method = httpMethod.toUpperCase();
 
-        const makeReq = (targetUrl, redirectCount = 0) => {
-            const reqOpts = { method, timeout: timeout * 1000, rejectUnauthorized: false };
-            const req = mod.request(targetUrl, reqOpts, (res) => {
-                // Follow redirects if enabled
+        const makeReq = (targetUrl, redirectCount = 0, useIp = true) => {
+            const isHttps = targetUrl.startsWith('https');
+            const mod = isHttps ? https : http;
+
+            // First request: connect directly to the resolved IP to bypass DNS cache.
+            // Redirects use normal URL-based resolution (different host/CDN anyway).
+            let req;
+            if (resolvedIp && useIp) {
+                const parsed = new URL(targetUrl);
+                const reqOpts = {
+                    method,
+                    timeout: timeout * 1000,
+                    rejectUnauthorized: false,
+                    hostname: resolvedIp,
+                    port:     parsed.port ? Number(parsed.port) : (isHttps ? 443 : 80),
+                    path:     (parsed.pathname || '/') + (parsed.search || ''),
+                    headers:  { Host: parsed.hostname },
+                };
+                if (isHttps) reqOpts.servername = parsed.hostname; // SNI — so cert matches domain not IP
+                req = mod.request(reqOpts, handler);
+            } else {
+                req = mod.request(targetUrl, { method, timeout: timeout * 1000, rejectUnauthorized: false }, handler);
+            }
+
+            function handler(res) {
                 if (followRedirects && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirectCount < 5) {
                     const location = res.headers.location;
                     const nextUrl = location.startsWith('http') ? location : new URL(location, targetUrl).href;
                     res.resume();
-                    return makeReq(nextUrl, redirectCount + 1);
+                    return makeReq(nextUrl, redirectCount + 1, false);
                 }
                 const codes = upCodes.length ? upCodes : [200, 301, 302];
                 resolve({ up: codes.includes(res.statusCode), code: res.statusCode, time: Date.now() - start });
-            });
+            }
+
             req.on('error', (e) => resolve({ up: false, code: 0, error: e.message, time: Date.now() - start }));
             req.on('timeout', () => { req.destroy(); resolve({ up: false, code: 0, error: 'Timeout', time: Date.now() - start }); });
             req.end();
@@ -335,11 +367,17 @@ async function checkOne(server, settings, recipients) {
     }
     serverLocks.add(sid);
 
+    // Fresh DNS resolve — always queries DNS server, bypasses Node.js/OS cache
+    const currentIp = await resolveDomainIp(server.url);
+    const prevIp    = server.lastIp || null;
+    const ipChanged = !!(currentIp && prevIp && currentIp !== prevIp);
+
     const result = await checkUrl(server.url, {
         timeout:         server.timeout         || 10,
         followRedirects: server.followRedirects !== false,
         httpMethod:      server.httpMethod       || 'GET',
         upCodes:         server.upCodes?.length  ? server.upCodes : [200, 301, 302],
+        resolvedIp:      currentIp, // connect to resolved IP directly — no stale cache
     });
 
     const prevStatus   = server.status;
@@ -351,7 +389,7 @@ async function checkOne(server, settings, recipients) {
         const iv   = await getPlanInterval(plan, settings);
         intervalLabel = iv >= 60 ? `${iv/60}m (${plan})` : `${iv}s (${plan})`;
     }
-    console.log(`[Monitor] ${server.name} → HTTP ${result.code || 0} | ${result.up ? 'UP' : 'DOWN'} | ${result.time}ms | ⏱ ${intervalLabel}`);
+    console.log(`[Monitor] ${server.name} → HTTP ${result.code || 0} | ${result.up ? 'UP' : 'DOWN'} | ${result.time}ms | ⏱ ${intervalLabel}${ipChanged ? ` | IP: ${prevIp}→${currentIp}` : ''}`);
 
     const setFields = {
         lastChecked:  new Date(),
@@ -359,6 +397,7 @@ async function checkOne(server, settings, recipients) {
         httpCode:     result.code,
         status:       result.up ? 'up' : 'down',
     };
+    if (currentIp) setFields.lastIp = currentIp;
 
     let alertType = null;
     let alertDetail = null;
@@ -377,7 +416,7 @@ async function checkOne(server, settings, recipients) {
             setFields.lastUpAt      = new Date();
             setFields.downAlertSent = false;
             alertType   = 'recovered';
-            alertDetail = `HTTP ${result.code}`;
+            alertDetail = ipChanged ? `IP changed: ${prevIp} → ${currentIp}` : `HTTP ${result.code}`;
         }
     }
 
@@ -390,7 +429,24 @@ async function checkOne(server, settings, recipients) {
     // 2. Release lock — next tick can check this server again
     serverLocks.delete(sid);
 
-    // 3. Fire alerts & integrations in background (only if plan active)
+    // 3. Log IP change in alert history (info — not a down event)
+    if (ipChanged) {
+        const userId = server.userId?._id || server.userId;
+        Alert.create({
+            server:     server._id,
+            userId,
+            serverName: server.name,
+            serverUrl:  server.url,
+            type:       'ip_changed',
+            message:    `IP changed: ${prevIp} → ${currentIp}`,
+            oldIp:      prevIp,
+            newIp:      currentIp,
+            sentTo:     [],
+        }).catch(() => {});
+        console.log(`[Monitor] ${server.name} → IP CHANGED: ${prevIp} → ${currentIp}`);
+    }
+
+    // 4. Fire alerts & integrations in background (only if plan active)
     const uObj = server.userId;
     const planActive = uObj ? (() => {
         if (uObj.plan === 'free_trial') {
