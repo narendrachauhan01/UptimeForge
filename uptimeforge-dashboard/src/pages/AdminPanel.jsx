@@ -566,7 +566,13 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
     const paidUsers    = users.filter(u => u.plan !== 'free_trial').length;
     const freeTrialUsers = users.filter(u => u.plan === 'free_trial').length;
     const activeUsers  = users.filter(u => u.isActive && !u.isBlocked).length;
-    const liveUsers    = users.filter(u => u.trialVerified && !u.isBlocked);
+    const liveUsers    = users.filter(u => {
+        if (!u.trialVerified || u.isBlocked) return false;
+        const now = new Date();
+        const endDate = u.plan === 'free_trial' ? u.trialEndsAt : u.planEndsAt;
+        if (endDate && new Date(endDate) < now) return false;
+        return true;
+    });
     const expiredUsers = users.filter(u => {
         if (u.isBlocked) return false;
         // Never-verified free trial users belong in Abandoned, not Expired Plans
