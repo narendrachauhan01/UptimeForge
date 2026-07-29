@@ -211,4 +211,34 @@ function pingRecoveredEmailHtml(name, host, time) {
     </div>`;
 }
 
-module.exports = { sendEmail, resetTransporter, downEmailHtml, recoveredEmailHtml, sslEmailHtml, otpEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml };
+function sslExpiredEmailHtml(name, url) {
+    const httpUrl = url.replace(/^https:\/\//i, 'http://');
+    return `
+    <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)">
+      <div style="background:linear-gradient(135deg,#dc2626,#991b1b);padding:28px 32px;text-align:center">
+        <div style="font-size:42px;margin-bottom:8px">🔴</div>
+        <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800">SSL Certificate Expired</h1>
+        <p style="color:#fecdd3;margin:6px 0 0;font-size:14px">Action required immediately</p>
+      </div>
+      <div style="padding:28px 32px">
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="padding:10px 0;color:#94a3b8;font-size:13px;font-weight:600;text-transform:uppercase">Site</td><td style="padding:10px 0;color:#0f172a;font-weight:700;font-size:15px">${name}</td></tr>
+          <tr><td style="padding:10px 0;color:#94a3b8;font-size:13px;font-weight:600;text-transform:uppercase;border-top:1px solid #f1f5f9">URL</td><td style="padding:10px 0;border-top:1px solid #f1f5f9"><a href="${url}" style="color:#7c3aed;font-weight:600">${url}</a></td></tr>
+          <tr><td style="padding:10px 0;color:#94a3b8;font-size:13px;font-weight:600;text-transform:uppercase;border-top:1px solid #f1f5f9">SSL Status</td><td style="padding:10px 0;border-top:1px solid #f1f5f9"><span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:20px;font-weight:700;font-size:12px">EXPIRED ❌</span></td></tr>
+        </table>
+        <div style="margin-top:20px;padding:16px;background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;color:#92400e;font-size:14px;line-height:1.6">
+          <strong>Technical Note:</strong> Your SSL certificate has expired. HTTPS connections will fail with a certificate error.<br/><br/>
+          Your site may still be accessible over plain HTTP:<br/>
+          <a href="${httpUrl}" style="color:#7c3aed;font-weight:700;word-break:break-all">${httpUrl}</a>
+        </div>
+        <div style="margin-top:16px;padding:16px;background:#fff8f8;border:1px solid #fecdd3;border-radius:12px;color:#dc2626;font-size:14px;font-weight:600;text-align:center">
+          🔒 Please renew your SSL certificate immediately to restore secure HTTPS access!
+        </div>
+      </div>
+      <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
+        &copy; 2026 UptimeForge.in &ndash; <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Privacy Policy</a> | <a href="https://servermonitor.narendrasingh.site/terms" style="color:#94a3b8;text-decoration:underline">Terms &amp; Conditions</a>
+      </div>
+    </div>`;
+}
+
+module.exports = { sendEmail, resetTransporter, downEmailHtml, recoveredEmailHtml, sslEmailHtml, sslExpiredEmailHtml, otpEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml };

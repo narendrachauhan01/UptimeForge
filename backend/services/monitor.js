@@ -18,7 +18,7 @@ const Settings = require('../models/Settings');
 const Integration = require('../models/Integration');
 const wa = require('./whatsapp');
 const { checkSSL, checkDomain, extractHostname, extractRootDomain } = require('./expiry');
-const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml } = require('./email');
+const { sendEmail, downEmailHtml, recoveredEmailHtml, sslEmailHtml, sslExpiredEmailHtml, pingDownEmailHtml, pingRecoveredEmailHtml } = require('./email');
 const { notifLog } = require('./notifLogger');
 const { checkApiTarget } = require('./apiAssertions');
 
@@ -569,6 +569,22 @@ async function checkExpiry() {
                     }
                     await fireExpiryIntegrations(server, 'ssl', ssl.daysLeft, ssl.expiry, ssl.issuer);
                     console.log(`[Monitor] SSL expiry alert sent for ${server.name} (${ssl.daysLeft} days left)`);
+                }
+
+                // One-time SSL expired alert (daysLeft <= 0)
+                if (ssl.daysLeft <= 0 && !server.sslExpiredAlertSent) {
+                    const eligible = getEligibleRecipients(recipients, server._id, server.userId);
+                    const httpUrl = server.url.replace(/^https:\/\//i, 'http://');
+                    const waMsg = `🔴 *SSL Certificate Expired!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n\nYour SSL certificate has expired. Browsers will show a security warning for HTTPS.\n\n*Site may still be reachable on HTTP:*\n${httpUrl}\n\nPlease renew your SSL certificate immediately!`;
+                    for (const r of eligible) {
+                        if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
+                        if (r.email) { await sendEmail(r.email, `[UptimeForge] SSL Expired: ${server.name}`, sslExpiredEmailHtml(server.name, server.url)); }
+                    }
+                    await Server.findByIdAndUpdate(server._id, { sslExpiredAlertSent: true });
+                    console.log(`[Monitor] SSL expired alert sent for ${server.name}`);
+                } else if (ssl.daysLeft > 0 && server.sslExpiredAlertSent) {
+                    // SSL renewed — reset flag
+                    await Server.findByIdAndUpdate(server._id, { sslExpiredAlertSent: false });
                 }
             }
 
