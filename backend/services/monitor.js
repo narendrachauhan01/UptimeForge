@@ -267,6 +267,20 @@ function statusCodeLabel(code) {
     return code !== 0 ? String(code) : '0 (No Response / Timeout)';
 }
 
+// Cloudflare anycast IP ranges — these rotate on every DNS query, so skip direct-IP
+// connect and lastIp tracking for CF-proxied sites to avoid false IP-change noise
+function ip2int(ip) { return ip.split('.').reduce((a, o) => (a << 8) + parseInt(o), 0) >>> 0; }
+const CF_RANGES = [
+    ['103.21.244.0','103.21.247.255'], ['103.22.200.0','103.22.203.255'],
+    ['103.31.4.0','103.31.7.255'],     ['104.16.0.0','104.31.255.255'],
+    ['108.162.192.0','108.162.255.255'],['141.101.64.0','141.101.127.255'],
+    ['162.158.0.0','162.159.255.255'], ['172.64.0.0','172.71.255.255'],
+    ['173.245.48.0','173.245.63.255'], ['188.114.96.0','188.114.111.255'],
+    ['190.93.240.0','190.93.255.255'], ['197.234.240.0','197.234.243.255'],
+    ['198.41.128.0','198.41.255.255'], ['131.0.72.0','131.0.75.255'],
+].map(([lo, hi]) => [ip2int(lo), ip2int(hi)]);
+function isCloudflareIp(ip) { try { const n = ip2int(ip); return CF_RANGES.some(([lo, hi]) => n >= lo && n <= hi); } catch { return false; } }
+
 // Resolve a domain's current IP via a fresh DNS query (bypasses Node.js/OS DNS cache)
 function resolveDomainIp(url) {
     return new Promise((resolve) => {
@@ -368,16 +382,19 @@ async function checkOne(server, settings, recipients) {
     serverLocks.add(sid);
 
     // Fresh DNS resolve — always queries DNS server, bypasses Node.js/OS cache
-    const currentIp = await resolveDomainIp(server.url);
-    const prevIp    = server.lastIp || null;
-    const ipChanged = !!(currentIp && prevIp && currentIp !== prevIp);
+    const currentIp   = await resolveDomainIp(server.url);
+    const isCloudflareSite = !!(currentIp && isCloudflareIp(currentIp));
+    // Skip IP tracking for Cloudflare proxied sites — their IPs rotate on every query (anycast)
+    const prevIp    = !isCloudflareSite ? (server.lastIp || null) : null;
+    const ipChanged = !isCloudflareSite && !!(currentIp && prevIp && currentIp !== prevIp);
 
     const result = await checkUrl(server.url, {
         timeout:         server.timeout         || 10,
         followRedirects: server.followRedirects !== false,
         httpMethod:      server.httpMethod       || 'GET',
         upCodes:         server.upCodes?.length  ? server.upCodes : [200, 301, 302],
-        resolvedIp:      currentIp, // connect to resolved IP directly — no stale cache
+        // Use resolved IP for direct connect only on non-Cloudflare sites
+        resolvedIp:      (!isCloudflareSite && currentIp) ? currentIp : null,
     });
 
     const prevStatus   = server.status;
@@ -429,20 +446,8 @@ async function checkOne(server, settings, recipients) {
     // 2. Release lock — next tick can check this server again
     serverLocks.delete(sid);
 
-    // 3. Log IP change in alert history (info — not a down event)
+    // 3. Log IP change to console only — no alert history noise
     if (ipChanged) {
-        const userId = server.userId?._id || server.userId;
-        Alert.create({
-            server:     server._id,
-            userId,
-            serverName: server.name,
-            serverUrl:  server.url,
-            type:       'ip_changed',
-            message:    `IP changed: ${prevIp} → ${currentIp}`,
-            oldIp:      prevIp,
-            newIp:      currentIp,
-            sentTo:     [],
-        }).catch(() => {});
         console.log(`[Monitor] ${server.name} → IP CHANGED: ${prevIp} → ${currentIp}`);
     }
 

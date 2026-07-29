@@ -5,11 +5,9 @@ const alertSchema = new mongoose.Schema({
     userId:     { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     serverName: { type: String },
     serverUrl:  { type: String },
-    type:       { type: String, enum: ['down', 'recovered', 'ip_changed'], required: true },
+    type:       { type: String, enum: ['down', 'recovered'], required: true },
     source:     { type: String, enum: ['monitor', 'ping'], default: 'monitor' },
     message:    { type: String },
-    oldIp:      { type: String },
-    newIp:      { type: String },
     sentTo:     [{ name: String, phone: String, email: String }],
 }, { timestamps: true });
 

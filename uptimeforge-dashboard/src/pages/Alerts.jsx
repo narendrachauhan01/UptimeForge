@@ -237,33 +237,19 @@ export default function Alerts() {
             <>
               <div>
                 {alerts.map(a => {
-                  const isDown      = a.type === 'down';
-                  const isIpChanged = a.type === 'ip_changed';
+                  const isDown = a.type === 'down';
                   return (
                     <div key={a._id} className="incident-row"
-                      style={{ cursor: a.server && a.source !== 'ping' && !isIpChanged ? 'pointer' : 'default' }}
-                      onClick={() => { if (a.server && a.source !== 'ping' && !isIpChanged) navigate(`/incidents/site/${a.server}`); }}
+                      style={{ cursor: a.server && a.source !== 'ping' ? 'pointer' : 'default' }}
+                      onClick={() => { if (a.server && a.source !== 'ping') navigate(`/incidents/site/${a.server}`); }}
                     >
-                      <div className={`status-icon ${isDown ? 'down' : isIpChanged ? 'ip' : 'recovered'}`}
-                        style={isIpChanged ? { background:'rgba(59,130,246,0.15)', color:'#3b82f6', border:'1.5px solid rgba(59,130,246,0.3)' } : {}}>
-                        {isDown ? '↓' : isIpChanged ? '⇄' : '↑'}
-                      </div>
+                      <div className={`status-icon ${isDown ? 'down' : 'recovered'}`}>{isDown ? '↓' : '↑'}</div>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
                           <span className="incident-title">{a.serverName}</span>
-                          {isIpChanged
-                            ? <span className="badge" style={{ background:'rgba(59,130,246,0.15)', color:'#3b82f6', border:'1px solid rgba(59,130,246,0.3)' }}>⇄ IP Changed</span>
-                            : <span className={`badge ${isDown ? 'down' : 'recovered'}`}>{isDown ? '↓ Down' : '↑ Recovered'}</span>
-                          }
+                          <span className={`badge ${isDown ? 'down' : 'recovered'}`}>{isDown ? '↓ Down' : '↑ Recovered'}</span>
                           {a.source === 'ping' && <span className="badge ping">📡 Ping</span>}
                         </div>
-                        {isIpChanged && a.oldIp && a.newIp && (
-                          <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:4, fontFamily:'monospace' }}>
-                            <span style={{ color:'#ef4444' }}>{a.oldIp}</span>
-                            <span style={{ margin:'0 6px', color:'var(--text-muted)' }}>→</span>
-                            <span style={{ color:'#10b981' }}>{a.newIp}</span>
-                          </div>
-                        )}
                         <div className="incident-url" style={{ marginBottom: a.sentTo?.length ? 6 : 0 }}>{a.serverUrl}</div>
                         {a.sentTo?.length > 0 && (
                           <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
