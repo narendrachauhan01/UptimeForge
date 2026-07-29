@@ -1524,8 +1524,8 @@ export default function AdminPanel({ initialTab = 'overview', staffMode = false,
                     <div style={{ ...cardStyle, overflow: 'hidden' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: `1px solid ${T.border}` }}>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 17, color: T.text }}>Live Users</div>
-                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>All users who completed ₹2 verification</div>
+                                <div style={{ fontWeight: 800, fontSize: 17, color: T.text }}>Live Users — Active Plan</div>
+                                <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>Users with active plan who completed ₹2 verification</div>
                             </div>
                             <span style={{ ...pill('#D1FAE5', '#059669'), fontSize: 13 }}>{liveUsers.length} active</span>
                         </div>
