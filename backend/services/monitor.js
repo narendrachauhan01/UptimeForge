@@ -249,6 +249,80 @@ async function fireExpiryIntegrations(server, expiryType, daysLeft, expiryDate, 
     } catch (e) { notifLog('ERROR', 'EXPIRY', server.name, String(userId), `fireExpiryIntegrations error: ${e.message}`); }
 }
 
+async function fireSSLExpiredIntegrations(server) {
+    const userId = server.userId?._id || server.userId;
+    if (!userId) return;
+    try {
+        const integrations = await Integration.find({ userId, active: true });
+        const httpUrl = server.url.replace(/^https:\/\//i, 'http://');
+        const title = `🔴 SSL Certificate EXPIRED: ${server.name}`;
+
+        const rcSlackBody = JSON.stringify({
+            text: '🔔 *UptimeForge Alert*',
+            attachments: [{
+                color: '#dc2626',
+                title,
+                title_link: server.url,
+                fields: [
+                    { title: 'Service',       value: server.name,   short: true  },
+                    { title: 'Status',        value: 'SSL EXPIRED ❌', short: true },
+                    { title: 'HTTPS URL',     value: server.url,    short: false },
+                    { title: 'HTTP Fallback', value: httpUrl,        short: false },
+                ],
+                footer: 'UptimeForge Monitor',
+            }]
+        });
+
+        const discordBody = JSON.stringify({
+            username: 'UptimeForge Alert',
+            embeds: [{
+                color: 0xdc2626,
+                title,
+                url: server.url,
+                fields: [
+                    { name: 'Service',       value: server.name,     inline: true  },
+                    { name: 'Status',        value: 'SSL EXPIRED ❌', inline: true  },
+                    { name: 'HTTPS URL',     value: server.url,      inline: false },
+                    { name: 'HTTP Fallback', value: httpUrl,          inline: false },
+                ],
+                footer: { text: 'UptimeForge Monitor' },
+            }]
+        });
+
+        const tgText = `🔴 *SSL Certificate EXPIRED!*\n\n*Service:* ${server.name}\n*URL:* ${server.url}\n\nSSL certificate has expired. Site may still be reachable on HTTP:\n${httpUrl}\n\nPlease renew your SSL certificate immediately!`;
+
+        const uid = String(userId);
+        for (const intg of integrations) {
+            if (intg.events === 'down') continue;
+            if (intg.servers?.length > 0 && !intg.servers.some(s => s.toString() === server._id.toString())) continue;
+            try {
+                if (['slack','discord','webhook','rocketchat'].includes(intg.type)) {
+                    const url = intg.config?.url;
+                    if (!url) { notifLog('WARN', intg.type.toUpperCase(), server.name, uid, `ssl_expired skipped — no URL`); continue; }
+                    const data = intg.type === 'rocketchat' || intg.type === 'slack'
+                        ? JSON.parse(rcSlackBody)
+                        : intg.type === 'discord'
+                        ? JSON.parse(discordBody)
+                        : { event: 'ssl_expired', site: server.name, url: server.url, httpUrl };
+                    notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `ssl_expired firing`);
+                    axios.post(url, data, { headers: { 'Content-Type': 'application/json' }, timeout: 10000 })
+                        .then(() => notifLog('INFO', intg.type.toUpperCase(), server.name, uid, `ssl_expired OK`))
+                        .catch(e => notifLog('ERROR', intg.type.toUpperCase(), server.name, uid, `ssl_expired FAILED: ${e.response?.status || e.message}`));
+                }
+                if (intg.type === 'telegram') {
+                    const chatId   = intg.config?.chatId;
+                    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+                    if (!chatId || !botToken) { notifLog('WARN', 'TELEGRAM', server.name, uid, `ssl_expired skipped — missing chatId or token`); continue; }
+                    notifLog('INFO', 'TELEGRAM', server.name, uid, `ssl_expired firing`);
+                    axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: tgText, parse_mode: 'Markdown' }, { timeout: 10000 })
+                        .then(() => notifLog('INFO', 'TELEGRAM', server.name, uid, `ssl_expired OK`))
+                        .catch(e => notifLog('ERROR', 'TELEGRAM', server.name, uid, `ssl_expired FAILED: ${e.response?.data?.description || e.message}`));
+                }
+            } catch (e) { notifLog('ERROR', intg.type?.toUpperCase() || 'UNKNOWN', server.name, uid, `ssl_expired Exception: ${e.message}`); }
+        }
+    } catch (e) { notifLog('ERROR', 'EXPIRY', server.name, String(server.userId), `fireSSLExpiredIntegrations error: ${e.message}`); }
+}
+
 // Get check interval (seconds) for a given plan from settings
 async function getPlanInterval(plan, settings) {
     if (plan === 'free_trial') return settings.freeTrialInterval || 300;
@@ -580,6 +654,7 @@ async function checkExpiry() {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
                         if (r.email) { await sendEmail(r.email, `[UptimeForge] SSL Expired: ${server.name}`, sslExpiredEmailHtml(server.name, server.url)); }
                     }
+                    await fireSSLExpiredIntegrations(server);
                     await Server.findByIdAndUpdate(server._id, { sslExpiredAlertSent: true });
                     console.log(`[Monitor] SSL expired alert sent for ${server.name}`);
                 } else if (ssl.daysLeft > 0 && server.sslExpiredAlertSent) {
