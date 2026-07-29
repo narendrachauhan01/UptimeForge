@@ -82,6 +82,8 @@ exports.getAlerts = async (req, res) => {
                 { userId: req.userId, source: 'ping' },
             ]};
         }
+        // Only show down/recovered — exclude any legacy ip_changed entries
+        baseFilter.type = { $in: ['down', 'recovered'] };
         // Always last 30 days
         baseFilter.createdAt = { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) };
 
