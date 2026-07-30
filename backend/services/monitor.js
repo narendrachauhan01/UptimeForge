@@ -388,12 +388,12 @@ function checkUrl(url, options = {}) {
                     hostname: resolvedIp,
                     port:     parsed.port ? Number(parsed.port) : (isHttps ? 443 : 80),
                     path:     (parsed.pathname || '/') + (parsed.search || ''),
-                    headers:  { Host: parsed.hostname },
+                    headers:  { Host: parsed.hostname, 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0; +https://uptimeforge.in)' },
                 };
                 if (isHttps) reqOpts.servername = parsed.hostname; // SNI — so cert matches domain not IP
                 req = mod.request(reqOpts, handler);
             } else {
-                req = mod.request(targetUrl, { method, timeout: timeout * 1000, rejectUnauthorized: false }, handler);
+                req = mod.request(targetUrl, { method, timeout: timeout * 1000, rejectUnauthorized: false, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0; +https://uptimeforge.in)' } }, handler);
             }
 
             function handler(res) {
