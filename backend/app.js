@@ -1,9 +1,12 @@
 require('dotenv').config();
 
-const express     = require('express');
-const http        = require('http');
-const cors        = require('cors');
-const cookieParser = require('cookie-parser');
+const express          = require('express');
+const http             = require('http');
+const cors             = require('cors');
+const cookieParser     = require('cookie-parser');
+const helmet           = require('helmet');
+const mongoSanitize    = require('express-mongo-sanitize');
+const rateLimit        = require('express-rate-limit');
 
 const { connectDB } = require('./config/db');
 const wa      = require('./services/whatsapp');
@@ -23,6 +26,12 @@ const allowedOrigins = [
     ] : []),
 ].filter(Boolean);
 
+// Security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // allow static file loads
+    contentSecurityPolicy: false, // CSP handled by frontend
+}));
+
 app.use(cors({
     origin: (origin, cb) => {
         if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
@@ -31,8 +40,21 @@ app.use(cors({
     credentials: true,
 }));
 app.set('trust proxy', 1);
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser());
+
+// Strip $ and . from request bodies — prevents NoSQL injection
+app.use(mongoSanitize());
+
+// Global rate limit — 300 requests per minute per IP
+app.use(rateLimit({
+    windowMs: 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests. Please slow down.' },
+    skip: (req) => req.path.startsWith('/api/agent/'), // agent metrics exempt
+}));
 app.use('/uploads', require('express').static(require('path').join(__dirname, 'uploads')));
 
 app.use('/api/servers',       require('./routes/servers'));
@@ -62,10 +84,18 @@ app.use('/api/telegram',      require('./routes/telegram'));
 app.use('/api/staff',         require('./routes/staff'));
 app.use('/api/reports',       require('./routes/reports'));
 
-// Swagger Docs
+// Swagger Docs — protected by HTTP Basic Auth in production
 const swaggerUi   = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+const swaggerGuard = (req, res, next) => {
+    if (process.env.NODE_ENV !== 'production') return next();
+    const b64 = (req.headers.authorization || '').replace('Basic ', '');
+    const [u, p] = Buffer.from(b64, 'base64').toString().split(':');
+    if (u === process.env.SWAGGER_USER && p === process.env.SWAGGER_PASS) return next();
+    res.set('WWW-Authenticate', 'Basic realm="UptimeForge API Docs"');
+    res.status(401).send('Unauthorized');
+};
+app.use('/api-docs', swaggerGuard, swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customSiteTitle: 'UptimeForge API Docs',
     customCss: '.swagger-ui .topbar { background: #1e1b4b; } .swagger-ui .topbar-wrapper img { display:none; } .swagger-ui .topbar-wrapper::before { content:"UptimeForge API"; color:#a78bfa; font-size:20px; font-weight:800; }',
     swaggerOptions: { persistAuthorization: true },

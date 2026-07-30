@@ -9,6 +9,12 @@ const loginLimiter = rateLimit({
     message: { error: 'Too many login attempts. Try again after 15 minutes.' },
     standardHeaders: true, legacyHeaders: false,
 });
+const otpLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5,
+    message: { error: 'Too many OTP requests. Try again after 1 hour.' },
+    standardHeaders: true, legacyHeaders: false,
+});
 const multer = require('multer');
 const path   = require('path');
 const upload = multer({
@@ -51,7 +57,7 @@ router.get('/config',                ctrl.getConfig);
  *               email: { type: string, example: user@example.com }
  *               name:  { type: string, example: John Doe }
  */
-router.post('/register/send-otp',    ctrl.sendOtp);
+router.post('/register/send-otp',    otpLimiter, ctrl.sendOtp);
 
 /**
  * @swagger
