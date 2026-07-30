@@ -85,7 +85,6 @@ else
 fi
 
 echo "  Server Name : $SERVER_NAME"
-echo "  Install Dir : $INSTALL_DIR"
 echo "  Running as  : $(id -un)"
 echo ""
 
