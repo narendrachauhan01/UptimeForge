@@ -355,6 +355,16 @@ const CF_RANGES = [
 ].map(([lo, hi]) => [ip2int(lo), ip2int(hi)]);
 function isCloudflareIp(ip) { try { const n = ip2int(ip); return CF_RANGES.some(([lo, hi]) => n >= lo && n <= hi); } catch { return false; } }
 
+// Standard browser-like headers sent with every HTTP check — avoids WAF blocks on PHP, Laravel, Python, CMS sites
+const MONITOR_HEADERS = {
+    'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Accept':          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection':      'keep-alive',
+    'Cache-Control':   'no-cache',
+};
+
 // Resolve a domain's current IP via a fresh DNS query (bypasses Node.js/OS DNS cache)
 function resolveDomainIp(url) {
     return new Promise((resolve) => {
@@ -388,12 +398,12 @@ function checkUrl(url, options = {}) {
                     hostname: resolvedIp,
                     port:     parsed.port ? Number(parsed.port) : (isHttps ? 443 : 80),
                     path:     (parsed.pathname || '/') + (parsed.search || ''),
-                    headers:  { Host: parsed.hostname, 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0; +https://uptimeforge.in)' },
+                    headers:  { ...MONITOR_HEADERS, Host: parsed.hostname },
                 };
                 if (isHttps) reqOpts.servername = parsed.hostname; // SNI — so cert matches domain not IP
                 req = mod.request(reqOpts, handler);
             } else {
-                req = mod.request(targetUrl, { method, timeout: timeout * 1000, rejectUnauthorized: false, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UptimeForge/1.0; +https://uptimeforge.in)' } }, handler);
+                req = mod.request(targetUrl, { method, timeout: timeout * 1000, rejectUnauthorized: false, headers: { ...MONITOR_HEADERS } }, handler);
             }
 
             function handler(res) {
