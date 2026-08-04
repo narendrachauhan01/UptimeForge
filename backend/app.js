@@ -43,8 +43,13 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser());
 
-// Strip $ and . from request bodies — prevents NoSQL injection
-app.use(mongoSanitize());
+// Strip $ and . from body/params — prevents NoSQL injection
+// req.query is a getter in newer Express; sanitize it manually to avoid TypeError
+app.use((req, res, next) => {
+    if (req.body)   req.body   = mongoSanitize.sanitize(req.body);
+    if (req.params) req.params = mongoSanitize.sanitize(req.params);
+    next();
+});
 
 // Global rate limit — 300 requests per minute per IP
 app.use(rateLimit({
